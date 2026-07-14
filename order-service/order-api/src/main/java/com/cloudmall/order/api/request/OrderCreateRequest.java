@@ -2,6 +2,7 @@ package com.cloudmall.order.api.request;
 
 import lombok.Data;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 @Data
@@ -20,5 +21,6 @@ public class OrderCreateRequest {
         private Long skuId;
         private Integer quantity;
         private String goodsName;
+        private BigDecimal price;
     }
 }
