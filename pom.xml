@@ -20,6 +20,7 @@
         <module>gateway</module>
         <module>auth-service</module>
         <module>user-service</module>
+        <module>coupon-service</module>
     </modules>
 
     <properties>
@@ -71,6 +72,11 @@
             <dependency>
                 <groupId>com.cloudmall</groupId>
                 <artifactId>user-api</artifactId>
+                <version>1.0-SNAPSHOT</version>
+            </dependency>
+            <dependency>
+                <groupId>com.cloudmall</groupId>
+                <artifactId>coupon-api</artifactId>
                 <version>1.0-SNAPSHOT</version>
             </dependency>
         </dependencies>

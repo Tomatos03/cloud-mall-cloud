@@ -7,13 +7,13 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/user/store")
+@RequestMapping("/stores")
 @RequiredArgsConstructor
 public class StoreController {
 
     private final IStoreService storeService;
 
-    @GetMapping("/by-user")
+    @GetMapping
     public Result<StoreResponse> getByUserId(@RequestParam Long userId) {
         return Result.success(storeService.getByUserId(userId));
     }
