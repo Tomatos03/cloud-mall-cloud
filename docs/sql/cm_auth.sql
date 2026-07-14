@@ -27,7 +27,6 @@ CREATE TABLE cm_auth_user
         unique (username)
 ) comment '用户认证表' engine = InnoDB
                        collate = utf8mb4_unicode_ci;
-
 -- -----------------------------------------------------------
 -- cm_auth_role — 角色表
 -- 对应原表: roles

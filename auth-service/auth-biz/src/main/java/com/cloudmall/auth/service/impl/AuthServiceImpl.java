@@ -30,12 +30,12 @@ public class AuthServiceImpl implements IAuthService {
                         .eq(AuthUserDO::getUsername, request.getUsername())
         );
         if (user == null) {
-            throw new BizException(BizErrorCode.USER_NOT_FOUND);
+            throw new BizException(BizErrorCode.USER_NOT_EXISTS);
         }
         if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
             throw new BizException(BizErrorCode.PASSWORD_ERROR);
         }
-        String token = jwtTokenProvider.createToken(user.getId(), user.getUsername(), request.getUserType());
+        String token = jwtTokenProvider.createToken(user.getId(), user.getUsername(), user.getUserType());
 
         LoginResponse response = new LoginResponse();
         response.setToken(token);
@@ -73,7 +73,7 @@ public class AuthServiceImpl implements IAuthService {
     public UserInfoResponse getUserInfo(Long userId) {
         AuthUserDO user = userMapper.selectById(userId);
         if (user == null) {
-            throw new BizException(BizErrorCode.USER_NOT_FOUND);
+            throw new BizException(BizErrorCode.USER_NOT_EXISTS);
         }
         UserInfoResponse response = new UserInfoResponse();
         response.setUserId(user.getId());
@@ -81,6 +81,7 @@ public class AuthServiceImpl implements IAuthService {
         response.setNickname(user.getNickname());
         response.setAvatar(user.getAvatar());
         response.setUserType(user.getUserType());
+        response.setStoreId(user.getStoreId());
         return response;
     }
 }

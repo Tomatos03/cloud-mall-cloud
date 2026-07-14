@@ -17,6 +17,7 @@ public class AuthUserDO {
     private String phone;
     private String email;
     private String avatar;
+    private Long storeId;
     private String userType;    // NORMAL, ADMIN, MERCHANT
     private Integer status;      // 0=disabled, 1=enabled
     private LocalDateTime createTime;

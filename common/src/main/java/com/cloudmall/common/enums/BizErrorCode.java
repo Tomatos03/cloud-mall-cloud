@@ -21,7 +21,6 @@ public enum BizErrorCode {
     UNKNOWN_ROLE(10001, "未知角色"),
     USER_ALREADY_EXISTS(10002, "用户已经存在"),
     USER_NOT_EXISTS(10003, "用户不存在"),
-    USER_NOT_FOUND(10003, "用户不存在"),
     PASSWORD_NOT_MATCH(10004, "密码不匹配"),
     PASSWORD_ERROR(10010, "密码错误"),
     USER_NOT_AUTHENTICATED(10005, "用户未认证"),
