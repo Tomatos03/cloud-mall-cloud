@@ -22,6 +22,7 @@
         <module>user-service</module>
         <module>coupon-service</module>
         <module>goods-service</module>
+        <module>seckill-service</module>
     </modules>
 
     <properties>
@@ -85,7 +86,12 @@
                 <artifactId>goods-api</artifactId>
                 <version>1.0-SNAPSHOT</version>
             </dependency>
-        </dependencies>
+            <dependency>
+                <groupId>com.cloudmall</groupId>
+                <artifactId>seckill-api</artifactId>
+                <version>1.0-SNAPSHOT</version>
+            </dependency>
+    </dependencies>
     </dependencyManagement>
 
     <dependencies>
