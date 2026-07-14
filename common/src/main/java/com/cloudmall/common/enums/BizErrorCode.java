@@ -219,7 +219,8 @@ public enum BizErrorCode {
     COUPON_CLAIM_FAILED(93009, "领取优惠券失败"),
     COUPON_ALREADY_CLAIMED(93010, "已领取过该优惠券"),
     COUPON_TYPE_INVALID(93011, "无效的优惠券类型"),
-    REFUND_ORDER_FAILED(93012, "退款失败")
+    REFUND_ORDER_FAILED(93012, "退款失败"),
+    COUPON_STOCK_RUN_OUT(93013, "优惠券已被领完")
     ;
 
     final int code;
