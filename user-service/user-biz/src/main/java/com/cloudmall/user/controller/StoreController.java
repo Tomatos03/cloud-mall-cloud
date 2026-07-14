@@ -13,8 +13,8 @@ public class StoreController {
 
     private final IStoreService storeService;
 
-    @GetMapping("/userId/{userId}")
-    public Result<StoreResponse> getByUserId(@PathVariable Long userId) {
+    @GetMapping("/by-user")
+    public Result<StoreResponse> getByUserId(@RequestParam Long userId) {
         return Result.success(storeService.getByUserId(userId));
     }
 

@@ -11,13 +11,13 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/user/address")
+@RequestMapping("/user/addresses")
 @RequiredArgsConstructor
 public class AddressController {
 
     private final IAddressService addressService;
 
-    @GetMapping("/list")
+    @GetMapping
     public Result<List<AddressResponse>> list(@RequestParam Long userId) {
         return Result.success(addressService.listByUserId(userId));
     }
@@ -33,8 +33,10 @@ public class AddressController {
         return Result.success(addressService.create(request, userId));
     }
 
-    @PutMapping
-    public Result<Void> update(@RequestBody @Valid AddressUpdateRequest request) {
+    @PutMapping("/{id}")
+    public Result<Void> update(@PathVariable Long id,
+                               @RequestBody @Valid AddressUpdateRequest request) {
+        request.setId(id);
         addressService.update(request);
         return Result.success(null);
     }

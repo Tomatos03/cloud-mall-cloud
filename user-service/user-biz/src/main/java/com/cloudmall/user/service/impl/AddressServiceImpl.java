@@ -8,6 +8,7 @@ import com.cloudmall.user.api.response.AddressResponse;
 import com.cloudmall.user.entity.AddressDO;
 import com.cloudmall.user.mapper.AddressMapper;
 import com.cloudmall.user.service.IAddressService;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import java.util.List;
@@ -22,7 +23,7 @@ public class AddressServiceImpl implements IAddressService {
     @Override
     public List<AddressResponse> listByUserId(Long userId) {
         List<AddressDO> list = addressMapper.selectList(
-            new com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper<AddressDO>()
+            new LambdaQueryWrapper<AddressDO>()
                 .eq(AddressDO::getUserId, userId)
         );
         return list.stream().map(this::toResponse).collect(Collectors.toList());
@@ -68,6 +69,8 @@ public class AddressServiceImpl implements IAddressService {
 
     @Override
     public void delete(Long id) {
+        AddressDO addr = addressMapper.selectById(id);
+        if (addr == null) throw new BizException(BizErrorCode.DATA_NOT_FOUND);
         addressMapper.deleteById(id);
     }
 

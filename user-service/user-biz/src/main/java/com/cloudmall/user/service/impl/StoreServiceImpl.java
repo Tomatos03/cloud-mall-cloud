@@ -6,6 +6,7 @@ import com.cloudmall.user.api.response.StoreResponse;
 import com.cloudmall.user.entity.StoreDO;
 import com.cloudmall.user.mapper.StoreMapper;
 import com.cloudmall.user.service.IStoreService;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -18,7 +19,7 @@ public class StoreServiceImpl implements IStoreService {
     @Override
     public StoreResponse getByUserId(Long userId) {
         StoreDO store = storeMapper.selectOne(
-            new com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper<StoreDO>()
+            new LambdaQueryWrapper<StoreDO>()
                 .eq(StoreDO::getUserId, userId)
         );
         if (store == null) throw new BizException(BizErrorCode.DATA_NOT_FOUND);
