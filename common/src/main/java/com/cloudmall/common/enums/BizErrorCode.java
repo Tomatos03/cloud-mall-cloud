@@ -15,6 +15,7 @@ public enum BizErrorCode {
     // ==================== 通用错误码 (1xxx) ====================
     INVALID_PARAM(1000, "请求参数无效"),
     INVALID_AUDIT_STATUS(1001, "无效的审核状态"),
+    DATA_NOT_FOUND(1002, "数据不存在"),
 
     // ==================== 用户认证相关错误码 (10xxx) ====================
     USERNAME_OR_PASSWORD_ERROR(10000, "用户名或密码错误"),

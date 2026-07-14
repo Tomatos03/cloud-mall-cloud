@@ -15,7 +15,7 @@ public class AuthGlobalFilter implements GlobalFilter, Ordered {
 
     // 白名单路径（不需要 token）
     private static final Set<String> WHITE_LIST = Set.of(
-            "/auth/login", "/auth/register"
+            "/auth/sessions", "/auth/users"
     );
 
     @Override

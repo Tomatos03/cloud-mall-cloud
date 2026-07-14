@@ -17,18 +17,18 @@ public class AuthController {
 
     private final IAuthService authService;
 
-    @PostMapping("/login")
+    @PostMapping("/sessions")
     public Result<LoginResponse> login(@RequestBody @Valid LoginRequest request) {
         return Result.success(authService.login(request));
     }
 
-    @PostMapping("/register")
+    @PostMapping("/users")
     public Result<Long> register(@RequestBody @Valid RegisterRequest request) {
         return Result.success(authService.register(request));
     }
 
-    @GetMapping("/userinfo")
-    public Result<UserInfoResponse> getUserInfo(@RequestParam Long userId) {
+    @GetMapping("/users/{userId}")
+    public Result<UserInfoResponse> getUserInfo(@PathVariable Long userId) {
         return Result.success(authService.getUserInfo(userId));
     }
 }
