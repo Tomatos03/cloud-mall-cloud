@@ -1,6 +1,5 @@
 package com.cloudmall.gateway.filter;
 
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.cloud.gateway.filter.GatewayFilterChain;
 import org.springframework.cloud.gateway.filter.GlobalFilter;
 import org.springframework.core.Ordered;
@@ -9,14 +8,13 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 
-import java.util.List;
+import java.util.Set;
 
 @Component
-@Slf4j
 public class AuthGlobalFilter implements GlobalFilter, Ordered {
 
     // 白名单路径（不需要 token）
-    private static final List<String> WHITE_LIST = List.of(
+    private static final Set<String> WHITE_LIST = Set.of(
             "/auth/login", "/auth/register"
     );
 
@@ -25,7 +23,7 @@ public class AuthGlobalFilter implements GlobalFilter, Ordered {
         String path = exchange.getRequest().getURI().getPath();
 
         // 白名单放行
-        if (WHITE_LIST.stream().anyMatch(path::endsWith)) {
+        if (WHITE_LIST.contains(path)) {
             return chain.filter(exchange);
         }
 
