@@ -38,6 +38,11 @@ spring:
           filters:
             - StripPrefix=0
 
+        - id: seckill-service
+          uri: lb://seckill-service
+          predicates:
+            - Path=/seckill/**
+
       # 全局跨域配置
       globalcors:
         cors-configurations:
