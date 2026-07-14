@@ -31,6 +31,7 @@ public enum BizErrorCode {
     INVALID_CLIENT_TYPE(10009, "无效的客户端类型"),
 
     // ==================== 商品分类相关错误码 (20xxx) ====================
+    STOCK_NOT_ENOUGH(21000, "库存不足"),
     CATEGORY_BEYOND_MAX_LEVEL(20000, "分类层级超出最大限制"),
     CATEGORY_NOT_EXIST_OR_NO_ENABLE(20013, "分类不存在"),
     GOODS_OR_SHOP_NOT_EXIST(20001, "商品或店铺不存在"),
