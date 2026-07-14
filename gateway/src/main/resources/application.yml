@@ -31,6 +31,13 @@ spring:
           filters:
             - StripPrefix=0
 
+        - id: goods-service
+          uri: lb://goods-service
+          predicates:
+            - Path=/goods/**,/category/**,/banner/**,/comment/**,/favorite/**,/unit/**
+          filters:
+            - StripPrefix=0
+
       # 全局跨域配置
       globalcors:
         cors-configurations:
