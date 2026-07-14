@@ -24,6 +24,7 @@
         <module>goods-service</module>
         <module>seckill-service</module>
         <module>order-service</module>
+        <module>im-service</module>
     </modules>
 
     <properties>
