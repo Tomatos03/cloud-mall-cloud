@@ -23,6 +23,7 @@ CREATE TABLE cm_auth_user
     bio        varchar(255)                                         null comment '个人简介',
     avatar_url varchar(500)                                         null comment '用户头像URL',
     types      set ('NORMAL', 'ADMIN', 'MERCHANT') default 'NORMAL' null comment '用户类型',
+    `store_id` bigint                                             null comment '关联店铺ID',
     constraint uk_username
         unique (username)
 ) comment '用户认证表' engine = InnoDB
