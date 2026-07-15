@@ -1,8 +1,8 @@
 package com.cloudmall.order.controller;
 
 import com.cloudmall.common.entity.Result;
-import com.cloudmall.order.api.request.OrderCreateRequest;
-import com.cloudmall.order.api.response.OrderResponse;
+import com.cloudmall.order.api.request.CreateReq;
+import com.cloudmall.order.api.response.OrderResp;
 import com.cloudmall.order.service.IOrderService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -23,17 +23,17 @@ public class OrderController {
     private final IOrderService orderService;
 
     @PostMapping
-    public Result<OrderResponse> create(@RequestBody OrderCreateRequest request) {
+    public Result<OrderResp> create(@RequestBody CreateReq request) {
         return Result.success(orderService.createOrder(request));
     }
 
     @GetMapping("/{id}")
-    public Result<OrderResponse> getById(@PathVariable Long id) {
+    public Result<OrderResp> getById(@PathVariable Long id) {
         return Result.success(orderService.getById(id));
     }
 
     @GetMapping("/list")
-    public Result<List<OrderResponse>> listByUser(@RequestParam Long userId,
+    public Result<List<OrderResp>> listByUser(@RequestParam Long userId,
                                                    @RequestParam(defaultValue = "1") Integer page,
                                                    @RequestParam(defaultValue = "20") Integer size) {
         return Result.success(orderService.listByUser(userId, page, size));

@@ -1,6 +1,6 @@
 package com.cloudmall.seckill.service;
 
-import com.cloudmall.seckill.api.response.SeckillActivityResponse;
+import com.cloudmall.seckill.api.response.ActivityResp;
 import com.cloudmall.seckill.entity.SeckillActivityDO;
 
 import java.math.BigDecimal;
@@ -8,7 +8,7 @@ import java.math.BigDecimal;
 public interface ISeckillService {
     // Activity CRUD
     Long createActivity(SeckillActivityDO activity);
-    SeckillActivityResponse getActivity(Long id);
+    ActivityResp getActivity(Long id);
     // Goods submit for seckill
     void submitGoods(Long activityId, Long goodsId, BigDecimal seckillPrice, Integer stock);
     // Audit

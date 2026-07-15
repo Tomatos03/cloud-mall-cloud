@@ -1,21 +1,16 @@
-package com.cloudmall.user.api.request;
+package com.cloudmall.user.api.response;
 
-import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
 
 @Data
-public class AddressCreateRequest {
-    @NotBlank
+public class AddressResp {
+    private Long id;
+    private Long userId;
     private String consignee;
-    @NotBlank
     private String phone;
-    @NotBlank
     private String province;
-    @NotBlank
     private String city;
-    @NotBlank
     private String district;
-    @NotBlank
     private String detail;
     private String zipCode;
     private Boolean isDefault;

@@ -1,18 +1,18 @@
 package com.cloudmall.coupon.service;
 
-import com.cloudmall.coupon.api.request.CouponClaimRequest;
-import com.cloudmall.coupon.api.response.CouponResponse;
+import com.cloudmall.coupon.api.request.ClaimReq;
+import com.cloudmall.coupon.api.response.CouponResp;
 
 import java.util.List;
 
 public interface ICouponService {
-    List<CouponResponse> listAvailable();
+    List<CouponResp> listAvailable();
 
-    CouponResponse getById(Long id);
+    CouponResp getById(Long id);
 
-    Boolean claim(CouponClaimRequest request);
+    Boolean claim(ClaimReq request);
 
-    CouponResponse verifyCoupon(Long couponId, Long userId);
+    CouponResp verifyCoupon(Long couponId, Long userId);
 
     void markUsed(Long id);
 }

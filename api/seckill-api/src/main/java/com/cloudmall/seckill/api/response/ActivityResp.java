@@ -5,7 +5,7 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Data
-public class SeckillActivityResponse {
+public class ActivityResp {
     private Long id;
     private String name;
     private LocalDateTime startTime;

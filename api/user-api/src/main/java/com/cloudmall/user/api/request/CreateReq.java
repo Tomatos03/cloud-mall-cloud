@@ -4,8 +4,7 @@ import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
 
 @Data
-public class AddressUpdateRequest {
-    private Long id;
+public class CreateReq {
     @NotBlank
     private String consignee;
     @NotBlank

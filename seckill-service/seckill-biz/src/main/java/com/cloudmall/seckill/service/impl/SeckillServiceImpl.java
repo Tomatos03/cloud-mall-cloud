@@ -3,7 +3,7 @@ package com.cloudmall.seckill.service.impl;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.cloudmall.common.enums.BizErrorCode;
 import com.cloudmall.common.exception.BizException;
-import com.cloudmall.seckill.api.response.SeckillActivityResponse;
+import com.cloudmall.seckill.api.response.ActivityResp;
 import com.cloudmall.seckill.entity.SeckillActivityDO;
 import com.cloudmall.seckill.entity.SeckillGoodsDO;
 import com.cloudmall.seckill.mapper.SeckillActivityMapper;
@@ -29,12 +29,12 @@ public class SeckillServiceImpl implements ISeckillService {
     }
 
     @Override
-    public SeckillActivityResponse getActivity(Long id) {
+    public ActivityResp getActivity(Long id) {
         SeckillActivityDO act = activityMapper.selectById(id);
         if (act == null) {
             throw new BizException(BizErrorCode.DATA_NOT_FOUND);
         }
-        SeckillActivityResponse r = new SeckillActivityResponse();
+        ActivityResp r = new ActivityResp();
         r.setId(act.getId());
         r.setName(act.getName());
         r.setStartTime(act.getStartTime());

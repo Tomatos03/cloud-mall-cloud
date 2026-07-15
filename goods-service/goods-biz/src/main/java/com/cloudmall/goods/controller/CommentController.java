@@ -1,7 +1,7 @@
 package com.cloudmall.goods.controller;
 
 import com.cloudmall.common.entity.Result;
-import com.cloudmall.goods.api.response.CommentResponse;
+import com.cloudmall.goods.api.response.CommentResp;
 import com.cloudmall.goods.service.ICommentService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
@@ -16,7 +16,7 @@ public class CommentController {
     private final ICommentService commentService;
 
     @GetMapping("/list/{goodsId}")
-    public Result<List<CommentResponse>> listByGoodsId(@PathVariable Long goodsId) {
+    public Result<List<CommentResp>> listByGoodsId(@PathVariable Long goodsId) {
         return Result.success(commentService.listByGoodsId(goodsId));
     }
 

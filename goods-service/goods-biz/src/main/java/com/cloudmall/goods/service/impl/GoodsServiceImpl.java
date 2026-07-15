@@ -4,8 +4,8 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.cloudmall.common.enums.BizErrorCode;
 import com.cloudmall.common.exception.BizException;
-import com.cloudmall.goods.api.request.GoodsSearchRequest;
-import com.cloudmall.goods.api.response.GoodsResponse;
+import com.cloudmall.goods.api.request.SearchReq;
+import com.cloudmall.goods.api.response.GoodsResp;
 import com.cloudmall.goods.entity.GoodsDO;
 import com.cloudmall.goods.entity.GoodsSkuDO;
 import com.cloudmall.goods.mapper.GoodsMapper;
@@ -26,7 +26,7 @@ public class GoodsServiceImpl implements IGoodsService {
     private final GoodsSkuMapper goodsSkuMapper;
 
     @Override
-    public GoodsResponse getById(Long id) {
+    public GoodsResp getById(Long id) {
         GoodsDO goods = goodsMapper.selectById(id);
         if (goods == null) {
             throw new BizException(BizErrorCode.DATA_NOT_FOUND);
@@ -35,7 +35,7 @@ public class GoodsServiceImpl implements IGoodsService {
     }
 
     @Override
-    public List<GoodsResponse> listByCategory(Long categoryId, int page, int size) {
+    public List<GoodsResp> listByCategory(Long categoryId, int page, int size) {
         List<GoodsDO> list = goodsMapper.selectPage(
                 new Page<>(page, size),
                 new LambdaQueryWrapper<GoodsDO>()
@@ -46,7 +46,7 @@ public class GoodsServiceImpl implements IGoodsService {
     }
 
     @Override
-    public List<GoodsResponse> search(GoodsSearchRequest request) {
+    public List<GoodsResp> search(SearchReq request) {
         LambdaQueryWrapper<GoodsDO> wrapper = new LambdaQueryWrapper<GoodsDO>()
                 .eq(GoodsDO::getStatus, "ON");
         if (request.getCategoryId() != null) {
@@ -99,8 +99,8 @@ public class GoodsServiceImpl implements IGoodsService {
         return true;
     }
 
-    private GoodsResponse toResponse(GoodsDO goods) {
-        GoodsResponse r = new GoodsResponse();
+    private GoodsResp toResponse(GoodsDO goods) {
+        GoodsResp r = new GoodsResp();
         r.setId(goods.getId());
         r.setName(goods.getName());
         r.setImage(goods.getImage());

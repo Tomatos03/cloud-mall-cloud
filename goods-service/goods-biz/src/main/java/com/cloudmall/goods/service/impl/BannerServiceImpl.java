@@ -1,7 +1,7 @@
 package com.cloudmall.goods.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
-import com.cloudmall.goods.api.response.BannerResponse;
+import com.cloudmall.goods.api.response.BannerResp;
 import com.cloudmall.goods.entity.BannerDO;
 import com.cloudmall.goods.mapper.BannerMapper;
 import com.cloudmall.goods.service.IBannerService;
@@ -18,7 +18,7 @@ public class BannerServiceImpl implements IBannerService {
     private final BannerMapper bannerMapper;
 
     @Override
-    public List<BannerResponse> listActive() {
+    public List<BannerResp> listActive() {
         List<BannerDO> list = bannerMapper.selectList(
                 new LambdaQueryWrapper<BannerDO>()
                         .eq(BannerDO::getStatus, 1)
@@ -27,8 +27,8 @@ public class BannerServiceImpl implements IBannerService {
         return list.stream().map(this::toResponse).collect(Collectors.toList());
     }
 
-    private BannerResponse toResponse(BannerDO banner) {
-        BannerResponse r = new BannerResponse();
+    private BannerResp toResponse(BannerDO banner) {
+        BannerResp r = new BannerResp();
         r.setId(banner.getId());
         r.setTitle(banner.getTitle());
         r.setImage(banner.getImage());

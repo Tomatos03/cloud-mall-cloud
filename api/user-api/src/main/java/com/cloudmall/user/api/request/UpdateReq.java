@@ -1,15 +1,12 @@
-package com.cloudmall.user.api.response;
+package com.cloudmall.user.api.request;
 
 import lombok.Data;
 
 @Data
-public class UserResponse {
+public class UpdateReq {
     private Long id;
-    private String username;
     private String nickname;
     private String phone;
     private String email;
     private String avatar;
-    private String userType;
-    private Integer status;
 }

@@ -1,7 +1,7 @@
 package com.cloudmall.goods.controller;
 
 import com.cloudmall.common.entity.Result;
-import com.cloudmall.goods.api.response.BannerResponse;
+import com.cloudmall.goods.api.response.BannerResp;
 import com.cloudmall.goods.service.IBannerService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -18,7 +18,7 @@ public class BannerController {
     private final IBannerService bannerService;
 
     @GetMapping("/list")
-    public Result<List<BannerResponse>> list() {
+    public Result<List<BannerResp>> list() {
         return Result.success(bannerService.listActive());
     }
 }

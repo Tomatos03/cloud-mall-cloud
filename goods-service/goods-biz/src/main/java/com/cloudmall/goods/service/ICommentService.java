@@ -1,10 +1,10 @@
 package com.cloudmall.goods.service;
 
-import com.cloudmall.goods.api.response.CommentResponse;
+import com.cloudmall.goods.api.response.CommentResp;
 
 import java.util.List;
 
 public interface ICommentService {
-    List<CommentResponse> listByGoodsId(Long goodsId);
+    List<CommentResp> listByGoodsId(Long goodsId);
     Long create(Long goodsId, Long userId, String content, Integer rating);
 }

@@ -1,7 +1,7 @@
 package com.cloudmall.seckill.controller;
 
 import com.cloudmall.common.entity.Result;
-import com.cloudmall.seckill.api.response.SeckillActivityResponse;
+import com.cloudmall.seckill.api.response.ActivityResp;
 import com.cloudmall.seckill.entity.SeckillActivityDO;
 import com.cloudmall.seckill.service.ISeckillService;
 import lombok.RequiredArgsConstructor;
@@ -21,7 +21,7 @@ public class SeckillController {
     }
 
     @GetMapping("/activity/{id}")
-    public Result<SeckillActivityResponse> getActivity(@PathVariable Long id) {
+    public Result<ActivityResp> getActivity(@PathVariable Long id) {
         return Result.success(seckillService.getActivity(id));
     }
 

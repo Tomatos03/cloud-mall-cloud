@@ -2,7 +2,7 @@ package com.cloudmall.user.service.impl;
 
 import com.cloudmall.common.enums.BizErrorCode;
 import com.cloudmall.common.exception.BizException;
-import com.cloudmall.user.api.response.StoreResponse;
+import com.cloudmall.user.api.response.StoreResp;
 import com.cloudmall.user.entity.StoreDO;
 import com.cloudmall.user.mapper.StoreMapper;
 import com.cloudmall.user.service.IStoreService;
@@ -17,7 +17,7 @@ public class StoreServiceImpl implements IStoreService {
     private final StoreMapper storeMapper;
 
     @Override
-    public StoreResponse getByUserId(Long userId) {
+    public StoreResp getByUserId(Long userId) {
         StoreDO store = storeMapper.selectOne(
             new LambdaQueryWrapper<StoreDO>()
                 .eq(StoreDO::getUserId, userId)
@@ -27,14 +27,14 @@ public class StoreServiceImpl implements IStoreService {
     }
 
     @Override
-    public StoreResponse getById(Long id) {
+    public StoreResp getById(Long id) {
         StoreDO store = storeMapper.selectById(id);
         if (store == null) throw new BizException(BizErrorCode.DATA_NOT_FOUND);
         return toResponse(store);
     }
 
-    private StoreResponse toResponse(StoreDO store) {
-        StoreResponse r = new StoreResponse();
+    private StoreResp toResponse(StoreDO store) {
+        StoreResp r = new StoreResp();
         r.setId(store.getId());
         r.setUserId(store.getUserId());
         r.setStoreName(store.getStoreName());

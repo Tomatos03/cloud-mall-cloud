@@ -3,7 +3,7 @@ package com.cloudmall.goods.api.request;
 import lombok.Data;
 
 @Data
-public class GoodsSearchRequest {
+public class SearchReq {
     private Long categoryId;
     private String keyword;
     private Integer page = 1;

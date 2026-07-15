@@ -5,7 +5,7 @@ import lombok.Data;
 import java.math.BigDecimal;
 
 @Data
-public class OrderItemResponse {
+public class CartResp {
 
     private Long id;
     private Long goodsId;
@@ -14,5 +14,5 @@ public class OrderItemResponse {
     private String goodsImage;
     private BigDecimal price;
     private Integer quantity;
-    private BigDecimal subtotal;
+    private Boolean selected;
 }

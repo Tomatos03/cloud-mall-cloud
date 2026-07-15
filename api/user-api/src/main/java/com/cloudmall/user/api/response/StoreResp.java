@@ -3,7 +3,7 @@ package com.cloudmall.user.api.response;
 import lombok.Data;
 
 @Data
-public class StoreResponse {
+public class StoreResp {
     private Long id;
     private Long userId;
     private String storeName;

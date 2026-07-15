@@ -4,7 +4,7 @@ import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 
 @Data
-public class CouponClaimRequest {
+public class ClaimReq {
     @NotNull private Long couponId;
     @NotNull private Long userId;
 }

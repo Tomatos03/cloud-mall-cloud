@@ -4,9 +4,9 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.cloudmall.common.enums.BizErrorCode;
 import com.cloudmall.common.exception.BizException;
-import com.cloudmall.order.api.request.OrderCreateRequest;
-import com.cloudmall.order.api.response.OrderItemResponse;
-import com.cloudmall.order.api.response.OrderResponse;
+import com.cloudmall.order.api.request.CreateReq;
+import com.cloudmall.order.api.response.ItemResp;
+import com.cloudmall.order.api.response.OrderResp;
 import com.cloudmall.order.entity.OrderDO;
 import com.cloudmall.order.entity.OrderItemDO;
 import com.cloudmall.order.mapper.OrderItemMapper;
@@ -33,13 +33,13 @@ public class OrderServiceImpl implements IOrderService {
 
     @Override
     @Transactional
-    public OrderResponse createOrder(OrderCreateRequest request) {
+    public OrderResp createOrder(CreateReq request) {
         // 1. Generate order number
         String orderNo = UUID.randomUUID().toString().replace("-", "").substring(0, 20);
 
         // 2. Calculate total
         BigDecimal total = BigDecimal.ZERO;
-        for (OrderCreateRequest.OrderItemRequest item : request.getItems()) {
+        for (CreateReq.OrderItemRequest item : request.getItems()) {
             total = total.add(item.getPrice().multiply(BigDecimal.valueOf(item.getQuantity())));
         }
 
@@ -54,7 +54,7 @@ public class OrderServiceImpl implements IOrderService {
         orderMapper.insert(order);
 
         // 4. Save order items
-        for (OrderCreateRequest.OrderItemRequest item : request.getItems()) {
+        for (CreateReq.OrderItemRequest item : request.getItems()) {
             OrderItemDO oi = new OrderItemDO();
             oi.setOrderId(order.getId());
             oi.setGoodsId(item.getGoodsId());
@@ -71,7 +71,7 @@ public class OrderServiceImpl implements IOrderService {
     }
 
     @Override
-    public OrderResponse getById(Long id) {
+    public OrderResp getById(Long id) {
         OrderDO order = orderMapper.selectById(id);
         if (order == null) {
             throw new BizException(BizErrorCode.DATA_NOT_FOUND);
@@ -80,7 +80,7 @@ public class OrderServiceImpl implements IOrderService {
     }
 
     @Override
-    public List<OrderResponse> listByUser(Long userId, Integer page, Integer size) {
+    public List<OrderResp> listByUser(Long userId, Integer page, Integer size) {
         List<OrderDO> list = orderMapper.selectPage(
                 new Page<>(page != null ? page : 1, size != null ? size : 20),
                 new LambdaQueryWrapper<OrderDO>()
@@ -90,11 +90,11 @@ public class OrderServiceImpl implements IOrderService {
         return list.stream().map(this::toResponse).collect(Collectors.toList());
     }
 
-    private OrderResponse toResponse(OrderDO order) {
+    private OrderResp toResponse(OrderDO order) {
         List<OrderItemDO> items = orderItemMapper.selectList(
                 new LambdaQueryWrapper<OrderItemDO>().eq(OrderItemDO::getOrderId, order.getId())
         );
-        OrderResponse r = new OrderResponse();
+        OrderResp r = new OrderResp();
         r.setId(order.getId());
         r.setOrderNo(order.getOrderNo());
         r.setUserId(order.getUserId());
@@ -106,8 +106,8 @@ public class OrderServiceImpl implements IOrderService {
         return r;
     }
 
-    private OrderItemResponse toItemResponse(OrderItemDO item) {
-        OrderItemResponse r = new OrderItemResponse();
+    private ItemResp toItemResponse(OrderItemDO item) {
+        ItemResp r = new ItemResp();
         r.setId(item.getId());
         r.setGoodsId(item.getGoodsId());
         r.setSkuId(item.getSkuId());

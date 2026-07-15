@@ -6,7 +6,7 @@ import java.math.BigDecimal;
 import java.util.List;
 
 @Data
-public class OrderCreateRequest {
+public class CreateReq {
 
     private Long userId;
     private Long addressId;

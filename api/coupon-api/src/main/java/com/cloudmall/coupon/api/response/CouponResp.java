@@ -6,7 +6,7 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Data
-public class CouponResponse {
+public class CouponResp {
     private Long id;
     private String name;
     private String type;        // FULL_REDUCTION, DISCOUNT, CASH

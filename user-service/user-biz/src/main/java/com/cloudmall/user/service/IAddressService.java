@@ -1,14 +1,14 @@
 package com.cloudmall.user.service;
 
-import com.cloudmall.user.api.request.AddressCreateRequest;
-import com.cloudmall.user.api.request.AddressUpdateRequest;
-import com.cloudmall.user.api.response.AddressResponse;
+import com.cloudmall.user.api.request.CreateReq;
+import com.cloudmall.user.api.request.AddressUpdateReq;
+import com.cloudmall.user.api.response.AddressResp;
 import java.util.List;
 
 public interface IAddressService {
-    List<AddressResponse> listByUserId(Long userId);
-    AddressResponse getById(Long id);
-    Long create(AddressCreateRequest request, Long userId);
-    void update(AddressUpdateRequest request);
+    List<AddressResp> listByUserId(Long userId);
+    AddressResp getById(Long id);
+    Long create(CreateReq request, Long userId);
+    void update(AddressUpdateReq request);
     void delete(Long id);
 }

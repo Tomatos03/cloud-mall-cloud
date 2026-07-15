@@ -2,9 +2,9 @@ package com.cloudmall.user.service.impl;
 
 import com.cloudmall.common.enums.BizErrorCode;
 import com.cloudmall.common.exception.BizException;
-import com.cloudmall.user.api.request.AddressCreateRequest;
-import com.cloudmall.user.api.request.AddressUpdateRequest;
-import com.cloudmall.user.api.response.AddressResponse;
+import com.cloudmall.user.api.request.CreateReq;
+import com.cloudmall.user.api.request.AddressUpdateReq;
+import com.cloudmall.user.api.response.AddressResp;
 import com.cloudmall.user.entity.AddressDO;
 import com.cloudmall.user.mapper.AddressMapper;
 import com.cloudmall.user.service.IAddressService;
@@ -21,7 +21,7 @@ public class AddressServiceImpl implements IAddressService {
     private final AddressMapper addressMapper;
 
     @Override
-    public List<AddressResponse> listByUserId(Long userId) {
+    public List<AddressResp> listByUserId(Long userId) {
         List<AddressDO> list = addressMapper.selectList(
             new LambdaQueryWrapper<AddressDO>()
                 .eq(AddressDO::getUserId, userId)
@@ -30,14 +30,14 @@ public class AddressServiceImpl implements IAddressService {
     }
 
     @Override
-    public AddressResponse getById(Long id) {
+    public AddressResp getById(Long id) {
         AddressDO addr = addressMapper.selectById(id);
         if (addr == null) throw new BizException(BizErrorCode.DATA_NOT_FOUND);
         return toResponse(addr);
     }
 
     @Override
-    public Long create(AddressCreateRequest request, Long userId) {
+    public Long create(CreateReq request, Long userId) {
         AddressDO addr = new AddressDO();
         addr.setUserId(userId);
         addr.setConsignee(request.getConsignee());
@@ -53,7 +53,7 @@ public class AddressServiceImpl implements IAddressService {
     }
 
     @Override
-    public void update(AddressUpdateRequest request) {
+    public void update(AddressUpdateReq request) {
         AddressDO addr = addressMapper.selectById(request.getId());
         if (addr == null) throw new BizException(BizErrorCode.DATA_NOT_FOUND);
         addr.setConsignee(request.getConsignee());
@@ -74,8 +74,8 @@ public class AddressServiceImpl implements IAddressService {
         addressMapper.deleteById(id);
     }
 
-    private AddressResponse toResponse(AddressDO addr) {
-        AddressResponse r = new AddressResponse();
+    private AddressResp toResponse(AddressDO addr) {
+        AddressResp r = new AddressResp();
         r.setId(addr.getId());
         r.setUserId(addr.getUserId());
         r.setConsignee(addr.getConsignee());

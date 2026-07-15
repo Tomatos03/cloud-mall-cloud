@@ -1,16 +1,16 @@
 package com.cloudmall.goods.service;
 
-import com.cloudmall.goods.api.request.GoodsSearchRequest;
-import com.cloudmall.goods.api.response.GoodsResponse;
+import com.cloudmall.goods.api.request.SearchReq;
+import com.cloudmall.goods.api.response.GoodsResp;
 
 import java.util.List;
 
 public interface IGoodsService {
-    GoodsResponse getById(Long id);
+    GoodsResp getById(Long id);
 
-    List<GoodsResponse> listByCategory(Long categoryId, int page, int size);
+    List<GoodsResp> listByCategory(Long categoryId, int page, int size);
 
-    List<GoodsResponse> search(GoodsSearchRequest request);
+    List<GoodsResp> search(SearchReq request);
 
     Boolean deductStock(Long skuId, Integer quantity);
 

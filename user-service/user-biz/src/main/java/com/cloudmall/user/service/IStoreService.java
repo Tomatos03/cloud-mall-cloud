@@ -1,8 +1,8 @@
 package com.cloudmall.user.service;
 
-import com.cloudmall.user.api.response.StoreResponse;
+import com.cloudmall.user.api.response.StoreResp;
 
 public interface IStoreService {
-    StoreResponse getByUserId(Long userId);
-    StoreResponse getById(Long id);
+    StoreResp getByUserId(Long userId);
+    StoreResp getById(Long id);
 }

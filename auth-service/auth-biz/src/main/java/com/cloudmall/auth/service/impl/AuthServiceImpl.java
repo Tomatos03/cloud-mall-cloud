@@ -1,10 +1,10 @@
 package com.cloudmall.auth.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
-import com.cloudmall.auth.api.request.LoginRequest;
-import com.cloudmall.auth.api.response.LoginResponse;
-import com.cloudmall.auth.api.response.UserInfoResponse;
-import com.cloudmall.auth.api.request.RegisterRequest;
+import com.cloudmall.auth.api.request.LoginReq;
+import com.cloudmall.auth.api.response.LoginResp;
+import com.cloudmall.auth.api.response.UserInfoResp;
+import com.cloudmall.auth.api.request.RegisterReq;
 import com.cloudmall.auth.entity.AuthUserDO;
 import com.cloudmall.auth.mapper.AuthUserMapper;
 import com.cloudmall.auth.security.JwtTokenProvider;
@@ -24,7 +24,7 @@ public class AuthServiceImpl implements IAuthService {
     private final PasswordEncoder passwordEncoder;
 
     @Override
-    public LoginResponse login(LoginRequest request) {
+    public LoginResp login(LoginReq request) {
         AuthUserDO user = userMapper.selectOne(
                 new LambdaQueryWrapper<AuthUserDO>()
                         .eq(AuthUserDO::getUsername, request.getUsername())
@@ -37,7 +37,7 @@ public class AuthServiceImpl implements IAuthService {
         }
         String token = jwtTokenProvider.createToken(user.getId(), user.getUsername(), user.getUserType());
 
-        LoginResponse response = new LoginResponse();
+        LoginResp response = new LoginResp();
         response.setToken(token);
         response.setUserId(user.getId());
         response.setUsername(user.getUsername());
@@ -46,7 +46,7 @@ public class AuthServiceImpl implements IAuthService {
     }
 
     @Override
-    public Long register(RegisterRequest request) {
+    public Long register(RegisterReq request) {
         // 检查用户名是否已存在
         Long count = userMapper.selectCount(
                 new LambdaQueryWrapper<AuthUserDO>()
@@ -70,12 +70,12 @@ public class AuthServiceImpl implements IAuthService {
     }
 
     @Override
-    public UserInfoResponse getUserInfo(Long userId) {
+    public UserInfoResp getUserInfo(Long userId) {
         AuthUserDO user = userMapper.selectById(userId);
         if (user == null) {
             throw new BizException(BizErrorCode.USER_NOT_EXISTS);
         }
-        UserInfoResponse response = new UserInfoResponse();
+        UserInfoResp response = new UserInfoResp();
         response.setUserId(user.getId());
         response.setUsername(user.getUsername());
         response.setNickname(user.getNickname());

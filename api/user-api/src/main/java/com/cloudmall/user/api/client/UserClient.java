@@ -1,8 +1,8 @@
 package com.cloudmall.user.api.client;
 
 import com.cloudmall.common.entity.Result;
-import com.cloudmall.user.api.response.AddressResponse;
-import com.cloudmall.user.api.response.UserResponse;
+import com.cloudmall.user.api.response.AddressResp;
+import com.cloudmall.user.api.response.UserResp;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -14,8 +14,8 @@ import java.util.List;
 public interface UserClient {
 
     @GetMapping("/{id}")
-    Result<UserResponse> getUserById(@PathVariable("id") Long id);
+    Result<UserResp> getUserById(@PathVariable("id") Long id);
 
     @GetMapping("/address/list")
-    Result<List<AddressResponse>> listAddresses(@RequestParam("userId") Long userId);
+    Result<List<AddressResp>> listAddresses(@RequestParam("userId") Long userId);
 }

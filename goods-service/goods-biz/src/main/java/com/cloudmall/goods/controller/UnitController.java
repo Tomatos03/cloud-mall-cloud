@@ -1,7 +1,7 @@
 package com.cloudmall.goods.controller;
 
 import com.cloudmall.common.entity.Result;
-import com.cloudmall.goods.api.response.UnitResponse;
+import com.cloudmall.goods.api.response.UnitResp;
 import com.cloudmall.goods.service.IUnitService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -18,7 +18,7 @@ public class UnitController {
     private final IUnitService unitService;
 
     @GetMapping("/list")
-    public Result<List<UnitResponse>> list() {
+    public Result<List<UnitResp>> list() {
         return Result.success(unitService.listAll());
     }
 }

@@ -1,6 +1,6 @@
 package com.cloudmall.order.controller;
 import com.cloudmall.common.entity.Result;
-import com.cloudmall.order.api.response.CartResponse;
+import com.cloudmall.order.api.response.CartResp;
 import com.cloudmall.order.service.ICartService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
@@ -12,7 +12,7 @@ public class CartController {
     private final ICartService cartService;
 
     @GetMapping("/list/{userId}")
-    public Result<List<CartResponse>> list(@PathVariable Long userId) {
+    public Result<List<CartResp>> list(@PathVariable Long userId) {
         return Result.success(cartService.listByUser(userId));
     }
 

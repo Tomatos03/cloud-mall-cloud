@@ -1,7 +1,7 @@
 package com.cloudmall.order.service.impl;
 import com.cloudmall.common.enums.BizErrorCode;
 import com.cloudmall.common.exception.BizException;
-import com.cloudmall.order.api.response.CartResponse;
+import com.cloudmall.order.api.response.CartResp;
 import com.cloudmall.order.entity.CartDO;
 import com.cloudmall.order.mapper.CartMapper;
 import com.cloudmall.order.service.ICartService;
@@ -18,7 +18,7 @@ public class CartServiceImpl implements ICartService {
     private final CartMapper cartMapper;
 
     @Override
-    public List<CartResponse> listByUser(Long userId) {
+    public List<CartResp> listByUser(Long userId) {
         return cartMapper.selectList(
             new LambdaQueryWrapper<CartDO>().eq(CartDO::getUserId, userId)
         ).stream().map(this::toResponse).collect(Collectors.toList());
@@ -67,8 +67,8 @@ public class CartServiceImpl implements ICartService {
         cartMapper.delete(new LambdaQueryWrapper<CartDO>().eq(CartDO::getUserId, userId));
     }
 
-    private CartResponse toResponse(CartDO cart) {
-        CartResponse r = new CartResponse();
+    private CartResp toResponse(CartDO cart) {
+        CartResp r = new CartResp();
         r.setId(cart.getId());
         r.setGoodsId(cart.getGoodsId());
         r.setSkuId(cart.getSkuId());

@@ -5,10 +5,10 @@ import lombok.Data;
 import java.util.List;
 
 @Data
-public class CategoryResponse {
+public class CategoryResp {
     private Long id;
     private String name;
     private Long parentId;
     private Integer sortOrder;
-    private List<CategoryResponse> children;
+    private List<CategoryResp> children;
 }

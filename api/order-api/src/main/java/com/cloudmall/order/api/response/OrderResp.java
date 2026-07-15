@@ -7,7 +7,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 @Data
-public class OrderResponse {
+public class OrderResp {
 
     private Long id;
     private String orderNo;
@@ -16,5 +16,5 @@ public class OrderResponse {
     private String status;
     private String remark;
     private LocalDateTime createTime;
-    private List<OrderItemResponse> items;
+    private List<ItemResp> items;
 }

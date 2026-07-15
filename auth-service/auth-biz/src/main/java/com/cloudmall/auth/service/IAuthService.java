@@ -1,12 +1,12 @@
 package com.cloudmall.auth.service;
 
-import com.cloudmall.auth.api.request.LoginRequest;
-import com.cloudmall.auth.api.response.LoginResponse;
-import com.cloudmall.auth.api.response.UserInfoResponse;
-import com.cloudmall.auth.api.request.RegisterRequest;
+import com.cloudmall.auth.api.request.LoginReq;
+import com.cloudmall.auth.api.response.LoginResp;
+import com.cloudmall.auth.api.response.UserInfoResp;
+import com.cloudmall.auth.api.request.RegisterReq;
 
 public interface IAuthService {
-    LoginResponse login(LoginRequest request);
-    Long register(RegisterRequest request);
-    UserInfoResponse getUserInfo(Long userId);
+    LoginResp login(LoginReq request);
+    Long register(RegisterReq request);
+    UserInfoResp getUserInfo(Long userId);
 }

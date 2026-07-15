@@ -3,8 +3,8 @@ package com.cloudmall.coupon.service.impl;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.cloudmall.common.enums.BizErrorCode;
 import com.cloudmall.common.exception.BizException;
-import com.cloudmall.coupon.api.request.CouponClaimRequest;
-import com.cloudmall.coupon.api.response.CouponResponse;
+import com.cloudmall.coupon.api.request.ClaimReq;
+import com.cloudmall.coupon.api.response.CouponResp;
 import com.cloudmall.coupon.entity.CouponDO;
 import com.cloudmall.coupon.entity.UserCouponDO;
 import com.cloudmall.coupon.mapper.CouponMapper;
@@ -26,7 +26,7 @@ public class CouponServiceImpl implements ICouponService {
     private final UserCouponMapper userCouponMapper;
 
     @Override
-    public List<CouponResponse> listAvailable() {
+    public List<CouponResp> listAvailable() {
         List<CouponDO> list = couponMapper.selectList(
                 new LambdaQueryWrapper<CouponDO>()
                         .eq(CouponDO::getStatus, 1)
@@ -36,7 +36,7 @@ public class CouponServiceImpl implements ICouponService {
     }
 
     @Override
-    public CouponResponse getById(Long id) {
+    public CouponResp getById(Long id) {
         CouponDO coupon = couponMapper.selectById(id);
         if (coupon == null) throw new BizException(BizErrorCode.DATA_NOT_FOUND);
         return toResponse(coupon);
@@ -44,7 +44,7 @@ public class CouponServiceImpl implements ICouponService {
 
     @Override
     @Transactional
-    public Boolean claim(CouponClaimRequest request) {
+    public Boolean claim(ClaimReq request) {
         CouponDO coupon = couponMapper.selectById(request.getCouponId());
         if (coupon == null) throw new BizException(BizErrorCode.DATA_NOT_FOUND);
         if (coupon.getStatus() != 1) throw new BizException(BizErrorCode.COUPON_NOT_AVAILABLE);
@@ -74,7 +74,7 @@ public class CouponServiceImpl implements ICouponService {
     }
 
     @Override
-    public CouponResponse verifyCoupon(Long couponId, Long userId) {
+    public CouponResp verifyCoupon(Long couponId, Long userId) {
         UserCouponDO uc = userCouponMapper.selectOne(
                 new LambdaQueryWrapper<UserCouponDO>()
                         .eq(UserCouponDO::getUserId, userId)
@@ -95,8 +95,8 @@ public class CouponServiceImpl implements ICouponService {
         userCouponMapper.updateById(uc);
     }
 
-    private CouponResponse toResponse(CouponDO coupon) {
-        CouponResponse r = new CouponResponse();
+    private CouponResp toResponse(CouponDO coupon) {
+        CouponResp r = new CouponResp();
         r.setId(coupon.getId());
         r.setName(coupon.getName());
         r.setType(coupon.getType());

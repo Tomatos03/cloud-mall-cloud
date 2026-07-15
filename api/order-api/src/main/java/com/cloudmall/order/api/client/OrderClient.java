@@ -1,7 +1,7 @@
 package com.cloudmall.order.api.client;
 
 import com.cloudmall.common.entity.Result;
-import com.cloudmall.order.api.response.OrderResponse;
+import com.cloudmall.order.api.response.OrderResp;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -13,8 +13,8 @@ import java.util.List;
 public interface OrderClient {
 
     @GetMapping("/{id}")
-    Result<OrderResponse> getById(@PathVariable("id") Long id);
+    Result<OrderResp> getById(@PathVariable("id") Long id);
 
     @GetMapping("/list")
-    Result<List<OrderResponse>> listByUser(@RequestParam("userId") Long userId);
+    Result<List<OrderResp>> listByUser(@RequestParam("userId") Long userId);
 }
