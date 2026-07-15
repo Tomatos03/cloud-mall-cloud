@@ -1,4 +1,4 @@
-package com.cloudmall.api.auth.response;
+package com.cloudmall.auth.api.response;
 
 import lombok.Data;
 

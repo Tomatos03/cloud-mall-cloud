@@ -11,7 +11,6 @@
     <artifactId>user-service</artifactId>
     <packaging>pom</packaging>
     <modules>
-        <module>user-api</module>
         <module>user-biz</module>
     </modules>
 </project>

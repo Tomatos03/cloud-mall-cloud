@@ -1,8 +1,8 @@
 package com.cloudmall.auth.controller;
 
-import com.cloudmall.api.auth.request.LoginRequest;
-import com.cloudmall.api.auth.response.LoginResponse;
-import com.cloudmall.api.auth.response.UserInfoResponse;
+import com.cloudmall.auth.api.request.LoginRequest;
+import com.cloudmall.auth.api.response.LoginResponse;
+import com.cloudmall.auth.api.response.UserInfoResponse;
 import com.cloudmall.auth.api.request.RegisterRequest;
 import com.cloudmall.auth.service.IAuthService;
 import com.cloudmall.common.entity.Result;

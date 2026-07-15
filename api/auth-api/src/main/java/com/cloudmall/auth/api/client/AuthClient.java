@@ -1,8 +1,8 @@
 package com.cloudmall.auth.api.client;
 
-import com.cloudmall.api.auth.request.LoginRequest;
-import com.cloudmall.api.auth.response.LoginResponse;
-import com.cloudmall.api.auth.response.UserInfoResponse;
+import com.cloudmall.auth.api.request.LoginRequest;
+import com.cloudmall.auth.api.response.LoginResponse;
+import com.cloudmall.auth.api.response.UserInfoResponse;
 import com.cloudmall.common.entity.Result;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.GetMapping;

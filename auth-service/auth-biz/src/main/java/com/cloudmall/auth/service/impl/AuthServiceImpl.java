@@ -1,9 +1,9 @@
 package com.cloudmall.auth.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
-import com.cloudmall.api.auth.request.LoginRequest;
-import com.cloudmall.api.auth.response.LoginResponse;
-import com.cloudmall.api.auth.response.UserInfoResponse;
+import com.cloudmall.auth.api.request.LoginRequest;
+import com.cloudmall.auth.api.response.LoginResponse;
+import com.cloudmall.auth.api.response.UserInfoResponse;
 import com.cloudmall.auth.api.request.RegisterRequest;
 import com.cloudmall.auth.entity.AuthUserDO;
 import com.cloudmall.auth.mapper.AuthUserMapper;

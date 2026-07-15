@@ -1,4 +1,4 @@
-package com.cloudmall.api.auth.request;
+package com.cloudmall.auth.api.request;
 
 import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
