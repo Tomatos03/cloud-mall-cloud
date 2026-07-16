@@ -3,7 +3,6 @@ package com.cloudmall.auth.service.impl;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.cloudmall.auth.api.request.LoginReq;
 import com.cloudmall.auth.api.response.LoginResp;
-import com.cloudmall.auth.api.response.UserInfoResp;
 import com.cloudmall.auth.api.request.RegisterReq;
 import com.cloudmall.auth.entity.AuthUserDO;
 import com.cloudmall.auth.mapper.AuthUserMapper;
@@ -47,7 +46,6 @@ public class AuthServiceImpl implements IAuthService {
 
     @Override
     public Long register(RegisterReq request) {
-        // 检查用户名是否已存在
         Long count = userMapper.selectCount(
                 new LambdaQueryWrapper<AuthUserDO>()
                         .eq(AuthUserDO::getUsername, request.getUsername())
@@ -67,21 +65,5 @@ public class AuthServiceImpl implements IAuthService {
 
         userMapper.insert(user);
         return user.getId();
-    }
-
-    @Override
-    public UserInfoResp getUserInfo(Long userId) {
-        AuthUserDO user = userMapper.selectById(userId);
-        if (user == null) {
-            throw new BizException(BizErrorCode.USER_NOT_EXISTS);
-        }
-        UserInfoResp response = new UserInfoResp();
-        response.setUserId(user.getId());
-        response.setUsername(user.getUsername());
-        response.setNickname(user.getNickname());
-        response.setAvatar(user.getAvatar());
-        response.setUserType(user.getUserType());
-        response.setStoreId(user.getStoreId());
-        return response;
     }
 }
