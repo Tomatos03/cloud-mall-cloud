@@ -9,8 +9,8 @@
         <version>1.0-SNAPSHOT</version>
         <relativePath>../../pom.xml</relativePath>
     </parent>
-    <artifactId>seckill-biz</artifactId>
-    <packaging>jar</packaging>
+    <artifactId>seckill-service</artifactId>
+
     <dependencies>
         <dependency>
             <groupId>com.cloudmall</groupId>

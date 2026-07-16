@@ -18,13 +18,7 @@
         <module>common</module>
         <module>service-api</module>
         <module>gateway</module>
-        <module>auth-service</module>
-        <module>user-service</module>
-        <module>coupon-service</module>
-        <module>goods-service</module>
-        <module>seckill-service</module>
-        <module>order-service</module>
-        <module>im-service</module>
+        <module>services</module>
     </modules>
 
     <properties>

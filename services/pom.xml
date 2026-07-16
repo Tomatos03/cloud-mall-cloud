@@ -7,10 +7,18 @@
         <groupId>com.cloudmall</groupId>
         <artifactId>cloud-mall-cloud</artifactId>
         <version>1.0-SNAPSHOT</version>
+        <relativePath>../pom.xml</relativePath>
     </parent>
-    <artifactId>user-service</artifactId>
+    <artifactId>services</artifactId>
     <packaging>pom</packaging>
+
     <modules>
-        <module>user-biz</module>
+        <module>auth-service</module>
+        <module>user-service</module>
+        <module>coupon-service</module>
+        <module>goods-service</module>
+        <module>seckill-service</module>
+        <module>order-service</module>
+        <module>im-service</module>
     </modules>
 </project>
