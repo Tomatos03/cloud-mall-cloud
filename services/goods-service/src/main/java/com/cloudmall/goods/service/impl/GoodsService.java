@@ -1,9 +1,16 @@
 package com.cloudmall.goods.service.impl;
 
-import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import java.util.List;
+import java.util.stream.Collectors;
+
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import com.cloudmall.common.enums.BizErrorCode;
-import com.cloudmall.common.exception.BizException;
+import com.cloudmall.common.utils.AssertUtils;
 import com.cloudmall.goods.api.request.SearchReq;
 import com.cloudmall.goods.api.response.GoodsResp;
 import com.cloudmall.goods.entity.GoodsDO;
@@ -11,16 +18,10 @@ import com.cloudmall.goods.entity.GoodsSkuDO;
 import com.cloudmall.goods.mapper.GoodsMapper;
 import com.cloudmall.goods.mapper.GoodsSkuMapper;
 import com.cloudmall.goods.service.IGoodsService;
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
-import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
-public class GoodsServiceImpl implements IGoodsService {
+public class GoodsService implements IGoodsService {
 
     private final GoodsMapper goodsMapper;
     private final GoodsSkuMapper goodsSkuMapper;
@@ -28,9 +29,7 @@ public class GoodsServiceImpl implements IGoodsService {
     @Override
     public GoodsResp getById(Long id) {
         GoodsDO goods = goodsMapper.selectById(id);
-        if (goods == null) {
-            throw new BizException(BizErrorCode.DATA_NOT_FOUND);
-        }
+        AssertUtils.notNull(goods, BizErrorCode.DATA_NOT_FOUND);
         return toResponse(goods);
     }
 
@@ -38,7 +37,7 @@ public class GoodsServiceImpl implements IGoodsService {
     public List<GoodsResp> listByCategory(Long categoryId, int page, int size) {
         List<GoodsDO> list = goodsMapper.selectPage(
                 new Page<>(page, size),
-                new LambdaQueryWrapper<GoodsDO>()
+                Wrappers.<GoodsDO>lambdaQuery()
                         .eq(GoodsDO::getCategoryId, categoryId)
                         .eq(GoodsDO::getStatus, "ON")
         ).getRecords();
@@ -47,7 +46,7 @@ public class GoodsServiceImpl implements IGoodsService {
 
     @Override
     public List<GoodsResp> search(SearchReq request) {
-        LambdaQueryWrapper<GoodsDO> wrapper = new LambdaQueryWrapper<GoodsDO>()
+        var wrapper = Wrappers.<GoodsDO>lambdaQuery()
                 .eq(GoodsDO::getStatus, "ON");
         if (request.getCategoryId() != null) {
             wrapper.eq(GoodsDO::getCategoryId, request.getCategoryId());
@@ -76,12 +75,8 @@ public class GoodsServiceImpl implements IGoodsService {
     @Transactional
     public Boolean deductStock(Long skuId, Integer quantity) {
         GoodsSkuDO sku = goodsSkuMapper.selectById(skuId);
-        if (sku == null) {
-            throw new BizException(BizErrorCode.DATA_NOT_FOUND);
-        }
-        if (sku.getStock() < quantity) {
-            throw new BizException(BizErrorCode.STOCK_NOT_ENOUGH);
-        }
+        AssertUtils.notNull(sku, BizErrorCode.DATA_NOT_FOUND);
+        AssertUtils.greaterOrEqual(sku.getStock(), quantity, BizErrorCode.STOCK_NOT_ENOUGH);
         sku.setStock(sku.getStock() - quantity);
         goodsSkuMapper.updateById(sku);
         return true;
@@ -91,25 +86,23 @@ public class GoodsServiceImpl implements IGoodsService {
     @Transactional
     public Boolean rollbackStock(Long skuId, Integer quantity) {
         GoodsSkuDO sku = goodsSkuMapper.selectById(skuId);
-        if (sku == null) {
-            throw new BizException(BizErrorCode.DATA_NOT_FOUND);
-        }
+        AssertUtils.notNull(sku, BizErrorCode.DATA_NOT_FOUND);
         sku.setStock(sku.getStock() + quantity);
         goodsSkuMapper.updateById(sku);
         return true;
     }
 
     private GoodsResp toResponse(GoodsDO goods) {
-        GoodsResp r = new GoodsResp();
-        r.setId(goods.getId());
-        r.setName(goods.getName());
-        r.setImage(goods.getImage());
-        r.setPrice(goods.getPrice());
-        r.setCategoryId(goods.getCategoryId());
-        r.setSalesCount(goods.getSalesCount());
-        r.setStock(goods.getStock());
-        r.setStatus(goods.getStatus());
-        r.setDescription(goods.getDescription());
-        return r;
+        return GoodsResp.builder()
+                .id(goods.getId())
+                .name(goods.getName())
+                .image(goods.getImage())
+                .price(goods.getPrice())
+                .categoryId(goods.getCategoryId())
+                .salesCount(goods.getSalesCount())
+                .stock(goods.getStock())
+                .status(goods.getStatus())
+                .description(goods.getDescription())
+                .build();
     }
 }

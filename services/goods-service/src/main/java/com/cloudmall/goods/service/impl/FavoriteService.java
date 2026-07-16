@@ -1,26 +1,27 @@
 package com.cloudmall.goods.service.impl;
 
-import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
-import com.cloudmall.goods.entity.FavoriteDO;
-import com.cloudmall.goods.mapper.FavoriteMapper;
-import com.cloudmall.goods.service.IFavoriteService;
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
-
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
+
+import com.cloudmall.goods.entity.FavoriteDO;
+import com.cloudmall.goods.mapper.FavoriteMapper;
+import com.cloudmall.goods.service.IFavoriteService;
+
 @Service
 @RequiredArgsConstructor
-public class FavoriteServiceImpl implements IFavoriteService {
+public class FavoriteService implements IFavoriteService {
 
     private final FavoriteMapper favoriteMapper;
 
     @Override
     public boolean toggle(Long userId, Long goodsId) {
         FavoriteDO existing = favoriteMapper.selectOne(
-                new LambdaQueryWrapper<FavoriteDO>()
+                Wrappers.<FavoriteDO>lambdaQuery()
                         .eq(FavoriteDO::getUserId, userId)
                         .eq(FavoriteDO::getGoodsId, goodsId)
         );
@@ -28,10 +29,11 @@ public class FavoriteServiceImpl implements IFavoriteService {
             favoriteMapper.deleteById(existing.getId());
             return false;
         } else {
-            FavoriteDO f = new FavoriteDO();
-            f.setUserId(userId);
-            f.setGoodsId(goodsId);
-            f.setCreateTime(LocalDateTime.now());
+            FavoriteDO f = FavoriteDO.builder()
+                    .userId(userId)
+                    .goodsId(goodsId)
+                    .createTime(LocalDateTime.now())
+                    .build();
             favoriteMapper.insert(f);
             return true;
         }
@@ -40,7 +42,7 @@ public class FavoriteServiceImpl implements IFavoriteService {
     @Override
     public List<Long> listGoodsIds(Long userId) {
         List<FavoriteDO> list = favoriteMapper.selectList(
-                new LambdaQueryWrapper<FavoriteDO>()
+                Wrappers.<FavoriteDO>lambdaQuery()
                         .eq(FavoriteDO::getUserId, userId)
                         .orderByDesc(FavoriteDO::getCreateTime)
         );
@@ -50,7 +52,7 @@ public class FavoriteServiceImpl implements IFavoriteService {
     @Override
     public boolean isFavorited(Long userId, Long goodsId) {
         return favoriteMapper.selectCount(
-                new LambdaQueryWrapper<FavoriteDO>()
+                Wrappers.<FavoriteDO>lambdaQuery()
                         .eq(FavoriteDO::getUserId, userId)
                         .eq(FavoriteDO::getGoodsId, goodsId)
         ) > 0;

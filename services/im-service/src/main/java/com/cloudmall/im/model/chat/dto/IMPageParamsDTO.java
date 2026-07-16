@@ -1,11 +1,13 @@
 package com.cloudmall.im.model.chat.dto;
 
-import com.cloudmall.im.common.entity.PageParamsDTO;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+import lombok.experimental.SuperBuilder;
+
+import com.cloudmall.im.common.entity.PageParamsDTO;
 
 /**
  * 消息历史分页查询参数DTO
@@ -14,6 +16,7 @@ import lombok.NoArgsConstructor;
  * @date : 2026/02/02
  */
 @EqualsAndHashCode(callSuper = true)
+@SuperBuilder
 @Data
 @NoArgsConstructor
 @AllArgsConstructor

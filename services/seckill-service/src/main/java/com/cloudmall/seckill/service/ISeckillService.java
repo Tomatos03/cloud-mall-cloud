@@ -1,9 +1,9 @@
 package com.cloudmall.seckill.service;
 
+import java.math.BigDecimal;
+
 import com.cloudmall.seckill.api.response.ActivityResp;
 import com.cloudmall.seckill.entity.SeckillActivityDO;
-
-import java.math.BigDecimal;
 
 public interface ISeckillService {
     // Activity CRUD

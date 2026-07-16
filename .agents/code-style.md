@@ -4,8 +4,8 @@
 - 类：`PascalCase`
 - 方法/变量：`camelCase`
 - 常量：`UPPER_SNAKE_CASE`
-- Service 接口：`I` 前缀（如 `IAuthService`）
-- Service 实现：去掉 `I`（如 `AuthService`）
+- Service 接口类名符合命名约束`I*Service`，例如`IAuthService`
+- Service 实现类类名必须符合命名约束`*Service`，例如 `AuthService`
 
 ## Import 顺序
 1. JDK
@@ -23,6 +23,12 @@
 ## 集合判空
 - 使用 Hutool：`CollUtil.isEmpty(...)` / `CollUtil.isNotEmpty(...)`
 - 禁止手写 `collection == null || collection.isEmpty()`
+
+## 对象构建
+- 所有实体/DTO/Req/Resp 类必须使用 `@Builder` + `@Data` + `@NoArgsConstructor` + `@AllArgsConstructor`
+- 构建对象优先使用 builder 模式：`Xxx.builder().field1(v1).field2(v2).build()`
+- 禁止 `new Xxx()` 后连续调用 setter 方法
+- 继承关系中的子类不能重复标注 `@Builder`（与父类冲突）
 
 ## MyBatis-Plus 查询风格
 - 构建条件 wrapper 统一使用 `Wrappers.lambdaQuery()`，禁止 `new LambdaQueryWrapper<>()`

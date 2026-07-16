@@ -1,8 +1,8 @@
 package com.cloudmall.goods.service;
 
-import com.cloudmall.goods.api.response.CommentResp;
-
 import java.util.List;
+
+import com.cloudmall.goods.api.response.CommentResp;
 
 public interface ICommentService {
     List<CommentResp> listByGoodsId(Long goodsId);

@@ -1,10 +1,14 @@
 package com.cloudmall.goods.api.client;
 
+import org.springframework.cloud.openfeign.FeignClient;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+
 import com.cloudmall.common.entity.Result;
 import com.cloudmall.goods.api.request.StockReq;
 import com.cloudmall.goods.api.response.GoodsResp;
-import org.springframework.cloud.openfeign.FeignClient;
-import org.springframework.web.bind.annotation.*;
 
 @FeignClient(name = "goods-service", path = "/goods")
 public interface GoodsClient {

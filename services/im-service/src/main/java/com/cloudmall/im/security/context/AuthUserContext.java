@@ -1,8 +1,9 @@
 package com.cloudmall.im.security.context;
 
-import com.cloudmall.im.security.ParsedToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+
+import com.cloudmall.im.security.ParsedToken;
 
 /**
  * 认证用户上下文

@@ -1,7 +1,9 @@
 package com.cloudmall.im.interceptor;
 
-import com.cloudmall.im.security.JwtTokenProvider;
-import com.cloudmall.im.security.ParsedToken;
+import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
+import java.util.Map;
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.server.ServerHttpRequest;
@@ -11,9 +13,8 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.socket.WebSocketHandler;
 import org.springframework.web.socket.server.HandshakeInterceptor;
 
-import java.net.URLDecoder;
-import java.nio.charset.StandardCharsets;
-import java.util.Map;
+import com.cloudmall.im.security.JwtTokenProvider;
+import com.cloudmall.im.security.ParsedToken;
 
 /**
  * WebSocket握手拦截器

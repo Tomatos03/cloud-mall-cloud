@@ -4,6 +4,8 @@ import java.util.Collection;
 import java.util.Objects;
 import java.util.function.Supplier;
 
+import cn.hutool.core.collection.CollUtil;
+
 import com.cloudmall.common.enums.BizErrorCode;
 import com.cloudmall.common.exception.BizException;
 
@@ -126,6 +128,52 @@ public class AssertUtils {
         }
     }
 
+    public static void isZero(long value, BizErrorCode errorCode) {
+        if (value != 0) {
+            throw new BizException(errorCode);
+        }
+    }
+
+    public static void isNotZero(long value, BizErrorCode errorCode) {
+        if (value == 0) {
+            throw new BizException(errorCode);
+        }
+    }
+
+    public static void isPositive(long value, BizErrorCode errorCode) {
+        if (value <= 0) {
+            throw new BizException(errorCode);
+        }
+    }
+
+    public static void greaterThan(long value, long min, BizErrorCode errorCode) {
+        if (value <= min) {
+            throw new BizException(errorCode);
+        }
+    }
+
+    public static void greaterOrEqual(long value, long min, BizErrorCode errorCode) {
+        if (value < min) {
+            throw new BizException(errorCode);
+        }
+    }
+
+    public static void lessThan(long value, long max, BizErrorCode errorCode) {
+        if (value >= max) {
+            throw new BizException(errorCode);
+        }
+    }
+
+    public static void inRange(long value, long min, long max, BizErrorCode errorCode) {
+        if (value < min || value > max) {
+            throw new BizException(errorCode);
+        }
+    }
+
+    public static void notBlank(String str, BizErrorCode errorCode) {
+        assertNotBlank(str, errorCode);
+    }
+
     /**
      * 断言集合不为空且不为空集合，如果为空则抛出业务异常
      *
@@ -134,7 +182,7 @@ public class AssertUtils {
      * @throws BizException 当集合为空或元素为空时抛出
      */
     public static void notEmpty(Collection<?> collection, BizErrorCode errorCode) {
-        if (collection == null || collection.isEmpty()) {
+        if (CollUtil.isEmpty(collection)) {
             throw new BizException(errorCode);
         }
     }

@@ -1,14 +1,23 @@
 package com.cloudmall.goods.controller;
 
+import java.util.List;
+
+import lombok.RequiredArgsConstructor;
+
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+
 import com.cloudmall.common.entity.Result;
 import com.cloudmall.goods.api.request.SearchReq;
 import com.cloudmall.goods.api.request.StockReq;
 import com.cloudmall.goods.api.response.GoodsResp;
 import com.cloudmall.goods.service.IGoodsService;
-import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("/goods")

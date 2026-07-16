@@ -1,18 +1,20 @@
 package com.cloudmall.goods.controller;
 
-import com.cloudmall.common.entity.Result;
-import com.cloudmall.goods.api.response.CategoryResp;
-import com.cloudmall.goods.service.ICategoryService;
+import java.util.List;
+
 import lombok.RequiredArgsConstructor;
+
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.List;
+import com.cloudmall.common.entity.Result;
+import com.cloudmall.goods.api.response.CategoryResp;
+import com.cloudmall.goods.service.ICategoryService;
 
 @RestController
-@RequestMapping("/category")
+@RequestMapping("/categories")
 @RequiredArgsConstructor
 public class CategoryController {
 

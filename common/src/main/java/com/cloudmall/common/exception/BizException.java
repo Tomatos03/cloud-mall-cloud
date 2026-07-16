@@ -1,7 +1,8 @@
 package com.cloudmall.common.exception;
 
-import com.cloudmall.common.enums.BizErrorCode;
 import lombok.Getter;
+
+import com.cloudmall.common.enums.BizErrorCode;
 
 /**
  *

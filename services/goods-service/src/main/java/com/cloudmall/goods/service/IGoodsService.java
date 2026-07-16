@@ -1,9 +1,9 @@
 package com.cloudmall.goods.service;
 
+import java.util.List;
+
 import com.cloudmall.goods.api.request.SearchReq;
 import com.cloudmall.goods.api.response.GoodsResp;
-
-import java.util.List;
 
 public interface IGoodsService {
     GoodsResp getById(Long id);

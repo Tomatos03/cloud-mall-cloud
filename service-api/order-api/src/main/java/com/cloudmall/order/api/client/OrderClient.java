@@ -1,13 +1,14 @@
 package com.cloudmall.order.api.client;
 
-import com.cloudmall.common.entity.Result;
-import com.cloudmall.order.api.response.OrderResp;
+import java.util.List;
+
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
 
-import java.util.List;
+import com.cloudmall.common.entity.Result;
+import com.cloudmall.order.api.response.OrderResp;
 
 @FeignClient(name = "order-service", path = "/order")
 public interface OrderClient {

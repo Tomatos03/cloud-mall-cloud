@@ -1,9 +1,15 @@
 package com.cloudmall.goods.api.response;
 
-import lombok.Data;
-
 import java.time.LocalDateTime;
 
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 @Data
 public class CommentResp {
     private Long id;

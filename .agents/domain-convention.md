@@ -22,6 +22,13 @@
 ## 异常处理
 - 业务异常统一 `BizException(BizErrorCode)`
 - 禁止直接抛出通用 `Exception/RuntimeException`
+- 条件校验优先使用 `AssertUtils` 工具类，禁止手写 `if (x) { throw new BizException(...); }`：
+  - `AssertUtils.notNull(obj, errorCode)` — 替代 `if (obj == null)`
+  - `AssertUtils.isNull(obj, errorCode)` — 替代 `if (obj != null)`
+  - `AssertUtils.isTrue(expr, errorCode)` — 替代 `if (!expr)`
+  - `AssertUtils.isFalse(expr, errorCode)` — 替代 `if (expr)`
+  - `AssertUtils.notEmpty(collection, errorCode)` — 替代 `if (CollUtil.isEmpty(collection))`
+  - 若 `AssertUtils` 缺少所需方法，先扩展工具类再使用
 
 ## 数据库
 - 单库 `cm_mall`

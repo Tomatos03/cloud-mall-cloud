@@ -1,6 +1,7 @@
 package com.cloudmall.im.security.handler;
 
-import com.cloudmall.im.security.filter.ResponseWriteUtil;
+import java.io.IOException;
+
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
@@ -8,7 +9,7 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.stereotype.Component;
 
-import java.io.IOException;
+import com.cloudmall.im.security.filter.ResponseWriteUtil;
 
 /**
  * 未认证处理器

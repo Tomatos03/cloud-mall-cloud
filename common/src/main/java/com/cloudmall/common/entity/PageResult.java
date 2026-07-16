@@ -1,9 +1,9 @@
 package com.cloudmall.common.entity;
 
-import lombok.Data;
-
 import java.util.Collections;
 import java.util.List;
+
+import lombok.Data;
 
 /**
  * 分页结果封装

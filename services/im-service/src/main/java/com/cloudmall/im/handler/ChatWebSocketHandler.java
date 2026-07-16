@@ -1,12 +1,10 @@
 package com.cloudmall.im.handler;
 
+import java.io.IOException;
+import java.time.LocalDateTime;
+import java.util.Map;
+
 import cn.hutool.json.JSONUtil;
-import com.cloudmall.im.model.chat.dto.MessageDTO;
-import com.cloudmall.im.model.chat.entity.ChatMessage;
-import com.cloudmall.im.model.chat.entity.ChatSession;
-import com.cloudmall.im.model.chat.service.IChatMessageService;
-import com.cloudmall.im.model.chat.service.IChatSessionService;
-import com.cloudmall.im.model.chat.vo.MessageVO;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -15,9 +13,12 @@ import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
 import org.springframework.web.socket.handler.TextWebSocketHandler;
 
-import java.io.IOException;
-import java.time.LocalDateTime;
-import java.util.Map;
+import com.cloudmall.im.model.chat.dto.MessageDTO;
+import com.cloudmall.im.model.chat.entity.ChatMessage;
+import com.cloudmall.im.model.chat.entity.ChatSession;
+import com.cloudmall.im.model.chat.service.IChatMessageService;
+import com.cloudmall.im.model.chat.service.IChatSessionService;
+import com.cloudmall.im.model.chat.vo.MessageVO;
 
 /**
  * WebSocket聊天处理器
@@ -67,12 +68,13 @@ public class ChatWebSocketHandler extends TextWebSocketHandler {
         if (targetUserOnline) {
             WebSocketSession userSession = webSocketSessionManager.getSession(receiverId);
             if (userSession != null && userSession.isOpen()) {
-                MessageVO messageVO = new MessageVO();
-                messageVO.setContent(messageDTO.getContent());
-                messageVO.setTime(LocalDateTime.now().toString());
-                messageVO.setType(messageDTO.getType());
-                messageVO.setUserId(senderId);
-                messageVO.setSessionId(sessionId);
+                MessageVO messageVO = MessageVO.builder()
+                        .content(messageDTO.getContent())
+                        .time(LocalDateTime.now().toString())
+                        .type(messageDTO.getType())
+                        .userId(senderId)
+                        .sessionId(sessionId)
+                        .build();
 
                 userSession.sendMessage(new TextMessage(JSONUtil.toJsonStr(messageVO)));
                 log.info("消息已发送给在线用户 {}", receiverId);

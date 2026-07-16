@@ -1,8 +1,16 @@
 package com.cloudmall.coupon.service.impl;
 
-import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.stream.Collectors;
+
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import com.cloudmall.common.enums.BizErrorCode;
-import com.cloudmall.common.exception.BizException;
+import com.cloudmall.common.utils.AssertUtils;
 import com.cloudmall.coupon.api.request.ClaimReq;
 import com.cloudmall.coupon.api.response.CouponResp;
 import com.cloudmall.coupon.entity.CouponDO;
@@ -10,17 +18,10 @@ import com.cloudmall.coupon.entity.UserCouponDO;
 import com.cloudmall.coupon.mapper.CouponMapper;
 import com.cloudmall.coupon.mapper.UserCouponMapper;
 import com.cloudmall.coupon.service.ICouponService;
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
-import java.time.LocalDateTime;
-import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
-public class CouponServiceImpl implements ICouponService {
+public class CouponService implements ICouponService {
 
     private final CouponMapper couponMapper;
     private final UserCouponMapper userCouponMapper;
@@ -28,7 +29,7 @@ public class CouponServiceImpl implements ICouponService {
     @Override
     public List<CouponResp> listAvailable() {
         List<CouponDO> list = couponMapper.selectList(
-                new LambdaQueryWrapper<CouponDO>()
+                Wrappers.<CouponDO>lambdaQuery()
                         .eq(CouponDO::getStatus, 1)
                         .gt(CouponDO::getExpireTime, LocalDateTime.now())
         );
@@ -38,7 +39,7 @@ public class CouponServiceImpl implements ICouponService {
     @Override
     public CouponResp getById(Long id) {
         CouponDO coupon = couponMapper.selectById(id);
-        if (coupon == null) throw new BizException(BizErrorCode.DATA_NOT_FOUND);
+        AssertUtils.notNull(coupon, BizErrorCode.DATA_NOT_FOUND);
         return toResponse(coupon);
     }
 
@@ -46,26 +47,25 @@ public class CouponServiceImpl implements ICouponService {
     @Transactional
     public Boolean claim(ClaimReq request) {
         CouponDO coupon = couponMapper.selectById(request.getCouponId());
-        if (coupon == null) throw new BizException(BizErrorCode.DATA_NOT_FOUND);
-        if (coupon.getStatus() != 1) throw new BizException(BizErrorCode.COUPON_NOT_AVAILABLE);
-        if (coupon.getExpireTime() != null && coupon.getExpireTime().isBefore(LocalDateTime.now()))
-            throw new BizException(BizErrorCode.COUPON_EXPIRED);
-        if (coupon.getTotalCount() != null && coupon.getClaimedCount() >= coupon.getTotalCount())
-            throw new BizException(BizErrorCode.COUPON_STOCK_RUN_OUT);
+        AssertUtils.notNull(coupon, BizErrorCode.DATA_NOT_FOUND);
+        AssertUtils.isTrue(coupon.getStatus() == 1, BizErrorCode.COUPON_NOT_AVAILABLE);
+        AssertUtils.isFalse(coupon.getExpireTime() != null && coupon.getExpireTime().isBefore(LocalDateTime.now()), BizErrorCode.COUPON_EXPIRED);
+        AssertUtils.isFalse(coupon.getTotalCount() != null && coupon.getClaimedCount() >= coupon.getTotalCount(), BizErrorCode.COUPON_STOCK_RUN_OUT);
 
         // Check already claimed
         Long count = userCouponMapper.selectCount(
-                new LambdaQueryWrapper<UserCouponDO>()
+                Wrappers.<UserCouponDO>lambdaQuery()
                         .eq(UserCouponDO::getUserId, request.getUserId())
                         .eq(UserCouponDO::getCouponId, request.getCouponId())
         );
-        if (count > 0) throw new BizException(BizErrorCode.COUPON_ALREADY_CLAIMED);
+        AssertUtils.isZero(count, BizErrorCode.COUPON_ALREADY_CLAIMED);
 
-        UserCouponDO uc = new UserCouponDO();
-        uc.setUserId(request.getUserId());
-        uc.setCouponId(request.getCouponId());
-        uc.setStatus("UNUSED");
-        uc.setClaimedTime(LocalDateTime.now());
+        UserCouponDO uc = UserCouponDO.builder()
+                .userId(request.getUserId())
+                .couponId(request.getCouponId())
+                .status("UNUSED")
+                .claimedTime(LocalDateTime.now())
+                .build();
         userCouponMapper.insert(uc);
 
         coupon.setClaimedCount(coupon.getClaimedCount() == null ? 1 : coupon.getClaimedCount() + 1);
@@ -76,12 +76,12 @@ public class CouponServiceImpl implements ICouponService {
     @Override
     public CouponResp verifyCoupon(Long couponId, Long userId) {
         UserCouponDO uc = userCouponMapper.selectOne(
-                new LambdaQueryWrapper<UserCouponDO>()
+                Wrappers.<UserCouponDO>lambdaQuery()
                         .eq(UserCouponDO::getUserId, userId)
                         .eq(UserCouponDO::getCouponId, couponId)
                         .eq(UserCouponDO::getStatus, "UNUSED")
         );
-        if (uc == null) throw new BizException(BizErrorCode.COUPON_NOT_AVAILABLE);
+        AssertUtils.notNull(uc, BizErrorCode.COUPON_NOT_AVAILABLE);
         return getById(couponId);
     }
 
@@ -89,20 +89,20 @@ public class CouponServiceImpl implements ICouponService {
     @Transactional
     public void markUsed(Long id) {
         UserCouponDO uc = userCouponMapper.selectById(id);
-        if (uc == null) throw new BizException(BizErrorCode.DATA_NOT_FOUND);
+        AssertUtils.notNull(uc, BizErrorCode.DATA_NOT_FOUND);
         uc.setStatus("USED");
         uc.setUsedTime(LocalDateTime.now());
         userCouponMapper.updateById(uc);
     }
 
     private CouponResp toResponse(CouponDO coupon) {
-        CouponResp r = new CouponResp();
-        r.setId(coupon.getId());
-        r.setName(coupon.getName());
-        r.setType(coupon.getType());
-        r.setThreshold(coupon.getThreshold());
-        r.setDiscount(coupon.getDiscount());
-        r.setExpireTime(coupon.getExpireTime());
-        return r;
+        return CouponResp.builder()
+                .id(coupon.getId())
+                .name(coupon.getName())
+                .type(coupon.getType())
+                .threshold(coupon.getThreshold())
+                .discount(coupon.getDiscount())
+                .expireTime(coupon.getExpireTime())
+                .build();
     }
 }

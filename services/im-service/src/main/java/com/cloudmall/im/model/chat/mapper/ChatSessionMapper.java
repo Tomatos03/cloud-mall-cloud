@@ -1,8 +1,9 @@
 package com.cloudmall.im.model.chat.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
-import com.cloudmall.im.model.chat.entity.ChatSession;
 import org.apache.ibatis.annotations.Mapper;
+
+import com.cloudmall.im.model.chat.entity.ChatSession;
 
 /**
  * 会话Mapper接口

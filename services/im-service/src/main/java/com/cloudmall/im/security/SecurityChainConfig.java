@@ -1,8 +1,5 @@
 package com.cloudmall.im.security;
 
-import com.cloudmall.im.security.filter.IMTokenAuthenticationFilter;
-import com.cloudmall.im.security.handler.CustomerAccessDeniedHandler;
-import com.cloudmall.im.security.handler.CustomerAuthenticationEntryPoint;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -15,6 +12,10 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+
+import com.cloudmall.im.security.filter.IMTokenAuthenticationFilter;
+import com.cloudmall.im.security.handler.CustomerAccessDeniedHandler;
+import com.cloudmall.im.security.handler.CustomerAuthenticationEntryPoint;
 
 /**
  * 安全链路配置

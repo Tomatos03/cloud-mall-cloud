@@ -1,28 +1,29 @@
 package com.cloudmall.goods.service.impl;
 
-import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import java.util.List;
+import java.util.stream.Collectors;
+
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
+
 import com.cloudmall.common.enums.BizErrorCode;
-import com.cloudmall.common.exception.BizException;
+import com.cloudmall.common.utils.AssertUtils;
 import com.cloudmall.goods.api.response.CategoryResp;
 import com.cloudmall.goods.entity.CategoryDO;
 import com.cloudmall.goods.mapper.CategoryMapper;
 import com.cloudmall.goods.service.ICategoryService;
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
-
-import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
-public class CategoryServiceImpl implements ICategoryService {
+public class CategoryService implements ICategoryService {
 
     private final CategoryMapper categoryMapper;
 
     @Override
     public List<CategoryResp> listTree() {
         List<CategoryDO> all = categoryMapper.selectList(
-                new LambdaQueryWrapper<CategoryDO>()
+                Wrappers.<CategoryDO>lambdaQuery()
                         .eq(CategoryDO::getStatus, 1)
                         .orderByAsc(CategoryDO::getSortOrder)
         );
@@ -42,18 +43,16 @@ public class CategoryServiceImpl implements ICategoryService {
     @Override
     public CategoryResp getById(Long id) {
         CategoryDO cat = categoryMapper.selectById(id);
-        if (cat == null) {
-            throw new BizException(BizErrorCode.DATA_NOT_FOUND);
-        }
+        AssertUtils.notNull(cat, BizErrorCode.DATA_NOT_FOUND);
         return toResponse(cat);
     }
 
     private CategoryResp toResponse(CategoryDO cat) {
-        CategoryResp r = new CategoryResp();
-        r.setId(cat.getId());
-        r.setName(cat.getName());
-        r.setParentId(cat.getParentId());
-        r.setSortOrder(cat.getSortOrder());
-        return r;
+        return CategoryResp.builder()
+                .id(cat.getId())
+                .name(cat.getName())
+                .parentId(cat.getParentId())
+                .sortOrder(cat.getSortOrder())
+                .build();
     }
 }

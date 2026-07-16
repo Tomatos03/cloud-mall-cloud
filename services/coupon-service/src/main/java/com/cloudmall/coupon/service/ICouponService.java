@@ -1,9 +1,9 @@
 package com.cloudmall.coupon.service;
 
+import java.util.List;
+
 import com.cloudmall.coupon.api.request.ClaimReq;
 import com.cloudmall.coupon.api.response.CouponResp;
-
-import java.util.List;
 
 public interface ICouponService {
     List<CouponResp> listAvailable();

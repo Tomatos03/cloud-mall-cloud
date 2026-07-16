@@ -1,8 +1,8 @@
 package com.cloudmall.im.security.filter;
 
-import com.cloudmall.im.security.JwtTokenProvider;
-import com.cloudmall.im.security.ParsedToken;
-import com.cloudmall.im.security.context.AuthUserContext;
+import java.io.IOException;
+import java.util.Collections;
+
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -13,8 +13,9 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
-import java.io.IOException;
-import java.util.Collections;
+import com.cloudmall.im.security.JwtTokenProvider;
+import com.cloudmall.im.security.ParsedToken;
+import com.cloudmall.im.security.context.AuthUserContext;
 
 /**
  * Token 认证过滤器

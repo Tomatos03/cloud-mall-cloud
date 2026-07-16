@@ -3,6 +3,7 @@ package com.cloudmall.im.common.entity;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.experimental.SuperBuilder;
 
 /**
  * 公共分页查询基类
@@ -10,6 +11,7 @@ import lombok.NoArgsConstructor;
  * @author : Tomatos
  * @date : 2026/1/24
  */
+@SuperBuilder
 @Data
 @NoArgsConstructor
 @AllArgsConstructor

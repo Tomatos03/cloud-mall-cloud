@@ -1,10 +1,16 @@
 package com.cloudmall.order.api.request;
 
-import lombok.Data;
-
 import java.math.BigDecimal;
 import java.util.List;
 
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 @Data
 public class CreateReq {
 
@@ -15,6 +21,9 @@ public class CreateReq {
     private Long seckillId;
     private String remark;
 
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
     @Data
     public static class OrderItemRequest {
         private Long goodsId;

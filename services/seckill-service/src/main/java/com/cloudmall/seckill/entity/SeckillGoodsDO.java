@@ -1,10 +1,16 @@
 package com.cloudmall.seckill.entity;
 
-import com.baomidou.mybatisplus.annotation.TableName;
-import lombok.Data;
-
 import java.math.BigDecimal;
 
+import com.baomidou.mybatisplus.annotation.TableName;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 @Data
 @TableName("cm_seckill_goods")
 public class SeckillGoodsDO {

@@ -1,8 +1,13 @@
 package com.cloudmall.im.model.chat.application;
 
-import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import java.time.LocalDateTime;
+
 import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
+
 import com.cloudmall.common.enums.BizErrorCode;
 import com.cloudmall.common.utils.AssertUtils;
 import com.cloudmall.im.common.entity.PageParamsDTO;
@@ -17,10 +22,6 @@ import com.cloudmall.im.model.store.Store;
 import com.cloudmall.im.model.system.user.IUserService;
 import com.cloudmall.im.model.system.user.entity.User;
 import com.cloudmall.im.security.context.AuthUserContext;
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
-
-import java.time.LocalDateTime;
 
 /**
  * 聊天应用服务实现
@@ -39,7 +40,7 @@ public class ChatAppService implements IChatAppService {
     @Override
     public IPage<ChatSessionVO> pageChatSession(PageParamsDTO paramsDTO) {
         Page<ChatSession> page = new Page<>(paramsDTO.getPage(), paramsDTO.getPageSize());
-        LambdaQueryWrapper<ChatSession> wrapper = new LambdaQueryWrapper<>();
+        var wrapper = Wrappers.<ChatSession>lambdaQuery();
         Long userId = AuthUserContext.getUserId();
         wrapper.eq(ChatSession::getAgentId, userId)
                .or()
