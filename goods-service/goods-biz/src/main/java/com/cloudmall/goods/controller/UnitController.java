@@ -17,7 +17,7 @@ public class UnitController {
 
     private final IUnitService unitService;
 
-    @GetMapping("/list")
+    @GetMapping
     public Result<List<UnitResp>> list() {
         return Result.success(unitService.listAll());
     }

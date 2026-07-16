@@ -2,6 +2,7 @@ package com.cloudmall.goods.controller;
 
 import com.cloudmall.common.entity.Result;
 import com.cloudmall.goods.api.request.SearchReq;
+import com.cloudmall.goods.api.request.StockReq;
 import com.cloudmall.goods.api.response.GoodsResp;
 import com.cloudmall.goods.service.IGoodsService;
 import lombok.RequiredArgsConstructor;
@@ -21,9 +22,9 @@ public class GoodsController {
         return Result.success(goodsService.getById(id));
     }
 
-    @GetMapping("/category/{categoryId}")
+    @GetMapping
     public Result<List<GoodsResp>> listByCategory(
-            @PathVariable Long categoryId,
+            @RequestParam Long categoryId,
             @RequestParam(defaultValue = "1") int page,
             @RequestParam(defaultValue = "20") int size) {
         return Result.success(goodsService.listByCategory(categoryId, page, size));
@@ -34,13 +35,13 @@ public class GoodsController {
         return Result.success(goodsService.search(request));
     }
 
-    @PostMapping("/stock/deduct")
-    public Result<Boolean> deductStock(@RequestParam Long skuId, @RequestParam Integer quantity) {
-        return Result.success(goodsService.deductStock(skuId, quantity));
-    }
-
-    @PostMapping("/stock/rollback")
-    public Result<Boolean> rollbackStock(@RequestParam Long skuId, @RequestParam Integer quantity) {
-        return Result.success(goodsService.rollbackStock(skuId, quantity));
+    @PutMapping("/{skuId}/stock")
+    public Result<Boolean> updateStock(@PathVariable Long skuId, @RequestBody StockReq req) {
+        Integer quantity = req.getQuantity();
+        if (quantity >= 0) {
+            return Result.success(goodsService.rollbackStock(skuId, quantity));
+        } else {
+            return Result.success(goodsService.deductStock(skuId, -quantity));
+        }
     }
 }

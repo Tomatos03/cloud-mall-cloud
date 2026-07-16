@@ -17,7 +17,7 @@ public class BannerController {
 
     private final IBannerService bannerService;
 
-    @GetMapping("/list")
+    @GetMapping
     public Result<List<BannerResp>> list() {
         return Result.success(bannerService.listActive());
     }

@@ -1,6 +1,7 @@
 package com.cloudmall.goods.controller;
 
 import com.cloudmall.common.entity.Result;
+import com.cloudmall.goods.api.request.FavoriteToggleReq;
 import com.cloudmall.goods.service.IFavoriteService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
@@ -14,13 +15,13 @@ public class FavoriteController {
 
     private final IFavoriteService favoriteService;
 
-    @PostMapping("/toggle")
-    public Result<Boolean> toggle(@RequestParam Long userId, @RequestParam Long goodsId) {
-        return Result.success(favoriteService.toggle(userId, goodsId));
+    @PutMapping
+    public Result<Boolean> toggle(@RequestBody FavoriteToggleReq req) {
+        return Result.success(favoriteService.toggle(req.getUserId(), req.getGoodsId()));
     }
 
-    @GetMapping("/list/{userId}")
-    public Result<List<Long>> listGoodsIds(@PathVariable Long userId) {
+    @GetMapping
+    public Result<List<Long>> listGoodsIds(@RequestParam Long userId) {
         return Result.success(favoriteService.listGoodsIds(userId));
     }
 }

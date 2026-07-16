@@ -1,30 +1,35 @@
 package com.cloudmall.order.controller;
+
 import com.cloudmall.common.entity.Result;
+import com.cloudmall.order.api.request.CartAddReq;
 import com.cloudmall.order.api.response.CartResp;
 import com.cloudmall.order.service.ICartService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
-import java.math.BigDecimal;
+
 import java.util.List;
 
-@RestController @RequestMapping("/cart") @RequiredArgsConstructor
+@RestController
+@RequestMapping("/cart")
+@RequiredArgsConstructor
 public class CartController {
+
     private final ICartService cartService;
 
-    @GetMapping("/list/{userId}")
-    public Result<List<CartResp>> list(@PathVariable Long userId) {
+    @GetMapping
+    public Result<List<CartResp>> list(@RequestParam Long userId) {
         return Result.success(cartService.listByUser(userId));
     }
 
-    @PostMapping("/add")
-    public Result<Long> add(@RequestParam Long userId, @RequestParam Long goodsId, @RequestParam Long skuId,
-                             @RequestParam String goodsName, @RequestParam(required = false) String goodsImage,
-                             @RequestParam BigDecimal price, @RequestParam Integer quantity) {
-        return Result.success(cartService.addItem(userId, goodsId, skuId, goodsName, goodsImage, price, quantity));
+    @PostMapping
+    public Result<Long> add(@RequestBody CartAddReq req) {
+        return Result.success(cartService.addItem(
+                req.getUserId(), req.getGoodsId(), req.getSkuId(),
+                req.getGoodsName(), req.getGoodsImage(), req.getPrice(), req.getQuantity()));
     }
 
-    @PutMapping("/quantity")
-    public Result<Void> updateQuantity(@RequestParam Long id, @RequestParam Integer quantity) {
+    @PutMapping("/{id}")
+    public Result<Void> updateQuantity(@PathVariable Long id, @RequestParam Integer quantity) {
         cartService.updateQuantity(id, quantity);
         return Result.success(null);
     }
@@ -35,8 +40,8 @@ public class CartController {
         return Result.success(null);
     }
 
-    @DeleteMapping("/clear/{userId}")
-    public Result<Void> clear(@PathVariable Long userId) {
+    @DeleteMapping
+    public Result<Void> clear(@RequestParam Long userId) {
         cartService.clearByUser(userId);
         return Result.success(null);
     }

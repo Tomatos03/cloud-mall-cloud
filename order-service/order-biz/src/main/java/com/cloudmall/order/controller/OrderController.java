@@ -32,10 +32,10 @@ public class OrderController {
         return Result.success(orderService.getById(id));
     }
 
-    @GetMapping("/list")
+    @GetMapping
     public Result<List<OrderResp>> listByUser(@RequestParam Long userId,
-                                                   @RequestParam(defaultValue = "1") Integer page,
-                                                   @RequestParam(defaultValue = "20") Integer size) {
+                                              @RequestParam(defaultValue = "1") Integer page,
+                                              @RequestParam(defaultValue = "20") Integer size) {
         return Result.success(orderService.listByUser(userId, page, size));
     }
 }
