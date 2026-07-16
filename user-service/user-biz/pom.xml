@@ -14,12 +14,8 @@
     <dependencies>
         <dependency>
             <groupId>com.cloudmall</groupId>
-            <artifactId>user-api</artifactId>
-            <version>1.0-SNAPSHOT</version>
-        </dependency>
-        <dependency>
-            <groupId>com.cloudmall</groupId>
-            <artifactId>auth-api</artifactId>
+            <artifactId>service-api</artifactId>
+            <type>pom</type>
         </dependency>
         <dependency>
             <groupId>com.cloudmall</groupId>

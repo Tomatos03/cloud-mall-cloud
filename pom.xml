@@ -16,12 +16,7 @@
     <packaging>pom</packaging>
     <modules>
         <module>common</module>
-        <module>api/auth-api</module>
-        <module>api/user-api</module>
-        <module>api/coupon-api</module>
-        <module>api/goods-api</module>
-        <module>api/seckill-api</module>
-        <module>api/order-api</module>
+        <module>service-api</module>
         <module>gateway</module>
         <module>auth-service</module>
         <module>user-service</module>
@@ -68,6 +63,12 @@
                 <groupId>com.cloudmall</groupId>
                 <artifactId>common</artifactId>
                 <version>1.0-SNAPSHOT</version>
+            </dependency>
+            <dependency>
+                <groupId>com.cloudmall</groupId>
+                <artifactId>service-api</artifactId>
+                <version>1.0-SNAPSHOT</version>
+                <type>pom</type>
             </dependency>
             <dependency>
                 <groupId>com.cloudmall</groupId>
