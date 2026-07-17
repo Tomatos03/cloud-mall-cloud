@@ -32,8 +32,8 @@
 
 ## 数据库
 - 单库 `cm_mall`
-- 表前缀区分模块：`cm_auth_user`、`cm_address`、`cm_store`、`cm_goods`、`cm_order` 等
-- 所有表包含 `create_time`、`update_time`、`deleted` 公共字段
+- 业务表统一前缀 `cm_`，如 `cm_user`、`cm_role`、`cm_goods`、`cm_order` 等
+- 多数表包含 `create_time`、`update_time`、`deleted` 公共字段（关联表 `cm_user_role` 仅 `create_time`）
 - 软删除：`deleted = 1` 表示已删除
 
 ## 分页

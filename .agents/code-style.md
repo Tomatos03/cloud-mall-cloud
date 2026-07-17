@@ -28,7 +28,6 @@
 - 所有实体/DTO/Req/Resp 类必须使用 `@Builder` + `@Data` + `@NoArgsConstructor` + `@AllArgsConstructor`
 - 构建对象优先使用 builder 模式：`Xxx.builder().field1(v1).field2(v2).build()`
 - 禁止 `new Xxx()` 后连续调用 setter 方法
-- 继承关系中的子类不能重复标注 `@Builder`（与父类冲突）
 
 ## MyBatis-Plus 查询风格
 - 构建条件 wrapper 统一使用 `Wrappers.lambdaQuery()`，禁止 `new LambdaQueryWrapper<>()`
