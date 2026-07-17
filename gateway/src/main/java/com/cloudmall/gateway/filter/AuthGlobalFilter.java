@@ -1,15 +1,13 @@
 package com.cloudmall.gateway.filter;
 
-import java.nio.charset.StandardCharsets;
-
-import javax.crypto.SecretKey;
-
 import com.cloudmall.gateway.config.AuthProperties;
+import com.cloudmall.jwt.JwtTokenTemplate;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import org.springframework.beans.factory.annotation.Value;
+import lombok.RequiredArgsConstructor;
+
 import org.springframework.cloud.gateway.filter.GatewayFilterChain;
 import org.springframework.cloud.gateway.filter.GlobalFilter;
 import org.springframework.core.Ordered;
@@ -20,26 +18,17 @@ import org.springframework.web.server.ServerWebExchange;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwtException;
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.security.Keys;
 import reactor.core.publisher.Mono;
 
 @Component
+@RequiredArgsConstructor
 public class AuthGlobalFilter implements GlobalFilter, Ordered {
 
     private static final String AUTH_USER_HEADER = "X-Auth-User";
 
-    private final SecretKey key;
+    private final JwtTokenTemplate jwtTokenTemplate;
     private final ObjectMapper objectMapper;
     private final AuthProperties authProperties;
-
-    public AuthGlobalFilter(@Value("${jwt.secret:cloud-mall-jwt-secret-key-2026-very-long-secret-key}") String jwtSecret,
-                            ObjectMapper objectMapper,
-                            AuthProperties authProperties) {
-        this.key = Keys.hmacShaKeyFor(jwtSecret.getBytes(StandardCharsets.UTF_8));
-        this.objectMapper = objectMapper;
-        this.authProperties = authProperties;
-    }
 
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
@@ -58,11 +47,7 @@ public class AuthGlobalFilter implements GlobalFilter, Ordered {
         String token = header.substring(7);
 
         try {
-            Claims claims = Jwts.parser()
-                    .verifyWith(key)
-                    .build()
-                    .parseSignedClaims(token)
-                    .getPayload();
+            Claims claims = jwtTokenTemplate.parseSignedClaims(token);
 
             Long userId = claims.get("userId", Long.class);
             String username = claims.get("username", String.class);

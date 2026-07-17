@@ -14,5 +14,6 @@
     <modules>
         <module>cloudmall-common-spring-boot-starter</module>
         <module>cloudmall-mybatis-plus-spring-boot-starter</module>
+        <module>cloudmall-jwt-spring-boot-starter</module>
     </modules>
 </project>

@@ -1,36 +1,28 @@
-package com.cloudmall.auth.security;
+package com.cloudmall.jwt;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Date;
+
 import javax.crypto.SecretKey;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
-import jakarta.annotation.PostConstruct;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Component;
 
-@Component
-public class JwtTokenProvider {
+public class JwtTokenTemplate {
 
-    @Value("${jwt.secret:cloud-mall-jwt-secret-key-2026-very-long-secret-key}")
-    private String jwtSecret;
+    private final SecretKey key;
+    private final long expirationMs;
 
-    @Value("${jwt.expiration:86400000}")
-    private long jwtExpirationMs;
-
-    private SecretKey key;
-
-    @PostConstruct
-    public void init() {
-        key = Keys.hmacShaKeyFor(jwtSecret.getBytes(StandardCharsets.UTF_8));
+    public JwtTokenTemplate(JwtProperties properties) {
+        this.key = Keys.hmacShaKeyFor(properties.getSecret().getBytes(StandardCharsets.UTF_8));
+        this.expirationMs = properties.getExpiration();
     }
 
     public String createToken(Long userId, String username, String userType) {
         Date now = new Date();
-        Date expiry = new Date(now.getTime() + jwtExpirationMs);
+        Date expiry = new Date(now.getTime() + expirationMs);
 
         return Jwts.builder()
                 .claim("userId", userId)
@@ -42,15 +34,6 @@ public class JwtTokenProvider {
                 .compact();
     }
 
-    public Long getUserIdFromToken(String token) {
-        Claims claims = Jwts.parser()
-                .verifyWith(key)
-                .build()
-                .parseSignedClaims(token)
-                .getPayload();
-        return claims.get("userId", Long.class);
-    }
-
     public boolean validateToken(String token) {
         try {
             Jwts.parser().verifyWith(key).build().parseSignedClaims(token);
@@ -58,5 +41,13 @@ public class JwtTokenProvider {
         } catch (JwtException | IllegalArgumentException e) {
             return false;
         }
+    }
+
+    public Claims parseSignedClaims(String token) {
+        return Jwts.parser()
+                .verifyWith(key)
+                .build()
+                .parseSignedClaims(token)
+                .getPayload();
     }
 }

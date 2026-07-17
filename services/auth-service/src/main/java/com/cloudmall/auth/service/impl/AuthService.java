@@ -11,7 +11,7 @@ import com.cloudmall.auth.api.response.LoginResp;
 import com.cloudmall.auth.entity.AuthUserDO;
 import com.cloudmall.auth.convert.AuthConverter;
 import com.cloudmall.auth.mapper.AuthUserMapper;
-import com.cloudmall.auth.security.JwtTokenProvider;
+import com.cloudmall.jwt.JwtTokenTemplate;
 import com.cloudmall.auth.service.IAuthService;
 import com.cloudmall.common.enums.BizErrorCode;
 import com.cloudmall.common.utils.AssertUtils;
@@ -21,7 +21,7 @@ import com.cloudmall.common.utils.AssertUtils;
 public class AuthService implements IAuthService {
 
     private final AuthUserMapper userMapper;
-    private final JwtTokenProvider jwtTokenProvider;
+    private final JwtTokenTemplate jwtTokenTemplate;
     private final PasswordEncoder passwordEncoder;
     private final AuthConverter authConverter;
 
@@ -33,7 +33,7 @@ public class AuthService implements IAuthService {
         );
         AssertUtils.notNull(user, BizErrorCode.USER_NOT_EXISTS);
         AssertUtils.isTrue(passwordEncoder.matches(request.getPassword(), user.getPassword()), BizErrorCode.PASSWORD_ERROR);
-        String token = jwtTokenProvider.createToken(user.getId(), user.getUsername(), user.getUserType());
+        String token = jwtTokenTemplate.createToken(user.getId(), user.getUsername(), user.getUserType());
 
         LoginResp response = authConverter.toLoginResp(user);
         response.setToken(token);
