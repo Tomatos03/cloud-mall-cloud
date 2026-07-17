@@ -31,5 +31,17 @@ services:
       - "8848:8848"
       - "9848:9848"
 
+  nacos-init:
+    container_name: cm-nacos-init
+    image: curlimages/curl:latest
+    depends_on:
+      nacos:
+        condition: service_started
+    volumes:
+      - ../nacos/config:/config:ro
+      - ./sh/sync-nacos-config.sh:/sync.sh:ro
+    entrypoint: ["/bin/sh", "/sync.sh", "nacos"]
+    restart: "no"
+
 volumes:
   mysql-data:
