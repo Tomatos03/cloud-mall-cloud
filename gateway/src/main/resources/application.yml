@@ -1,6 +1,14 @@
 server:
   port: 8080
 
+jwt:
+  secret: cloud-mall-jwt-secret-key-2026-very-long-secret-key
+
+auth:
+  whitelist:
+    - /auth/sessions
+    - /auth/users
+
 spring:
   application:
     name: gateway
