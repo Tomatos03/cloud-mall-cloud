@@ -2,6 +2,9 @@ package com.cloudmall.goods.entity;
 
 import java.time.LocalDateTime;
 
+import com.baomidou.mybatisplus.annotation.FieldFill;
+import com.baomidou.mybatisplus.annotation.TableField;
+import com.baomidou.mybatisplus.annotation.TableLogic;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -20,7 +23,13 @@ public class BannerDO {
     private String linkUrl;
     private Integer sortOrder;
     private Integer status;
+
+    @TableField(fill = FieldFill.INSERT)
     private LocalDateTime createTime;
+
+    @TableField(fill = FieldFill.INSERT_UPDATE)
     private LocalDateTime updateTime;
-    private Integer deleted;
+
+    @TableLogic
+    private Boolean deleted;
 }

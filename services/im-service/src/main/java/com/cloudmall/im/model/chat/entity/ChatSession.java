@@ -6,18 +6,13 @@ import com.baomidou.mybatisplus.annotation.FieldFill;
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
+import com.baomidou.mybatisplus.annotation.TableLogic;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-/**
- * 聊天会话实体
- *
- * @author : Tomatos
- * @date : 2026/02/02
- */
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -27,25 +22,16 @@ public class ChatSession {
     @TableId(type = IdType.AUTO)
     private Long id;
 
-    /**
-     * 买家ID
-     */
     private Long buyerId;
 
-    /**
-     * 店铺ID
-     */
     private Long agentId;
 
-    /**
-     * 创建时间
-     */
     @TableField(fill = FieldFill.INSERT)
     private LocalDateTime createTime;
 
-    /**
-     * 更新时间
-     */
     @TableField(fill = FieldFill.INSERT_UPDATE)
     private LocalDateTime updateTime;
+
+    @TableLogic
+    private Boolean deleted;
 }

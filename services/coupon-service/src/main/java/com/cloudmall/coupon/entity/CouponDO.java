@@ -3,6 +3,9 @@ package com.cloudmall.coupon.entity;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
+import com.baomidou.mybatisplus.annotation.FieldFill;
+import com.baomidou.mybatisplus.annotation.TableField;
+import com.baomidou.mybatisplus.annotation.TableLogic;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -25,7 +28,13 @@ public class CouponDO {
     private Integer status;
     private LocalDateTime startTime;
     private LocalDateTime expireTime;
+
+    @TableField(fill = FieldFill.INSERT)
     private LocalDateTime createTime;
+
+    @TableField(fill = FieldFill.INSERT_UPDATE)
     private LocalDateTime updateTime;
-    private Integer deleted;
+
+    @TableLogic
+    private Boolean deleted;
 }

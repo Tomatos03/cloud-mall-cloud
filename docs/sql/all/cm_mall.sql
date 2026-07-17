@@ -11,7 +11,7 @@ USE cm_mall;
 -- 认证模块 (auth)
 -- ============================================================
 
-CREATE TABLE cm_auth_user
+CREATE TABLE cm_user
 (
     id         bigint auto_increment comment '用户ID'
         primary key,
@@ -24,12 +24,15 @@ CREATE TABLE cm_auth_user
     avatar_url varchar(500)                                         null comment '用户头像URL',
     types      set ('NORMAL', 'ADMIN', 'MERCHANT') default 'NORMAL' null comment '用户类型',
     store_id   bigint                                               null comment '关联店铺ID',
+    create_time datetime    DEFAULT NULL comment '创建时间',
+    update_time datetime    DEFAULT NULL comment '更新时间',
+    deleted    tinyint(1)   DEFAULT '0' comment '是否删除(0=否 1=是)',
     constraint uk_username
         unique (username)
 ) comment '用户认证表' engine = InnoDB
                        collate = utf8mb4_unicode_ci;
 
-CREATE TABLE cm_auth_role
+CREATE TABLE cm_role
 (
     id          bigint auto_increment comment '角色ID'
         primary key,
@@ -38,27 +41,29 @@ CREATE TABLE cm_auth_role
     enable      tinyint(1) default 1                 null comment '是否启用',
     description varchar(255)                         null comment '角色描述',
     create_time datetime   default CURRENT_TIMESTAMP null comment '创建时间',
+    update_time datetime    DEFAULT NULL comment '更新时间',
+    deleted    tinyint(1)   DEFAULT '0' comment '是否删除(0=否 1=是)',
     constraint uk_role_name
         unique (name)
 ) comment '系统角色表' engine = InnoDB
                       collate = utf8mb4_unicode_ci;
 
-CREATE TABLE cm_auth_user_role
+CREATE TABLE cm_user_role
 (
     user_id     bigint                             not null comment '用户ID',
     role_id     bigint                             not null comment '角色ID',
     create_time datetime default CURRENT_TIMESTAMP null comment '创建时间',
     primary key (user_id, role_id),
     constraint fk_auth_user_role_user
-        foreign key (user_id) references cm_auth_user (id)
+        foreign key (user_id) references cm_user (id)
             on delete cascade,
     constraint fk_auth_user_role_role
-        foreign key (role_id) references cm_auth_role (id)
+        foreign key (role_id) references cm_role (id)
             on delete cascade
 ) comment '用户与角色关联表' engine = InnoDB
                             collate = utf8mb4_unicode_ci;
 
-CREATE INDEX idx_auth_user_role_role_id ON cm_auth_user_role (role_id);
+CREATE INDEX idx_auth_user_role_role_id ON cm_user_role (role_id);
 
 -- ============================================================
 -- 用户模块 (user)
@@ -156,6 +161,9 @@ CREATE TABLE cm_goods_spec (
     name       varchar(50)  NOT NULL comment '规格名(如颜色、尺码)',
     value      varchar(100) NOT NULL comment '规格值(如红色、XL)',
     sort_order int          DEFAULT '0' comment '排序值(越小越靠前)',
+    create_time datetime    DEFAULT NULL comment '创建时间',
+    update_time datetime    DEFAULT NULL comment '更新时间',
+    deleted    tinyint      DEFAULT '0' comment '是否删除(0=否 1=是)',
     PRIMARY KEY (id),
     KEY idx_goods_id (goods_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 comment '商品规格表';
@@ -170,6 +178,8 @@ CREATE TABLE cm_comment (
     images    text     DEFAULT NULL comment '评论图片(JSON数组)',
     status    tinyint  DEFAULT '1' comment '状态(0=隐藏 1=显示)',
     create_time datetime DEFAULT NULL comment '创建时间',
+    update_time datetime    DEFAULT NULL comment '更新时间',
+    deleted    tinyint      DEFAULT '0' comment '是否删除(0=否 1=是)',
     PRIMARY KEY (id),
     KEY idx_goods_id (goods_id),
     KEY idx_user_id (user_id)
@@ -183,6 +193,8 @@ CREATE TABLE cm_banner (
     sort_order int          DEFAULT '0' comment '排序值(越小越靠前)',
     status     tinyint      DEFAULT '1' comment '是否启用(0=禁用 1=启用)',
     create_time datetime    DEFAULT NULL comment '创建时间',
+    update_time datetime    DEFAULT NULL comment '更新时间',
+    deleted    tinyint      DEFAULT '0' comment '是否删除(0=否 1=是)',
     PRIMARY KEY (id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 comment '首页轮播图表';
 
@@ -191,6 +203,8 @@ CREATE TABLE cm_favorite (
     user_id    bigint   NOT NULL comment '用户ID',
     goods_id   bigint   NOT NULL comment '商品ID',
     create_time datetime DEFAULT NULL comment '收藏时间',
+    update_time datetime    DEFAULT NULL comment '更新时间',
+    deleted    tinyint      DEFAULT '0' comment '是否删除(0=否 1=是)',
     PRIMARY KEY (id),
     UNIQUE KEY uk_user_goods (user_id, goods_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 comment '用户收藏表';
@@ -199,7 +213,10 @@ CREATE TABLE cm_unit (
     id         bigint       NOT NULL AUTO_INCREMENT comment '单位ID',
     name       varchar(50)  NOT NULL comment '单位名称(件/个/斤)',
     status     tinyint      DEFAULT '1' comment '是否启用(0=禁用 1=启用)',
-    sort_order int          DEFAULT '0' comment '排序值(越小越靠前)',
+    sort int          DEFAULT '0' comment '排序值(越小越靠前)',
+    create_time datetime    DEFAULT NULL comment '创建时间',
+    update_time datetime    DEFAULT NULL comment '更新时间',
+    deleted    tinyint      DEFAULT '0' comment '是否删除(0=否 1=是)',
     PRIMARY KEY (id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 comment '商品单位表';
 
@@ -232,6 +249,9 @@ CREATE TABLE cm_user_coupon (
     claimed_time datetime    DEFAULT NULL comment '领取时间',
     used_time    datetime    DEFAULT NULL comment '使用时间',
     order_id     bigint      DEFAULT NULL comment '关联订单ID',
+    create_time datetime    DEFAULT NULL comment '创建时间',
+    update_time datetime    DEFAULT NULL comment '更新时间',
+    deleted    tinyint(1)   DEFAULT '0' comment '是否删除(0=否 1=是)',
     PRIMARY KEY (id),
     KEY idx_user_id (user_id),
     KEY idx_coupon_id (coupon_id)
@@ -267,6 +287,9 @@ CREATE TABLE cm_order_item (
     price        decimal(10,2) NOT NULL comment '成交单价',
     quantity     int           NOT NULL comment '购买数量',
     subtotal     decimal(10,2) NOT NULL comment '小计金额',
+    create_time datetime    DEFAULT NULL comment '创建时间',
+    update_time datetime    DEFAULT NULL comment '更新时间',
+    deleted    tinyint      DEFAULT '0' comment '是否删除(0=否 1=是)',
     PRIMARY KEY (id),
     KEY idx_order_id (order_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 comment '订单明细表';
@@ -283,6 +306,7 @@ CREATE TABLE cm_cart (
     selected     tinyint       DEFAULT '1' comment '是否选中(0=未选中 1=已选中)',
     create_time  datetime      DEFAULT NULL comment '加入时间',
     update_time  datetime      DEFAULT NULL comment '更新时间',
+    deleted    tinyint      DEFAULT '0' comment '是否删除(0=否 1=是)',
     PRIMARY KEY (id),
     KEY idx_user_id (user_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 comment '购物车表';
@@ -312,6 +336,9 @@ CREATE TABLE cm_seckill_goods (
     stock         int           DEFAULT '0' comment '秒杀库存',
     sold_count    int           DEFAULT '0' comment '已售数量',
     audit_status  varchar(20)   DEFAULT 'PENDING' comment '审核状态(PENDING=待审核 APPROVED=已通过 REJECTED=已驳回)',
+    create_time datetime    DEFAULT NULL comment '创建时间',
+    update_time datetime    DEFAULT NULL comment '更新时间',
+    deleted    tinyint      DEFAULT '0' comment '是否删除(0=否 1=是)',
     PRIMARY KEY (id),
     KEY idx_activity (activity_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 comment '秒杀商品表';
