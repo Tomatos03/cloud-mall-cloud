@@ -1,6 +1,6 @@
 package com.cloudmall.common.config;
 
-import com.cloudmall.common.filter.AuthUserContextFilter;
+import com.cloudmall.common.filter.UserContextFilter;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import org.springframework.boot.autoconfigure.AutoConfiguration;
@@ -12,11 +12,11 @@ import org.springframework.core.Ordered;
 public class CommonAutoConfiguration {
 
     @Bean
-    public FilterRegistrationBean<AuthUserContextFilter> authUserContextFilter(ObjectMapper objectMapper) {
-        FilterRegistrationBean<AuthUserContextFilter> registration = new FilterRegistrationBean<>();
-        registration.setFilter(new AuthUserContextFilter(objectMapper));
-        registration.addUrlPatterns("/*");
-        registration.setOrder(Ordered.HIGHEST_PRECEDENCE + 10);
-        return registration;
+    public FilterRegistrationBean<UserContextFilter> userContextFilter(ObjectMapper objectMapper) {
+        FilterRegistrationBean<UserContextFilter> reg = new FilterRegistrationBean<>();
+        reg.setFilter(new UserContextFilter(objectMapper));
+        reg.addUrlPatterns("/*");
+        reg.setOrder(Ordered.HIGHEST_PRECEDENCE + 10);
+        return reg;
     }
 }

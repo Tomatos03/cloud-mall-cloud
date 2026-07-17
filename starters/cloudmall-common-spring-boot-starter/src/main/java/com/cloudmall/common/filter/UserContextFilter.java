@@ -2,8 +2,8 @@ package com.cloudmall.common.filter;
 
 import java.io.IOException;
 
-import com.cloudmall.common.context.AuthUserContext;
-import com.cloudmall.common.context.AuthUserContextHolder;
+import com.cloudmall.common.context.UserContext;
+import com.cloudmall.common.context.UserContextHolder;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import jakarta.servlet.FilterChain;
@@ -13,28 +13,28 @@ import jakarta.servlet.http.HttpServletResponse;
 
 import org.springframework.web.filter.OncePerRequestFilter;
 
-public class AuthUserContextFilter extends OncePerRequestFilter {
+public class UserContextFilter extends OncePerRequestFilter {
 
-    private static final String AUTH_USER_HEADER = "X-Auth-User";
+    private static final String HEADER = "X-Auth-User";
 
     private final ObjectMapper objectMapper;
 
-    public AuthUserContextFilter(ObjectMapper objectMapper) {
+    public UserContextFilter(ObjectMapper objectMapper) {
         this.objectMapper = objectMapper;
     }
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain)
             throws ServletException, IOException {
-        String header = request.getHeader(AUTH_USER_HEADER);
+        String header = request.getHeader(HEADER);
         if (header != null && !header.isEmpty()) {
-            AuthUserContext context = objectMapper.readValue(header, AuthUserContext.class);
-            AuthUserContextHolder.set(context);
+            UserContext ctx = objectMapper.readValue(header, UserContext.class);
+            UserContextHolder.set(ctx);
         }
         try {
             chain.doFilter(request, response);
         } finally {
-            AuthUserContextHolder.clear();
+            UserContextHolder.clear();
         }
     }
 }

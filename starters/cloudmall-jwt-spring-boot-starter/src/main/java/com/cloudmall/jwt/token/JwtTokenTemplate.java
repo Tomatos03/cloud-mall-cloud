@@ -1,7 +1,8 @@
-package com.cloudmall.jwt;
+package com.cloudmall.jwt.token;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Date;
+import java.util.Map;
 
 import javax.crypto.SecretKey;
 
@@ -9,6 +10,8 @@ import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
+
+import com.cloudmall.jwt.JwtProperties;
 
 public class JwtTokenTemplate {
 
@@ -20,18 +23,15 @@ public class JwtTokenTemplate {
         this.expirationMs = properties.getExpiration();
     }
 
-    public String createToken(Long userId, String username, String userType) {
+    public String createToken(Map<String, Object> claims) {
         Date now = new Date();
         Date expiry = new Date(now.getTime() + expirationMs);
 
-        return Jwts.builder()
-                .claim("userId", userId)
-                .claim("username", username)
-                .claim("userType", userType)
+        var builder = Jwts.builder()
                 .issuedAt(now)
-                .expiration(expiry)
-                .signWith(key)
-                .compact();
+                .expiration(expiry);
+        claims.forEach(builder::claim);
+        return builder.signWith(key).compact();
     }
 
     public boolean validateToken(String token) {
@@ -43,7 +43,7 @@ public class JwtTokenTemplate {
         }
     }
 
-    public Claims parseSignedClaims(String token) {
+    public Claims parse(String token) {
         return Jwts.parser()
                 .verifyWith(key)
                 .build()

@@ -1,5 +1,7 @@
 package com.cloudmall.jwt;
 
+import com.cloudmall.jwt.token.JwtTokenTemplate;
+
 import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;

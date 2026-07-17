@@ -1,7 +1,8 @@
 package com.cloudmall.gateway.filter;
 
+import com.cloudmall.common.context.UserContext;
 import com.cloudmall.gateway.config.AuthProperties;
-import com.cloudmall.jwt.JwtTokenTemplate;
+import com.cloudmall.jwt.token.JwtTokenTemplate;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -25,6 +26,7 @@ import reactor.core.publisher.Mono;
 public class AuthGlobalFilter implements GlobalFilter, Ordered {
 
     private static final String AUTH_USER_HEADER = "X-Auth-User";
+    private static final String TOKEN_PREFIX = "Bearer ";
 
     private final JwtTokenTemplate jwtTokenTemplate;
     private final ObjectMapper objectMapper;
@@ -44,17 +46,17 @@ public class AuthGlobalFilter implements GlobalFilter, Ordered {
             return exchange.getResponse().setComplete();
         }
 
-        String token = header.substring(7);
+        String token = header.substring(TOKEN_PREFIX.length());
 
         try {
-            Claims claims = jwtTokenTemplate.parseSignedClaims(token);
+            Claims claims = jwtTokenTemplate.parse(token);
 
-            Long userId = claims.get("userId", Long.class);
-            String username = claims.get("username", String.class);
-            String userType = claims.get("userType", String.class);
-
-            AuthUserJson authUser = new AuthUserJson(userId, username, userType);
-            String authUserJson = objectMapper.writeValueAsString(authUser);
+            UserContext userContext = UserContext.builder()
+                    .userId(claims.get("userId", Long.class))
+                    .username(claims.get("username", String.class))
+                    .userType(claims.get("userType", String.class))
+                    .build();
+            String authUserJson = objectMapper.writeValueAsString(userContext);
 
             ServerHttpRequest mutatedRequest = exchange.getRequest().mutate()
                     .header(AUTH_USER_HEADER, authUserJson)
@@ -78,8 +80,6 @@ public class AuthGlobalFilter implements GlobalFilter, Ordered {
     }
 
     private boolean hasValidAuthHeader(String header) {
-        return header != null && header.startsWith("Bearer ");
+        return header != null && header.startsWith(TOKEN_PREFIX);
     }
-
-    private record AuthUserJson(Long userId, String username, String userType) {}
 }
