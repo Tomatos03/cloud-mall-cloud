@@ -60,7 +60,7 @@ mvn test -pl services/user-service
 
 ### 启动依赖服务
 ```bash
-docker compose -f docs/docker/docker-compose-infra.yml up -d
+docker compose up -d
 ```
 
 ### 启动应用
