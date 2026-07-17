@@ -1,6 +1,10 @@
 server:
   port: 7010
+
 spring:
   application:
     name: im-service
-spring.cloud.nacos.discovery.server-addr: localhost:8848
+  cloud:
+    nacos:
+      discovery:
+        server-addr: localhost:8848
