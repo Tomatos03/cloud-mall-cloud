@@ -12,6 +12,7 @@ import com.cloudmall.common.utils.AssertUtils;
 import com.cloudmall.user.api.request.AddressUpdateReq;
 import com.cloudmall.user.api.request.CreateReq;
 import com.cloudmall.user.api.response.AddressResp;
+import com.cloudmall.user.convert.AddressConverter;
 import com.cloudmall.user.entity.AddressDO;
 import com.cloudmall.user.mapper.AddressMapper;
 import com.cloudmall.user.service.IAddressService;
@@ -21,6 +22,7 @@ import com.cloudmall.user.service.IAddressService;
 public class AddressService implements IAddressService {
 
     private final AddressMapper addressMapper;
+    private final AddressConverter addressConverter;
 
     @Override
     public List<AddressResp> listByUserId(Long userId) {
@@ -28,29 +30,19 @@ public class AddressService implements IAddressService {
             Wrappers.<AddressDO>lambdaQuery()
                 .eq(AddressDO::getUserId, userId)
         );
-        return list.stream().map(this::toResponse).collect(Collectors.toList());
+        return list.stream().map(addressConverter::toResp).collect(Collectors.toList());
     }
 
     @Override
     public AddressResp getById(Long id) {
         AddressDO addr = addressMapper.selectById(id);
         AssertUtils.notNull(addr, BizErrorCode.DATA_NOT_FOUND);
-        return toResponse(addr);
+        return addressConverter.toResp(addr);
     }
 
     @Override
     public Long create(CreateReq request, Long userId) {
-        AddressDO addr = AddressDO.builder()
-                .userId(userId)
-                .consignee(request.getConsignee())
-                .phone(request.getPhone())
-                .province(request.getProvince())
-                .city(request.getCity())
-                .district(request.getDistrict())
-                .detail(request.getDetail())
-                .zipCode(request.getZipCode())
-                .isDefault(request.getIsDefault() != null && request.getIsDefault())
-                .build();
+        AddressDO addr = addressConverter.toDO(request, userId);
         addressMapper.insert(addr);
         return addr.getId();
     }
@@ -59,14 +51,7 @@ public class AddressService implements IAddressService {
     public void update(AddressUpdateReq request) {
         AddressDO addr = addressMapper.selectById(request.getId());
         AssertUtils.notNull(addr, BizErrorCode.DATA_NOT_FOUND);
-        addr.setConsignee(request.getConsignee());
-        addr.setPhone(request.getPhone());
-        addr.setProvince(request.getProvince());
-        addr.setCity(request.getCity());
-        addr.setDistrict(request.getDistrict());
-        addr.setDetail(request.getDetail());
-        addr.setZipCode(request.getZipCode());
-        addr.setIsDefault(request.getIsDefault() != null && request.getIsDefault());
+        addressConverter.updateEntity(request, addr);
         addressMapper.updateById(addr);
     }
 
@@ -75,20 +60,5 @@ public class AddressService implements IAddressService {
         AddressDO addr = addressMapper.selectById(id);
         AssertUtils.notNull(addr, BizErrorCode.DATA_NOT_FOUND);
         addressMapper.deleteById(id);
-    }
-
-    private AddressResp toResponse(AddressDO addr) {
-        return AddressResp.builder()
-                .id(addr.getId())
-                .userId(addr.getUserId())
-                .consignee(addr.getConsignee())
-                .phone(addr.getPhone())
-                .province(addr.getProvince())
-                .city(addr.getCity())
-                .district(addr.getDistrict())
-                .detail(addr.getDetail())
-                .zipCode(addr.getZipCode())
-                .isDefault(addr.getIsDefault())
-                .build();
     }
 }

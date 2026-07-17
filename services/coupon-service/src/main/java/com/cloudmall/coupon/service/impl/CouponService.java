@@ -17,6 +17,7 @@ import com.cloudmall.coupon.entity.CouponDO;
 import com.cloudmall.coupon.entity.UserCouponDO;
 import com.cloudmall.coupon.mapper.CouponMapper;
 import com.cloudmall.coupon.mapper.UserCouponMapper;
+import com.cloudmall.coupon.convert.CouponConverter;
 import com.cloudmall.coupon.service.ICouponService;
 
 @Service
@@ -25,6 +26,7 @@ public class CouponService implements ICouponService {
 
     private final CouponMapper couponMapper;
     private final UserCouponMapper userCouponMapper;
+    private final CouponConverter couponConverter;
 
     @Override
     public List<CouponResp> listAvailable() {
@@ -96,13 +98,6 @@ public class CouponService implements ICouponService {
     }
 
     private CouponResp toResponse(CouponDO coupon) {
-        return CouponResp.builder()
-                .id(coupon.getId())
-                .name(coupon.getName())
-                .type(coupon.getType())
-                .threshold(coupon.getThreshold())
-                .discount(coupon.getDiscount())
-                .expireTime(coupon.getExpireTime())
-                .build();
+        return couponConverter.toResp(coupon);
     }
 }

@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 
 import com.cloudmall.goods.api.response.CommentResp;
 import com.cloudmall.goods.entity.CommentDO;
+import com.cloudmall.goods.convert.CommentConverter;
 import com.cloudmall.goods.mapper.CommentMapper;
 import com.cloudmall.goods.service.ICommentService;
 
@@ -18,6 +19,7 @@ import com.cloudmall.goods.service.ICommentService;
 public class CommentService implements ICommentService {
 
     private final CommentMapper commentMapper;
+    private final CommentConverter commentConverter;
 
     @Override
     public List<CommentResp> listByGoodsId(Long goodsId) {
@@ -45,12 +47,6 @@ public class CommentService implements ICommentService {
     }
 
     private CommentResp toResponse(CommentDO c) {
-        return CommentResp.builder()
-                .id(c.getId())
-                .userId(c.getUserId())
-                .content(c.getContent())
-                .rating(c.getRating())
-                .createTime(c.getCreateTime())
-                .build();
+        return commentConverter.toResp(c);
     }
 }

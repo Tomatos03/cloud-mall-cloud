@@ -15,6 +15,7 @@ import com.cloudmall.goods.api.request.SearchReq;
 import com.cloudmall.goods.api.response.GoodsResp;
 import com.cloudmall.goods.entity.GoodsDO;
 import com.cloudmall.goods.entity.GoodsSkuDO;
+import com.cloudmall.goods.convert.GoodsConverter;
 import com.cloudmall.goods.mapper.GoodsMapper;
 import com.cloudmall.goods.mapper.GoodsSkuMapper;
 import com.cloudmall.goods.service.IGoodsService;
@@ -25,6 +26,7 @@ public class GoodsService implements IGoodsService {
 
     private final GoodsMapper goodsMapper;
     private final GoodsSkuMapper goodsSkuMapper;
+    private final GoodsConverter goodsConverter;
 
     @Override
     public GoodsResp getById(Long id) {
@@ -93,16 +95,6 @@ public class GoodsService implements IGoodsService {
     }
 
     private GoodsResp toResponse(GoodsDO goods) {
-        return GoodsResp.builder()
-                .id(goods.getId())
-                .name(goods.getName())
-                .image(goods.getImage())
-                .price(goods.getPrice())
-                .categoryId(goods.getCategoryId())
-                .salesCount(goods.getSalesCount())
-                .stock(goods.getStock())
-                .status(goods.getStatus())
-                .description(goods.getDescription())
-                .build();
+        return goodsConverter.toResp(goods);
     }
 }

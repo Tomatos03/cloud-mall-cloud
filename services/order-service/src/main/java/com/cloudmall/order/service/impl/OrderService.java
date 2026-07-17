@@ -20,6 +20,7 @@ import com.cloudmall.order.api.response.ItemResp;
 import com.cloudmall.order.api.response.OrderResp;
 import com.cloudmall.order.entity.OrderDO;
 import com.cloudmall.order.entity.OrderItemDO;
+import com.cloudmall.order.convert.OrderConverter;
 import com.cloudmall.order.mapper.OrderItemMapper;
 import com.cloudmall.order.mapper.OrderMapper;
 import com.cloudmall.order.service.IOrderService;
@@ -31,6 +32,7 @@ public class OrderService implements IOrderService {
 
     private final OrderMapper orderMapper;
     private final OrderItemMapper orderItemMapper;
+    private final OrderConverter orderConverter;
 
     @Override
     @Transactional
@@ -108,15 +110,6 @@ public class OrderService implements IOrderService {
     }
 
     private ItemResp toItemResponse(OrderItemDO item) {
-        return ItemResp.builder()
-                .id(item.getId())
-                .goodsId(item.getGoodsId())
-                .skuId(item.getSkuId())
-                .goodsName(item.getGoodsName())
-                .goodsImage(item.getGoodsImage())
-                .price(item.getPrice())
-                .quantity(item.getQuantity())
-                .subtotal(item.getSubtotal())
-                .build();
+        return orderConverter.toItemResp(item);
     }
 }

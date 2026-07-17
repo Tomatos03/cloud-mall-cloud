@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 
 import com.cloudmall.goods.api.response.BannerResp;
 import com.cloudmall.goods.entity.BannerDO;
+import com.cloudmall.goods.convert.BannerConverter;
 import com.cloudmall.goods.mapper.BannerMapper;
 import com.cloudmall.goods.service.IBannerService;
 
@@ -17,6 +18,7 @@ import com.cloudmall.goods.service.IBannerService;
 public class BannerService implements IBannerService {
 
     private final BannerMapper bannerMapper;
+    private final BannerConverter bannerConverter;
 
     @Override
     public List<BannerResp> listActive() {
@@ -29,12 +31,6 @@ public class BannerService implements IBannerService {
     }
 
     private BannerResp toResponse(BannerDO banner) {
-        return BannerResp.builder()
-                .id(banner.getId())
-                .title(banner.getTitle())
-                .image(banner.getImage())
-                .linkUrl(banner.getLinkUrl())
-                .sortOrder(banner.getSortOrder())
-                .build();
+        return bannerConverter.toResp(banner);
     }
 }

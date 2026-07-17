@@ -11,6 +11,7 @@ import com.cloudmall.common.enums.BizErrorCode;
 import com.cloudmall.common.utils.AssertUtils;
 import com.cloudmall.goods.api.response.CategoryResp;
 import com.cloudmall.goods.entity.CategoryDO;
+import com.cloudmall.goods.convert.CategoryConverter;
 import com.cloudmall.goods.mapper.CategoryMapper;
 import com.cloudmall.goods.service.ICategoryService;
 
@@ -19,6 +20,7 @@ import com.cloudmall.goods.service.ICategoryService;
 public class CategoryService implements ICategoryService {
 
     private final CategoryMapper categoryMapper;
+    private final CategoryConverter categoryConverter;
 
     @Override
     public List<CategoryResp> listTree() {
@@ -48,11 +50,6 @@ public class CategoryService implements ICategoryService {
     }
 
     private CategoryResp toResponse(CategoryDO cat) {
-        return CategoryResp.builder()
-                .id(cat.getId())
-                .name(cat.getName())
-                .parentId(cat.getParentId())
-                .sortOrder(cat.getSortOrder())
-                .build();
+        return categoryConverter.toResp(cat);
     }
 }

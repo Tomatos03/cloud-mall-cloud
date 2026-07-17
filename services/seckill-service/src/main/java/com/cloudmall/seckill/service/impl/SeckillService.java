@@ -14,6 +14,7 @@ import com.cloudmall.seckill.entity.SeckillActivityDO;
 import com.cloudmall.seckill.entity.SeckillGoodsDO;
 import com.cloudmall.seckill.mapper.SeckillActivityMapper;
 import com.cloudmall.seckill.mapper.SeckillGoodsMapper;
+import com.cloudmall.seckill.convert.SeckillConverter;
 import com.cloudmall.seckill.service.ISeckillService;
 
 @Service
@@ -21,6 +22,7 @@ import com.cloudmall.seckill.service.ISeckillService;
 public class SeckillService implements ISeckillService {
     private final SeckillActivityMapper activityMapper;
     private final SeckillGoodsMapper goodsMapper;
+    private final SeckillConverter seckillConverter;
 
     @Override
     public Long createActivity(SeckillActivityDO activity) {
@@ -33,14 +35,7 @@ public class SeckillService implements ISeckillService {
     public ActivityResp getActivity(Long id) {
         SeckillActivityDO act = activityMapper.selectById(id);
         AssertUtils.notNull(act, BizErrorCode.DATA_NOT_FOUND);
-        ActivityResp r = ActivityResp.builder()
-                .id(act.getId())
-                .name(act.getName())
-                .startTime(act.getStartTime())
-                .endTime(act.getEndTime())
-                .status(act.getStatus())
-                .build();
-        return r;
+        return seckillConverter.toResp(act);
     }
 
     @Override

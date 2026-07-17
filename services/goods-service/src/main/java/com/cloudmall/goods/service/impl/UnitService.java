@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 
 import com.cloudmall.goods.api.response.UnitResp;
 import com.cloudmall.goods.entity.UnitDO;
+import com.cloudmall.goods.convert.UnitConverter;
 import com.cloudmall.goods.mapper.UnitMapper;
 import com.cloudmall.goods.service.IUnitService;
 
@@ -17,6 +18,7 @@ import com.cloudmall.goods.service.IUnitService;
 public class UnitService implements IUnitService {
 
     private final UnitMapper unitMapper;
+    private final UnitConverter unitConverter;
 
     @Override
     public List<UnitResp> listAll() {
@@ -29,9 +31,6 @@ public class UnitService implements IUnitService {
     }
 
     private UnitResp toResponse(UnitDO unit) {
-        return UnitResp.builder()
-                .id(unit.getId())
-                .name(unit.getName())
-                .build();
+        return unitConverter.toResp(unit);
     }
 }

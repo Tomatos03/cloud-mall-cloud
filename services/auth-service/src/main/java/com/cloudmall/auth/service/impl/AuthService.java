@@ -9,6 +9,7 @@ import com.cloudmall.auth.api.request.LoginReq;
 import com.cloudmall.auth.api.request.RegisterReq;
 import com.cloudmall.auth.api.response.LoginResp;
 import com.cloudmall.auth.entity.AuthUserDO;
+import com.cloudmall.auth.convert.AuthConverter;
 import com.cloudmall.auth.mapper.AuthUserMapper;
 import com.cloudmall.auth.security.JwtTokenProvider;
 import com.cloudmall.auth.service.IAuthService;
@@ -22,6 +23,7 @@ public class AuthService implements IAuthService {
     private final AuthUserMapper userMapper;
     private final JwtTokenProvider jwtTokenProvider;
     private final PasswordEncoder passwordEncoder;
+    private final AuthConverter authConverter;
 
     @Override
     public LoginResp login(LoginReq request) {
@@ -33,12 +35,8 @@ public class AuthService implements IAuthService {
         AssertUtils.isTrue(passwordEncoder.matches(request.getPassword(), user.getPassword()), BizErrorCode.PASSWORD_ERROR);
         String token = jwtTokenProvider.createToken(user.getId(), user.getUsername(), user.getUserType());
 
-        LoginResp response = LoginResp.builder()
-                .token(token)
-                .userId(user.getId())
-                .username(user.getUsername())
-                .userType(user.getUserType())
-                .build();
+        LoginResp response = authConverter.toLoginResp(user);
+        response.setToken(token);
         return response;
     }
 
@@ -50,15 +48,10 @@ public class AuthService implements IAuthService {
         );
         AssertUtils.isZero(count, BizErrorCode.USER_ALREADY_EXISTS);
 
-        AuthUserDO user = AuthUserDO.builder()
-                .username(request.getUsername())
-                .password(passwordEncoder.encode(request.getPassword()))
-                .nickname(request.getNickname())
-                .phone(request.getPhone())
-                .email(request.getEmail())
-                .userType("NORMAL")
-                .status(1)
-                .build();
+        AuthUserDO user = authConverter.toDO(request);
+        user.setPassword(passwordEncoder.encode(request.getPassword()));
+        user.setUserType("NORMAL");
+        user.setStatus(1);
 
         userMapper.insert(user);
         return user.getId();

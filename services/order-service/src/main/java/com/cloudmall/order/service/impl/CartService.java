@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 import com.cloudmall.common.enums.BizErrorCode;
 import com.cloudmall.common.utils.AssertUtils;
 import com.cloudmall.order.api.response.CartResp;
+import com.cloudmall.order.convert.CartConverter;
 import com.cloudmall.order.entity.CartDO;
 import com.cloudmall.order.mapper.CartMapper;
 import com.cloudmall.order.service.ICartService;
@@ -18,6 +19,7 @@ import com.cloudmall.order.service.ICartService;
 @Service @RequiredArgsConstructor
 public class CartService implements ICartService {
     private final CartMapper cartMapper;
+    private final CartConverter cartConverter;
 
     @Override
     public List<CartResp> listByUser(Long userId) {
@@ -71,15 +73,6 @@ public class CartService implements ICartService {
     }
 
     private CartResp toResponse(CartDO cart) {
-        return CartResp.builder()
-                .id(cart.getId())
-                .goodsId(cart.getGoodsId())
-                .skuId(cart.getSkuId())
-                .goodsName(cart.getGoodsName())
-                .goodsImage(cart.getGoodsImage())
-                .price(cart.getPrice())
-                .quantity(cart.getQuantity())
-                .selected(cart.getSelected())
-                .build();
+        return cartConverter.toResp(cart);
     }
 }

@@ -30,6 +30,7 @@
         <hutool-version>5.8.42</hutool-version>
         <jjwt-version>0.13.0</jjwt-version>
         <rocketmq-starter-version>2.3.5</rocketmq-starter-version>
+        <mapstruct-version>1.6.3</mapstruct-version>
     </properties>
 
     <dependencyManagement>
@@ -98,6 +99,11 @@
                 <groupId>org.apache.rocketmq</groupId>
                 <artifactId>rocketmq-spring-boot-starter</artifactId>
                 <version>${rocketmq-starter-version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.mapstruct</groupId>
+                <artifactId>mapstruct</artifactId>
+                <version>${mapstruct-version}</version>
             </dependency>
     </dependencies>
     </dependencyManagement>
