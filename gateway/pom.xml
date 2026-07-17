@@ -17,7 +17,7 @@
         </dependency>
         <dependency>
             <groupId>com.cloudmall</groupId>
-            <artifactId>common</artifactId>
+            <artifactId>cloudmall-common-spring-boot-starter</artifactId>
             <exclusions>
                 <exclusion>
                     <groupId>org.springframework.boot</groupId>

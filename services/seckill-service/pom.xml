@@ -19,7 +19,7 @@
         </dependency>
         <dependency>
             <groupId>com.cloudmall</groupId>
-            <artifactId>common</artifactId>
+            <artifactId>cloudmall-common-spring-boot-starter</artifactId>
         </dependency>
         <dependency>
             <groupId>com.alibaba.cloud</groupId>

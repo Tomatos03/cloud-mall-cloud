@@ -5,10 +5,10 @@
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>com.cloudmall</groupId>
-        <artifactId>cloud-mall-cloud</artifactId>
+        <artifactId>starters</artifactId>
         <version>1.0-SNAPSHOT</version>
     </parent>
-    <artifactId>common</artifactId>
+    <artifactId>cloudmall-common-spring-boot-starter</artifactId>
     <packaging>jar</packaging>
 
     <dependencies>
