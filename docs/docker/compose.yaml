@@ -43,5 +43,17 @@ services:
     entrypoint: ["/bin/sh", "/sync.sh", "nacos"]
     restart: "no"
 
+  nginx:
+    container_name: cm-nginx
+    image: nginx:alpine
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx/conf.d:/etc/nginx/conf.d:ro
+    # Linux: host-gateway 自动解析为宿主机 IP（通常 172.17.0.1）
+    # macOS/Windows Docker Desktop: 内置支持，此行可保留无副作用
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+
 volumes:
   mysql-data:
