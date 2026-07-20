@@ -1,6 +1,7 @@
 package com.cloudmall.common.enums;
 
 import lombok.Getter;
+import org.springframework.http.HttpStatus;
 
 /**
  * 业务错误码枚举
@@ -16,6 +17,8 @@ public enum BizErrorCode {
     INVALID_PARAM(1000, "请求参数无效"),
     INVALID_AUDIT_STATUS(1001, "无效的审核状态"),
     DATA_NOT_FOUND(1002, "数据不存在"),
+    SERVICE_UNAVAILABLE(1003, "服务暂不可用"),
+    GATEWAY_TIMEOUT(1004, "请求超时，请稍后重试"),
 
     // ==================== 用户认证相关错误码 (10xxx) ====================
     USERNAME_OR_PASSWORD_ERROR(10000, "用户名或密码错误"),
@@ -226,9 +229,15 @@ public enum BizErrorCode {
 
     final int code;
     final String errorMessage;
+    final HttpStatus httpStatus;
 
     BizErrorCode(int code, String errorMessage) {
+        this(code, errorMessage, HttpStatus.OK);
+    }
+
+    BizErrorCode(int code, String errorMessage, HttpStatus httpStatus) {
         this.code = code;
         this.errorMessage = errorMessage;
+        this.httpStatus = httpStatus;
     }
 }

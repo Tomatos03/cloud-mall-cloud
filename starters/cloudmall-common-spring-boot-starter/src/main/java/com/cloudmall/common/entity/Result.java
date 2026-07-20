@@ -1,6 +1,7 @@
 package com.cloudmall.common.entity;
 
 import lombok.Data;
+import com.cloudmall.common.enums.BizErrorCode;
 
 /**
  * 统一返回值工具类
@@ -51,6 +52,15 @@ public class Result<T> {
      */
     public static <T> Result<T> success(String message, T data) {
         return new Result<>(SUCCESS_CODE, message, data);
+    }
+
+    /**
+     * 错误响应（业务异常）
+     * @param errorCode 业务错误码
+     * @return Result
+     */
+    public static <T> Result<T> error(BizErrorCode errorCode) {
+        return new Result<>(errorCode.getCode(), errorCode.getErrorMessage(), null);
     }
 
     /**
