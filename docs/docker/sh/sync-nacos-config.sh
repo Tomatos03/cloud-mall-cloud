@@ -1,6 +1,6 @@
 #!/bin/bash
 # 将 docs/nacos/config/ 下的配置批量发布到 Nacos
-# 用法: ./sync-nacos-config.sh [nacos-host]
+# 用法: ./sync-nacos-config.sh [nacos-host] [config-dir]
 
 set -euo pipefail
 
@@ -8,13 +8,12 @@ NACOS_HOST="${1:-localhost}"
 NACOS_PORT="${NACOS_PORT:-8848}"
 BASE_URL="http://${NACOS_HOST}:${NACOS_PORT}"
 GROUP="${GROUP:-DEFAULT_GROUP}"
-SCRIPT_DIR="$(cd "$(dirname "$0")" 2>/dev/null && pwd)"
-if [ "$SCRIPT_DIR" = "/" ]; then
-  # Running inside container as /sync.sh — config mounted at /config
-  CONFIG_DIR="/config"
+
+if [ -n "${2:-}" ]; then
+  CONFIG_DIR="$2"
 else
-  # Running locally — resolve relative to script location
-  CONFIG_DIR="$(cd "$SCRIPT_DIR/../nacos/config" && pwd)"
+  # 容器中运行时配置挂载在 /config
+  CONFIG_DIR="/config"
 fi
 
 echo "Nacos: ${BASE_URL}"
