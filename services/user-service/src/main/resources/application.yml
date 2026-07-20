@@ -1,25 +1,12 @@
-server:
-  port: 8082
-
 spring:
   application:
     name: user-service
-  datasource:
-    url: jdbc:mysql://localhost:3306/cm_user?useUnicode=true&characterEncoding=utf-8&serverTimezone=Asia/Shanghai
-    username: root
-    password: root123
-    driver-class-name: com.mysql.cj.jdbc.Driver
   cloud:
     nacos:
       discovery:
         server-addr: localhost:8848
-
-mybatis-plus:
-  mapper-locations: classpath:mapper/**/*.xml
-  type-aliases-package: com.cloudmall.user.entity
-  global-config:
-    db-config:
-      id-type: auto
-      logic-delete-field: deleted
-      logic-delete-value: 1
-      logic-not-delete-value: 0
+      config:
+        server-addr: localhost:8848
+        file-extension: yaml
+  config:
+    import: nacos:user-service.yaml?refreshEnabled=true&group=DEFAULT_GROUP

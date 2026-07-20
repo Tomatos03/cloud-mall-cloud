@@ -1,52 +1,61 @@
 server:
-  port: 8080
+  port: 8079
+
+auth:
+  whitelist:
+    - /auth/sessions
+    - /auth/users
 
 spring:
   cloud:
     gateway:
-      routes:
-        - id: auth-service
-          uri: lb://auth-service
-          predicates:
-            - Path=/auth/**
-          filters:
-            - StripPrefix=0
+      server:
+        webflux:
+          routes:
+            - id: auth-service
+              uri: lb://auth-service
+              predicates:
+                - Path=/auth/**
+              filters:
+                - StripPrefix=0
 
-        - id: user-service
-          uri: lb://user-service
-          predicates:
-            - Path=/user/**
-          filters:
-            - StripPrefix=0
+            - id: user-service
+              uri: lb://user-service
+              predicates:
+                - Path=/user/**
+              filters:
+                - StripPrefix=0
 
-        - id: coupon-service
-          uri: lb://coupon-service
-          predicates:
-            - Path=/coupon/**
-          filters:
-            - StripPrefix=0
+            - id: coupon-service
+              uri: lb://coupon-service
+              predicates:
+                - Path=/coupon/**
+              filters:
+                - StripPrefix=0
 
-        - id: goods-service
-          uri: lb://goods-service
-          predicates:
-            - Path=/goods/**,/category/**,/banner/**,/comment/**,/favorite/**,/unit/**
-          filters:
-            - StripPrefix=0
+            - id: goods-service
+              uri: lb://goods-service
+              predicates:
+                - Path=/goods/**,/category/**,/banner/**,/comment/**,/favorite/**,/unit/**
+              filters:
+                - StripPrefix=0
 
-        - id: seckill-service
-          uri: lb://seckill-service
-          predicates:
-            - Path=/seckill/**
+            - id: seckill-service
+              uri: lb://seckill-service
+              predicates:
+                - Path=/seckill/**
 
-        - id: order-service
-          uri: lb://order-service
-          predicates:
-            - Path=/order/**,/cart/**
+            - id: order-service
+              uri: lb://order-service
+              predicates:
+                - Path=/order/**,/cart/**
 
-      # 全局跨域配置
       globalcors:
         cors-configurations:
           '[/**]':
-            allowedOrigins: "*"
-            allowedMethods: "*"
-            allowedHeaders: "*"
+            allowedOriginPatterns:
+              - "*"
+            allowedMethods:
+              - "*"
+            allowedHeaders:
+              - "*"
