@@ -8,7 +8,14 @@ NACOS_HOST="${1:-localhost}"
 NACOS_PORT="${NACOS_PORT:-8848}"
 BASE_URL="http://${NACOS_HOST}:${NACOS_PORT}"
 GROUP="${GROUP:-DEFAULT_GROUP}"
-CONFIG_DIR="$(cd "$(dirname "$0")/../nacos/config" && pwd)"
+SCRIPT_DIR="$(cd "$(dirname "$0")" 2>/dev/null && pwd)"
+if [ "$SCRIPT_DIR" = "/" ]; then
+  # Running inside container as /sync.sh — config mounted at /config
+  CONFIG_DIR="/config"
+else
+  # Running locally — resolve relative to script location
+  CONFIG_DIR="$(cd "$SCRIPT_DIR/../nacos/config" && pwd)"
+fi
 
 echo "Nacos: ${BASE_URL}"
 echo "Config dir: ${CONFIG_DIR}"
@@ -18,7 +25,7 @@ echo ""
 # 等待 Nacos 就绪
 echo "Waiting for Nacos to be ready..."
 for i in $(seq 1 30); do
-  if curl -sf "${BASE_URL}/nacos/v2/cs/config?dataId=ping&group=${GROUP}" -o /dev/null 2>/dev/null; then
+  if curl -sf "${BASE_URL}/nacos/v2/console/health/liveness" -o /dev/null 2>/dev/null; then
     echo "Nacos is ready."
     break
   fi
