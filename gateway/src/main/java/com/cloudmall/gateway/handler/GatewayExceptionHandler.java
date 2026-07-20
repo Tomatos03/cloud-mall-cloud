@@ -18,7 +18,9 @@ import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 
+import java.net.ConnectException;
 import java.nio.charset.StandardCharsets;
+import java.util.concurrent.TimeoutException;
 
 /**
  * Gateway 全局异常处理器
@@ -58,8 +60,8 @@ public class GatewayExceptionHandler implements ErrorWebExceptionHandler {
             if (message == null || message.isBlank()) {
                 message = "服务器内部错误";
             }
-        } else if (ex instanceof java.util.concurrent.TimeoutException
-                || ex instanceof java.net.ConnectException) {
+        } else if (ex instanceof TimeoutException
+                || ex instanceof ConnectException) {
             // 超时或连接异常
             businessCode = BizErrorCode.GATEWAY_TIMEOUT.getCode();
             httpStatus = HttpStatus.GATEWAY_TIMEOUT;
