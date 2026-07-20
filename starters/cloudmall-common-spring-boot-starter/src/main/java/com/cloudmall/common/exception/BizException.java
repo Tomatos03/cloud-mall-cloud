@@ -12,7 +12,7 @@ import com.cloudmall.common.enums.BizErrorCode;
  */
 @Getter
 public class BizException extends RuntimeException {
-    BizErrorCode bizErrorCode;
+    private BizErrorCode bizErrorCode;
 
     public BizException(BizErrorCode bizErrorCode) {
         super(bizErrorCode.getErrorMessage());
