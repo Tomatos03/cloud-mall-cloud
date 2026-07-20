@@ -3,17 +3,17 @@ package com.cloudmall.common.config;
 import com.cloudmall.common.feign.FeignUserContextInterceptor;
 import com.cloudmall.common.filter.UserContextFilter;
 import com.fasterxml.jackson.databind.ObjectMapper;
-
+import feign.RequestInterceptor;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplication;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.cloud.openfeign.EnableFeignClients;
 import org.springframework.context.annotation.Bean;
 import org.springframework.core.Ordered;
 
-import feign.RequestInterceptor;
-
 @AutoConfiguration
+@ConditionalOnWebApplication(type = ConditionalOnWebApplication.Type.SERVLET)
 @EnableFeignClients(basePackages = "com.cloudmall")
 public class CommonAutoConfiguration {
 
