@@ -66,36 +66,6 @@
                 <type>pom</type>
             </dependency>
             <dependency>
-                <groupId>com.cloudmall</groupId>
-                <artifactId>auth-api</artifactId>
-                <version>1.0-SNAPSHOT</version>
-            </dependency>
-            <dependency>
-                <groupId>com.cloudmall</groupId>
-                <artifactId>user-api</artifactId>
-                <version>1.0-SNAPSHOT</version>
-            </dependency>
-            <dependency>
-                <groupId>com.cloudmall</groupId>
-                <artifactId>coupon-api</artifactId>
-                <version>1.0-SNAPSHOT</version>
-            </dependency>
-            <dependency>
-                <groupId>com.cloudmall</groupId>
-                <artifactId>goods-api</artifactId>
-                <version>1.0-SNAPSHOT</version>
-            </dependency>
-            <dependency>
-                <groupId>com.cloudmall</groupId>
-                <artifactId>seckill-api</artifactId>
-                <version>1.0-SNAPSHOT</version>
-            </dependency>
-            <dependency>
-                <groupId>com.cloudmall</groupId>
-                <artifactId>order-api</artifactId>
-                <version>1.0-SNAPSHOT</version>
-            </dependency>
-            <dependency>
                 <groupId>org.apache.rocketmq</groupId>
                 <artifactId>rocketmq-spring-boot-starter</artifactId>
                 <version>${rocketmq-starter-version}</version>
