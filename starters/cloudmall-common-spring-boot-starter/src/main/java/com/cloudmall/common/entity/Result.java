@@ -36,6 +36,14 @@ public class Result<T> {
     }
 
     /**
+     * 成功响应（无返回数据）
+     * @return Result
+     */
+    public static Result<Void> success() {
+        return new Result<>(SUCCESS_CODE, "操作成功", null);
+    }
+
+    /**
      * 成功响应
      * @param data 数据
      * @return Result

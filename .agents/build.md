@@ -20,6 +20,7 @@
 | `coupon-service` | 优惠券服务 | 8085 | `CouponApplication` |
 | `seckill-service` | 秒杀服务 | 8086 | `SeckillApplication` |
 | `im-service` | 即时通讯 | 7010 | `IMApplication` |
+| `agent-service` | AI Agent 服务 | 8087 | `AgentApplication` |
 
 ### 服务接口
 
@@ -43,6 +44,7 @@ mvn clean package
 # 单模块
 mvn clean compile -pl services/auth-service -am
 mvn clean compile -pl services/user-service -am
+mvn clean compile -pl services/agent-service -am
 mvn clean compile -pl gateway -am
 
 # 快速确认编译
@@ -68,6 +70,7 @@ docker compose up -d
 # 单模块启动
 mvn -pl services/auth-service spring-boot:run
 mvn -pl services/user-service spring-boot:run
+mvn -pl services/agent-service spring-boot:run
 mvn -pl gateway spring-boot:run
 ```
 

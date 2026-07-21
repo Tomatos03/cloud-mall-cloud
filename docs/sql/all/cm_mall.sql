@@ -342,3 +342,20 @@ CREATE TABLE cm_seckill_goods (
     PRIMARY KEY (id),
     KEY idx_activity (activity_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 comment '秒杀商品表';
+
+-- ============================================================
+-- AI Agent 模块 (agent)
+-- ============================================================
+
+CREATE TABLE cm_chat_session (
+    id          bigint       NOT NULL comment '会话ID',
+    session_id  varchar(64)  NOT NULL comment '会话唯一标识',
+    user_id     bigint       NOT NULL comment '用户ID',
+    title       varchar(200) DEFAULT NULL comment '会话标题',
+    create_time datetime     DEFAULT NULL comment '创建时间',
+    update_time datetime     DEFAULT NULL comment '更新时间',
+    deleted     tinyint(1)   DEFAULT '0' comment '是否删除(0=否 1=是)',
+    PRIMARY KEY (id),
+    UNIQUE KEY uk_session_id (session_id),
+    KEY idx_user_id (user_id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 comment 'AI聊天会话表';
