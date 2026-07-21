@@ -24,12 +24,16 @@ services:
 
   nacos:
     container_name: cm-nacos
-    image: nacos/nacos-server:v2.5.0
+    image: nacos/nacos-server:v3.0.3
     environment:
       MODE: standalone
+      NACOS_AUTH_TOKEN: "TR21j0whe7UlQPISxv+TiuU3M5CS8HPKXRCuxNlbQrw="
+      NACOS_AUTH_IDENTITY_KEY: nacos
+      NACOS_AUTH_IDENTITY_VALUE: nacos
     ports:
       - "8848:8848"
       - "9848:9848"
+      - "8080:8080"
 
   nacos-init:
     container_name: cm-nacos-init

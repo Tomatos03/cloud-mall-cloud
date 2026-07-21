@@ -9,4 +9,4 @@ spring:
         server-addr: localhost:8848
         file-extension: yaml
   config:
-    import: nacos:auth-service.yaml?refreshEnabled=true&group=DEFAULT_GROUP
+    import: nacos:auth-service?refreshEnabled=true&group=DEFAULT_GROUP

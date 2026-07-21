@@ -12,7 +12,6 @@ GROUP="${GROUP:-DEFAULT_GROUP}"
 if [ -n "${2:-}" ]; then
   CONFIG_DIR="$2"
 else
-  # 容器中运行时配置挂载在 /config
   CONFIG_DIR="/config"
 fi
 
@@ -21,10 +20,9 @@ echo "Config dir: ${CONFIG_DIR}"
 echo "Group: ${GROUP}"
 echo ""
 
-# 等待 Nacos 就绪
 echo "Waiting for Nacos to be ready..."
 for i in $(seq 1 30); do
-  if curl -sf "${BASE_URL}/nacos/v2/console/health/liveness" -o /dev/null 2>/dev/null; then
+  if curl -sf "${BASE_URL}/nacos/" -o /dev/null 2>/dev/null; then
     echo "Nacos is ready."
     break
   fi
@@ -36,29 +34,52 @@ for i in $(seq 1 30); do
 done
 echo ""
 
-# 遍历发布配置
+# 扩展名 → Nacos type 映射
+resolve_type() {
+  case "$1" in
+    yaml|yml) echo "yaml" ;;
+    properties) echo "Properties" ;;
+    json)      echo "JSON" ;;
+    xml)       echo "XML" ;;
+    html)      echo "HTML" ;;
+    txt)       echo "TEXT" ;;
+    toml)      echo "TOML" ;;
+    *)         echo "" ;;
+  esac
+}
+
 SUCCESS=0
 FAIL=0
-for FILE in "${CONFIG_DIR}"/*.yaml; do
-  NAME=$(basename "$FILE")
-  DATA_ID="${NAME}"
-  CONTENT=$(cat "$FILE")
 
-  echo "Publishing ${DATA_ID} ..."
+for FILE in "${CONFIG_DIR}"/*; do
+  [ -f "$FILE" ] || continue
+
+  NAME=$(basename "$FILE")
+  EXT="${NAME##*.}"
+  TYPE=$(resolve_type "$EXT")
+
+  if [ -z "$TYPE" ]; then
+    echo "  SKIP ${NAME} (unsupported extension .${EXT})"
+    continue
+  fi
+
+  DATA_ID="${NAME%.*}"
+
+  echo "Publishing ${DATA_ID} (${TYPE}) ..."
 
   HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" \
+    -X POST "${BASE_URL}/nacos/v1/cs/configs" \
+    -d "tenant=" \
     -d "dataId=${DATA_ID}" \
     -d "group=${GROUP}" \
-    -d "type=yaml" \
-    --data-urlencode "content=${CONTENT}" \
-    -X POST "${BASE_URL}/nacos/v2/cs/config")
+    -d "type=${TYPE}" \
+    --data-urlencode "content@${FILE}")
 
-  # v2 API returns 200 on success
   if [ "$HTTP_CODE" = "200" ]; then
-    echo "  ✓ ${DATA_ID}"
+    echo "  OK  ${DATA_ID}"
     SUCCESS=$((SUCCESS + 1))
   else
-    echo "  ✗ ${DATA_ID} (HTTP ${HTTP_CODE})"
+    echo "  FAIL ${DATA_ID} (HTTP ${HTTP_CODE})"
     FAIL=$((FAIL + 1))
   fi
 done

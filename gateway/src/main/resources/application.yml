@@ -12,4 +12,4 @@ spring:
         server-addr: localhost:8848
         file-extension: yaml
   config:
-    import: nacos:gateway.yaml?refreshEnabled=true&group=DEFAULT_GROUP
+    import: nacos:gateway?refreshEnabled=true&group=DEFAULT_GROUP
