@@ -4,16 +4,6 @@ server:
 spring:
   datasource:
     url: jdbc:mysql://localhost:3306/cm_auth?useUnicode=true&characterEncoding=utf-8&serverTimezone=Asia/Shanghai
-    username: root
-    password: root123
-    driver-class-name: com.mysql.cj.jdbc.Driver
 
 mybatis-plus:
-  mapper-locations: classpath:mapper/*.xml
   type-aliases-package: com.cloudmall.auth.entity
-  global-config:
-    db-config:
-      id-type: auto
-      logic-delete-field: deleted
-      logic-delete-value: 1
-      logic-not-delete-value: 0

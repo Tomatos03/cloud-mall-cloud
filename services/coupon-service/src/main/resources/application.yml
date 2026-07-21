@@ -8,5 +8,9 @@ spring:
       config:
         server-addr: localhost:8848
         file-extension: yaml
+        group: DEFAULT_GROUP
+        refresh-enabled: true
   config:
-    import: nacos:coupon-service?refreshEnabled=true&group=DEFAULT_GROUP
+    import:
+      - nacos:common
+      - nacos:coupon-service
