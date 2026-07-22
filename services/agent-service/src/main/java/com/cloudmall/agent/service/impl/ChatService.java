@@ -2,15 +2,16 @@ package com.cloudmall.agent.service.impl;
 
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.cloudmall.agent.entity.ChatSessionDO;
+import com.cloudmall.agent.manager.GeneratingSessionManager;
 import com.cloudmall.agent.mapper.ChatSessionMapper;
 import com.cloudmall.agent.model.enums.ChatEventType;
 import com.cloudmall.agent.model.req.ChatReq;
 import com.cloudmall.agent.model.resp.ChatResp;
 import com.cloudmall.agent.service.IChatService;
-import com.cloudmall.context.UserContextHolder;
 import com.cloudmall.common.enums.BizErrorCode;
 import com.cloudmall.common.exception.BizException;
 import com.cloudmall.common.utils.AssertUtils;
+import com.cloudmall.context.UserContextHolder;
 import lombok.RequiredArgsConstructor;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.chat.memory.ChatMemory;
@@ -20,8 +21,6 @@ import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 
 import java.util.Collections;
-import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * AI 智能客服实现 — 流式聊天、停止生成
@@ -36,15 +35,13 @@ public class ChatService implements IChatService {
     private final ChatClient chatClient;
     private final ChatSessionMapper chatSessionMapper;
     private final ChatMemoryRepository chatMemoryRepository;
-
-    /** 正在生成回复的会话 ID 集合，用于支持外部打断 */
-    private final static Set<String> GENERATING_SESSIONS = ConcurrentHashMap.newKeySet();
+    private final GeneratingSessionManager generatingSessionManager;
 
     /**
      * 流式聊天 — 逐 token 返回 AI 回复
      * <p>
-     * 每收到一个 token 先检查是否还在生成状态，用户可通过 stop() 打断。
-     * 流结束后自动追加 END 标记事件。
+     * 每收到一个 token 先检查 Redis 中对应会话是否仍在生成状态，
+     * 用户可通过 stop() 从任意实例打断。流结束后自动追加 END 标记事件。
      *
      * @param req 聊天请求（含 sessionId 和 prompt）
      * @return SSE 事件流，包含 MESSAGE 和 END 两种事件
@@ -54,19 +51,22 @@ public class ChatService implements IChatService {
         String sessionId = req.getSessionId();
         validateSession(sessionId);
 
-        String conversationId = getConversationId(sessionId);
         StringBuilder generatedContent = new StringBuilder();
+        String conversationId = getConversationId(sessionId);
         return chatClient.prompt(req.getPrompt())
                          .advisors(advisorSpec ->
                                  advisorSpec.param(ChatMemory.CONVERSATION_ID, conversationId)
                          )
                          .stream()
                          .content()
-                         .doFirst(() -> GENERATING_SESSIONS.add(sessionId))
-                         .doOnComplete(() -> GENERATING_SESSIONS.remove(sessionId))
-                         .doOnError(e -> GENERATING_SESSIONS.remove(sessionId))
-                         .doOnCancel(() -> saveGeneratedMessage(conversationId, generatedContent.toString()))
-                         .takeWhile(content -> GENERATING_SESSIONS.contains(sessionId))
+                         .doFirst(() -> generatingSessionManager.start(sessionId))
+                         .doOnComplete(() -> generatingSessionManager.finish(sessionId))
+                         .doOnError(e -> generatingSessionManager.finish(sessionId))
+                         .doOnCancel(() -> {
+                             saveGeneratedMessage(conversationId, generatedContent.toString());
+                             generatingSessionManager.finish(sessionId);
+                         })
+                         .takeWhile(content -> generatingSessionManager.isGenerating(sessionId))
                          .map(content -> {
                              generatedContent.append(content);
                              return ChatResp.builder()
@@ -86,7 +86,7 @@ public class ChatService implements IChatService {
      */
     @Override
     public void stop(String sessionId) {
-        GENERATING_SESSIONS.remove(sessionId);
+        generatingSessionManager.stop(sessionId);
     }
 
     private void saveGeneratedMessage(String conversationId, String content) {
