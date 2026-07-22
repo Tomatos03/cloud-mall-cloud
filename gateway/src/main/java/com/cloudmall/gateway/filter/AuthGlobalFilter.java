@@ -7,6 +7,7 @@ import com.cloudmall.jwt.token.JwtTokenTemplate;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import io.jsonwebtoken.JwtException;
 import lombok.RequiredArgsConstructor;
 
 import org.springframework.cloud.gateway.filter.GatewayFilterChain;
@@ -17,8 +18,6 @@ import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.stereotype.Component;
 import org.springframework.web.server.ServerWebExchange;
 
-import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.JwtException;
 import reactor.core.publisher.Mono;
 
 @Component
@@ -49,13 +48,7 @@ public class AuthGlobalFilter implements GlobalFilter, Ordered {
         String token = header.substring(TOKEN_PREFIX.length());
 
         try {
-            Claims claims = jwtTokenTemplate.parse(token);
-
-            UserContext userContext = UserContext.builder()
-                    .userId(claims.get("userId", Long.class))
-                    .username(claims.get("username", String.class))
-                    .userType(claims.get("userType", String.class))
-                    .build();
+            UserContext userContext = jwtTokenTemplate.parse(token);
             String authUserJson = objectMapper.writeValueAsString(userContext);
 
             ServerHttpRequest mutatedRequest = exchange.getRequest().mutate()
