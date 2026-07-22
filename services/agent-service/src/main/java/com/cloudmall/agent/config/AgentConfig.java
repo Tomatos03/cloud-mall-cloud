@@ -30,7 +30,7 @@ public class AgentConfig {
             builder.defaultAdvisors(advisors);
         }
         if (CollectionUtil.isNotEmpty(tools)) {
-            builder.defaultTools(tools);
+            builder.defaultTools(tools.toArray());
         }
         return builder.defaultSystem(agentProperties.getPrompt())
                       .build();

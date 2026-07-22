@@ -19,6 +19,15 @@
 ## 格式
 - 4 空格缩进
 - 大括号使用 K&R 风格
+- 方法参数列表过长时，每个参数独占一行，参数类型和名称同行，右括号与方法名首字母对齐：
+  ```java
+  public GoodsResp getGoodsBySpu(
+          @ToolParam(description = "商品SPU编号") String spu,
+          ToolContext toolContext
+  ) {
+      // ...
+  }
+  ```
 
 ## 集合判空
 - 使用 Hutool：`CollectionUtil.isEmpty(...)` / `CollectionUtil.isNotEmpty(...)`

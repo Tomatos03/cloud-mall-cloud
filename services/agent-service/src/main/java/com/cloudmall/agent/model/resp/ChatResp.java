@@ -6,17 +6,26 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.Map;
+
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
 public class ChatResp {
-    private String data;
+    private Object data;
     private ChatEventType eventType;
 
     public static ChatResp end() {
         return ChatResp.builder()
                 .eventType(ChatEventType.DONE)
+                .build();
+    }
+
+    public static ChatResp param(Map<String, Object> params) {
+        return ChatResp.builder()
+                .data(params)
+                .eventType(ChatEventType.PARAM)
                 .build();
     }
 }

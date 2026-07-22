@@ -8,6 +8,7 @@ import com.cloudmall.agent.model.enums.ChatEventType;
 import com.cloudmall.agent.model.req.ChatReq;
 import com.cloudmall.agent.model.resp.ChatResp;
 import com.cloudmall.agent.service.IChatService;
+import com.cloudmall.agent.tool.ToolResultContext;
 import com.cloudmall.common.enums.BizErrorCode;
 import com.cloudmall.common.exception.BizException;
 import com.cloudmall.common.utils.AssertUtils;
@@ -21,6 +22,7 @@ import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 
 import java.util.Collections;
+import java.util.Map;
 
 /**
  * AI 智能客服实现 — 流式聊天、停止生成
@@ -41,10 +43,10 @@ public class ChatService implements IChatService {
      * 流式聊天 — 逐 token 返回 AI 回复
      * <p>
      * 每收到一个 token 先检查 Redis 中对应会话是否仍在生成状态，
-     * 用户可通过 stop() 从任意实例打断。流结束后自动追加 END 标记事件。
+     * 用户可通过 stop() 从任意实例打断。流结束后自动追加 PARAM 事件（包含工具调用结果），最后追加 END 标记事件。
      *
      * @param req 聊天请求（含 sessionId 和 prompt）
-     * @return SSE 事件流，包含 MESSAGE 和 END 两种事件
+     * @return SSE 事件流，包含 MESSAGE、PARAM（可选）和 END 三种事件
      */
     @Override
     public Flux<ChatResp> chat(ChatReq req) {
@@ -53,10 +55,13 @@ public class ChatService implements IChatService {
 
         StringBuilder generatedContent = new StringBuilder();
         String conversationId = getConversationId(sessionId);
+        ToolResultContext resultContext = new ToolResultContext();
+
         return chatClient.prompt(req.getPrompt())
                          .advisors(advisorSpec ->
                                  advisorSpec.param(ChatMemory.CONVERSATION_ID, conversationId)
                          )
+                         .toolContext(Map.of("toolResultContext", resultContext))
                          .stream()
                          .content()
                          .doFirst(() -> generatingSessionManager.start(sessionId))
@@ -73,9 +78,11 @@ public class ChatService implements IChatService {
                                             .data(content)
                                             .eventType(ChatEventType.MESSAGE)
                                             .build();
-                              }
-                         )
-                         .concatWithValues(ChatResp.end());
+                         })
+                         .concatWith(Flux.defer(() -> resultContext.hasResults()
+                                 ? Flux.just(ChatResp.param(resultContext.getResults()), ChatResp.end())
+                                 : Flux.just(ChatResp.end())
+                         ));
     }
 
 
