@@ -63,22 +63,36 @@ public class KnowledgeService implements IKnowledgeService {
     @Override
     public List<String> uploadFiles(List<MultipartFile> files, String category) throws IOException {
         List<String> documentIds = new ArrayList<>();
+        List<Document> pendingDocument = new ArrayList<>();
         for (MultipartFile file : files) {
             DocumentParser parser = documentParserFactory.getParser(file.getOriginalFilename());
             List<Document> documents = parser.parse(file);
 
-            documents.forEach(doc -> {
-                doc.getMetadata().put("filename", file.getOriginalFilename());
-                doc.getMetadata().put("size", file.getSize());
-                if (category != null) {
-                    doc.getMetadata().put("category", category);
-                }
-            });
+            documents.forEach(doc -> setDocumentMetaInfo(category, file, doc));
 
-            vectorStore.add(documents);
-            documentIds.addAll(documents.stream().map(Document::getId).toList());
+            List<String> documentIdList = documents.stream()
+                                                   .map(Document::getId)
+                                                   .toList();
+            documentIds.addAll(documentIdList);
+            pendingDocument.addAll(documents);
         }
+        vectorStore.add(pendingDocument);
         return documentIds;
+    }
+
+    /**
+     * 设置文档元数据信息
+     *
+     * @param category 文档分类（可选）
+     * @param file     上传的文件
+     * @param doc      文档对象
+     */
+    private static void setDocumentMetaInfo(String category, MultipartFile file, Document doc) {
+        doc.getMetadata().put("filename", file.getOriginalFilename());
+        doc.getMetadata().put("size", file.getSize());
+        if (category != null) {
+            doc.getMetadata().put("category", category);
+        }
     }
 
     /**

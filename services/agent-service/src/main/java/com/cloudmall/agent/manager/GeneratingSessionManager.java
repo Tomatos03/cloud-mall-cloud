@@ -24,6 +24,8 @@ public class GeneratingSessionManager {
 
     /**
      * 标记会话开始生成
+     *
+     * @param sessionId 会话 ID
      */
     public void start(String sessionId) {
         stringRedisTemplate.opsForValue().set(buildKey(sessionId), "1", TTL);
@@ -31,6 +33,8 @@ public class GeneratingSessionManager {
 
     /**
      * 外部主动停止生成
+     *
+     * @param sessionId 会话 ID
      */
     public void stop(String sessionId) {
         stringRedisTemplate.delete(buildKey(sessionId));
@@ -38,6 +42,8 @@ public class GeneratingSessionManager {
 
     /**
      * 生成结束清理（正常完成/异常/取消）
+     *
+     * @param sessionId 会话 ID
      */
     public void finish(String sessionId) {
         stringRedisTemplate.delete(buildKey(sessionId));
@@ -45,11 +51,20 @@ public class GeneratingSessionManager {
 
     /**
      * 检查会话是否仍在生成中
+     *
+     * @param sessionId 会话 ID
+     * @return true 表示正在生成，false 表示未在生成
      */
     public boolean isGenerating(String sessionId) {
         return stringRedisTemplate.hasKey(buildKey(sessionId));
     }
 
+    /**
+     * 构建 Redis key
+     *
+     * @param sessionId 会话 ID
+     * @return 完整的 Redis key
+     */
     private String buildKey(String sessionId) {
         return KEY_PREFIX + sessionId;
     }

@@ -29,6 +29,41 @@
   }
   ```
 
+## 链式调用换行
+- 占用行太长的链式调用，换行并对齐：
+  ```java
+  MarkdownDocumentReaderConfig config = MarkdownDocumentReaderConfig
+          .builder()
+          .withHorizontalRuleCreateDocument(true)
+          .withIncludeCodeBlock(true)
+          .build();
+  ```
+- 占用行长度短的链式调用，按上下文长度决定是否换行：
+  ```java
+  documents = documents.stream()
+                       .map(doc -> doc
+                               .mutate()
+                               .id(UUID.randomUUID().toString())
+                               .build()
+                       )
+                       .toList();
+  ```
+- 如果调用方法只有两个且占用行不是很长，写在一行
+- 方法调用传参时，若参数通过链式构建且方法调用超过 2 个，应提取为局部变量后再传入：
+  ```java
+  List<String> documentIdList = documents.stream()
+                                         .map(Document::getId)
+                                         .toList();
+  documentIds.addAll(documentIdList);
+  ```
+  若链式构建直接在 `return` 语句中作为返回值，不受此约束限制：
+  ```java
+  return ChatResp.builder()
+                 .data(content)
+                 .eventType(ChatEventType.MESSAGE)
+                 .build();
+  ```
+
 ## 集合判空
 - 使用 Hutool：`CollectionUtil.isEmpty(...)` / `CollectionUtil.isNotEmpty(...)`
 - 禁止手写 `collection == null || collection.isEmpty()`

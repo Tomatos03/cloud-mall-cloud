@@ -110,9 +110,10 @@ public class AgentConfig {
                 .similarityThreshold(rag.getSimilarityThreshold())
                 .topK(rag.getTopK())
                 .build();
-        return QuestionAnswerAdvisor.builder(vectorStore)
-                                    .searchRequest(searchRequest)
-                                    .build();
+        QuestionAnswerAdvisor advisor = QuestionAnswerAdvisor.builder(vectorStore)
+                                                             .searchRequest(searchRequest)
+                                                             .build();
+        return advisor;
     }
 
     /**
