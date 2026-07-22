@@ -16,6 +16,7 @@ import lombok.NoArgsConstructor;
 public class GoodsResp {
     private Long id;
     private String name;
+    private String spu;
     private String image;
     private BigDecimal price;
     private Long categoryId;

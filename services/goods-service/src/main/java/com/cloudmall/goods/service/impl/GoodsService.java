@@ -37,6 +37,16 @@ public class GoodsService implements IGoodsService {
     }
 
     @Override
+    public GoodsResp getBySpu(String spu) {
+        GoodsDO goods = goodsMapper.selectOne(
+                Wrappers.<GoodsDO>lambdaQuery()
+                        .eq(GoodsDO::getSpu, spu)
+                        .eq(GoodsDO::getStatus, StatusEnum.ENABLED)
+        );
+        return goods == null ? null : toResponse(goods);
+    }
+
+    @Override
     public List<GoodsResp> listByCategory(Long categoryId, int page, int size) {
         List<GoodsDO> list = goodsMapper.selectPage(
                 new Page<>(page, size),

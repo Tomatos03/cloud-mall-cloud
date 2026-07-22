@@ -8,6 +8,8 @@ import com.cloudmall.goods.api.response.GoodsResp;
 public interface IGoodsService {
     GoodsResp getById(Long id);
 
+    GoodsResp getBySpu(String spu);
+
     List<GoodsResp> listByCategory(Long categoryId, int page, int size);
 
     List<GoodsResp> search(SearchReq request);

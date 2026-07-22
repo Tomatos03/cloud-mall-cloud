@@ -16,6 +16,9 @@ public interface GoodsClient {
     @GetMapping("/{id}")
     Result<GoodsResp> getById(@PathVariable("id") Long id);
 
+    @GetMapping("/spu/{spu}")
+    Result<GoodsResp> getBySpu(@PathVariable("spu") String spu);
+
     @PutMapping("/{skuId}/stock")
     Result<Boolean> updateStock(@PathVariable("skuId") Long skuId, @RequestBody StockReq req);
 }

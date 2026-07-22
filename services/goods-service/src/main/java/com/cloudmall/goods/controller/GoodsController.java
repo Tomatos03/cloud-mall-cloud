@@ -31,6 +31,11 @@ public class GoodsController {
         return Result.success(goodsService.getById(id));
     }
 
+    @GetMapping("/spu/{spu}")
+    public Result<GoodsResp> getBySpu(@PathVariable String spu) {
+        return Result.success(goodsService.getBySpu(spu));
+    }
+
     @GetMapping
     public Result<List<GoodsResp>> listByCategory(
             @RequestParam Long categoryId,

@@ -123,6 +123,7 @@ CREATE TABLE cm_category (
 CREATE TABLE cm_goods (
     id           bigint        NOT NULL AUTO_INCREMENT comment '商品ID',
     name         varchar(200)  NOT NULL comment '商品名称',
+    spu          varchar(50)   NOT NULL comment '商品SPU编号',
     image        varchar(500)  DEFAULT NULL comment '商品主图URL',
     images       text          DEFAULT NULL comment '商品详情图(JSON数组)',
     description  text          DEFAULT NULL comment '商品描述',
@@ -139,7 +140,7 @@ CREATE TABLE cm_goods (
     PRIMARY KEY (id),
     KEY idx_status (status),
     KEY idx_category (category_id),
-    KEY idx_status (status)
+    UNIQUE KEY uk_spu (spu)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 comment '商品信息表';
 
 CREATE TABLE cm_goods_sku (
