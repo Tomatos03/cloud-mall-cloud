@@ -1,7 +1,7 @@
 package com.cloudmall.common.filter;
 
-import com.cloudmall.common.context.UserContext;
-import com.cloudmall.common.context.UserContextHolder;
+import com.cloudmall.context.UserContext;
+import com.cloudmall.context.UserContextHolder;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.FilterChain;

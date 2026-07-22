@@ -12,7 +12,7 @@ import com.cloudmall.agent.model.resp.CreateSessionResp;
 import com.cloudmall.agent.model.resp.HotTopicResp;
 import com.cloudmall.agent.properties.AgentProperties;
 import com.cloudmall.agent.service.ISessionService;
-import com.cloudmall.common.context.UserContextHolder;
+import com.cloudmall.context.UserContextHolder;
 import com.cloudmall.common.enums.BizErrorCode;
 import com.cloudmall.common.utils.AssertUtils;
 import lombok.RequiredArgsConstructor;

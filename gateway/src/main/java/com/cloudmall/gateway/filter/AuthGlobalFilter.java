@@ -1,6 +1,6 @@
 package com.cloudmall.gateway.filter;
 
-import com.cloudmall.common.context.UserContext;
+import com.cloudmall.context.UserContext;
 import com.cloudmall.gateway.config.AuthProperties;
 import com.cloudmall.jwt.token.JwtTokenTemplate;
 

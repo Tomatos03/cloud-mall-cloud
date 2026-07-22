@@ -7,7 +7,7 @@ import com.cloudmall.agent.model.enums.ChatEventType;
 import com.cloudmall.agent.model.req.ChatReq;
 import com.cloudmall.agent.model.resp.ChatResp;
 import com.cloudmall.agent.service.IChatService;
-import com.cloudmall.common.context.UserContextHolder;
+import com.cloudmall.context.UserContextHolder;
 import com.cloudmall.common.enums.BizErrorCode;
 import com.cloudmall.common.exception.BizException;
 import com.cloudmall.common.utils.AssertUtils;

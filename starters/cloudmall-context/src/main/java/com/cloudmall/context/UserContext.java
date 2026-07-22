@@ -1,4 +1,4 @@
-package com.cloudmall.common.context;
+package com.cloudmall.context;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
