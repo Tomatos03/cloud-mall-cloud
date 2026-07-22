@@ -3,6 +3,7 @@ package com.cloudmall.goods.api.response;
 import java.math.BigDecimal;
 import java.util.List;
 
+import com.cloudmall.mybatisplus.enums.StatusEnum;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -21,7 +22,7 @@ public class GoodsResp {
     private String categoryName;
     private Integer salesCount;
     private Integer stock;
-    private String status;
+    private StatusEnum status;
     private List<String> images;
     private String description;
 }

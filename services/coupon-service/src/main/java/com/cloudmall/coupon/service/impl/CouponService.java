@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.cloudmall.common.enums.BizErrorCode;
+import com.cloudmall.mybatisplus.enums.StatusEnum;
 import com.cloudmall.common.utils.AssertUtils;
 import com.cloudmall.coupon.api.request.ClaimReq;
 import com.cloudmall.coupon.api.response.CouponResp;
@@ -32,7 +33,7 @@ public class CouponService implements ICouponService {
     public List<CouponResp> listAvailable() {
         List<CouponDO> list = couponMapper.selectList(
                 Wrappers.<CouponDO>lambdaQuery()
-                        .eq(CouponDO::getStatus, 1)
+                        .eq(CouponDO::getStatus, StatusEnum.ENABLED)
                         .gt(CouponDO::getExpireTime, LocalDateTime.now())
         );
         return list.stream().map(this::toResponse).collect(Collectors.toList());
@@ -50,7 +51,7 @@ public class CouponService implements ICouponService {
     public Boolean claim(ClaimReq request) {
         CouponDO coupon = couponMapper.selectById(request.getCouponId());
         AssertUtils.notNull(coupon, BizErrorCode.DATA_NOT_FOUND);
-        AssertUtils.isTrue(coupon.getStatus() == 1, BizErrorCode.COUPON_NOT_AVAILABLE);
+        AssertUtils.isTrue(coupon.getStatus() == StatusEnum.ENABLED, BizErrorCode.COUPON_NOT_AVAILABLE);
         AssertUtils.isFalse(coupon.getExpireTime() != null && coupon.getExpireTime().isBefore(LocalDateTime.now()), BizErrorCode.COUPON_EXPIRED);
         AssertUtils.isFalse(coupon.getTotalCount() != null && coupon.getClaimedCount() >= coupon.getTotalCount(), BizErrorCode.COUPON_STOCK_RUN_OUT);
 

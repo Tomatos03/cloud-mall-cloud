@@ -16,6 +16,7 @@ import com.cloudmall.auth.mapper.AuthUserMapper;
 import com.cloudmall.jwt.token.JwtTokenTemplate;
 import com.cloudmall.auth.service.IAuthService;
 import com.cloudmall.common.enums.BizErrorCode;
+import com.cloudmall.mybatisplus.enums.StatusEnum;
 import com.cloudmall.common.utils.AssertUtils;
 
 @Service
@@ -57,7 +58,7 @@ public class AuthService implements IAuthService {
         AuthUserDO user = authConverter.toDO(request);
         user.setPassword(passwordEncoder.encode(request.getPassword()));
         user.setUserType("NORMAL");
-        user.setStatus(1);
+        user.setStatus(StatusEnum.ENABLED);
 
         userMapper.insert(user);
         return user.getId();

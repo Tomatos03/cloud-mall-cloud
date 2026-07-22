@@ -7,6 +7,7 @@ import com.baomidou.mybatisplus.annotation.FieldFill;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableLogic;
 import com.baomidou.mybatisplus.annotation.TableName;
+import com.cloudmall.mybatisplus.enums.StatusEnum;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -25,7 +26,7 @@ public class CouponDO {
     private BigDecimal discount;
     private Integer totalCount;
     private Integer claimedCount;
-    private Integer status;
+    private StatusEnum status;
     private LocalDateTime startTime;
     private LocalDateTime expireTime;
 

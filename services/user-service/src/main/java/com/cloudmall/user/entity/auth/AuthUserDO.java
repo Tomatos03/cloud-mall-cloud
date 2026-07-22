@@ -7,6 +7,7 @@ import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableLogic;
 import com.baomidou.mybatisplus.annotation.TableName;
+import com.cloudmall.mybatisplus.enums.StatusEnum;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -28,7 +29,7 @@ public class AuthUserDO {
     private String avatar;
     private Long storeId;
     private String userType;
-    private Integer status;
+    private StatusEnum status;
 
     @TableField(fill = FieldFill.INSERT)
     private LocalDateTime createTime;

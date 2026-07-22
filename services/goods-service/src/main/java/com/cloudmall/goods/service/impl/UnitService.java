@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
+import com.cloudmall.mybatisplus.enums.StatusEnum;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -24,7 +25,7 @@ public class UnitService implements IUnitService {
     public List<UnitResp> listAll() {
         List<UnitDO> list = unitMapper.selectList(
                 Wrappers.<UnitDO>lambdaQuery()
-                        .eq(UnitDO::getStatus, 1)
+                        .eq(UnitDO::getStatus, StatusEnum.ENABLED)
                         .orderByAsc(UnitDO::getSortOrder)
         );
         return list.stream().map(this::toResponse).collect(Collectors.toList());

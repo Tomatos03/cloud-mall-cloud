@@ -132,11 +132,12 @@ CREATE TABLE cm_goods (
     market_price decimal(10,2) DEFAULT NULL comment '市场价(划线价)',
     stock        int           DEFAULT '0' comment '库存数量',
     sales_count  int           DEFAULT '0' comment '累计销量',
-    status       varchar(20)   DEFAULT 'OFF' comment '商品状态(ON=上架 OFF=下架)',
+    status       tinyint(1)    DEFAULT '1' comment '商品状态(0=下架 1=上架)',
     create_time  datetime      DEFAULT NULL comment '创建时间',
     update_time  datetime      DEFAULT NULL comment '更新时间',
     deleted      tinyint       DEFAULT '0' comment '是否删除(0=否 1=是)',
     PRIMARY KEY (id),
+    KEY idx_status (status),
     KEY idx_category (category_id),
     KEY idx_status (status)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 comment '商品信息表';

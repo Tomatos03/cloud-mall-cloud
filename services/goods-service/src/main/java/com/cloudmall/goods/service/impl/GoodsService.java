@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.cloudmall.common.enums.BizErrorCode;
+import com.cloudmall.mybatisplus.enums.StatusEnum;
 import com.cloudmall.common.utils.AssertUtils;
 import com.cloudmall.goods.api.request.SearchReq;
 import com.cloudmall.goods.api.response.GoodsResp;
@@ -41,7 +42,7 @@ public class GoodsService implements IGoodsService {
                 new Page<>(page, size),
                 Wrappers.<GoodsDO>lambdaQuery()
                         .eq(GoodsDO::getCategoryId, categoryId)
-                        .eq(GoodsDO::getStatus, "ON")
+                        .eq(GoodsDO::getStatus, StatusEnum.ENABLED)
         ).getRecords();
         return list.stream().map(this::toResponse).collect(Collectors.toList());
     }
@@ -49,7 +50,7 @@ public class GoodsService implements IGoodsService {
     @Override
     public List<GoodsResp> search(SearchReq request) {
         var wrapper = Wrappers.<GoodsDO>lambdaQuery()
-                .eq(GoodsDO::getStatus, "ON");
+                .eq(GoodsDO::getStatus, StatusEnum.ENABLED);
         if (request.getCategoryId() != null) {
             wrapper.eq(GoodsDO::getCategoryId, request.getCategoryId());
         }

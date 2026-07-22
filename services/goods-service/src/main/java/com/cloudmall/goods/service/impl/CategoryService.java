@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
+import com.cloudmall.mybatisplus.enums.StatusEnum;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -26,7 +27,7 @@ public class CategoryService implements ICategoryService {
     public List<CategoryResp> listTree() {
         List<CategoryDO> all = categoryMapper.selectList(
                 Wrappers.<CategoryDO>lambdaQuery()
-                        .eq(CategoryDO::getStatus, 1)
+                        .eq(CategoryDO::getStatus, StatusEnum.ENABLED)
                         .orderByAsc(CategoryDO::getSortOrder)
         );
         return buildTree(all, 0L);

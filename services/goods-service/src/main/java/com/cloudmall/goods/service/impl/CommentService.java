@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
+import com.cloudmall.mybatisplus.enums.StatusEnum;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -26,7 +27,7 @@ public class CommentService implements ICommentService {
         List<CommentDO> list = commentMapper.selectList(
                 Wrappers.<CommentDO>lambdaQuery()
                         .eq(CommentDO::getGoodsId, goodsId)
-                        .eq(CommentDO::getStatus, 1)
+                        .eq(CommentDO::getStatus, StatusEnum.ENABLED)
                         .orderByDesc(CommentDO::getCreateTime)
         );
         return list.stream().map(this::toResponse).collect(Collectors.toList());
@@ -39,7 +40,7 @@ public class CommentService implements ICommentService {
                 .userId(userId)
                 .content(content)
                 .rating(rating != null ? rating : 5)
-                .status(1)
+                .status(StatusEnum.ENABLED)
                 .createTime(LocalDateTime.now())
                 .build();
         commentMapper.insert(c);

@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
+import com.cloudmall.mybatisplus.enums.StatusEnum;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -24,7 +25,7 @@ public class BannerService implements IBannerService {
     public List<BannerResp> listActive() {
         List<BannerDO> list = bannerMapper.selectList(
                 Wrappers.<BannerDO>lambdaQuery()
-                        .eq(BannerDO::getStatus, 1)
+                        .eq(BannerDO::getStatus, StatusEnum.ENABLED)
                         .orderByAsc(BannerDO::getSortOrder)
         );
         return list.stream().map(this::toResponse).collect(Collectors.toList());
