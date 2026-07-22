@@ -17,3 +17,12 @@ spring:
     import:
       - nacos:common
       - nacos:agent-service
+  elasticsearch:
+    uris: http://localhost:9200
+  ai:
+    vectorstore:
+      elasticsearch:
+        initialize-schema: true
+        index-name: cm-agent-knowledge
+        dimensions: 1536
+        similarity: cosine
