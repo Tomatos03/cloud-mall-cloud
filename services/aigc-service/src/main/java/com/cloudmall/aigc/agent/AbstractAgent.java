@@ -55,6 +55,15 @@ public abstract class AbstractAgent implements Agent {
     protected abstract void rebuildChatClient();
 
 
+    /**
+     * 处理聊天请求，返回流式响应。
+     * <p>
+     * 首次聊天时自动设置会话标题，生成过程中将内容追加到 StringBuilder，
+     * 完成后保存到记忆仓库。支持工具结果上下文的追加输出。
+     *
+     * @param req 聊天请求，包含会话ID和用户提示词
+     * @return 流式聊天响应，包含内容块和可选的工具结果
+     */
     @Override
     public Flux<ChatResp> chat(ChatReq req) {
         String sessionId = req.getSessionId();

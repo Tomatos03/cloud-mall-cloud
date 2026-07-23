@@ -1,18 +1,19 @@
 package com.cloudmall.aigc.agent;
 
-import com.alibaba.cloud.nacos.NacosConfigManager;
-import com.alibaba.nacos.api.config.ConfigService;
-import com.alibaba.nacos.api.config.listener.Listener;
-import com.alibaba.nacos.api.exception.NacosException;
-import com.cloudmall.aigc.properties.AgentProperties;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Component;
-
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
+
+import com.alibaba.cloud.nacos.NacosConfigManager;
+import com.alibaba.nacos.api.config.ConfigService;
+import com.alibaba.nacos.api.config.listener.Listener;
+import com.alibaba.nacos.api.exception.NacosException;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Component;
+
+import com.cloudmall.aigc.properties.AgentProperties;
 
 /**
  * Nacos 提示词懒加载器。
@@ -31,6 +32,12 @@ public class AgentPromptLoader {
     private final String globalPrompt;
     private final Map<AgentType, String> cache = new ConcurrentHashMap<>();
 
+    /**
+     * 使用 Nacos 配置管理器和 Agent 配置构造加载器。
+     *
+     * @param nacosConfigManager Nacos 配置管理器，用于获取 ConfigService
+     * @param properties         Agent 配置属性，包含提示词 dataId 等配置
+     */
     public AgentPromptLoader(NacosConfigManager nacosConfigManager,
                              AgentProperties properties) {
         this.configService = nacosConfigManager.getConfigService();

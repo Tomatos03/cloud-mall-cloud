@@ -15,6 +15,9 @@ import com.cloudmall.aigc.service.ISessionService;
 @Service
 public class OrderAgent extends AbstractAgent {
 
+    /**
+     * 构造订单智能体实例。
+     */
     protected OrderAgent(
             AgentPromptLoader promptLoader,
             ChatClient.Builder chatClientBuilder,
@@ -26,11 +29,21 @@ public class OrderAgent extends AbstractAgent {
         super(promptLoader, chatClientBuilder, generatingSessionManager, chatMemoryRepository, sessionService, toolRegistry);
     }
 
+    /**
+     * 获取该智能体的 ChatClient 实例。
+     *
+     * @return ChatClient 实例
+     */
     @Override
     public ChatClient getChatClient() {
         return chatClient;
     }
 
+    /**
+     * 获取智能体类型。
+     *
+     * @return {@link AgentType#ORDER}
+     */
     @Override
     public AgentType getType() {
         return AgentType.ORDER;

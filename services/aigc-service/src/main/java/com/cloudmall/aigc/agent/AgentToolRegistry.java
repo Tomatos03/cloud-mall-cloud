@@ -22,6 +22,12 @@ public class AgentToolRegistry {
 
     private final Map<AgentType, Object[]> toolMap;
 
+    /**
+     * 构造工具注册器，扫描 Spring 容器中所有带 {@link AgentTool} 注解的 Bean，
+     * 并按 {@link AgentType} 归类缓存。
+     *
+     * @param context Spring 应用上下文，用于获取带注解的 Bean
+     */
     public AgentToolRegistry(ApplicationContext context) {
         this.toolMap = buildAgentAvailableToolsMap(context);
     }
@@ -33,6 +39,13 @@ public class AgentToolRegistry {
         return toolMap.getOrDefault(type, new Object[0]);
     }
 
+    /**
+     * 构建智能体可用工具映射：扫描容器中所有 {@link AgentTool} 注解的 Bean，
+     * 根据 {@code agents} / {@code exclude} 属性分配到对应智能体类型。
+     *
+     * @param context Spring 应用上下文
+     * @return 智能体类型到可用工具数组的映射
+     */
     private static Map<AgentType, Object[]> buildAgentAvailableToolsMap(ApplicationContext context) {
         Map<String, Object> toolBeans = context.getBeansWithAnnotation(AgentTool.class);
 
