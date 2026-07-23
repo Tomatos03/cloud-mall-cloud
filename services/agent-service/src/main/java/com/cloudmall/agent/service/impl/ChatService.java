@@ -1,17 +1,12 @@
 package com.cloudmall.agent.service.impl;
 
-import com.baomidou.mybatisplus.core.toolkit.Wrappers;
-import com.cloudmall.agent.entity.ChatSessionDO;
 import com.cloudmall.agent.manager.GeneratingSessionManager;
-import com.cloudmall.agent.mapper.ChatSessionMapper;
 import com.cloudmall.agent.model.enums.ChatEventType;
 import com.cloudmall.agent.model.req.ChatReq;
 import com.cloudmall.agent.model.resp.ChatResp;
 import com.cloudmall.agent.service.IChatService;
+import com.cloudmall.agent.service.ISessionService;
 import com.cloudmall.agent.tool.ToolResultContext;
-import com.cloudmall.common.enums.BizErrorCode;
-import com.cloudmall.common.exception.BizException;
-import com.cloudmall.common.utils.AssertUtils;
 import com.cloudmall.context.UserContextHolder;
 import lombok.RequiredArgsConstructor;
 import org.springframework.ai.chat.client.ChatClient;
@@ -35,9 +30,9 @@ import java.util.Map;
 public class ChatService implements IChatService {
 
     private final ChatClient chatClient;
-    private final ChatSessionMapper chatSessionMapper;
     private final ChatMemoryRepository chatMemoryRepository;
     private final GeneratingSessionManager generatingSessionManager;
+    private final ISessionService sessionService;
 
     /**
      * 流式聊天 — 逐 token 返回 AI 回复
@@ -51,7 +46,7 @@ public class ChatService implements IChatService {
     @Override
     public Flux<ChatResp> chat(ChatReq req) {
         String sessionId = req.getSessionId();
-        validateSession(sessionId);
+        sessionService.updateSessionTitle(sessionId, req.getPrompt());
 
         StringBuilder generatedContent = new StringBuilder();
         String conversationId = getConversationId(sessionId);
@@ -104,27 +99,13 @@ public class ChatService implements IChatService {
     }
 
     /**
-     * 校验会话是否存在且属于当前用户
-     *
-     * @param sessionId 会话 ID
-     * @throws BizException 会话不存在或不属于当前用户时抛出 SESSION_NOT_FOUND
-     */
-    private void validateSession(String sessionId) {
-        ChatSessionDO chatSession = chatSessionMapper.selectOne(
-                Wrappers.<ChatSessionDO>lambdaQuery()
-                        .eq(ChatSessionDO::getSessionId, sessionId)
-                        .eq(ChatSessionDO::getUserId, UserContextHolder.getUserId())
-        );
-        AssertUtils.notNull(chatSession, BizErrorCode.SESSION_NOT_FOUND);
-    }
-
-    /**
      * 生成会话在 AI ChatMemory 中的全局唯一标识
      *
      * @param sessionId 会话 ID
      * @return 格式为 {userId}_{sessionId} 的字符串
      */
-    private String getConversationId(String sessionId) {
+    @Override
+    public String getConversationId(String sessionId) {
         return String.format("%s_%s", UserContextHolder.getUserId(), sessionId);
     }
 }

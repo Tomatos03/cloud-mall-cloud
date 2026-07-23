@@ -3,8 +3,10 @@ package com.cloudmall.agent.service;
 import com.cloudmall.agent.model.resp.ChatMessageResp;
 import com.cloudmall.agent.model.resp.CreateSessionResp;
 import com.cloudmall.agent.model.resp.HotTopicResp;
+import com.cloudmall.agent.model.resp.SessionHistoryItemResp;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * 会话管理服务接口
@@ -37,4 +39,34 @@ public interface ISessionService {
      * @return 消息列表（仅 USER 和 ASSISTANT 类型）
      */
     List<ChatMessageResp> getSessionMessages(String sessionId);
+
+    /**
+     * 更新会话标题
+     *
+     * @param sessionId 会话 ID
+     * @param title     新标题
+     */
+    void updateSessionTitle(String sessionId, String title);
+
+    /**
+     * 按时间分类获取当前用户的历史会话列表
+     *
+     * @return 分类名称 -> 会话条目列表（有序）
+     */
+    Map<String, List<SessionHistoryItemResp>> getSessionHistory();
+
+    /**
+     * 删除会话（软删数据库 + 清空 Redis 缓存）
+     *
+     * @param sessionId 会话 ID
+     */
+    void deleteSession(String sessionId);
+
+    /**
+     * 校验会话是否存在且属于当前用户
+     *
+     * @param sessionId 会话 ID
+     * @throws BizException 会话不存在或不属于当前用户时抛出 SESSION_NOT_FOUND
+     */
+    void validateSession(String sessionId);
 }
