@@ -1,5 +1,7 @@
 package com.cloudmall.agent.tool;
 
+import com.cloudmall.agent.agent.AgentTool;
+import com.cloudmall.agent.agent.AgentType;
 import com.cloudmall.common.entity.Result;
 import com.cloudmall.goods.api.client.GoodsClient;
 import com.cloudmall.goods.api.response.GoodsResp;
@@ -7,7 +9,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.ai.chat.model.ToolContext;
 import org.springframework.ai.tool.annotation.Tool;
 import org.springframework.ai.tool.annotation.ToolParam;
-import org.springframework.stereotype.Component;
 
 /**
  * 商品查询工具
@@ -15,9 +16,9 @@ import org.springframework.stereotype.Component;
  * @author : Tomatos
  * @date : 2026/7/22
  */
-@Component
+@AgentTool(agents = AgentType.GOODS)
 @RequiredArgsConstructor
-public class GoodsTool implements AgentTool {
+public class GoodsTool {
 
     private final GoodsClient goodsClient;
 

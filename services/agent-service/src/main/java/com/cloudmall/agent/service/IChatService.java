@@ -27,11 +27,4 @@ public interface IChatService {
      */
     void stop(String sessionId);
 
-    /**
-     * 生成会话在 AI ChatMemory 中的全局唯一标识
-     *
-     * @param sessionId 会话 ID
-     * @return 格式为 {userId}_{sessionId} 的字符串
-     */
-    String getConversationId(String sessionId);
 }

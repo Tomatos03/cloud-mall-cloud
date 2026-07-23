@@ -41,7 +41,15 @@ public interface ISessionService {
     List<ChatMessageResp> getSessionMessages(String sessionId);
 
     /**
-     * 更新会话标题
+     * 获取会话标题。
+     *
+     * @param sessionId 会话 ID
+     * @return 会话标题，首次聊天时为 null
+     */
+    String getSessionTitle(String sessionId);
+
+    /**
+     * 更新会话标题。
      *
      * @param sessionId 会话 ID
      * @param title     新标题
@@ -69,4 +77,12 @@ public interface ISessionService {
      * @throws BizException 会话不存在或不属于当前用户时抛出 SESSION_NOT_FOUND
      */
     void validateSession(String sessionId);
+
+    /**
+     * 生成会话在 AI ChatMemory 中的全局唯一标识
+     *
+     * @param sessionId 会话 ID
+     * @return 格式为 {userId}_{sessionId} 的字符串
+     */
+    String getConversationId(String sessionId);
 }

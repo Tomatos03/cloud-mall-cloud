@@ -12,7 +12,6 @@ import com.cloudmall.agent.model.resp.ChatMessageResp;
 import com.cloudmall.agent.model.resp.CreateSessionResp;
 import com.cloudmall.agent.model.resp.HotTopicResp;
 import com.cloudmall.agent.properties.AgentProperties;
-import com.cloudmall.agent.service.IChatService;
 import com.cloudmall.agent.service.ISessionService;
 import com.cloudmall.common.enums.BizErrorCode;
 import com.cloudmall.common.exception.BizException;
@@ -21,7 +20,6 @@ import com.cloudmall.agent.model.enums.SessionTimeBucket;
 import com.cloudmall.agent.model.resp.SessionHistoryItemResp;
 import com.cloudmall.context.UserContextHolder;
 import lombok.RequiredArgsConstructor;
-import org.springframework.context.annotation.Lazy;
 import org.springframework.ai.chat.memory.ChatMemoryRepository;
 import org.springframework.ai.chat.messages.Message;
 import org.springframework.ai.chat.messages.MessageType;
@@ -50,8 +48,6 @@ public class SessionService implements ISessionService {
     private final ChatSessionMapper chatSessionMapper;
     private final AgentProperties agentProperties;
     private final ChatMemoryRepository chatMemoryRepository;
-    @Lazy
-    private final IChatService chatService;
 
     /**
      * 创建新会话 — 生成 sessionId、插入数据库、返回会话信息和随机热门话题
@@ -100,7 +96,7 @@ public class SessionService implements ISessionService {
     @Override
     public List<ChatMessageResp> getSessionMessages(String sessionId) {
         validateSession(sessionId);
-        List<Message> messages = chatMemoryRepository.findByConversationId(chatService.getConversationId(sessionId));
+        List<Message> messages = chatMemoryRepository.findByConversationId(getConversationId(sessionId));
         return messages.stream()
                        .filter(m ->
                                m.getMessageType() == MessageType.USER
@@ -124,7 +120,7 @@ public class SessionService implements ISessionService {
     @Transactional(rollbackFor = Exception.class)
     public void deleteSession(String sessionId) {
         chatSessionMapper.deleteById(sessionId);
-        chatMemoryRepository.deleteByConversationId(chatService.getConversationId(sessionId));
+        chatMemoryRepository.deleteByConversationId(getConversationId(sessionId));
     }
 
     /**
@@ -173,6 +169,12 @@ public class SessionService implements ISessionService {
      * @param title     新标题
      */
     @Override
+    public String getSessionTitle(String sessionId) {
+        ChatSessionDO session = getValidatedSession(sessionId);
+        return session.getTitle();
+    }
+
+    @Override
     public void updateSessionTitle(String sessionId, String title) {
         ChatSessionDO session = getValidatedSession(sessionId);
         int titleLen = Math.min(100, title.length());
@@ -206,6 +208,17 @@ public class SessionService implements ISessionService {
     @Override
     public void validateSession(String sessionId) {
         getValidatedSession(sessionId);
+    }
+
+    /**
+     * 生成会话在 AI ChatMemory 中的全局唯一标识
+     *
+     * @param sessionId 会话 ID
+     * @return 格式为 {userId}_{sessionId} 的字符串
+     */
+    @Override
+    public String getConversationId(String sessionId) {
+        return String.format("%s_%s", UserContextHolder.getUserId(), sessionId);
     }
 
     /**

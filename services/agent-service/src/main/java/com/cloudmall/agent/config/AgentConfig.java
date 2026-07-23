@@ -1,9 +1,7 @@
 package com.cloudmall.agent.config;
 
-import cn.hutool.core.collection.CollectionUtil;
 import com.cloudmall.agent.memory.CacheChatMemoryRepository;
 import com.cloudmall.agent.properties.AgentProperties;
-import com.cloudmall.agent.tool.AgentTool;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.chat.client.advisor.MessageChatMemoryAdvisor;
 import org.springframework.ai.chat.client.advisor.SimpleLoggerAdvisor;
@@ -20,12 +18,11 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.redis.core.StringRedisTemplate;
 
-import java.util.List;
-
 /**
  * Agent 服务配置类
  * <p>
- * 配置 ChatClient、Advisors、Tools 等核心 Bean
+ * 配置全局 Advisors、ChatMemory 等核心 Bean，
+ * 并提供预置了公共 Advisor 的 {@link ChatClient.Builder} 供各智能体使用。
  *
  * @author Tomatos
  * @date 2026/7/21
@@ -42,22 +39,6 @@ public class AgentConfig {
      * @param agentProperties Agent 配置属性
      * @return ChatClient 实例
      */
-    @Bean
-    public ChatClient chatClient(
-            ChatClient.Builder builder,
-            List<Advisor> advisors,
-            List<AgentTool> tools,
-            AgentProperties agentProperties
-    ) {
-        if (CollectionUtil.isNotEmpty(advisors)) {
-            builder.defaultAdvisors(advisors);
-        }
-        if (CollectionUtil.isNotEmpty(tools)) {
-            builder.defaultTools(tools.toArray());
-        }
-        return builder.defaultSystem(agentProperties.getPrompt())
-                      .build();
-    }
 
     /**
      * 日志 Advisor
@@ -110,10 +91,9 @@ public class AgentConfig {
                 .similarityThreshold(rag.getSimilarityThreshold())
                 .topK(rag.getTopK())
                 .build();
-        QuestionAnswerAdvisor advisor = QuestionAnswerAdvisor.builder(vectorStore)
-                                                             .searchRequest(searchRequest)
-                                                             .build();
-        return advisor;
+        return QuestionAnswerAdvisor.builder(vectorStore)
+                                    .searchRequest(searchRequest)
+                                    .build();
     }
 
     /**
