@@ -20,6 +20,6 @@
         <module>seckill-service</module>
         <module>order-service</module>
         <module>im-service</module>
-        <module>agent-service</module>
+        <module>aigc-service</module>
     </modules>
 </project>

@@ -20,7 +20,7 @@
 | `coupon-service` | 优惠券服务 | 8085 | `CouponApplication` |
 | `seckill-service` | 秒杀服务 | 8086 | `SeckillApplication` |
 | `im-service` | 即时通讯 | 7010 | `IMApplication` |
-| `agent-service` | AI Agent 服务 | 8087 | `AgentApplication` |
+| `aigc-service` | AI Agent 服务 | 8087 | `AIGCApplication` |
 
 ### 服务接口
 
