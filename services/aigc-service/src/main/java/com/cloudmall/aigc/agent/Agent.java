@@ -40,4 +40,12 @@ public interface Agent {
      * @return 流式聊天响应
      */
     Flux<ChatResp> chat(ChatReq req);
+
+    /**
+     * 纯文本非流式聊天 — 等待完整响应后一次性返回 AI 回复内容。
+     *
+     * @param req 聊天请求（含 sessionId 和 prompt）
+     * @return AI 回复的完整文本内容
+     */
+    String chatText(ChatReq req);
 }

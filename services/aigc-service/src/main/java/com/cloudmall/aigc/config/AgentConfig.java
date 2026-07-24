@@ -1,7 +1,5 @@
 package com.cloudmall.aigc.config;
 
-import com.cloudmall.aigc.memory.CacheChatMemoryRepository;
-import com.cloudmall.aigc.properties.AgentProperties;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.chat.client.advisor.MessageChatMemoryAdvisor;
 import org.springframework.ai.chat.client.advisor.SimpleLoggerAdvisor;
@@ -17,6 +15,9 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.redis.core.StringRedisTemplate;
+
+import com.cloudmall.aigc.memory.CacheChatMemoryRepository;
+import com.cloudmall.aigc.properties.AgentProperties;
 
 /**
  * Agent 服务配置类
@@ -68,7 +69,7 @@ public class AgentConfig {
      * @return MessageChatMemoryAdvisor 实例
      */
     @Bean
-    public Advisor messageChatMemoryAdvisor(ChatMemory chatMemory) {
+    public MessageChatMemoryAdvisor messageChatMemoryAdvisor(ChatMemory chatMemory) {
         return MessageChatMemoryAdvisor
                 .builder(chatMemory)
                 .build();

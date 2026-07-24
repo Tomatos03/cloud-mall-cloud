@@ -1,17 +1,18 @@
 package com.cloudmall.aigc.agent;
 
-import com.cloudmall.aigc.model.req.ChatReq;
-import com.cloudmall.aigc.model.resp.ChatResp;
+import java.util.List;
+import java.util.Map;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-import java.util.List;
-import java.util.Map;
-import java.util.function.Function;
-import java.util.stream.Collectors;
+import com.cloudmall.aigc.model.req.ChatReq;
+import com.cloudmall.aigc.model.resp.ChatResp;
 
 /**
  * 路由智能体。
@@ -135,6 +136,19 @@ public class RouterAgent implements Agent {
                        );
                        return agent.chat(req);
                    });
+    }
+
+    /**
+     * 纯文本非流式聊天 — 路由智能体不支持非流式调用。
+     * <p>
+     * 非流式聊天应直接调用业务智能体（如 {@link GeneralAgent}），无需经过意图路由。
+     *
+     * @param req 聊天请求
+     * @throws UnsupportedOperationException 始终抛出，路由智能体不支持此操作
+     */
+    @Override
+    public String chatText(ChatReq req) {
+        throw new UnsupportedOperationException("RouterAgent 不支持非流式聊天，请直接调用 GeneralAgent.chatText()");
     }
 
     /**

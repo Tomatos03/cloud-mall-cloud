@@ -2,6 +2,7 @@ package com.cloudmall.aigc.agent;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.ai.chat.client.ChatClient;
+import org.springframework.ai.chat.client.advisor.MessageChatMemoryAdvisor;
 import org.springframework.ai.chat.memory.ChatMemoryRepository;
 import org.springframework.stereotype.Service;
 
@@ -24,9 +25,10 @@ public class GoodsAgent extends AbstractAgent {
             GeneratingSessionManager generatingSessionManager,
             ChatMemoryRepository chatMemoryRepository,
             ISessionService sessionService,
-            AgentToolRegistry toolRegistry
+            AgentToolRegistry toolRegistry,
+            MessageChatMemoryAdvisor messageChatMemoryAdvisor
     ) {
-        super(promptLoader, chatClientBuilder, generatingSessionManager, chatMemoryRepository, sessionService, toolRegistry);
+        super(promptLoader, chatClientBuilder, generatingSessionManager, chatMemoryRepository, sessionService, toolRegistry, messageChatMemoryAdvisor);
     }
 
     /**

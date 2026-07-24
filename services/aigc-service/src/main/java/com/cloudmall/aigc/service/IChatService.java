@@ -21,6 +21,14 @@ public interface IChatService {
     Flux<ChatResp> chat(ChatReq req);
 
     /**
+     * 纯文本非流式聊天 — 等待完整响应后一次性返回
+     *
+     * @param req 聊天请求（含 sessionId 和 prompt）
+     * @return AI 回复的完整文本内容
+     */
+    String chatText(ChatReq req);
+
+    /**
      * 停止指定会话的 AI 生成
      *
      * @param sessionId 会话 ID

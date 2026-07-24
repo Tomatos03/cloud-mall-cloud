@@ -1,6 +1,17 @@
 package com.cloudmall.aigc.agent;
 
+import java.util.Collections;
+import java.util.Map;
+
 import cn.hutool.core.util.StrUtil;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.ai.chat.client.ChatClient;
+import org.springframework.ai.chat.client.advisor.MessageChatMemoryAdvisor;
+import org.springframework.ai.chat.memory.ChatMemory;
+import org.springframework.ai.chat.memory.ChatMemoryRepository;
+import org.springframework.ai.chat.messages.AssistantMessage;
+import reactor.core.publisher.Flux;
+
 import com.cloudmall.aigc.manager.GeneratingSessionManager;
 import com.cloudmall.aigc.model.enums.ChatEventType;
 import com.cloudmall.aigc.model.req.ChatReq;
@@ -8,15 +19,6 @@ import com.cloudmall.aigc.model.resp.ChatResp;
 import com.cloudmall.aigc.service.ISessionService;
 import com.cloudmall.aigc.tool.ToolResultContext;
 import com.cloudmall.context.UserContextHolder;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.ai.chat.client.ChatClient;
-import org.springframework.ai.chat.memory.ChatMemory;
-import org.springframework.ai.chat.memory.ChatMemoryRepository;
-import org.springframework.ai.chat.messages.AssistantMessage;
-import reactor.core.publisher.Flux;
-
-import java.util.Collections;
-import java.util.Map;
 
 @Slf4j
 public abstract class AbstractAgent implements Agent {
@@ -31,7 +33,8 @@ public abstract class AbstractAgent implements Agent {
             GeneratingSessionManager generatingSessionManager,
             ChatMemoryRepository chatMemoryRepository,
             ISessionService sessionService,
-            AgentToolRegistry toolRegistry
+            AgentToolRegistry toolRegistry,
+            MessageChatMemoryAdvisor messageChatMemoryAdvisor
     ) {
         this.generatingSessionManager = generatingSessionManager;
         this.chatMemoryRepository = chatMemoryRepository;
@@ -47,6 +50,7 @@ public abstract class AbstractAgent implements Agent {
         log.debug("{} 初始化 ChatClient, tools: {}", getType().name(), tools);
 
         this.chatClient = chatClientBuilder.defaultSystem(systemPrompt)
+                                           .defaultAdvisors(messageChatMemoryAdvisor)
                                            .defaultTools(tools)
                                            .build();
     }
@@ -113,6 +117,28 @@ public abstract class AbstractAgent implements Agent {
                 ));
     }
 
+    /**
+     * 纯文本非流式聊天 — 等待完整响应后一次性返回 AI 回复内容。
+     * <p>
+     * 通过 {@link MessageChatMemoryAdvisor} 传递会话 ID 以维护聊天上下文，
+     * 由 Advisor 自动处理消息记忆，无需手动保存。
+     *
+     * @param req 聊天请求（含 sessionId 和 prompt）
+     * @return AI 回复的完整文本内容
+     */
+    public String chatText(ChatReq req) {
+        String sessionId = req.getSessionId();
+        String conversationId = buildConversationId(sessionId);
+
+        log.debug("{} 处理 chatText 请求: sessionId={}, prompt={}", getType().name(), sessionId, req.getPrompt());
+
+        return getChatClient()
+                .prompt(req.getPrompt())
+                .advisors(advisorSpec -> advisorSpec
+                        .param(ChatMemory.CONVERSATION_ID, conversationId))
+                .call()
+                .content();
+    }
 
     /**
      * 构建会话唯一标识，格式为 "{用户ID}_{会话ID}"。

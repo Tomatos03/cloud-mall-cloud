@@ -3,6 +3,7 @@ package com.cloudmall.aigc.memory;
 import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.json.JSONUtil;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.ai.chat.memory.ChatMemoryRepository;
 import org.springframework.ai.chat.messages.Message;
 import org.springframework.data.redis.core.Cursor;
@@ -20,6 +21,7 @@ import java.util.stream.Collectors;
  * @author : Tomatos
  * @date : 2026/7/21
  */
+@Slf4j
 @RequiredArgsConstructor
 public class CacheChatMemoryRepository implements ChatMemoryRepository {
     private final static String KEY_PREFIX = "chat:";
@@ -61,6 +63,7 @@ public class CacheChatMemoryRepository implements ChatMemoryRepository {
 
     @Override
     public void saveAll(String conversationId, List<Message> messages) {
+        log.debug("保存会话消息到 Redis, conversationId: {}, messages: {}", conversationId, messages);
         if (CollectionUtil.isEmpty(messages)) {
             return;
         }

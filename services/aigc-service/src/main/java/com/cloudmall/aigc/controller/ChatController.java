@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
 import reactor.core.publisher.Flux;
 
 /**
- * AI 智能客服接口 — 流式聊天、停止生成
+ * AI 智能客服接口 — 流式聊天、纯文本聊天、停止生成
  *
  * @author : Tomatos
  * @date : 2026/7/21
@@ -36,6 +36,17 @@ public class ChatController {
     @PostMapping(produces = MediaType.TEXT_EVENT_STREAM_VALUE)
     public Flux<ChatResp> chat(@Valid @RequestBody ChatReq req) {
         return chatService.chat(req);
+    }
+
+    /**
+     * 纯文本非流式聊天 — 等待完整响应后一次性返回
+     *
+     * @param req 聊天请求（含 sessionId 和 prompt）
+     * @return AI 回复的完整文本内容
+     */
+    @PostMapping("/text")
+    public Result<String> chatText(@Valid @RequestBody ChatReq req) {
+        return Result.success(chatService.chatText(req));
     }
 
     /**
