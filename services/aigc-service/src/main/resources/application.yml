@@ -20,6 +20,12 @@ spring:
   elasticsearch:
     uris: http://localhost:9200
   ai:
+    openai:
+      audio:
+        speech:
+          options:
+            model: tts-1
+            voice: alloy
     vectorstore:
       elasticsearch:
         initialize-schema: true
