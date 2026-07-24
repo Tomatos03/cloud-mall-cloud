@@ -13,7 +13,7 @@
     <dependencies>
         <dependency>
             <groupId>com.cloudmall</groupId>
-            <artifactId>cloudmall-context</artifactId>
+            <artifactId>cloudmall-auth-api</artifactId>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>

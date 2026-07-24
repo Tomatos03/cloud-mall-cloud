@@ -1,27 +1,40 @@
 package com.cloudmall.jwt.token;
 
-import com.cloudmall.context.UserContext;
-import com.cloudmall.jwt.JwtProperties;
+import java.nio.charset.StandardCharsets;
+import java.util.Date;
+import java.util.Map;
+
+import javax.crypto.SecretKey;
+
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
 
-import javax.crypto.SecretKey;
-import java.nio.charset.StandardCharsets;
-import java.util.Date;
-import java.util.Map;
+import com.cloudmall.auth.AuthTokenException;
+import com.cloudmall.auth.AuthTokenService;
+import com.cloudmall.context.UserContext;
+import com.cloudmall.jwt.JwtProperties;
 
-public class JwtTokenTemplate {
+/**
+ * 基于 JJWT 的认证令牌实现
+ * <p>
+ * 使用 HMAC-SHA 签名，token 中携带 userId、username、userType 和扩展字段。
+ *
+ * @author : Tomatos
+ * @date : 2026/7/25
+ */
+public class JwtTokenService implements AuthTokenService {
 
     private final SecretKey key;
     private final long expirationMs;
 
-    public JwtTokenTemplate(JwtProperties properties) {
+    public JwtTokenService(JwtProperties properties) {
         this.key = Keys.hmacShaKeyFor(properties.getSecret().getBytes(StandardCharsets.UTF_8));
         this.expirationMs = properties.getExpiration();
     }
 
+    @Override
     public String createToken(UserContext userContext) {
         Date now = new Date();
         return Jwts.builder()
@@ -35,6 +48,7 @@ public class JwtTokenTemplate {
                    .compact();
     }
 
+    @Override
     public boolean validateToken(String token) {
         try {
             Jwts.parser()
@@ -47,13 +61,19 @@ public class JwtTokenTemplate {
         }
     }
 
+    @Override
     @SuppressWarnings("unchecked")
-    public UserContext parse(String token) {
-        Claims claims = Jwts.parser()
-                            .verifyWith(key)
-                            .build()
-                            .parseSignedClaims(token)
-                            .getPayload();
+    public UserContext parseToken(String token) {
+        Claims claims;
+        try {
+            claims = Jwts.parser()
+                         .verifyWith(key)
+                         .build()
+                         .parseSignedClaims(token)
+                         .getPayload();
+        } catch (JwtException | IllegalArgumentException e) {
+            throw new AuthTokenException("token 无效或已过期", token, e);
+        }
         return UserContext
                 .builder()
                 .userId(claims.get("userId", Long.class))

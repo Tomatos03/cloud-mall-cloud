@@ -5,17 +5,17 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import com.cloudmall.auth.AuthTokenService;
 import com.cloudmall.auth.api.request.LoginReq;
 import com.cloudmall.auth.api.request.RegisterReq;
 import com.cloudmall.auth.api.response.LoginResp;
-import com.cloudmall.auth.entity.AuthUserDO;
 import com.cloudmall.auth.convert.AuthConverter;
+import com.cloudmall.auth.entity.AuthUserDO;
 import com.cloudmall.auth.mapper.AuthUserMapper;
 import com.cloudmall.auth.service.IAuthService;
 import com.cloudmall.common.enums.BizErrorCode;
 import com.cloudmall.common.utils.AssertUtils;
 import com.cloudmall.context.UserContext;
-import com.cloudmall.jwt.token.JwtTokenTemplate;
 import com.cloudmall.mybatisplus.enums.StatusEnum;
 
 @Service
@@ -23,7 +23,7 @@ import com.cloudmall.mybatisplus.enums.StatusEnum;
 public class AuthService implements IAuthService {
 
     private final AuthUserMapper userMapper;
-    private final JwtTokenTemplate jwtTokenTemplate;
+    private final AuthTokenService authTokenService;
     private final PasswordEncoder passwordEncoder;
     private final AuthConverter authConverter;
 
@@ -41,7 +41,7 @@ public class AuthService implements IAuthService {
                 .username(user.getUsername())
                 .userType(user.getUserType())
                 .build();
-        String token = jwtTokenTemplate.createToken(userCtx);
+        String token = authTokenService.createToken(userCtx);
 
         LoginResp response = authConverter.toLoginResp(user);
         response.setToken(token);
