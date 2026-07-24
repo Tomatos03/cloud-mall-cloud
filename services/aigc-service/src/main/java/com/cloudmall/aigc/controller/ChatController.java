@@ -1,12 +1,11 @@
-package com.cloudmall.aigc.controller;
+ package com.cloudmall.aigc.controller;
 
-import com.cloudmall.aigc.model.req.ChatReq;
-import com.cloudmall.aigc.model.resp.ChatResp;
-import com.cloudmall.aigc.service.IChatService;
-import com.cloudmall.common.entity.Result;
+import java.util.List;
+
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -14,8 +13,14 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import reactor.core.publisher.Flux;
 
-/**
- * AI 智能客服接口 — 流式聊天、纯文本聊天、停止生成
+import com.cloudmall.aigc.model.req.ChatReq;
+import com.cloudmall.aigc.model.resp.ChatResp;
+import com.cloudmall.aigc.model.resp.ChatTemplate;
+import com.cloudmall.aigc.service.IChatService;
+import com.cloudmall.common.entity.Result;
+
+ /**
+ * AI 智能客服接口 — 流式聊天、纯文本聊天、模板查询、停止生成
  *
  * @author : Tomatos
  * @date : 2026/7/21
@@ -47,6 +52,19 @@ public class ChatController {
     @PostMapping("/text")
     public Result<String> chatText(@Valid @RequestBody ChatReq req) {
         return Result.success(chatService.chatText(req));
+    }
+
+    /**
+     * 获取聊天回复占位符模板列表
+     * <p>
+     * 返回润色、续写、帮写等写作辅助模式的 prompt 模板，
+     * 前端展示给用户选择，用户输入内容替换 {userInput} 占位符后提交。
+     *
+     * @return 模板列表
+     */
+    @GetMapping("/templates")
+    public Result<List<ChatTemplate>> getTemplates() {
+        return Result.success(chatService.getTemplates());
     }
 
     /**

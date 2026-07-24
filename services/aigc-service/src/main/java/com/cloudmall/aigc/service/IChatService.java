@@ -1,7 +1,10 @@
 package com.cloudmall.aigc.service;
 
+import java.util.List;
+
 import com.cloudmall.aigc.model.req.ChatReq;
 import com.cloudmall.aigc.model.resp.ChatResp;
+import com.cloudmall.aigc.model.resp.ChatTemplate;
 import reactor.core.publisher.Flux;
 
 /**
@@ -34,5 +37,15 @@ public interface IChatService {
      * @param sessionId 会话 ID
      */
     void stop(String sessionId);
+
+    /**
+     * 获取聊天回复占位符模板列表
+     * <p>
+     * 返回润色、续写、帮写等写作辅助模式的 prompt 模板，
+     * 前端将模板展示给用户，用户输入内容替换 {userInput} 占位符后提交。
+     *
+     * @return 模板列表
+     */
+    List<ChatTemplate> getTemplates();
 
 }

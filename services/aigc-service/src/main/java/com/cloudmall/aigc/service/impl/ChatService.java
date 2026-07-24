@@ -1,14 +1,18 @@
 package com.cloudmall.aigc.service.impl;
 
+import java.util.List;
+
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 
 import com.cloudmall.aigc.agent.GeneralAgent;
 import com.cloudmall.aigc.agent.RouterAgent;
+import com.cloudmall.aigc.constant.ChatTemplates;
 import com.cloudmall.aigc.manager.GeneratingSessionManager;
 import com.cloudmall.aigc.model.req.ChatReq;
 import com.cloudmall.aigc.model.resp.ChatResp;
+import com.cloudmall.aigc.model.resp.ChatTemplate;
 import com.cloudmall.aigc.service.IChatService;
 
 /**
@@ -43,5 +47,26 @@ public class ChatService implements IChatService {
     @Override
     public void stop(String sessionId) {
         generatingSessionManager.stop(sessionId);
+    }
+
+    @Override
+    public List<ChatTemplate> getTemplates() {
+        return List.of(
+                ChatTemplate.builder()
+                            .type("polish")
+                            .name("润色")
+                            .template(ChatTemplates.POLISH)
+                            .build(),
+                ChatTemplate.builder()
+                            .type("continue")
+                            .name("续写")
+                            .template(ChatTemplates.CONTINUE)
+                            .build(),
+                ChatTemplate.builder()
+                            .type("help-write")
+                            .name("帮写")
+                            .template(ChatTemplates.HELP_WRITE)
+                            .build()
+        );
     }
 }
