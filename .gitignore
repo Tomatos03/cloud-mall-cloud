@@ -10,8 +10,8 @@ application-local.yml
 .superpowers
 superpowers
 tmp
-.pi
 
 # jarp cli skill cache
 .jarp-index.json
 .jarp-temp
+opencode.json
