@@ -2,13 +2,14 @@ package com.cloudmall.goods.service.impl;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.cloudmall.mybatisplus.enums.StatusEnum;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import com.cloudmall.goods.api.request.CommentCreateReq;
+import com.cloudmall.goods.api.request.CommentReq;
 import com.cloudmall.goods.api.response.CommentResp;
 import com.cloudmall.goods.entity.CommentDO;
 import com.cloudmall.goods.convert.CommentConverter;
@@ -23,23 +24,25 @@ public class CommentService implements ICommentService {
     private final CommentConverter commentConverter;
 
     @Override
-    public List<CommentResp> listByGoodsId(Long goodsId) {
+    public List<CommentResp> list(CommentReq req) {
         List<CommentDO> list = commentMapper.selectList(
                 Wrappers.<CommentDO>lambdaQuery()
-                        .eq(CommentDO::getGoodsId, goodsId)
+                        .eq(CommentDO::getGoodsId, req.getGoodsId())
                         .eq(CommentDO::getStatus, StatusEnum.ENABLED)
                         .orderByDesc(CommentDO::getCreateTime)
         );
-        return list.stream().map(this::toResponse).collect(Collectors.toList());
+        return list.stream()
+                   .map(commentConverter::toResp)
+                   .toList();
     }
 
     @Override
-    public Long create(Long goodsId, Long userId, String content, Integer rating) {
+    public Long create(CommentCreateReq req) {
         CommentDO c = CommentDO.builder()
-                .goodsId(goodsId)
-                .userId(userId)
-                .content(content)
-                .rating(rating != null ? rating : 5)
+                .goodsId(req.getGoodsId())
+                .userId(req.getUserId())
+                .content(req.getContent())
+                .rating(req.getRating() != null ? req.getRating() : 5)
                 .status(StatusEnum.ENABLED)
                 .createTime(LocalDateTime.now())
                 .build();
@@ -47,7 +50,4 @@ public class CommentService implements ICommentService {
         return c.getId();
     }
 
-    private CommentResp toResponse(CommentDO c) {
-        return commentConverter.toResp(c);
-    }
 }

@@ -10,7 +10,6 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Data
 public class CommentCreateReq {
-
     private Long goodsId;
     private Long userId;
     private String content;

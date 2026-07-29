@@ -22,16 +22,14 @@ public class UnitService implements IUnitService {
     private final UnitConverter unitConverter;
 
     @Override
-    public List<UnitResp> listAll() {
+    public List<UnitResp> list() {
         List<UnitDO> list = unitMapper.selectList(
                 Wrappers.<UnitDO>lambdaQuery()
                         .eq(UnitDO::getStatus, StatusEnum.ENABLED)
                         .orderByAsc(UnitDO::getSortOrder)
         );
-        return list.stream().map(this::toResponse).collect(Collectors.toList());
-    }
-
-    private UnitResp toResponse(UnitDO unit) {
-        return unitConverter.toResp(unit);
+        return list.stream()
+                   .map(unitConverter::toResp)
+                   .toList();
     }
 }

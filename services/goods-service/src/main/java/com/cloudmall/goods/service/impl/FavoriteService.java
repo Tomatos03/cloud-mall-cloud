@@ -46,7 +46,9 @@ public class FavoriteService implements IFavoriteService {
                         .eq(FavoriteDO::getUserId, userId)
                         .orderByDesc(FavoriteDO::getCreateTime)
         );
-        return list.stream().map(FavoriteDO::getGoodsId).collect(Collectors.toList());
+        return list.stream()
+                   .map(FavoriteDO::getGoodsId)
+                   .collect(Collectors.toList());
     }
 
     @Override

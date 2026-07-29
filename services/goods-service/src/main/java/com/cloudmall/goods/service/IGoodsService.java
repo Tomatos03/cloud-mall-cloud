@@ -1,18 +1,15 @@
 package com.cloudmall.goods.service;
 
-import java.util.List;
-
-import com.cloudmall.goods.api.request.SearchReq;
+import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.cloudmall.goods.api.response.GoodsResp;
+import com.cloudmall.goods.model.req.GoodsPageReq;
 
 public interface IGoodsService {
     GoodsResp getById(Long id);
 
     GoodsResp getBySpu(String spu);
 
-    List<GoodsResp> listByCategory(Long categoryId, int page, int size);
-
-    List<GoodsResp> search(SearchReq request);
+    IPage<GoodsResp> page(GoodsPageReq req);
 
     Boolean deductStock(Long skuId, Integer quantity);
 

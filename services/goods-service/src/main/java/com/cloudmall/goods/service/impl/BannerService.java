@@ -22,16 +22,14 @@ public class BannerService implements IBannerService {
     private final BannerConverter bannerConverter;
 
     @Override
-    public List<BannerResp> listActive() {
+    public List<BannerResp> list() {
         List<BannerDO> list = bannerMapper.selectList(
                 Wrappers.<BannerDO>lambdaQuery()
                         .eq(BannerDO::getStatus, StatusEnum.ENABLED)
                         .orderByAsc(BannerDO::getSortOrder)
         );
-        return list.stream().map(this::toResponse).collect(Collectors.toList());
-    }
-
-    private BannerResp toResponse(BannerDO banner) {
-        return bannerConverter.toResp(banner);
+        return list.stream()
+                   .map(bannerConverter::toResp)
+                   .toList();
     }
 }

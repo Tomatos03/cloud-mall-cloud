@@ -240,21 +240,23 @@ public class ResourceService implements IResourceService {
             return Collections.emptyList();
         }
 
-        List<Tree<Long>> hutoolTree = TreeUtil.build(resources, null, (r, t) -> {
-            t.setId(r.getId());
-            t.setParentId(r.getParentId());
-            t.setName(r.getName());
-            t.setWeight(ObjectUtil.defaultIfNull(r.getSort(), 0).doubleValue());
-            t.putExtra("type", r.getType());
-            t.putExtra("code", r.getCode());
-            t.putExtra("enabled", r.getEnabled());
-        });
+        List<Tree<Long>> hutoolTree = TreeUtil.build(resources, null, ResourceService::resourceToTree);
         if (CollUtil.isEmpty(hutoolTree)) {
             return Collections.emptyList();
         }
         return hutoolTree.stream()
                          .map(ResourceService::treeToResourceNode)
                          .toList();
+    }
+
+    private static void resourceToTree(ResourceDO r, Tree<Long> t) {
+        t.setId(r.getId());
+        t.setParentId(r.getParentId());
+        t.setName(r.getName());
+        t.setWeight(ObjectUtil.defaultIfNull(r.getSort(), 0).doubleValue());
+        t.putExtra("type", r.getType());
+        t.putExtra("code", r.getCode());
+        t.putExtra("enabled", r.getEnabled());
     }
 
     /**

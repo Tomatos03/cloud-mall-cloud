@@ -21,6 +21,6 @@ public class BannerController {
 
     @GetMapping
     public Result<List<BannerResp>> list() {
-        return Result.success(bannerService.listActive());
+        return Result.success(bannerService.list());
     }
 }

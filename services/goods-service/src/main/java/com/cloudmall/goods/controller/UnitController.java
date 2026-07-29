@@ -21,6 +21,6 @@ public class UnitController {
 
     @GetMapping
     public Result<List<UnitResp>> list() {
-        return Result.success(unitService.listAll());
+        return Result.success(unitService.list());
     }
 }

@@ -2,6 +2,7 @@ package com.cloudmall.goods.controller;
 
 import java.util.List;
 
+import com.baomidou.mybatisplus.core.metadata.IPage;
 import lombok.RequiredArgsConstructor;
 
 import org.springframework.web.bind.annotation.GetMapping;
@@ -10,13 +11,13 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.cloudmall.common.model.Result;
 import com.cloudmall.goods.api.request.SearchReq;
 import com.cloudmall.goods.api.request.StockReq;
 import com.cloudmall.goods.api.response.GoodsResp;
+import com.cloudmall.goods.model.req.GoodsPageReq;
 import com.cloudmall.goods.service.IGoodsService;
 
 @RestController
@@ -37,16 +38,8 @@ public class GoodsController {
     }
 
     @GetMapping
-    public Result<List<GoodsResp>> listByCategory(
-            @RequestParam Long categoryId,
-            @RequestParam(defaultValue = "1") int page,
-            @RequestParam(defaultValue = "20") int size) {
-        return Result.success(goodsService.listByCategory(categoryId, page, size));
-    }
-
-    @PostMapping("/search")
-    public Result<List<GoodsResp>> search(@RequestBody SearchReq request) {
-        return Result.success(goodsService.search(request));
+    public Result<IPage<GoodsResp>> page(GoodsPageReq req) {
+        return Result.success(goodsService.page(req));
     }
 
     @PutMapping("/{skuId}/stock")
