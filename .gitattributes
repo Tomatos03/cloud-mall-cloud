@@ -1,0 +1,30 @@
+# 自动清理提交中的凭据和令牌（需先配置 filter，见下方说明）
+# 启用方式：
+#   git config filter.strip-secrets.clean \
+#     '.gitattributes.d/secrets-filter.sh'
+# 此后 git add 会自动将文件中的密钥替换为占位符
+*.yaml   filter=strip-secrets
+*.yml    filter=strip-secrets
+*.properties filter=strip-secrets
+*.env    filter=strip-secrets
+
+# 语言 / IDE
+*.java   text diff=java
+*.xml    text
+*.yml    text
+*.yaml   text
+*.sql    text
+*.md     text
+*.json   text
+*.sh     text eol=lf
+*.bat    text eol=crlf
+
+# 二进制
+*.jar    binary
+*.png    binary
+*.jpg    binary
+*.ico    binary
+
+# Git 内部
+.gitattributes text
+.gitignore     text

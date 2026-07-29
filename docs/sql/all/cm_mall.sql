@@ -11,7 +11,7 @@ USE cm_mall;
 -- 认证模块 (auth)
 -- ============================================================
 
-CREATE TABLE cm_user
+CREATE TABLE IF NOT EXISTS cm_user
 (
     id         bigint auto_increment comment '用户ID'
         primary key,
@@ -32,13 +32,13 @@ CREATE TABLE cm_user
 ) comment '用户认证表' engine = InnoDB
                        collate = utf8mb4_unicode_ci;
 
-CREATE TABLE cm_role
+CREATE TABLE IF NOT EXISTS cm_role
 (
     id          bigint auto_increment comment '角色ID'
         primary key,
     name        varchar(50)                          not null comment '角色名称',
     built_in    tinyint(1) default 0                 not null comment '是否为内置角色(不可删除)',
-    enable      tinyint(1) default 1                 null comment '是否启用',
+    enabled     tinyint(1) default 1                 null comment '是否启用',
     description varchar(255)                         null comment '角色描述',
     create_time datetime   default CURRENT_TIMESTAMP null comment '创建时间',
     update_time datetime    DEFAULT NULL comment '更新时间',
@@ -48,12 +48,13 @@ CREATE TABLE cm_role
 ) comment '系统角色表' engine = InnoDB
                       collate = utf8mb4_unicode_ci;
 
-CREATE TABLE cm_user_role
+CREATE TABLE IF NOT EXISTS cm_user_role
 (
     user_id     bigint                             not null comment '用户ID',
     role_id     bigint                             not null comment '角色ID',
     create_time datetime default CURRENT_TIMESTAMP null comment '创建时间',
     primary key (user_id, role_id),
+    key idx_role_id (role_id),
     constraint fk_auth_user_role_user
         foreign key (user_id) references cm_user (id)
             on delete cascade,
@@ -63,13 +64,46 @@ CREATE TABLE cm_user_role
 ) comment '用户与角色关联表' engine = InnoDB
                             collate = utf8mb4_unicode_ci;
 
-CREATE INDEX idx_auth_user_role_role_id ON cm_user_role (role_id);
+-- ============================================================
+-- RBAC 权限模块
+-- ============================================================
+
+CREATE TABLE IF NOT EXISTS cm_resource
+(
+    id          bigint auto_increment comment '资源ID',
+    code        varchar(100)   not null comment '权限编码，如 goods:create',
+    name        varchar(100)   not null comment '资源名称',
+    type        varchar(20)    not null comment '资源类型: api / menu / button',
+    parent_id   bigint         default null comment '父资源ID',
+    sort        int            default 0 comment '排序号',
+    enabled     tinyint(1)     default 1 comment '是否启用',
+    create_time datetime       default current_timestamp null comment '创建时间',
+    update_time datetime       default null comment '更新时间',
+    deleted     tinyint(1)     default 0 comment '是否删除(0=否 1=是)',
+    primary key (id),
+    unique key uk_code (code),
+    key idx_parent_id (parent_id)
+) comment '资源/权限编码定义表' engine = InnoDB
+                                     collate = utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS cm_role_resource
+(
+    role_id     bigint   not null comment '角色ID',
+    resource_id bigint   not null comment '资源ID',
+    create_time datetime default current_timestamp null comment '创建时间',
+    primary key (role_id, resource_id),
+    constraint fk_role_resource_role
+        foreign key (role_id) references cm_role (id) on delete cascade,
+    constraint fk_role_resource_resource
+        foreign key (resource_id) references cm_resource (id) on delete cascade
+) comment '角色与权限关联表' engine = InnoDB
+                                collate = utf8mb4_unicode_ci;
 
 -- ============================================================
 -- 用户模块 (user)
 -- ============================================================
 
-CREATE TABLE cm_address (
+CREATE TABLE IF NOT EXISTS cm_address (
     id         bigint       NOT NULL AUTO_INCREMENT comment '地址ID',
     user_id    bigint       NOT NULL comment '用户ID',
     consignee  varchar(100) NOT NULL comment '收货人',
@@ -87,7 +121,7 @@ CREATE TABLE cm_address (
     KEY idx_user_id (user_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 comment '用户收货地址表';
 
-CREATE TABLE cm_store (
+CREATE TABLE IF NOT EXISTS cm_store (
     id          bigint        NOT NULL AUTO_INCREMENT comment '店铺ID',
     user_id     bigint        NOT NULL comment '商家用户ID',
     store_name  varchar(200)  NOT NULL comment '店铺名称',
@@ -105,7 +139,7 @@ CREATE TABLE cm_store (
 -- 商品模块 (goods)
 -- ============================================================
 
-CREATE TABLE cm_category (
+CREATE TABLE IF NOT EXISTS cm_category (
     id         bigint       NOT NULL AUTO_INCREMENT comment '分类ID',
     name       varchar(100) NOT NULL comment '分类名称',
     parent_id  bigint       DEFAULT '0' comment '父分类ID(0=顶级分类)',
@@ -120,7 +154,7 @@ CREATE TABLE cm_category (
     KEY idx_parent_id (parent_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 comment '商品分类表';
 
-CREATE TABLE cm_goods (
+CREATE TABLE IF NOT EXISTS cm_goods (
     id           bigint        NOT NULL AUTO_INCREMENT comment '商品ID',
     name         varchar(200)  NOT NULL comment '商品名称',
     spu          varchar(50)   NOT NULL comment '商品SPU编号',
@@ -143,7 +177,7 @@ CREATE TABLE cm_goods (
     UNIQUE KEY uk_spu (spu)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 comment '商品信息表';
 
-CREATE TABLE cm_goods_sku (
+CREATE TABLE IF NOT EXISTS cm_goods_sku (
     id        bigint        NOT NULL AUTO_INCREMENT comment 'SKU ID',
     goods_id  bigint        NOT NULL comment '所属商品ID',
     spec_ids  varchar(200)  DEFAULT NULL comment '规格组合ID(JSON数组)',
@@ -157,7 +191,7 @@ CREATE TABLE cm_goods_sku (
     KEY idx_goods_id (goods_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 comment '商品SKU表';
 
-CREATE TABLE cm_goods_spec (
+CREATE TABLE IF NOT EXISTS cm_goods_spec (
     id         bigint       NOT NULL AUTO_INCREMENT comment '规格ID',
     goods_id   bigint       NOT NULL comment '所属商品ID',
     name       varchar(50)  NOT NULL comment '规格名(如颜色、尺码)',
@@ -170,7 +204,7 @@ CREATE TABLE cm_goods_spec (
     KEY idx_goods_id (goods_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 comment '商品规格表';
 
-CREATE TABLE cm_comment (
+CREATE TABLE IF NOT EXISTS cm_comment (
     id        bigint   NOT NULL AUTO_INCREMENT comment '评论ID',
     goods_id  bigint   NOT NULL comment '商品ID',
     user_id   bigint   NOT NULL comment '评论用户ID',
@@ -187,7 +221,7 @@ CREATE TABLE cm_comment (
     KEY idx_user_id (user_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 comment '商品评论表';
 
-CREATE TABLE cm_banner (
+CREATE TABLE IF NOT EXISTS cm_banner (
     id         bigint       NOT NULL AUTO_INCREMENT comment '轮播图ID',
     title      varchar(200) DEFAULT NULL comment '轮播图标题',
     image      varchar(500) NOT NULL comment '轮播图URL',
@@ -200,7 +234,7 @@ CREATE TABLE cm_banner (
     PRIMARY KEY (id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 comment '首页轮播图表';
 
-CREATE TABLE cm_favorite (
+CREATE TABLE IF NOT EXISTS cm_favorite (
     id         bigint   NOT NULL AUTO_INCREMENT comment '收藏ID',
     user_id    bigint   NOT NULL comment '用户ID',
     goods_id   bigint   NOT NULL comment '商品ID',
@@ -211,7 +245,7 @@ CREATE TABLE cm_favorite (
     UNIQUE KEY uk_user_goods (user_id, goods_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 comment '用户收藏表';
 
-CREATE TABLE cm_unit (
+CREATE TABLE IF NOT EXISTS cm_unit (
     id         bigint       NOT NULL AUTO_INCREMENT comment '单位ID',
     name       varchar(50)  NOT NULL comment '单位名称(件/个/斤)',
     status     tinyint      DEFAULT '1' comment '是否启用(0=禁用 1=启用)',
@@ -226,7 +260,7 @@ CREATE TABLE cm_unit (
 -- 优惠券模块 (coupon)
 -- ============================================================
 
-CREATE TABLE cm_coupon (
+CREATE TABLE IF NOT EXISTS cm_coupon (
     id            bigint        NOT NULL AUTO_INCREMENT comment '优惠券ID',
     name          varchar(100)  NOT NULL comment '优惠券名称',
     type          varchar(20)   NOT NULL comment '优惠类型(FULL_REDUCTION=满减 DISCOUNT=折扣 CASH=现金)',
@@ -243,7 +277,7 @@ CREATE TABLE cm_coupon (
     PRIMARY KEY (id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 comment '优惠券模板表';
 
-CREATE TABLE cm_user_coupon (
+CREATE TABLE IF NOT EXISTS cm_user_coupon (
     id           bigint      NOT NULL AUTO_INCREMENT comment '用户优惠券ID',
     user_id      bigint      NOT NULL comment '用户ID',
     coupon_id    bigint      NOT NULL comment '优惠券模板ID',
@@ -263,7 +297,7 @@ CREATE TABLE cm_user_coupon (
 -- 订单模块 (order)
 -- ============================================================
 
-CREATE TABLE cm_order (
+CREATE TABLE IF NOT EXISTS cm_order (
     id               bigint        NOT NULL AUTO_INCREMENT comment '订单ID',
     order_no         varchar(64)   NOT NULL comment '订单编号',
     user_id          bigint        NOT NULL comment '下单用户ID',
@@ -279,7 +313,7 @@ CREATE TABLE cm_order (
     KEY idx_user_id (user_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 comment '订单主表';
 
-CREATE TABLE cm_order_item (
+CREATE TABLE IF NOT EXISTS cm_order_item (
     id           bigint        NOT NULL AUTO_INCREMENT comment '订单项ID',
     order_id     bigint        NOT NULL comment '所属订单ID',
     goods_id     bigint        NOT NULL comment '商品ID',
@@ -296,7 +330,7 @@ CREATE TABLE cm_order_item (
     KEY idx_order_id (order_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 comment '订单明细表';
 
-CREATE TABLE cm_cart (
+CREATE TABLE IF NOT EXISTS cm_cart (
     id           bigint        NOT NULL AUTO_INCREMENT comment '购物车项ID',
     user_id      bigint        NOT NULL comment '用户ID',
     goods_id     bigint        NOT NULL comment '商品ID',
@@ -317,7 +351,7 @@ CREATE TABLE cm_cart (
 -- 秒杀模块 (seckill)
 -- ============================================================
 
-CREATE TABLE cm_seckill_activity (
+CREATE TABLE IF NOT EXISTS cm_seckill_activity (
     id          bigint       NOT NULL AUTO_INCREMENT comment '秒杀活动ID',
     name        varchar(200) NOT NULL comment '活动名称',
     start_time  datetime     NOT NULL comment '活动开始时间',
@@ -330,7 +364,7 @@ CREATE TABLE cm_seckill_activity (
     PRIMARY KEY (id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 comment '秒杀活动表';
 
-CREATE TABLE cm_seckill_goods (
+CREATE TABLE IF NOT EXISTS cm_seckill_goods (
     id            bigint        NOT NULL AUTO_INCREMENT comment '秒杀商品ID',
     activity_id   bigint        NOT NULL comment '所属活动ID',
     goods_id      bigint        NOT NULL comment '商品ID',
@@ -346,10 +380,46 @@ CREATE TABLE cm_seckill_goods (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 comment '秒杀商品表';
 
 -- ============================================================
+-- RBAC 权限模块 — 种子数据
+-- ============================================================
+
+-- 内置角色：admin（拥有所有权限）
+INSERT INTO cm_role (id, name, built_in, enable, description) VALUES (1, 'admin', 1, 1, '系统管理员');
+
+-- API 资源权限
+INSERT INTO cm_resource (id, code, name, type) VALUES
+    (1,  '*',                               '超级管理员（所有权限）',              'api'),
+    (10, 'goods:view',                      '商品查询',                          'api'),
+    (11, 'goods:create',                    '商品创建',                          'api'),
+    (12, 'goods:update',                    '商品更新',                          'api'),
+    (13, 'goods:delete',                    '商品删除',                          'api'),
+    (20, 'order:view',                      '订单查询',                          'api'),
+    (21, 'order:create',                    '订单创建',                          'api'),
+    (22, 'order:update',                    '订单更新',                          'api'),
+    (23, 'order:delete',                    '订单删除',                          'api'),
+    (30, 'user:view',                       '用户查询',                          'api'),
+    (31, 'user:create',                     '用户创建',                          'api'),
+    (32, 'user:update',                     '用户更新',                          'api'),
+    (33, 'user:delete',                     '用户删除',                          'api'),
+    (40, 'store:manage',                    '店铺管理',                          'api'),
+    (50, 'seckill:manage',                  '秒杀管理',                          'api'),
+    (60, 'coupon:manage',                   '优惠券管理',                        'api');
+
+-- admin 角色拥有所有资源权限
+INSERT INTO cm_role_resource (role_id, resource_id) VALUES
+    (1, 1),
+    (1, 10), (1, 11), (1, 12), (1, 13),
+    (1, 20), (1, 21), (1, 22), (1, 23),
+    (1, 30), (1, 31), (1, 32), (1, 33),
+    (1, 40),
+    (1, 50),
+    (1, 60);
+
+-- ============================================================
 -- AI Agent 模块 (agent)
 -- ============================================================
 
-CREATE TABLE cm_chat_session (
+CREATE TABLE IF NOT EXISTS cm_chat_session (
     id          bigint       NOT NULL comment '会话ID',
     session_id  varchar(64)  NOT NULL comment '会话唯一标识',
     user_id     bigint       NOT NULL comment '用户ID',
