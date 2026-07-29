@@ -23,7 +23,8 @@ public class BannerDO {
     private String image;
     private String linkUrl;
     private Integer sortOrder;
-    private StatusEnum status;
+    @Builder.Default
+    private StatusEnum status = StatusEnum.ENABLED;
 
     @TableField(fill = FieldFill.INSERT)
     private LocalDateTime createTime;

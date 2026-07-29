@@ -47,8 +47,11 @@ public class SeckillController {
     }
 
     @PatchMapping("/activities/{activityId}/goods/{goodsId}")
-    public Result<Void> auditGoods(@PathVariable Long activityId, @PathVariable Long goodsId,
-                                    @RequestBody ActivityGoodsAuditReq req) {
+    public Result<Void> auditGoods(
+            @PathVariable Long activityId,
+            @PathVariable Long goodsId,
+            @RequestBody ActivityGoodsAuditReq req
+    ) {
         seckillService.auditGoods(goodsId, req.isApproved());
         return Result.success(null);
     }

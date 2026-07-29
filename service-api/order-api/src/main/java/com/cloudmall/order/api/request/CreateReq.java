@@ -21,9 +21,9 @@ public class CreateReq {
     private Long seckillId;
     private String remark;
 
-@Builder
-@NoArgsConstructor
-@AllArgsConstructor
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
     @Data
     public static class OrderItemRequest {
         private Long goodsId;

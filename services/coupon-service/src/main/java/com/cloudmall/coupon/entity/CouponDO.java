@@ -26,7 +26,8 @@ public class CouponDO {
     private BigDecimal discount;
     private Integer totalCount;
     private Integer claimedCount;
-    private StatusEnum status;
+    @Builder.Default
+    private StatusEnum status = StatusEnum.ENABLED;
     private LocalDateTime startTime;
     private LocalDateTime expireTime;
 

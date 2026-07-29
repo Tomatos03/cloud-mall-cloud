@@ -32,9 +32,7 @@ public class CartController {
 
     @PostMapping
     public Result<Long> add(@RequestBody CartAddReq req) {
-        return Result.success(cartService.addItem(
-                req.getUserId(), req.getGoodsId(), req.getSkuId(),
-                req.getGoodsName(), req.getGoodsImage(), req.getPrice(), req.getQuantity()));
+        return Result.success(cartService.addItem(req));
     }
 
     @PutMapping("/{id}")

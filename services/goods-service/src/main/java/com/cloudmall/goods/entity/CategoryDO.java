@@ -24,7 +24,8 @@ public class CategoryDO {
     private Integer level;
     private String icon;
     private Integer sortOrder;
-    private StatusEnum status;
+    @Builder.Default
+    private StatusEnum status = StatusEnum.ENABLED;
 
     @TableField(fill = FieldFill.INSERT)
     private LocalDateTime createTime;

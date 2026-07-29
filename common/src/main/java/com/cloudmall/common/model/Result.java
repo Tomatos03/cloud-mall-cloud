@@ -13,6 +13,7 @@ import com.cloudmall.common.enums.BizErrorCode;
 public class Result<T> {
     public static final int SUCCESS_CODE = 0;
     public static final int INTERNAL_ERROR_CODE = 500;
+    public static final String SUCCESS_MESSAGE = "操作成功";
 
     /**
      * 状态码
@@ -40,7 +41,7 @@ public class Result<T> {
      * @return Result
      */
     public static Result<Void> success() {
-        return new Result<>(SUCCESS_CODE, "操作成功", null);
+        return new Result<>(SUCCESS_CODE, SUCCESS_MESSAGE, null);
     }
 
     /**
@@ -49,7 +50,7 @@ public class Result<T> {
      * @return Result
      */
     public static <T> Result<T> success(T data) {
-        return new Result<>(SUCCESS_CODE, "操作成功", data);
+        return new Result<>(SUCCESS_CODE, SUCCESS_MESSAGE, data);
     }
 
     /**

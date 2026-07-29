@@ -1,9 +1,10 @@
 package com.cloudmall.goods.service;
 
-import java.util.List;
+import com.baomidou.mybatisplus.core.metadata.IPage;
 
 import com.cloudmall.goods.api.response.UnitResp;
+import com.cloudmall.goods.model.req.UnitPageReq;
 
 public interface IUnitService {
-    List<UnitResp> list();
+    IPage<UnitResp> page(UnitPageReq req);
 }

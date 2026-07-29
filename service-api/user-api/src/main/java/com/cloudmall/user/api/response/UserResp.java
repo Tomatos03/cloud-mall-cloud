@@ -18,5 +18,6 @@ public class UserResp {
     private String email;
     private String avatar;
     private String userType;
-    private StatusEnum status;
+    @Builder.Default
+    private StatusEnum status = StatusEnum.ENABLED;
 }

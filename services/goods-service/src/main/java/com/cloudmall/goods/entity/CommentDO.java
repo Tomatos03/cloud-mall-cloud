@@ -25,7 +25,8 @@ public class CommentDO {
     private String content;
     private Integer rating;
     private String images;
-    private StatusEnum status;
+    @Builder.Default
+    private StatusEnum status = StatusEnum.ENABLED;
 
     @TableField(fill = FieldFill.INSERT)
     private LocalDateTime createTime;

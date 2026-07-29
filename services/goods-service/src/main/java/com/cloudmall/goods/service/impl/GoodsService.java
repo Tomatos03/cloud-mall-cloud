@@ -2,14 +2,12 @@ package com.cloudmall.goods.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
-import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.cloudmall.common.enums.BizErrorCode;
 import com.cloudmall.mybatisplus.enums.StatusEnum;
-import com.cloudmall.mybatisplus.query.ConditionBuilder;
 import com.cloudmall.common.utils.AssertUtils;
 import com.cloudmall.goods.api.response.GoodsResp;
 import com.cloudmall.goods.entity.GoodsDO;
@@ -17,6 +15,7 @@ import com.cloudmall.goods.entity.GoodsSkuDO;
 import com.cloudmall.goods.convert.GoodsConverter;
 import com.cloudmall.goods.mapper.GoodsMapper;
 import com.cloudmall.goods.mapper.GoodsSkuMapper;
+import com.cloudmall.goods.model.req.GoodsGetReq;
 import com.cloudmall.goods.model.req.GoodsPageReq;
 import com.cloudmall.goods.service.IGoodsService;
 
@@ -29,20 +28,10 @@ public class GoodsService implements IGoodsService {
     private final GoodsConverter goodsConverter;
 
     @Override
-    public GoodsResp getById(Long id) {
-        GoodsDO goods = goodsMapper.selectById(id);
-        AssertUtils.notNull(goods, BizErrorCode.DATA_NOT_FOUND);
+    public GoodsResp get(GoodsGetReq req) {
+        LambdaQueryWrapper<GoodsDO> wrapper = req.buildLambdaWrapper();
+        GoodsDO goods = goodsMapper.selectOne(wrapper);
         return goodsConverter.toResp(goods);
-    }
-
-    @Override
-    public GoodsResp getBySpu(String spu) {
-        GoodsDO goods = goodsMapper.selectOne(
-                Wrappers.<GoodsDO>lambdaQuery()
-                        .eq(GoodsDO::getSpu, spu)
-                        .eq(GoodsDO::getStatus, StatusEnum.ENABLED)
-        );
-        return goods == null ? null : goodsConverter.toResp(goods);
     }
 
     @Override

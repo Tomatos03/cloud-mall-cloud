@@ -1,6 +1,4 @@
 package com.cloudmall.order.service.impl;
-import java.math.BigDecimal;
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -10,6 +8,7 @@ import org.springframework.stereotype.Service;
 
 import com.cloudmall.common.enums.BizErrorCode;
 import com.cloudmall.common.utils.AssertUtils;
+import com.cloudmall.order.api.request.CartAddReq;
 import com.cloudmall.order.api.response.CartResp;
 import com.cloudmall.order.convert.CartConverter;
 import com.cloudmall.order.entity.CartDO;
@@ -24,34 +23,26 @@ public class CartService implements ICartService {
     @Override
     public List<CartResp> listByUser(Long userId) {
         return cartMapper.selectList(
-            Wrappers.<CartDO>lambdaQuery().eq(CartDO::getUserId, userId)
-        ).stream().map(this::toResponse).collect(Collectors.toList());
+                                 Wrappers.<CartDO>lambdaQuery().eq(CartDO::getUserId, userId)
+                         )
+                         .stream()
+                         .map(this::toResponse)
+                         .toList();
     }
 
     @Override
-    public Long addItem(Long userId, Long goodsId, Long skuId, String goodsName, String goodsImage, BigDecimal price, Integer quantity) {
-        // Check if already in cart
+    public Long addItem(CartAddReq req) {
         CartDO existing = cartMapper.selectOne(
             Wrappers.<CartDO>lambdaQuery()
-                .eq(CartDO::getUserId, userId)
-                .eq(CartDO::getSkuId, skuId)
+                .eq(CartDO::getUserId, req.getUserId())
+                .eq(CartDO::getSkuId, req.getSkuId())
         );
         if (existing != null) {
-            existing.setQuantity(existing.getQuantity() + quantity);
+            existing.setQuantity(existing.getQuantity() + req.getQuantity());
             cartMapper.updateById(existing);
             return existing.getId();
         }
-        CartDO cart = CartDO.builder()
-                .userId(userId)
-                .goodsId(goodsId)
-                .skuId(skuId)
-                .goodsName(goodsName)
-                .goodsImage(goodsImage)
-                .price(price)
-                .quantity(quantity)
-                .selected(true)
-                .createTime(LocalDateTime.now())
-                .build();
+        CartDO cart = cartConverter.toDO(req);
         cartMapper.insert(cart);
         return cart.getId();
     }

@@ -23,7 +23,8 @@ public class GoodsResp {
     private String categoryName;
     private Integer salesCount;
     private Integer stock;
-    private StatusEnum status;
+    @Builder.Default
+    private StatusEnum status = StatusEnum.ENABLED;
     private List<String> images;
     private String description;
 }

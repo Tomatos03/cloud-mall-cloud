@@ -1,10 +1,10 @@
 package com.cloudmall.aigc.service.impl;
 
-import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.util.RandomUtil;
 import com.baomidou.mybatisplus.core.toolkit.IdWorker;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
+import com.cloudmall.aigc.convert.HotTopicConverter;
 import com.cloudmall.aigc.entity.ChatSessionDO;
 import com.cloudmall.mybatisplus.enums.LimitEnum;
 import com.cloudmall.aigc.mapper.ChatSessionMapper;
@@ -48,6 +48,7 @@ public class SessionService implements ISessionService {
     private final ChatSessionMapper chatSessionMapper;
     private final AgentProperties agentProperties;
     private final ChatMemoryRepository chatMemoryRepository;
+    private final HotTopicConverter hotTopicConverter;
 
     /**
      * 创建新会话 — 生成 sessionId、插入数据库、返回会话信息和随机热门话题
@@ -83,7 +84,7 @@ public class SessionService implements ISessionService {
         int count = Math.min(topicCount, all.size());
         return RandomUtil.randomEleList(all, count)
                 .stream()
-                .map(h -> BeanUtil.toBean(h, HotTopicResp.class))
+                .map(hotTopicConverter::toResp)
                 .collect(Collectors.toList());
     }
 
@@ -166,7 +167,6 @@ public class SessionService implements ISessionService {
      * 更新会话标题
      *
      * @param sessionId 会话 ID
-     * @param title     新标题
      */
     @Override
     public String getSessionTitle(String sessionId) {

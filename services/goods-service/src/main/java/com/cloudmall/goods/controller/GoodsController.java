@@ -1,7 +1,5 @@
 package com.cloudmall.goods.controller;
 
-import java.util.List;
-
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import lombok.RequiredArgsConstructor;
 
@@ -15,6 +13,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.cloudmall.common.model.Result;
 import com.cloudmall.goods.api.request.StockReq;
 import com.cloudmall.goods.api.response.GoodsResp;
+import com.cloudmall.goods.model.req.GoodsGetReq;
 import com.cloudmall.goods.model.req.GoodsPageReq;
 import com.cloudmall.goods.service.IGoodsService;
 
@@ -27,18 +26,23 @@ public class GoodsController {
 
     @GetMapping("/{id}")
     public Result<GoodsResp> getById(@PathVariable Long id) {
-        return Result.success(goodsService.getById(id));
+        GoodsGetReq req = GoodsGetReq.builder()
+                                     .id(id)
+                                     .build();
+        return Result.success(goodsService.get(req));
     }
 
     @GetMapping("/spu/{spu}")
     public Result<GoodsResp> getBySpu(@PathVariable String spu) {
-        return Result.success(goodsService.getBySpu(spu));
+        GoodsGetReq req = GoodsGetReq.builder()
+                                     .spu(spu)
+                                     .build();
+        return Result.success(goodsService.get(req));
     }
-
     /**
      * 通用商品列表查询。
      * <p>
-     * 筛选条件通过 {@link GoodsListReq} 的 {@code @QueryCondition} 注解声明。
+     * 筛选条件通过 {@link GoodsPageReq} 的 {@code @QueryCondition} 注解声明。
      *
      * @param req 查询条件
      * @return 商品列表

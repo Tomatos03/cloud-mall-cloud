@@ -56,12 +56,12 @@ public class OrderTool {
             ToolContext toolContext
     ) {
         Long userId = UserContextHolder.getUserId();
-        var result = orderClient.listByUser(userId);
+        var result = orderClient.page(userId, 1, 100);
         if (result == null || result.getData() == null) {
             return List.of();
         }
 
-        List<OrderResp> orders = result.getData();
+        List<OrderResp> orders = result.getData().getRecords();
         if (toolContext.getContext().get("resultContext") instanceof ToolResultContext resultContext) {
             resultContext.put("OrderList", orders);
         }

@@ -20,7 +20,8 @@ import lombok.NoArgsConstructor;
 public class UnitDO {
     private Long id;
     private String name;
-    private StatusEnum status;
+    @Builder.Default
+    private StatusEnum status = StatusEnum.ENABLED;
     private Integer sortOrder;
 
     @TableField(fill = FieldFill.INSERT)

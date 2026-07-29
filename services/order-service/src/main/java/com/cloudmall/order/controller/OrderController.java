@@ -1,19 +1,18 @@
 package com.cloudmall.order.controller;
 
-import java.util.List;
-
+import com.baomidou.mybatisplus.core.metadata.IPage;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.cloudmall.common.model.Result;
 import com.cloudmall.order.api.request.CreateReq;
 import com.cloudmall.order.api.response.OrderResp;
+import com.cloudmall.order.model.req.OrderPageReq;
 import com.cloudmall.order.service.IOrderService;
 
 @RestController
@@ -34,9 +33,7 @@ public class OrderController {
     }
 
     @GetMapping
-    public Result<List<OrderResp>> listByUser(@RequestParam Long userId,
-                                              @RequestParam(defaultValue = "1") Integer page,
-                                              @RequestParam(defaultValue = "20") Integer size) {
-        return Result.success(orderService.listByUser(userId, page, size));
+    public Result<IPage<OrderResp>> page(OrderPageReq req) {
+        return Result.success(orderService.page(req));
     }
 }

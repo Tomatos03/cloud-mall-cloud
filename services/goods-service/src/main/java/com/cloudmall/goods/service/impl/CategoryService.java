@@ -56,15 +56,10 @@ public class CategoryService implements ICategoryService {
 
     @Override
     public Long create(CategoryCreateReq req) {
+        CategoryDO cat = categoryConverter.toDO(req);
         int level = resolveLevel(req.getParentId());
-        CategoryDO cat = CategoryDO.builder()
-                .name(req.getName())
-                .parentId(req.getParentId() != null ? req.getParentId() : 0L)
-                .level(level)
-                .icon(req.getIcon())
-                .sortOrder(req.getSortOrder())
-                .status(StatusEnum.ENABLED)
-                .build();
+        cat.setLevel(level);
+
         categoryMapper.insert(cat);
         return cat.getId();
     }

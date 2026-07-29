@@ -3,8 +3,6 @@ package com.cloudmall.auth.service.impl;
 import java.util.Collections;
 import java.util.List;
 
-import cn.hutool.core.bean.BeanUtil;
-import cn.hutool.core.bean.copier.CopyOptions;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.lang.tree.Tree;
 import cn.hutool.core.lang.tree.TreeUtil;
@@ -189,10 +187,7 @@ public class ResourceService implements IResourceService {
             AssertUtils.notNull(resourceMapper.selectById(req.getParentId()), BizErrorCode.DATA_NOT_FOUND);
         }
 
-        BeanUtil.copyProperties(req, existing,
-                CopyOptions.create()
-                        .setIgnoreNullValue(true)
-        );
+        resourceConverter.updateEntity(req, existing);
 
         resourceMapper.updateById(existing);
     }

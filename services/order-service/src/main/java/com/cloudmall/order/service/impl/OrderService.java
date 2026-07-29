@@ -4,10 +4,8 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
-import com.baomidou.mybatisplus.core.toolkit.Wrappers;
-import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.baomidou.mybatisplus.core.metadata.IPage;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -23,6 +21,8 @@ import com.cloudmall.order.entity.OrderItemDO;
 import com.cloudmall.order.convert.OrderConverter;
 import com.cloudmall.order.mapper.OrderItemMapper;
 import com.cloudmall.order.mapper.OrderMapper;
+import com.cloudmall.order.service.IOrderItemService;
+import com.cloudmall.order.model.req.OrderPageReq;
 import com.cloudmall.order.service.IOrderService;
 
 @Service
@@ -32,21 +32,19 @@ public class OrderService implements IOrderService {
 
     private final OrderMapper orderMapper;
     private final OrderItemMapper orderItemMapper;
+    private final IOrderItemService orderItemService;
     private final OrderConverter orderConverter;
 
     @Override
     @Transactional
     public OrderResp createOrder(CreateReq request) {
-        // 1. Generate order number
         String orderNo = UUID.randomUUID().toString().replace("-", "").substring(0, 20);
 
-        // 2. Calculate total
         BigDecimal total = BigDecimal.ZERO;
         for (CreateReq.OrderItemRequest item : request.getItems()) {
             total = total.add(item.getPrice().multiply(BigDecimal.valueOf(item.getQuantity())));
         }
 
-        // 3. Save order
         OrderDO order = OrderDO.builder()
                 .orderNo(orderNo)
                 .userId(request.getUserId())
@@ -57,7 +55,6 @@ public class OrderService implements IOrderService {
                 .build();
         orderMapper.insert(order);
 
-        // 4. Save order items
         for (CreateReq.OrderItemRequest item : request.getItems()) {
             OrderItemDO oi = OrderItemDO.builder()
                     .orderId(order.getId())
@@ -78,38 +75,18 @@ public class OrderService implements IOrderService {
     @Override
     public OrderResp getById(Long id) {
         OrderDO order = orderMapper.selectById(id);
-        AssertUtils.notNull(order, BizErrorCode.DATA_NOT_FOUND);
         return toResponse(order);
     }
 
     @Override
-    public List<OrderResp> listByUser(Long userId, Integer page, Integer size) {
-        List<OrderDO> list = orderMapper.selectPage(
-                new Page<>(page != null ? page : 1, size != null ? size : 20),
-                Wrappers.<OrderDO>lambdaQuery()
-                        .eq(OrderDO::getUserId, userId)
-                        .orderByDesc(OrderDO::getCreateTime)
-        ).getRecords();
-        return list.stream().map(this::toResponse).collect(Collectors.toList());
+    public IPage<OrderResp> page(OrderPageReq req) {
+        return orderMapper.selectPage(req, req.buildLambdaWrapper())
+                          .convert(this::toResponse);
     }
 
     private OrderResp toResponse(OrderDO order) {
-        List<OrderItemDO> items = orderItemMapper.selectList(
-                Wrappers.<OrderItemDO>lambdaQuery().eq(OrderItemDO::getOrderId, order.getId())
-        );
-        return OrderResp.builder()
-                .id(order.getId())
-                .orderNo(order.getOrderNo())
-                .userId(order.getUserId())
-                .totalAmount(order.getTotalAmount())
-                .status(order.getStatus())
-                .remark(order.getRemark())
-                .createTime(order.getCreateTime())
-                .items(items.stream().map(this::toItemResponse).collect(Collectors.toList()))
-                .build();
-    }
-
-    private ItemResp toItemResponse(OrderItemDO item) {
-        return orderConverter.toItemResp(item);
+        OrderResp resp = orderConverter.toResp(order);
+        resp.setItems(orderItemService.listByOrderId(order.getId()));
+        return resp;
     }
 }

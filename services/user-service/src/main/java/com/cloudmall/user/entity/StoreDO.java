@@ -23,7 +23,8 @@ public class StoreDO {
     private String storeName;
     private String storeLogo;
     private String description;
-    private StatusEnum status;
+    @Builder.Default
+    private StatusEnum status = StatusEnum.ENABLED;
 
     @TableField(fill = FieldFill.INSERT)
     private LocalDateTime createTime;

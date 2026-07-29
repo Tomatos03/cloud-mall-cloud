@@ -25,7 +25,6 @@ import com.cloudmall.mybatisplus.model.ConditionReq;
  * @author : Tomatos
  */
 @Data
-@Builder
 @NoArgsConstructor
 @AllArgsConstructor
 @Accessors(chain = true)
@@ -37,7 +36,7 @@ public class GoodsListReq extends ConditionReq<GoodsDO> {
 
     /** 状态（等值匹配） */
     @QueryCondition(operator = Operator.EQ)
-    private StatusEnum status;
+    private StatusEnum status = StatusEnum.ENABLED;
 
     /** 关键词（名称模糊匹配） */
     @QueryCondition(property = "name", operator = Operator.LIKE)

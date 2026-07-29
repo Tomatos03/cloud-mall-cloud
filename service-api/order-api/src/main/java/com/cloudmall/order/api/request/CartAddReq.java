@@ -12,7 +12,6 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Data
 public class CartAddReq {
-
     private Long userId;
     private Long goodsId;
     private Long skuId;

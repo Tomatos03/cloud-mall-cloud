@@ -2,8 +2,6 @@ package com.cloudmall.auth.service.impl;
 
 import java.util.List;
 
-import cn.hutool.core.bean.BeanUtil;
-import cn.hutool.core.bean.copier.CopyOptions;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.BooleanUtil;
 import cn.hutool.core.util.StrUtil;
@@ -70,7 +68,7 @@ public class RoleService implements IRoleService {
         RoleDO existing = roleMapper.selectById(roleId);
         AssertUtils.notNull(existing, BizErrorCode.DATA_NOT_FOUND);
 
-        BeanUtil.copyProperties(req, existing, CopyOptions.create().setIgnoreNullValue(true));
+        roleConverter.updateEntity(req, existing);
         roleMapper.updateById(existing);
     }
 

@@ -1,9 +1,10 @@
 package com.cloudmall.order.service;
 
-import java.util.List;
+import com.baomidou.mybatisplus.core.metadata.IPage;
 
 import com.cloudmall.order.api.request.CreateReq;
 import com.cloudmall.order.api.response.OrderResp;
+import com.cloudmall.order.model.req.OrderPageReq;
 
 public interface IOrderService {
 
@@ -11,5 +12,5 @@ public interface IOrderService {
 
     OrderResp getById(Long id);
 
-    List<OrderResp> listByUser(Long userId, Integer page, Integer size);
+    IPage<OrderResp> page(OrderPageReq req);
 }

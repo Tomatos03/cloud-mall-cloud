@@ -1,12 +1,16 @@
 package com.cloudmall.order.convert;
 
 import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
 
-import com.cloudmall.order.api.response.ItemResp;
-import com.cloudmall.order.entity.OrderItemDO;
+import org.mapstruct.Mapping;
+
+import com.cloudmall.order.api.response.OrderResp;
+import com.cloudmall.order.entity.OrderDO;
 
 @Mapper(componentModel = "spring")
 public interface OrderConverter {
 
-    ItemResp toItemResp(OrderItemDO item);
+    @Mapping(target = "items", ignore = true)
+    OrderResp toResp(OrderDO order);
 }

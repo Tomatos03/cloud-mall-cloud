@@ -16,5 +16,6 @@ public class StoreResp {
     private String storeName;
     private String storeLogo;
     private String description;
-    private StatusEnum status;
+    @Builder.Default
+    private StatusEnum status = StatusEnum.ENABLED;
 }
