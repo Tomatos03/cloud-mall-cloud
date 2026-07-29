@@ -9,6 +9,7 @@ import com.cloudmall.auth.api.request.RegisterReq;
 import com.cloudmall.auth.api.response.LoginResp;
 import com.cloudmall.auth.api.response.UserInfoResp;
 import com.cloudmall.auth.model.req.UserPageReq;
+import com.cloudmall.auth.model.resp.ResourceNodeResp;
 
 
 /**
@@ -42,4 +43,14 @@ public interface IUserService {
      * @return 角色 ID 列表
      */
     List<Long> getUserRoleIds(Long userId);
+
+    /**
+     * 获取当前用户可访问的资源树（按 parentId 构建层级）
+     * <p>
+     * 仅返回类型为 menu / catalog / layout 的 UI 资源，排除按钮类型。
+     * 已按当前用户的权限编码过滤，仅包含用户有权限访问的节点。
+     *
+     * @return 资源树的根节点列表（children 引用子节点）
+     */
+    List<ResourceNodeResp> getMenuResourceTree();
 }

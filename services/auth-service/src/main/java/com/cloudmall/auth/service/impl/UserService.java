@@ -1,6 +1,11 @@
 package com.cloudmall.auth.service.impl;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
+import java.util.Set;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
@@ -13,17 +18,26 @@ import com.cloudmall.auth.api.request.RegisterReq;
 import com.cloudmall.auth.api.response.LoginResp;
 import com.cloudmall.auth.api.response.UserInfoResp;
 import com.cloudmall.auth.convert.UserConverter;
+import com.cloudmall.auth.entity.ResourceDO;
 import com.cloudmall.auth.entity.UserDO;
 import com.cloudmall.auth.entity.UserRoleDO;
+import com.cloudmall.auth.enums.ResourceTypeEnum;
+import com.cloudmall.auth.mapper.ResourceMapper;
 import com.cloudmall.auth.mapper.UserMapper;
 import com.cloudmall.auth.mapper.UserRoleMapper;
 import com.cloudmall.auth.model.req.UserPageReq;
+import com.cloudmall.auth.model.resp.ResourceNodeResp;
 import com.cloudmall.auth.service.IResourceService;
 import com.cloudmall.auth.service.IUserService;
 import com.cloudmall.common.context.UserContext;
+import com.cloudmall.common.context.UserContextHolder;
 import com.cloudmall.common.enums.BizErrorCode;
 import com.cloudmall.common.utils.AssertUtils;
 import com.cloudmall.jwt.service.ITokenService;
+import com.cloudmall.mybatisplus.enums.StatusEnum;
+
+import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.util.StrUtil;
 
 /**
  * 用户服务实现
@@ -39,6 +53,7 @@ public class UserService implements IUserService {
 
     private final UserMapper userMapper;
     private final UserRoleMapper userRoleMapper;
+    private final ResourceMapper resourceMapper;
     private final ITokenService authTokenService;
     private final PasswordEncoder passwordEncoder;
     private final UserConverter userConverter;
@@ -110,6 +125,83 @@ public class UserService implements IUserService {
     public IPage<UserInfoResp> pageUserInfos(UserPageReq req) {
         return userMapper.selectPage(req, req.buildLambdaWrapper())
                          .convert(userConverter::toResp);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public List<ResourceNodeResp> getMenuResourceTree() {
+        List<String> userPermissions = getCurrentUserPermissionCodes();
+        if (CollUtil.isEmpty(userPermissions)) {
+            return Collections.emptyList();
+        }
+
+        List<ResourceDO> accessible = loadAccessibleUiResources(userPermissions);
+        List<ResourceNodeResp> tree = ResourceService.buildResourceTree(accessible);
+        return pruneTree(tree, new HashSet<>(userPermissions));
+    }
+
+    /**
+     * 获取当前用户的权限编码列表
+     */
+    private List<String> getCurrentUserPermissionCodes() {
+        return Optional.ofNullable(UserContextHolder.get())
+                       .map(UserContext::getPermissionCodes)
+                       .orElse(Collections.emptyList());
+    }
+
+    /**
+     * 加载当前用户有权限访问的 UI 资源列表
+     */
+    private List<ResourceDO> loadAccessibleUiResources(List<String> userPermissions) {
+        List<ResourceDO> allUiResources = resourceMapper.selectList(
+                Wrappers.<ResourceDO>lambdaQuery()
+                        .in(ResourceDO::getType, ResourceTypeEnum.uiTypeCodes())
+                        .eq(ResourceDO::getEnabled, StatusEnum.ENABLED)
+                        .orderByAsc(ResourceDO::getSort)
+        );
+        if (CollUtil.isEmpty(allUiResources)) {
+            return Collections.emptyList();
+        }
+        return allUiResources.stream()
+                             .filter(r -> isAccessible(r, userPermissions))
+                             .toList();
+    }
+
+    /**
+     * 判断资源是否对当前用户可见
+     */
+    private boolean isAccessible(ResourceDO resource, List<String> userPerms) {
+        String code = resource.getCode();
+        return StrUtil.isBlank(code) || userPerms.contains(code);
+    }
+
+    /**
+     * 裁剪菜单树：移除用户无权限的节点
+     */
+    private List<ResourceNodeResp> pruneTree(List<ResourceNodeResp> nodes, Set<String> userPerms) {
+        if (CollUtil.isEmpty(nodes)) {
+            return Collections.emptyList();
+        }
+
+        List<ResourceNodeResp> result = new ArrayList<>();
+        for (ResourceNodeResp node : nodes) {
+            List<ResourceNodeResp> prunedChildren = pruneTree(node.getChildren(), userPerms);
+            boolean hasVisibleChildren = !prunedChildren.isEmpty();
+
+            String code = node.getResource().getCode();
+            boolean selfAccessible = StrUtil.isBlank(code) || userPerms.contains(code);
+
+            if (hasVisibleChildren || selfAccessible) {
+                ResourceNodeResp prunedNode = ResourceNodeResp.builder()
+                                                              .resource(node.getResource())
+                                                              .children(prunedChildren)
+                                                              .build();
+                result.add(prunedNode);
+            }
+        }
+        return result;
     }
 
     /**

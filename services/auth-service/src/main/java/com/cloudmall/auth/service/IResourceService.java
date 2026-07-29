@@ -93,11 +93,13 @@ public interface IResourceService {
     List<ResourceResp> listResources(String type);
 
     /**
-     * 获取资源树（按 parentId 构建层级）
+     * 获取完整资源树（按 parentId 构建层级，不进行权限过滤）
      * <p>
      * 仅返回类型为 menu / catalog / layout 的 UI 资源，排除按钮类型。
+     * 与 {@link #getResourceTree()} 不同，此方法返回全部 UI 资源，
+     * 不根据当前用户权限进行裁剪。用于资源管理后台的全量展示。
      *
-     * @return 资源树的根节点列表（children 引用子节点）
+     * @return 完整资源树的根节点列表（children 引用子节点）
      */
-    List<ResourceNodeResp> getResourceTree();
+    List<ResourceNodeResp> getFullResourceTree();
 }

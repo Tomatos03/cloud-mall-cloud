@@ -1,11 +1,7 @@
 package com.cloudmall.auth.service.impl;
 
-import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Optional;
-import java.util.Set;
 
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.bean.copier.CopyOptions;
@@ -33,8 +29,6 @@ import com.cloudmall.auth.model.req.ResourceReq;
 import com.cloudmall.auth.model.resp.ResourceNodeResp;
 import com.cloudmall.auth.model.resp.ResourceResp;
 import com.cloudmall.auth.service.IResourceService;
-import com.cloudmall.common.context.UserContext;
-import com.cloudmall.common.context.UserContextHolder;
 import com.cloudmall.common.enums.BizErrorCode;
 import com.cloudmall.common.utils.AssertUtils;
 import com.cloudmall.mybatisplus.enums.StatusEnum;
@@ -99,10 +93,14 @@ public class ResourceService implements IResourceService {
         }
 
         return resourceMapper.selectList(
-                Wrappers.<ResourceDO>lambdaQuery()
-                        .in(ResourceDO::getId, resourceIds)
-                        .eq(ResourceDO::getEnabled, StatusEnum.ENABLED)
-        ).stream().map(ResourceDO::getCode).distinct().toList();
+                                     Wrappers.<ResourceDO>lambdaQuery()
+                                             .in(ResourceDO::getId, resourceIds)
+                                             .eq(ResourceDO::getEnabled, StatusEnum.ENABLED)
+                             )
+                             .stream()
+                             .map(ResourceDO::getCode)
+                             .distinct()
+                             .toList();
     }
 
     /**
@@ -221,28 +219,28 @@ public class ResourceService implements IResourceService {
      * {@inheritDoc}
      */
     @Override
-    public List<ResourceNodeResp> getResourceTree() {
-        List<String> userPermissions = getCurrentUserPermissionCodes();
-        if (CollUtil.isEmpty(userPermissions)) {
-            return Collections.emptyList();
-        }
-
+    public List<ResourceNodeResp> getFullResourceTree() {
         List<ResourceDO> allUiResources = resourceMapper.selectList(
                 Wrappers.<ResourceDO>lambdaQuery()
                         .in(ResourceDO::getType, ResourceTypeEnum.uiTypeCodes())
                         .eq(ResourceDO::getEnabled, StatusEnum.ENABLED)
                         .orderByAsc(ResourceDO::getSort)
         );
-        if (CollUtil.isEmpty(allUiResources)) {
+        return buildResourceTree(allUiResources);
+    }
+
+    /**
+     * 将资源列表构建为层级树
+     *
+     * @param resources 资源实体列表
+     * @return 资源树根节点列表
+     */
+    static List<ResourceNodeResp> buildResourceTree(List<ResourceDO> resources) {
+        if (CollUtil.isEmpty(resources)) {
             return Collections.emptyList();
         }
 
-        List<ResourceDO> accessible = allUiResources
-                .stream()
-                .filter(r -> isAccessible(r, userPermissions))
-                .toList();
-
-        List<Tree<Long>> hutoolTree = TreeUtil.build(accessible, null, (r, t) -> {
+        List<Tree<Long>> hutoolTree = TreeUtil.build(resources, null, (r, t) -> {
             t.setId(r.getId());
             t.setParentId(r.getParentId());
             t.setName(r.getName());
@@ -254,41 +252,15 @@ public class ResourceService implements IResourceService {
         if (CollUtil.isEmpty(hutoolTree)) {
             return Collections.emptyList();
         }
-
-        List<ResourceNodeResp> tree = hutoolTree.stream()
-                                                .map(this::treeToResourceNode)
-                                                .toList();
-
-        return pruneTree(tree, new HashSet<>(userPermissions));
-    }
-
-    /**
-     * 获取当前用户的权限编码列表
-     */
-    private List<String> getCurrentUserPermissionCodes() {
-        return Optional.ofNullable(UserContextHolder.get())
-                       .map(UserContext::getPermissionCodes)
-                       .orElse(Collections.emptyList());
-    }
-
-    /**
-     * 判断资源是否对当前用户可见
-     * <p>
-     * 资源无权限编码（空白）时对所有用户可见，否则需在用户权限列表中。
-     *
-     * @param resource  资源实体
-     * @param userPerms 用户权限编码列表
-     * @return true 可访问
-     */
-    private boolean isAccessible(ResourceDO resource, List<String> userPerms) {
-        String code = resource.getCode();
-        return StrUtil.isBlank(code) || userPerms.contains(code);
+        return hutoolTree.stream()
+                         .map(ResourceService::treeToResourceNode)
+                         .toList();
     }
 
     /**
      * 将 Hutool Tree 节点转换为业务 ResourceNode
      */
-    private ResourceNodeResp treeToResourceNode(Tree<Long> tree) {
+    static ResourceNodeResp treeToResourceNode(Tree<Long> tree) {
         ResourceResp info = ResourceResp.builder()
                 .id(tree.getId())
                 .type((String) tree.get("type"))
@@ -301,46 +273,12 @@ public class ResourceService implements IResourceService {
 
         List<ResourceNodeResp> children = CollUtil.emptyIfNull(tree.getChildren())
                                                   .stream()
-                                                  .map(this::treeToResourceNode)
+                                                  .map(ResourceService::treeToResourceNode)
                                                   .toList();
 
         return ResourceNodeResp.builder()
                                .resource(info)
                                .children(children)
                                .build();
-    }
-
-    /**
-     * 裁剪菜单树：移除用户无权限的节点
-     * <p>
-     * 如果一个节点自身不可见且所有子节点均不可见，则从树中移除。
-     * 如果节点有可见子节点，即使自身不可见也保留作为容器。
-     *
-     * @param nodes    待裁剪的节点列表
-     * @param userPerms 用户权限编码集合
-     * @return 裁剪后的节点列表
-     */
-    private List<ResourceNodeResp> pruneTree(List<ResourceNodeResp> nodes, Set<String> userPerms) {
-        if (CollUtil.isEmpty(nodes)) {
-            return Collections.emptyList();
-        }
-
-        List<ResourceNodeResp> result = new ArrayList<>();
-        for (ResourceNodeResp node : nodes) {
-            List<ResourceNodeResp> prunedChildren = pruneTree(node.getChildren(), userPerms);
-            boolean hasVisibleChildren = !prunedChildren.isEmpty();
-
-            String code = node.getResource().getCode();
-            boolean selfAccessible = StrUtil.isBlank(code) || userPerms.contains(code);
-
-            if (hasVisibleChildren || selfAccessible) {
-                ResourceNodeResp prunedNode = ResourceNodeResp.builder()
-                                                              .resource(node.getResource())
-                                                              .children(prunedChildren)
-                                                              .build();
-                result.add(prunedNode);
-            }
-        }
-        return result;
     }
 }

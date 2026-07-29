@@ -22,30 +22,31 @@ import com.cloudmall.common.model.Result;
 /**
  * 资源管理控制器
  * <p>
- * 提供菜单、目录、按钮等资源的增删改查，以及当前用户的导航菜单树。
+ * 提供菜单、目录、按钮等资源的增删改查，以及完整资源树的查询。
  * 资源同时承担前端菜单和后端权限标识双重职责。
  *
  * @author : Tomatos
  * @date : 2026/7/25
  */
 @RestController
-@RequestMapping("/auth/resources")
+@RequestMapping("/resources")
 @RequiredArgsConstructor
 public class ResourceController {
 
     private final IResourceService resourceService;
 
     /**
-     * 获取当前用户有权限访问的菜单树
+     * 获取完整资源树（不进行权限过滤）
      * <p>
-     * 返回按 parentId 构建的层级菜单结构，已按当前用户的权限编码过滤。
+     * 返回按 parentId 构建的层级菜单结构，包含全部 UI 资源节点，
+     * 不根据当前用户权限进行裁剪。用于资源管理后台的全量展示。
      * 仅包含 menu / catalog / layout 类型的 UI 节点。
      *
-     * @return 菜单树根节点列表
+     * @return 完整资源树根节点列表
      */
     @GetMapping("/tree")
-    public Result<List<ResourceNodeResp>> getMenuTree() {
-        return Result.success(resourceService.getResourceTree());
+    public Result<List<ResourceNodeResp>> getFullResourceTree() {
+        return Result.success(resourceService.getFullResourceTree());
     }
 
     /**
@@ -73,7 +74,7 @@ public class ResourceController {
     /**
      * 创建资源
      *
-     * @param resource 资源信息
+     * @param req 资源信息
      * @return 新资源 ID
      */
     @PostMapping

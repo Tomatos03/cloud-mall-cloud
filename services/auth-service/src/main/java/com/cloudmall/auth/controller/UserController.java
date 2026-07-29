@@ -18,6 +18,7 @@ import com.cloudmall.auth.api.request.RegisterReq;
 import com.cloudmall.auth.api.response.LoginResp;
 import com.cloudmall.auth.api.response.UserInfoResp;
 import com.cloudmall.auth.model.req.UserPageReq;
+import com.cloudmall.auth.model.resp.ResourceNodeResp;
 import com.cloudmall.auth.service.IRoleService;
 import com.cloudmall.auth.service.IUserService;
 import com.cloudmall.common.context.UserContextHolder;
@@ -58,6 +59,19 @@ public class UserController {
     @GetMapping("/{id}")
     public Result<UserInfoResp> getUser(@PathVariable Long id) {
         return Result.success(userService.getUserInfo(id));
+    }
+
+    /**
+     * 获取当前用户有权限访问的菜单树
+     * <p>
+     * 返回按 parentId 构建的层级菜单结构，已按当前用户的权限编码过滤。
+     * 仅包含 menu / catalog / layout 类型的 UI 节点。
+     *
+     * @return 菜单树根节点列表
+     */
+    @GetMapping("/menu")
+    public Result<List<ResourceNodeResp>> getMenuTree() {
+        return Result.success(userService.getMenuResourceTree());
     }
 
     @PutMapping("/roles")

@@ -28,7 +28,7 @@ import com.cloudmall.common.model.Result;
  * @date : 2026/7/29
  */
 @RestController
-@RequestMapping("/auth/roles")
+@RequestMapping("/roles")
 @RequiredArgsConstructor
 public class RoleController {
 
