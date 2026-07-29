@@ -17,7 +17,7 @@ import com.cloudmall.aigc.model.req.ChatReq;
 import com.cloudmall.aigc.model.resp.ChatResp;
 import com.cloudmall.aigc.model.resp.ChatTemplate;
 import com.cloudmall.aigc.service.IChatService;
-import com.cloudmall.common.entity.Result;
+import com.cloudmall.common.model.Result;
 
  /**
  * AI 智能客服接口 — 流式聊天、纯文本聊天、模板查询、停止生成

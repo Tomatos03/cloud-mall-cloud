@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.cloudmall.common.entity.Result;
+import com.cloudmall.common.model.Result;
 import com.cloudmall.goods.api.response.UnitResp;
 import com.cloudmall.goods.service.IUnitService;
 

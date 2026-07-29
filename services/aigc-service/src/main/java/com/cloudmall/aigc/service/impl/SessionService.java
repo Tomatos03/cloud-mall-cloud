@@ -18,7 +18,7 @@ import com.cloudmall.common.exception.BizException;
 import com.cloudmall.common.utils.AssertUtils;
 import com.cloudmall.aigc.model.enums.SessionTimeBucket;
 import com.cloudmall.aigc.model.resp.SessionHistoryItemResp;
-import com.cloudmall.context.UserContextHolder;
+import com.cloudmall.common.context.UserContextHolder;
 import lombok.RequiredArgsConstructor;
 import org.springframework.ai.chat.memory.ChatMemoryRepository;
 import org.springframework.ai.chat.messages.Message;

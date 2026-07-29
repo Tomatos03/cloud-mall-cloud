@@ -6,7 +6,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 
 import com.cloudmall.auth.api.request.LoginReq;
 import com.cloudmall.auth.api.response.LoginResp;
-import com.cloudmall.common.entity.Result;
+import com.cloudmall.common.model.Result;
 
 @FeignClient(name = "auth-service", path = "/auth")
 public interface AuthClient {

@@ -2,7 +2,7 @@ package com.cloudmall.aigc.controller;
 
 import com.cloudmall.aigc.model.req.KnowledgeUploadReq;
 import com.cloudmall.aigc.service.IKnowledgeService;
-import com.cloudmall.common.entity.Result;
+import com.cloudmall.common.model.Result;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.ai.document.Document;

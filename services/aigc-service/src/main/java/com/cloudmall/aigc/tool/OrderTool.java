@@ -2,7 +2,7 @@ package com.cloudmall.aigc.tool;
 
 import com.cloudmall.aigc.agent.AgentTool;
 import com.cloudmall.aigc.agent.AgentType;
-import com.cloudmall.context.UserContextHolder;
+import com.cloudmall.common.context.UserContextHolder;
 import com.cloudmall.order.api.client.OrderClient;
 import com.cloudmall.order.api.response.OrderResp;
 import lombok.RequiredArgsConstructor;

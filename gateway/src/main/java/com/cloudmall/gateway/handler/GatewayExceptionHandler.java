@@ -1,6 +1,6 @@
 package com.cloudmall.gateway.handler;
 
-import com.cloudmall.common.entity.Result;
+import com.cloudmall.common.model.Result;
 import com.cloudmall.common.enums.BizErrorCode;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;

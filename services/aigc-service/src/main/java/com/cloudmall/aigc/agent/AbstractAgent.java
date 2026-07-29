@@ -18,7 +18,7 @@ import com.cloudmall.aigc.model.req.ChatReq;
 import com.cloudmall.aigc.model.resp.ChatResp;
 import com.cloudmall.aigc.service.ISessionService;
 import com.cloudmall.aigc.tool.ToolResultContext;
-import com.cloudmall.context.UserContextHolder;
+import com.cloudmall.common.context.UserContextHolder;
 
 @Slf4j
 public abstract class AbstractAgent implements Agent {

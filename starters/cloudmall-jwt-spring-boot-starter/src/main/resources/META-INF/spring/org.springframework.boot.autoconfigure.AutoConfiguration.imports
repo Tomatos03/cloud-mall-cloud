@@ -1,1 +1,1 @@
-com.cloudmall.jwt.JwtAutoConfiguration
+com.cloudmall.jwt.config.JwtAutoConfiguration

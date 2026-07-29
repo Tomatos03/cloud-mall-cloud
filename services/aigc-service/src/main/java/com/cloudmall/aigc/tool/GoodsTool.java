@@ -2,7 +2,7 @@ package com.cloudmall.aigc.tool;
 
 import com.cloudmall.aigc.agent.AgentTool;
 import com.cloudmall.aigc.agent.AgentType;
-import com.cloudmall.common.entity.Result;
+import com.cloudmall.common.model.Result;
 import com.cloudmall.goods.api.client.GoodsClient;
 import com.cloudmall.goods.api.response.GoodsResp;
 import lombok.RequiredArgsConstructor;

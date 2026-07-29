@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.cloudmall.common.entity.Result;
+import com.cloudmall.common.model.Result;
 import com.cloudmall.order.api.request.CartAddReq;
 import com.cloudmall.order.api.response.CartResp;
 import com.cloudmall.order.service.ICartService;

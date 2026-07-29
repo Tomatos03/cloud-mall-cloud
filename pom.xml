@@ -15,10 +15,11 @@
     <version>1.0-SNAPSHOT</version>
     <packaging>pom</packaging>
     <modules>
+        <module>common</module>
         <module>service-api</module>
         <module>gateway</module>
-        <module>services</module>
         <module>starters</module>
+        <module>services</module>
     </modules>
 
     <properties>
@@ -73,17 +74,12 @@
             </dependency>
             <dependency>
                 <groupId>com.cloudmall</groupId>
-                <artifactId>cloudmall-context</artifactId>
+                <artifactId>common</artifactId>
                 <version>1.0-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>com.cloudmall</groupId>
                 <artifactId>cloudmall-mybatis-plus-spring-boot-starter</artifactId>
-                <version>1.0-SNAPSHOT</version>
-            </dependency>
-            <dependency>
-                <groupId>com.cloudmall</groupId>
-                <artifactId>cloudmall-auth-api</artifactId>
                 <version>1.0-SNAPSHOT</version>
             </dependency>
             <dependency>

@@ -14,7 +14,7 @@
     <dependencies>
         <dependency>
             <groupId>com.cloudmall</groupId>
-            <artifactId>cloudmall-context</artifactId>
+            <artifactId>common</artifactId>
         </dependency>
         <dependency>
             <groupId>cn.hutool</groupId>

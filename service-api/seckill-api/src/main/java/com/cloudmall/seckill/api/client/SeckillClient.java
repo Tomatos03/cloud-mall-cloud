@@ -4,7 +4,7 @@ import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 
-import com.cloudmall.common.entity.Result;
+import com.cloudmall.common.model.Result;
 import com.cloudmall.seckill.api.response.ActivityResp;
 
 @FeignClient(name = "seckill-service", path = "/seckill")

@@ -1,6 +1,6 @@
 package com.cloudmall.common.handler;
 
-import com.cloudmall.common.entity.Result;
+import com.cloudmall.common.model.Result;
 import com.cloudmall.common.enums.BizErrorCode;
 import com.cloudmall.common.exception.BizException;
 import lombok.extern.slf4j.Slf4j;

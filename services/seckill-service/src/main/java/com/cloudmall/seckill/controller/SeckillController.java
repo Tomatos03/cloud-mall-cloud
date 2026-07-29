@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.cloudmall.common.entity.Result;
+import com.cloudmall.common.model.Result;
 import com.cloudmall.seckill.api.request.ActivityCreateReq;
 import com.cloudmall.seckill.api.request.ActivityGoodsAuditReq;
 import com.cloudmall.seckill.api.request.ActivityGoodsSubmitReq;

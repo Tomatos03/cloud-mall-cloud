@@ -1,7 +1,7 @@
 package com.cloudmall.common.filter;
 
-import com.cloudmall.context.UserContext;
-import com.cloudmall.context.UserContextHolder;
+import com.cloudmall.common.context.UserContext;
+import com.cloudmall.common.context.UserContextHolder;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.FilterChain;
@@ -14,7 +14,7 @@ import java.io.IOException;
 
 public class UserContextFilter extends OncePerRequestFilter {
 
-    private static final String HEADER = "X-Auth-User";
+    private static final String X_AUTH_USER = "X-Auth-User";
 
     private final ObjectMapper objectMapper;
 
@@ -25,7 +25,7 @@ public class UserContextFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain)
             throws ServletException, IOException {
-        String header = request.getHeader(HEADER);
+        String header = request.getHeader(X_AUTH_USER);
         initUserContext(header);
         try {
             chain.doFilter(request, response);

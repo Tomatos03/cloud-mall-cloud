@@ -6,7 +6,7 @@ import com.cloudmall.aigc.model.resp.CreateSessionResp;
 import com.cloudmall.aigc.model.resp.HotTopicResp;
 import com.cloudmall.aigc.model.resp.SessionHistoryItemResp;
 import com.cloudmall.aigc.service.ISessionService;
-import com.cloudmall.common.entity.Result;
+import com.cloudmall.common.model.Result;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.DeleteMapping;
