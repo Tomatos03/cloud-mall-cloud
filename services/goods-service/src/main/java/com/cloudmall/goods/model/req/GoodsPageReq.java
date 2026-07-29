@@ -4,6 +4,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import com.cloudmall.goods.entity.GoodsDO;
+import com.cloudmall.mybatisplus.annotation.Operator;
 import com.cloudmall.mybatisplus.annotation.QueryCondition;
 import com.cloudmall.mybatisplus.model.PageReq;
 
@@ -20,7 +21,7 @@ import com.cloudmall.mybatisplus.model.PageReq;
 public class GoodsPageReq extends PageReq<GoodsDO> {
 
     /** 分类 ID（等值查询） */
-    @QueryCondition(operator = QueryCondition.Operator.EQ)
+    @QueryCondition(operator = Operator.EQ)
     private Long categoryId;
 
     public GoodsPageReq() {

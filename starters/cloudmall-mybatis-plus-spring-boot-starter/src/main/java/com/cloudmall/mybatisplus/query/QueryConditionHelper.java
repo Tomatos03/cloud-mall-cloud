@@ -7,13 +7,13 @@ import com.baomidou.mybatisplus.core.metadata.TableFieldInfo;
 import com.baomidou.mybatisplus.core.metadata.TableInfo;
 import com.baomidou.mybatisplus.core.metadata.TableInfoHelper;
 
-import com.cloudmall.mybatisplus.annotation.QueryCondition.Operator;
+import com.cloudmall.mybatisplus.annotation.Operator;
 
 /**
- * 查询条件构建工具
+ * 查询条件构建底层工具。
  * <p>
- * 提供从实体属性到数据库列名的解析、值空性判断、操作符分发等能力，
- * 被 {@code PageReq.buildLambdaWrapper()} 内部调用，也可单独使用。
+ * 提供列名解析、值判空、操作符分发等无状态工具方法。
+ * 供 {@link ConditionBuilder} 默认实现内部调用，一般无需直接使用。
  *
  * @author : Tomatos
  */

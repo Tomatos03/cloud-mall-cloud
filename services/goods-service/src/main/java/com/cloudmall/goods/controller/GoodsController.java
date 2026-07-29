@@ -7,14 +7,12 @@ import lombok.RequiredArgsConstructor;
 
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.cloudmall.common.model.Result;
-import com.cloudmall.goods.api.request.SearchReq;
 import com.cloudmall.goods.api.request.StockReq;
 import com.cloudmall.goods.api.response.GoodsResp;
 import com.cloudmall.goods.model.req.GoodsPageReq;
@@ -37,6 +35,14 @@ public class GoodsController {
         return Result.success(goodsService.getBySpu(spu));
     }
 
+    /**
+     * 通用商品列表查询。
+     * <p>
+     * 筛选条件通过 {@link GoodsListReq} 的 {@code @QueryCondition} 注解声明。
+     *
+     * @param req 查询条件
+     * @return 商品列表
+     */
     @GetMapping
     public Result<IPage<GoodsResp>> page(GoodsPageReq req) {
         return Result.success(goodsService.page(req));

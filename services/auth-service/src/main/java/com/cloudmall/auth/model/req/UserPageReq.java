@@ -4,6 +4,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import com.cloudmall.auth.entity.UserDO;
+import com.cloudmall.mybatisplus.annotation.Operator;
 import com.cloudmall.mybatisplus.annotation.QueryCondition;
 import com.cloudmall.mybatisplus.model.PageReq;
 
@@ -20,7 +21,7 @@ import com.cloudmall.mybatisplus.model.PageReq;
 public class UserPageReq extends PageReq<UserDO> {
 
     /** 用户名（模糊查询） */
-    @QueryCondition(property = "username", operator = QueryCondition.Operator.LIKE)
+    @QueryCondition(property = "username", operator = Operator.LIKE)
     private String name;
 
     /** 是否启用 */

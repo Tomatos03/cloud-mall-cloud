@@ -9,6 +9,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.cloudmall.common.enums.BizErrorCode;
 import com.cloudmall.mybatisplus.enums.StatusEnum;
+import com.cloudmall.mybatisplus.query.ConditionBuilder;
 import com.cloudmall.common.utils.AssertUtils;
 import com.cloudmall.goods.api.response.GoodsResp;
 import com.cloudmall.goods.entity.GoodsDO;
