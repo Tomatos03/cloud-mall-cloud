@@ -21,11 +21,23 @@ public class BannerController {
 
     private final IBannerService bannerService;
 
+    /**
+     * 获取轮播图列表。
+     *
+     * @param req 查询条件
+     * @return 轮播图列表
+     */
     @GetMapping
     public Result<List<BannerResp>> list(BannerReq req) {
         return Result.success(bannerService.list(req));
     }
 
+    /**
+     * 分页查询轮播图。
+     *
+     * @param req 分页查询条件
+     * @return 轮播图分页结果
+     */
     @GetMapping("/page")
     public Result<IPage<BannerResp>> page(BannerPageReq req) {
         return Result.success(bannerService.page(req));

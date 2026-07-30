@@ -5,10 +5,12 @@ import lombok.Getter;
 import com.cloudmall.common.enums.BizErrorCode;
 
 /**
- *
+ * 业务异常
+ * <p>
+ * 使用 {@link BizErrorCode} 枚举统一管理错误码和错误消息，
+ * 禁止直接抛出 {@link RuntimeException} 或 {@link Exception}。
  *
  * @author : Tomatos
- * @date : 2025/12/18
  */
 @Getter
 public class BizException extends RuntimeException {

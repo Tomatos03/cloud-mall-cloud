@@ -21,11 +21,23 @@ public class CommentController {
 
     private final ICommentService commentService;
 
+    /**
+     * 分页查询商品评论。
+     *
+     * @param req 分页查询条件
+     * @return 评论分页结果
+     */
     @GetMapping
     public Result<IPage<CommentResp>> page(CommentPageReq req) {
         return Result.success(commentService.page(req));
     }
 
+    /**
+     * 创建商品评论。
+     *
+     * @param req 评论创建请求
+     * @return 评论ID
+     */
     @PostMapping
     public Result<Long> create(@RequestBody CommentCreateReq req) {
         return Result.success(commentService.create(req));

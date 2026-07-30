@@ -24,6 +24,12 @@ public class GoodsController {
 
     private final IGoodsService goodsService;
 
+    /**
+     * 根据商品ID获取商品详情。
+     *
+     * @param id 商品ID
+     * @return 商品信息
+     */
     @GetMapping("/{id}")
     public Result<GoodsResp> getById(@PathVariable Long id) {
         GoodsGetReq req = GoodsGetReq.builder()
@@ -32,6 +38,12 @@ public class GoodsController {
         return Result.success(goodsService.get(req));
     }
 
+    /**
+     * 根据SPU编码获取商品详情。
+     *
+     * @param spu SPU编码
+     * @return 商品信息
+     */
     @GetMapping("/spu/{spu}")
     public Result<GoodsResp> getBySpu(@PathVariable String spu) {
         GoodsGetReq req = GoodsGetReq.builder()
@@ -52,13 +64,17 @@ public class GoodsController {
         return Result.success(goodsService.page(req));
     }
 
+    /**
+     * 更新商品SKU库存。
+     * <p>
+     * quantity >= 0 时回滚库存，quantity < 0 时扣减库存。
+     *
+     * @param skuId SKU ID
+     * @param req   库存变更请求
+     * @return 操作是否成功
+     */
     @PutMapping("/{skuId}/stock")
     public Result<Boolean> updateStock(@PathVariable Long skuId, @RequestBody StockReq req) {
-        Integer quantity = req.getQuantity();
-        if (quantity >= 0) {
-            return Result.success(goodsService.rollbackStock(skuId, quantity));
-        } else {
-            return Result.success(goodsService.deductStock(skuId, -quantity));
-        }
+        return Result.success(goodsService.updateStock(skuId, req.getQuantity()));
     }
 }

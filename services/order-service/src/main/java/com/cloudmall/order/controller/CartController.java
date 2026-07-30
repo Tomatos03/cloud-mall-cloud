@@ -19,7 +19,7 @@ import com.cloudmall.order.api.response.CartResp;
 import com.cloudmall.order.service.ICartService;
 
 @RestController
-@RequestMapping("/cart")
+@RequestMapping("/carts")
 @RequiredArgsConstructor
 public class CartController {
 

@@ -1,34 +1,73 @@
 package com.cloudmall.common.context;
 
+/**
+ * 用户上下文持有者
+ * <p>
+ * 通过 ThreadLocal 存储当前请求的用户上下文信息，
+ * 在请求链路中（Filter → Controller → Service）共享当前登录用户数据。
+ * 请求结束后必须调用 {@link #clear()} 防止内存泄漏。
+ *
+ * @author : Tomatos
+ */
 public final class UserContextHolder {
 
     private static final ThreadLocal<UserContext> TL = new ThreadLocal<>();
 
     private UserContextHolder() {}
 
+    /**
+     * 设置当前请求的用户上下文。
+     *
+     * @param ctx 用户上下文
+     */
     public static void set(UserContext ctx) {
         TL.set(ctx);
     }
 
+    /**
+     * 获取当前请求的用户上下文。
+     *
+     * @return 用户上下文，可能为 null
+     */
     public static UserContext get() {
         return TL.get();
     }
 
+    /**
+     * 获取当前用户 ID。
+     *
+     * @return 用户 ID，未登录时返回 null
+     */
     public static Long getUserId() {
         UserContext c = get();
         return c != null ? c.getUserId() : null;
     }
 
+    /**
+     * 获取当前用户名。
+     *
+     * @return 用户名，未登录时返回 null
+     */
     public static String getUsername() {
         UserContext c = get();
         return c != null ? c.getUsername() : null;
     }
 
+    /**
+     * 获取当前用户类型。
+     *
+     * @return 用户类型，未登录时返回 null
+     */
     public static String getUserType() {
         UserContext c = get();
         return c != null ? c.getUserType() : null;
     }
 
+    /**
+     * 清除当前请求的用户上下文。
+     * <p>
+     * 务必在请求结束后调用，防止 ThreadLocal 内存泄漏。
+     */
     public static void clear() {
         TL.remove();
     }

@@ -16,7 +16,7 @@ import com.cloudmall.order.model.req.OrderPageReq;
 import com.cloudmall.order.service.IOrderService;
 
 @RestController
-@RequestMapping("/order")
+@RequestMapping("/orders")
 @RequiredArgsConstructor
 public class OrderController {
 

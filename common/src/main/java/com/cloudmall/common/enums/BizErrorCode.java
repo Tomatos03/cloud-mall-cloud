@@ -13,14 +13,14 @@ import org.springframework.http.HttpStatus;
 @Getter
 public enum BizErrorCode {
     
-    // ==================== 通用错误码 (1xxx) ====================
+    // 通用错误码 (1xxx)
     INVALID_PARAM(1000, "请求参数无效"),
     INVALID_AUDIT_STATUS(1001, "无效的审核状态"),
     DATA_NOT_FOUND(1002, "数据不存在"),
     SERVICE_UNAVAILABLE(1003, "服务暂不可用"),
     GATEWAY_TIMEOUT(1004, "请求超时，请稍后重试"),
 
-    // ==================== 用户认证相关错误码 (10xxx) ====================
+    // 用户认证相关错误码 (10xxx)
     USERNAME_OR_PASSWORD_ERROR(10000, "用户名或密码错误"),
     UNKNOWN_ROLE(10001, "未知角色"),
     USER_ALREADY_EXISTS(10002, "用户已经存在"),
@@ -33,7 +33,7 @@ public enum BizErrorCode {
     NOT_MERCHANT(10008, "您还不是商家，请先申请入驻"),
     INVALID_CLIENT_TYPE(10009, "无效的客户端类型"),
 
-    // ==================== 商品分类相关错误码 (20xxx) ====================
+    // 商品分类相关错误码 (20xxx)
     STOCK_NOT_ENOUGH(21000, "库存不足"),
     CATEGORY_BEYOND_MAX_LEVEL(20000, "分类层级超出最大限制"),
     CATEGORY_NOT_EXIST_OR_NO_ENABLE(20013, "分类不存在"),
@@ -56,17 +56,17 @@ public enum BizErrorCode {
      SKU_SPEC_NOT_MATCH(20018, "SKU中包含无效的规格"),
      GOODS_UNIT_NOT_EXIST(20019, "商品单位不存在"),
 
-     // ==================== 地址相关错误码 (30xxx) ====================
+    // 地址相关错误码 (30xxx)
     ADDRESS_NOT_EXIST(30000, "地址不存在"),
 
-    // ==================== 搜索相关错误码 (40xxx) ====================
+    // 搜索相关错误码 (40xxx)
     UNKNOWN_SEARCH_ORDER_TYPE(40000, "未知的搜索排序类型"),
 
-    // ==================== 轮播图相关错误码 (45xxx) ====================
+    // 轮播图相关错误码 (45xxx)
     BANNER_NOT_EXIST(45000, "轮播图不存在"),
     BANNER_GOODS_NOT_EXIST(45001, "轮播图关联的商品不存在"),
 
-    // ==================== 订单相关错误码 (50xxx) ====================
+    // 订单相关错误码 (50xxx)
     // 订单创建相关
     CREATE_ORDER_FAILURE(50000, "创建订单失败"),
     ORDER_DATA_IS_NULL(50001, "订单数据为空"),
@@ -101,7 +101,7 @@ public enum BizErrorCode {
     ORDER_CREATE_SKU_STORE_MISMATCH(50024, "下单SKU不属于当前店铺"),
     ORDER_CREATE_SKU_INVENTORY_NOT_ENOUGH(50025, "下单SKU库存不足"),
 
-    // ==================== 购物车相关错误码 (60xxx) ====================
+    // 购物车相关错误码 (60xxx)
     UNKNOW_CART_TYPE(60000, "未知的购物车类型"),
     CART_GOODS_NOT_EXIST(60001, "商品不存在"),
     CART_GOODS_NOT_BELONG_TO_STORE(60002, "商品不属于该店铺"),
@@ -110,7 +110,7 @@ public enum BizErrorCode {
     CART_STORE_NOT_EXIST(60005, "店铺不存在"),
     CART_ITEM_NOT_EXIST(60006, "购物车中不存在该商品"),
 
-    // ==================== 商品评论相关错误码 (70xxx) ====================
+    // 商品评论相关错误码 (70xxx)
     // 评论参数验证相关
     COMMENT_RATING_INVALID(70000, "评分必须在1-5之间"),
     COMMENT_CONTENT_EMPTY(70001, "评论内容不能为空"),
@@ -128,7 +128,7 @@ public enum BizErrorCode {
     COMMENT_GOODS_NOT_EXIST(70007, "商品不存在，无法评论"),
     COMMENT_USER_NOT_EXIST(70008, "用户不存在，无法评论"),
 
-    // ==================== 文件上传相关错误码 (80xxx) ====================
+    // 文件上传相关错误码 (80xxx)
     // 文件验证相关
     FILE_EMPTY(80000, "文件不能为空"),
     FILE_SIZE_EXCEEDS_LIMIT(80001, "文件大小不能超过5MB"),
@@ -139,23 +139,23 @@ public enum BizErrorCode {
     FILE_SAVE_FAILED(80004, "文件保存失败"),
     UPLOAD_DIR_CREATE_FAILED(80005, "无法创建上传目录"),
     
-    // ==================== 权限和店铺相关错误码 (500xx) ====================
+    // 权限和店铺相关错误码 (500xx)
     NO_PERMISSION(500014, "无权访问"),
     STORE_NOT_EXIST(500015, "店铺不存在"),
     MERCHANT_NO_SHOP(500016, "商家没有关联这个店铺"),
     INSUFFICIENT_PERMISSIONS(500017, "权限不足"),
     INVALID_ROLE(500018, "无效的用户角色"),
 
-    // ==================== 资源相关错误码 (85xxx) ====================
+    // 资源相关错误码 (85xxx)
     INVALID_RESOURCE_TYPE(85000, "无效的资源类型"),
 
-    // ==================== 消息相关错误码 (91xxx) ====================
+    // 消息相关错误码 (91xxx)
     INVALID_MESSAGE_STATUS(91000, "无效的消息状态"),
     INVALID_MESSAGE_TYPE(91001, "无效的消息类型"),
     CONVERSATION_NOT_EXIST(91002, "会话不存在"),
     MESSAGE_CONTENT_EMPTY(91003, "消息内容不能为空"),
 
-    // ==================== 审核相关错误码 (90xxx) ====================
+    // 审核相关错误码 (90xxx)
     AUDIT_SUBMIT_PARAMS_INCOMPLETE(90000, "审核申请参数不完整"),
     USER_NOT_LOGGED_IN_FOR_AUDIT_SUBMIT(90001, "用户未登录，无法提交审核申请"),
     AUDIT_SUBMIT_FAILED(90002, "审核申请提交失败"),
@@ -176,7 +176,7 @@ public enum BizErrorCode {
     AUDIT_ITEM_NOT_FOUND(90017, "审核项目不存在"),
     AUDITOR_NOT_FOUND(90018, "审核器未找到"),
 
-    // ==================== 秒杀相关错误码 (92xxx) ====================
+    // 秒杀相关错误码 (92xxx)
     SECKILL_ACTIVITY_NOT_EXIST(92000, "秒杀活动不存在"),
     SECKILL_NOT_STARTED(92001, "秒杀活动还未开始"),
     SECKILL_ALREADY_ENDED(92002, "秒杀活动已结束"),
@@ -210,7 +210,7 @@ public enum BizErrorCode {
     SECKILL_GOODS_NOT_FOUND(92030, "秒杀商品不存在"),
     SECKILL_REPEAT_ORDER(92031, "同一商品不可重复秒杀"),
 
-    // ==================== 优惠券相关错误码 (93xxx) ====================
+    // 优惠券相关错误码 (93xxx)
     COUPON_NOT_EXIST(93000, "优惠券不存在"),
     COUPON_NOT_AVAILABLE(93001, "优惠券不可用"),
     COUPON_EXPIRED(93002, "优惠券已过期"),
@@ -226,7 +226,7 @@ public enum BizErrorCode {
     REFUND_ORDER_FAILED(93012, "退款失败"),
     COUPON_STOCK_RUN_OUT(93013, "优惠券已被领完"),
 
-    // ==================== AI Agent 相关错误码 (91xxx) ====================
+    // AI Agent 相关错误码 (91xxx)
     SESSION_NOT_FOUND(91004, "会话不存在或已经过期")
     ;
 

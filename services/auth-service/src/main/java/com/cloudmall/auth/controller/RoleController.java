@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.cloudmall.auth.model.req.RolePageReq;
 import com.cloudmall.auth.model.req.RoleReq;
 import com.cloudmall.auth.model.resp.RoleResp;
+import cn.hutool.core.util.BooleanUtil;
 import com.cloudmall.auth.service.IRoleService;
 import com.cloudmall.common.model.Result;
 
@@ -42,7 +43,7 @@ public class RoleController {
         return Result.success(roleService.createRole(
                 req.getName(),
                 req.getDescription(),
-                Boolean.TRUE.equals(req.getEnabled())
+                BooleanUtil.isTrue(req.getEnabled())
         ));
     }
 

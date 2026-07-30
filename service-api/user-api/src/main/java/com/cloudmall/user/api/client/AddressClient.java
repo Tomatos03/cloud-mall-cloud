@@ -10,8 +10,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import com.cloudmall.common.model.Result;
 import com.cloudmall.user.api.response.AddressResp;
 
-@FeignClient(name = "user-service", path = "/address")
+@FeignClient(name = "user-service", path = "/addresses")
 public interface AddressClient {
-    @GetMapping("/address/list")
+    @GetMapping("/list")
     Result<List<AddressResp>> listAddresses(@RequestParam("userId") Long userId);
 }

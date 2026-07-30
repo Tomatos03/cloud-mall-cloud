@@ -64,4 +64,14 @@ public class GoodsService implements IGoodsService {
         return Boolean.TRUE;
     }
 
+    @Override
+    @Transactional
+    public Boolean updateStock(Long skuId, Integer quantity) {
+        if (quantity >= 0) {
+            return rollbackStock(skuId, quantity);
+        } else {
+            return deductStock(skuId, -quantity);
+        }
+    }
+
 }
