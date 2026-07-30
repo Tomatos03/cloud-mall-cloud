@@ -16,12 +16,12 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Data
-@TableName("cm_store")
-public class StoreDO {
+@TableName("cm_shop")
+public class ShopDO {
     private Long id;
     private Long userId;
-    private String storeName;
-    private String storeLogo;
+    private String name;
+    private String logo;
     private String description;
     @Builder.Default
     private StatusEnum status = StatusEnum.ENABLED;

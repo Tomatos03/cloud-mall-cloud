@@ -23,7 +23,6 @@ CREATE TABLE IF NOT EXISTS cm_user
     bio        varchar(255)                                         null comment '个人简介',
     avatar_url varchar(500)                                         null comment '用户头像URL',
     types      set ('NORMAL', 'ADMIN', 'MERCHANT') default 'NORMAL' null comment '用户类型',
-    store_id   bigint                                               null comment '关联店铺ID',
     create_time datetime    DEFAULT NULL comment '创建时间',
     update_time datetime    DEFAULT NULL comment '更新时间',
     deleted    tinyint(1)   DEFAULT '0' comment '是否删除(0=否 1=是)',
@@ -121,11 +120,11 @@ CREATE TABLE IF NOT EXISTS cm_address (
     KEY idx_user_id (user_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 comment '用户收货地址表';
 
-CREATE TABLE IF NOT EXISTS cm_store (
+CREATE TABLE IF NOT EXISTS cm_shop (
     id          bigint        NOT NULL AUTO_INCREMENT comment '店铺ID',
     user_id     bigint        NOT NULL comment '商家用户ID',
-    store_name  varchar(200)  NOT NULL comment '店铺名称',
-    store_logo  varchar(500)  DEFAULT NULL comment '店铺Logo URL',
+    name   varchar(200)  NOT NULL comment '店铺名称',
+    logo   varchar(500)  DEFAULT NULL comment '店铺Logo URL',
     description text          DEFAULT NULL comment '店铺描述',
     status      tinyint(1)    DEFAULT '1' comment '店铺状态(0=关闭 1=营业)',
     create_time datetime      DEFAULT NULL comment '创建时间',
@@ -449,7 +448,7 @@ INSERT INTO cm_resource (id, code, name, type) VALUES
     (31, 'user:create',                     '用户创建',                          'api'),
     (32, 'user:update',                     '用户更新',                          'api'),
     (33, 'user:delete',                     '用户删除',                          'api'),
-    (40, 'store:manage',                    '店铺管理',                          'api'),
+    (40, 'shop:manage',                    '店铺管理',                          'api'),
     (50, 'seckill:manage',                  '秒杀管理',                          'api'),
     (60, 'coupon:manage',                   '优惠券管理',                        'api');
 

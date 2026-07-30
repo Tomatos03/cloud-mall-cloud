@@ -10,11 +10,11 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Data
-public class StoreResp {
+public class ShopResp {
     private Long id;
     private Long userId;
-    private String storeName;
-    private String storeLogo;
+    private String name;
+    private String logo;
     private String description;
     @Builder.Default
     private StatusEnum status = StatusEnum.ENABLED;

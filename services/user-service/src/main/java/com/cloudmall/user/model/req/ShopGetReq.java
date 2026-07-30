@@ -9,7 +9,7 @@ import lombok.experimental.Accessors;
 import com.cloudmall.mybatisplus.annotation.Operator;
 import com.cloudmall.mybatisplus.annotation.QueryCondition;
 import com.cloudmall.mybatisplus.model.ConditionReq;
-import com.cloudmall.user.entity.StoreDO;
+import com.cloudmall.user.entity.ShopDO;
 
 /**
  * 店铺单个查询请求。
@@ -24,7 +24,7 @@ import com.cloudmall.user.entity.StoreDO;
 @NoArgsConstructor
 @AllArgsConstructor
 @Accessors(chain = true)
-public class StoreGetReq extends ConditionReq<StoreDO> {
+public class ShopGetReq extends ConditionReq<ShopDO> {
 
     /** 店铺 ID（等值匹配） */
     @QueryCondition(operator = Operator.EQ)
