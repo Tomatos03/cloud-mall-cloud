@@ -14,7 +14,7 @@ import lombok.Getter;
 @AllArgsConstructor
 @JsonFormat(with = JsonFormat.Feature.ACCEPT_CASE_INSENSITIVE_VALUES)
 public enum AgentType {
-    GOODS("负责商品搜索、详情查询、价格库存查看、分类浏览和商品推荐"),
+    PRODUCT("负责商品搜索、详情查询、价格库存查看、分类浏览和商品推荐"),
     ORDER("负责订单查询、下单、物流跟踪、购物车管理"),
     COUPON("负责优惠券领取、使用查询、过期提醒"),
     USER("负责账户信息、地址管理、登录注册等用户服务"),

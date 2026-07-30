@@ -4,7 +4,7 @@
 {AGENT_DESCRIPTIONS}
 
 返回 JSON 格式(不要加 markdown 代码块标记), 示例：
-{"agentType":"goods", "confidence":"high", "reason":"用户询问商品价格"}
+{"agentType":"product", "confidence":"high", "reason":"用户询问商品价格"}
 
 要求：
 - agentType 必须是上面列出的小写名称之一

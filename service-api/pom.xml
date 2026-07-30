@@ -16,7 +16,7 @@
         <module>auth-api</module>
         <module>user-api</module>
         <module>coupon-api</module>
-        <module>goods-api</module>
+        <module>product-api</module>
         <module>seckill-api</module>
         <module>order-api</module>
     </modules>
@@ -43,7 +43,7 @@
         </dependency>
         <dependency>
             <groupId>com.cloudmall</groupId>
-            <artifactId>goods-api</artifactId>
+            <artifactId>product-api</artifactId>
             <version>1.0-SNAPSHOT</version>
         </dependency>
         <dependency>

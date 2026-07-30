@@ -34,7 +34,7 @@
 |------|--------|--------|
 | `auth-service` | `auth-service` | `AuthApplication` |
 | `user-service` | `user-service` | `UserApplication` |
-| `goods-service` | `goods-service` | `GoodsApplication` |
+| `product-service` | `product-service` | `ProductApplication` |
 | `order-service` | `order-service` | `OrderApplication` |
 | `coupon-service` | `coupon-service` | `CouponApplication` |
 | `seckill-service` | `seckill-service` | `SeckillApplication` |
@@ -50,7 +50,7 @@
 |------|------|
 | `auth-api` | 认证 Feign 接口 + DTO |
 | `user-api` | 用户 Feign 接口 + DTO |
-| `goods-api` | 商品 Feign 接口 + DTO |
+| `product-api` | 商品 Feign 接口 + DTO |
 | `order-api` | 订单 Feign 接口 + DTO |
 | `coupon-api` | 优惠券 Feign 接口 + DTO |
 | `seckill-api` | 秒杀 Feign 接口 + DTO |
@@ -116,7 +116,7 @@ mvn clean compile -DskipTests 2>&1 | tail -20
 ## 数据库
 
 - 单库 `cm_mall`
-- 业务表统一前缀 `cm_`（如 `cm_user`、`cm_order`、`cm_role`、`cm_goods_*`）
+- 业务表统一前缀 `cm_`（如 `cm_user`、`cm_order`、`cm_role`、`cm_product_*`）
 - 通用字段：`create_time`、`update_time`、`deleted`
 - 关联表（如 `cm_user_role`）：仅 `create_time`
 - 软删除：`deleted = 1`
@@ -125,7 +125,7 @@ mvn clean compile -DskipTests 2>&1 | tail -20
 ## API 规范
 
 - RESTful Level 2，资源名使用复数（`/users`、`/orders`、`/addresses`）
-- Controller 路径前缀与服务名对齐（`/auth/**`、`/users/**`、`/goods/**`）
+- Controller 路径前缀与服务名对齐（`/auth/**`、`/users/**`、`/product/**`）
 - 认证接口使用动词（`/auth/login`、`/auth/register`）
 - 统一返回 `Result<T>`，业务异常使用 `BizException` + `BizErrorCode`
 

@@ -35,8 +35,8 @@ agent:
       dataId: agent-prompt-route
     general:
       dataId: agent-prompt-general
-    goods:
-      dataId: agent-prompt-goods
+    product:
+      dataId: agent-prompt-product
     order:
       dataId: agent-prompt-order
     coupon:

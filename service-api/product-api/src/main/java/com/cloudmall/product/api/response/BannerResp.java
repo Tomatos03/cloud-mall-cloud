@@ -1,0 +1,18 @@
+package com.cloudmall.product.api.response;
+
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
+@Data
+public class BannerResp {
+    private Long id;
+    private String title;
+    private String image;
+    private String linkUrl;
+    private Integer sortOrder;
+}

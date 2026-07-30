@@ -141,7 +141,7 @@ ALTER TABLE cm_unit AUTO_INCREMENT = 100;
 -- ============================================================
 -- 商品信息
 -- ============================================================
-INSERT INTO cm_goods (id, name, spu, image, images, description, category_id, brand, price, market_price, stock, sales_count, status) VALUES
+INSERT INTO cm_product (id, name, spu, image, images, description, category_id, brand, price, market_price, stock, sales_count, status) VALUES
 (1,  '华为 Mate 70 Pro',         'SPU20250001', NULL, NULL, '搭载麒麟芯片，超强影像系统，鸿蒙OS 5.0',             101, '华为',   6999.00, 7999.00, 100, 1280, 1),
 (2,  'Apple iPhone 16 Pro Max', 'SPU20250002', NULL, NULL, 'A18 Pro 芯片，钛金属设计，4800万像素专业级拍摄',       101, 'Apple',  9999.00, 10999.00, 80,  980, 1),
 (3,  '联想 ThinkPad X1 Carbon', 'SPU20250003', NULL, NULL, '第14代酷睿Ultra，14英寸2.8K OLED屏，轻薄商务',         111, '联想',   12999.00, 14999.00, 50,  356, 1),
@@ -151,12 +151,12 @@ INSERT INTO cm_goods (id, name, spu, image, images, description, category_id, br
 (7,  '三只松鼠每日坚果礼盒',     'SPU20250007', NULL, NULL, '7种坚果混合，每日一包，营养均衡',                       301, '三只松鼠', 89.90, 129.00, 1000, 8200, 1),
 (8,  '青岛啤酒经典1903 500ml*12','SPU20250008', NULL, NULL, '百年经典工艺，麦香浓郁，纯正德国风味',                  31,  '青岛啤酒', 69.90, 89.90,  600, 5600, 1);
 
-ALTER TABLE cm_goods AUTO_INCREMENT = 1000;
+ALTER TABLE cm_product AUTO_INCREMENT = 1000;
 
 -- ============================================================
 -- 商品规格
 -- ============================================================
-INSERT INTO cm_goods_spec (id, goods_id, name, value, sort_order) VALUES
+INSERT INTO cm_product_spec (id, product_id, name, value, sort_order) VALUES
 -- 华为 Mate 70 Pro（颜色 + 存储组合）
 (1,  1, '颜色', '曜金黑',   1),
 (2,  1, '颜色', '雪域白',   2),
@@ -181,12 +181,12 @@ INSERT INTO cm_goods_spec (id, goods_id, name, value, sort_order) VALUES
 (18, 5, '颜色', '米白色',    1),
 (19, 5, '颜色', '樱花粉',    2);
 
-ALTER TABLE cm_goods_spec AUTO_INCREMENT = 1000;
+ALTER TABLE cm_product_spec AUTO_INCREMENT = 1000;
 
 -- ============================================================
 -- 商品 SKU
 -- ============================================================
-INSERT INTO cm_goods_sku (id, goods_id, spec_ids, image, price, stock) VALUES
+INSERT INTO cm_product_sku (id, product_id, spec_ids, image, price, stock) VALUES
 -- 华为 Mate 70 Pro：曜金黑 256GB / 512GB / 1TB
 (1,  1, '[1,4]',  NULL, 6999.00,  30),
 (2,  1, '[1,5]',  NULL, 7999.00,  25),
@@ -213,7 +213,7 @@ INSERT INTO cm_goods_sku (id, goods_id, spec_ids, image, price, stock) VALUES
 -- 青岛啤酒（单规格）
 (17, 8, '[]',     NULL, 69.90,   400);
 
-ALTER TABLE cm_goods_sku AUTO_INCREMENT = 1000;
+ALTER TABLE cm_product_sku AUTO_INCREMENT = 1000;
 
 -- ============================================================
 -- 首页轮播图
@@ -229,7 +229,7 @@ ALTER TABLE cm_banner AUTO_INCREMENT = 100;
 -- ============================================================
 -- 用户收藏
 -- ============================================================
-INSERT INTO cm_favorite (id, user_id, goods_id) VALUES
+INSERT INTO cm_favorite (id, user_id, product_id) VALUES
 (1, 4, 1),
 (2, 4, 4),
 (3, 4, 7),
@@ -241,7 +241,7 @@ ALTER TABLE cm_favorite AUTO_INCREMENT = 100;
 -- ============================================================
 -- 商品评论
 -- ============================================================
-INSERT INTO cm_comment (id, goods_id, user_id, order_id, content, rating, images, status) VALUES
+INSERT INTO cm_comment (id, product_id, user_id, order_id, content, rating, images, status) VALUES
 (1, 1, 4, 1, '手机非常好用，拍照效果一流，鸿蒙系统超级流畅！', 5, NULL, 1),
 (2, 1, 5, 2, '用了两周，续航很给力，就是价格有点贵',        4, NULL, 1),
 (3, 4, 4, 1, '降噪效果惊艳，坐地铁完全听不到噪音，强烈推荐',  5, NULL, 1),
@@ -293,7 +293,7 @@ ALTER TABLE cm_order AUTO_INCREMENT = 1000;
 -- ============================================================
 -- 订单明细
 -- ============================================================
-INSERT INTO cm_order_item (id, order_id, goods_id, sku_id, goods_name, goods_image, price, quantity, subtotal) VALUES
+INSERT INTO cm_order_item (id, order_id, product_id, sku_id, goods_name, goods_image, price, quantity, subtotal) VALUES
 -- 订单1：华为 Mate 70 Pro 曜金黑 512GB + Sony WH-1000XM6 黑色
 (1, 1, 1, 2,  '华为 Mate 70 Pro（曜金黑 512GB）', NULL, 7999.00, 1, 7999.00),
 (2, 1, 4, 9,  'Sony WH-1000XM6 降噪耳机（黑色）', NULL, 2999.00, 1, 2999.00),
@@ -309,7 +309,7 @@ ALTER TABLE cm_order_item AUTO_INCREMENT = 1000;
 -- ============================================================
 -- 购物车
 -- ============================================================
-INSERT INTO cm_cart (id, user_id, goods_id, sku_id, goods_name, goods_image, price, quantity, selected) VALUES
+INSERT INTO cm_cart (id, user_id, product_id, sku_id, goods_name, goods_image, price, quantity, selected) VALUES
 (1, 4, 2, 5,  'Apple iPhone 16 Pro Max（原色钛金属 256GB）', NULL, 9999.00, 1, 1),
 (2, 4, 6, 15, '男士纯棉商务衬衫',                          NULL, 259.00,  2, 1),
 (3, 5, 1, 1,  '华为 Mate 70 Pro（曜金黑 256GB）',           NULL, 6999.00, 1, 1),
@@ -330,7 +330,7 @@ ALTER TABLE cm_seckill_activity AUTO_INCREMENT = 100;
 -- ============================================================
 -- 秒杀商品
 -- ============================================================
-INSERT INTO cm_seckill_goods (id, activity_id, goods_id, seckill_price, stock, sold_count, audit_status) VALUES
+INSERT INTO cm_seckill_goods (id, activity_id, product_id, seckill_price, stock, sold_count, audit_status) VALUES
 (1, 1, 1, 5999.00,  10, 3, 'APPROVED'),
 (2, 1, 4, 2499.00,  20, 5, 'APPROVED'),
 (3, 1, 7, 69.90,    50, 12, 'APPROVED'),
@@ -349,4 +349,4 @@ INSERT INTO cm_chat_session (id, session_id, user_id, title) VALUES
 
 ALTER TABLE cm_chat_session AUTO_INCREMENT = 1000;
 
-drop table cm_goods
+drop table cm_product

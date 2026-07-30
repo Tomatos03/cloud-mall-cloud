@@ -33,7 +33,7 @@ Controller 端点变更（路径、方法、参数）必须同步更新 FeignCli
 
 ## 数据库
 
-- 表前缀 `cm_`（如 `cm_user`、`cm_role`、`cm_goods_*`）
+- 表前缀 `cm_`（如 `cm_user`、`cm_role`、`cm_product_*`）
 - 通用字段：`create_time`、`update_time`、`deleted`
 - 关联表（如 `cm_user_role`）：仅 `create_time`
 - 软删除：`deleted = 1`

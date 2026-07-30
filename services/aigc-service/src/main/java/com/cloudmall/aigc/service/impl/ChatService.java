@@ -20,7 +20,7 @@ import com.cloudmall.aigc.service.IChatService;
  * <p>
  * 流式聊天委托给 RouterAgent 进行意图分析与路由分发；
  * 纯文本非流式聊天直接由 GeneralAgent 处理，绕过意图路由。
- * 各业务智能体（GoodsAgent、OrderAgent 等）的流式生成逻辑由 AbstractAgent 统一管理，
+ * 各业务智能体（ProductAgent、OrderAgent 等）的流式生成逻辑由 AbstractAgent 统一管理，
  * ChatService 仅作为入口。
  *
  * @author : Tomatos
