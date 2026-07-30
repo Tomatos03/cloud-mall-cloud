@@ -58,6 +58,8 @@ public enum BizErrorCode {
 
     // 地址相关错误码 (30xxx)
     ADDRESS_NOT_EXIST(30000, "地址不存在"),
+    ADDRESS_LIMIT_EXCEEDED(30001, "收货地址数量已达上限（最多10条）"),
+    ADDRESS_DEFAULT_CANNOT_DELETE(30002, "默认地址不可删除"),
 
     // 搜索相关错误码 (40xxx)
     UNKNOWN_SEARCH_ORDER_TYPE(40000, "未知的搜索排序类型"),
@@ -109,6 +111,7 @@ public enum BizErrorCode {
     CART_GOODS_STOCK_INSUFFICIENT(60004, "商品库存不足"),
     CART_STORE_NOT_EXIST(60005, "店铺不存在"),
     CART_ITEM_NOT_EXIST(60006, "购物车中不存在该商品"),
+    CART_LIMIT_EXCEEDED(60007, "购物车商品数量已达上限"),
 
     // 商品评论相关错误码 (70xxx)
     // 评论参数验证相关

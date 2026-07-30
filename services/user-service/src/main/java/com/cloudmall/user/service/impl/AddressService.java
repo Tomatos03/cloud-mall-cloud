@@ -1,6 +1,8 @@
 package com.cloudmall.user.service.impl;
 
-import com.baomidou.mybatisplus.core.metadata.IPage;
+import java.util.List;
+
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.cloudmall.common.enums.BizErrorCode;
 import com.cloudmall.common.utils.AssertUtils;
 import com.cloudmall.user.api.request.AddressUpdateReq;
@@ -9,7 +11,6 @@ import com.cloudmall.user.api.response.AddressResp;
 import com.cloudmall.user.convert.AddressConverter;
 import com.cloudmall.user.entity.AddressDO;
 import com.cloudmall.user.mapper.AddressMapper;
-import com.cloudmall.user.model.req.AddressPageReq;
 import com.cloudmall.user.service.IAddressService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -18,13 +19,20 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class AddressService implements IAddressService {
 
+    private static final int MAX_ADDRESS_COUNT = 10;
+
     private final AddressMapper addressMapper;
     private final AddressConverter addressConverter;
 
     @Override
-    public IPage<AddressResp> page(AddressPageReq req) {
-        return addressMapper.selectPage(req, req.buildLambdaWrapper())
-                            .convert(addressConverter::toResp);
+    public List<AddressResp> list(Long userId) {
+        List<AddressDO> list = addressMapper.selectList(
+                Wrappers.<AddressDO>lambdaQuery()
+                        .eq(AddressDO::getUserId, userId)
+        );
+        return list.stream()
+                   .map(addressConverter::toResp)
+                   .toList();
     }
 
     @Override
@@ -36,6 +44,12 @@ public class AddressService implements IAddressService {
 
     @Override
     public Long create(CreateReq request, Long userId) {
+        long count = addressMapper.selectCount(
+                Wrappers.<AddressDO>lambdaQuery()
+                        .eq(AddressDO::getUserId, userId)
+        );
+        AssertUtils.isFalse(count >= MAX_ADDRESS_COUNT, BizErrorCode.ADDRESS_LIMIT_EXCEEDED);
+
         AddressDO address = addressConverter.toDO(request, userId);
         addressMapper.insert(address);
         return address.getId();
@@ -50,9 +64,13 @@ public class AddressService implements IAddressService {
     }
 
     @Override
-    public void delete(Long id) {
-        AddressDO address = addressMapper.selectById(id);
-        AssertUtils.notNull(address, BizErrorCode.DATA_NOT_FOUND);
-        addressMapper.deleteById(id);
+    public void delete(List<Long> ids) {
+        List<AddressDO> addresses = addressMapper.selectBatchIds(ids);
+        AssertUtils.notEmpty(addresses, BizErrorCode.ADDRESS_NOT_EXIST);
+
+        boolean hasDefault = addresses.stream()
+                                      .anyMatch(AddressDO::getIsDefault);
+        AssertUtils.isFalse(hasDefault, BizErrorCode.ADDRESS_DEFAULT_CANNOT_DELETE);
+        addressMapper.deleteByIds(ids);
     }
 }

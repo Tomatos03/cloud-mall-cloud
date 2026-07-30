@@ -1,69 +1,66 @@
 package com.cloudmall.order.service.impl;
+
 import java.util.List;
-import java.util.stream.Collectors;
 
-import com.baomidou.mybatisplus.core.toolkit.Wrappers;
+import com.cloudmall.order.api.request.CartSelectReq;
+import com.cloudmall.order.api.response.CartDetailResp;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-import com.cloudmall.common.enums.BizErrorCode;
-import com.cloudmall.common.utils.AssertUtils;
-import com.cloudmall.order.api.request.CartAddReq;
-import com.cloudmall.order.api.response.CartResp;
-import com.cloudmall.order.convert.CartConverter;
-import com.cloudmall.order.entity.CartDO;
-import com.cloudmall.order.mapper.CartMapper;
+import com.cloudmall.order.api.request.CartOperatorReq;
 import com.cloudmall.order.service.ICartService;
 
-@Service @RequiredArgsConstructor
+/**
+ * 购物车服务实现
+ *
+ * @author : Tomatos
+ */
+@Slf4j
+@Service
+@RequiredArgsConstructor
 public class CartService implements ICartService {
-    private final CartMapper cartMapper;
-    private final CartConverter cartConverter;
+    private static final int MAX_ITEMS = 100;
 
     @Override
-    public List<CartResp> listByUser(Long userId) {
-        return cartMapper.selectList(
-                                 Wrappers.<CartDO>lambdaQuery().eq(CartDO::getUserId, userId)
-                         )
-                         .stream()
-                         .map(this::toResponse)
-                         .toList();
+    @Transactional
+    public Long addToCart(Long userId, CartOperatorReq req) {
+        return 1L;
     }
 
     @Override
-    public Long addItem(CartAddReq req) {
-        CartDO existing = cartMapper.selectOne(
-            Wrappers.<CartDO>lambdaQuery()
-                .eq(CartDO::getUserId, req.getUserId())
-                .eq(CartDO::getSkuId, req.getSkuId())
-        );
-        if (existing != null) {
-            existing.setQuantity(existing.getQuantity() + req.getQuantity());
-            cartMapper.updateById(existing);
-            return existing.getId();
-        }
-        CartDO cart = cartConverter.toDO(req);
-        cartMapper.insert(cart);
-        return cart.getId();
+    @Transactional
+    public void updateQuantity(Long userId, CartOperatorReq req) {
     }
 
     @Override
-    public void updateQuantity(Long id, Integer quantity) {
-        CartDO cart = cartMapper.selectById(id);
-        AssertUtils.notNull(cart, BizErrorCode.DATA_NOT_FOUND);
-        cart.setQuantity(quantity);
-        cartMapper.updateById(cart);
+    @Transactional
+    public void removeItems(Long userId, List<Long> skuIds) {
     }
 
     @Override
-    public void deleteItem(Long id) { cartMapper.deleteById(id); }
+    public void selectItems(Long userId, CartSelectReq req) {
 
-    @Override
-    public void clearByUser(Long userId) {
-        cartMapper.delete(Wrappers.<CartDO>lambdaQuery().eq(CartDO::getUserId, userId));
     }
 
-    private CartResp toResponse(CartDO cart) {
-        return cartConverter.toResp(cart);
+    @Override
+    @Transactional
+    public void selectAll(Long userId, Boolean selected) {
+    }
+
+    @Override
+    @Transactional
+    public void selectShop(Long userId, Long shopId, Boolean selected) {
+    }
+
+    @Override
+    public CartDetailResp getCart(Long userId) {
+        return null;
+    }
+
+    @Override
+    @Transactional
+    public void clear(Long userId) {
     }
 }

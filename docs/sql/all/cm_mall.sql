@@ -71,7 +71,7 @@ CREATE TABLE IF NOT EXISTS cm_user_role
 CREATE TABLE IF NOT EXISTS cm_resource
 (
     id          bigint auto_increment comment '资源ID',
-    code        varchar(100)   not null comment '权限编码，如 goods:create',
+    code        varchar(100)   not null comment '权限编码，如 product:create',
     name        varchar(100)   not null comment '资源名称',
     type        varchar(20)    not null comment '资源类型: api / menu / button',
     parent_id   bigint         default null comment '父资源ID',
@@ -136,7 +136,7 @@ CREATE TABLE IF NOT EXISTS cm_store (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 comment '商家店铺表';
 
 -- ============================================================
--- 商品模块 (goods)
+-- 商品模块 (product)
 -- ============================================================
 
 CREATE TABLE IF NOT EXISTS cm_category (
@@ -154,59 +154,108 @@ CREATE TABLE IF NOT EXISTS cm_category (
     KEY idx_parent_id (parent_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 comment '商品分类表';
 
-CREATE TABLE IF NOT EXISTS cm_goods (
-    id           bigint        NOT NULL AUTO_INCREMENT comment '商品ID',
-    name         varchar(200)  NOT NULL comment '商品名称',
-    spu          varchar(50)   NOT NULL comment '商品SPU编号',
-    image        varchar(500)  DEFAULT NULL comment '商品主图URL',
-    images       text          DEFAULT NULL comment '商品详情图(JSON数组)',
-    description  text          DEFAULT NULL comment '商品描述',
-    category_id  bigint        DEFAULT NULL comment '所属分类ID',
-    brand        varchar(100)  DEFAULT NULL comment '品牌名称',
-    price        decimal(10,2) NOT NULL comment '销售价格',
-    market_price decimal(10,2) DEFAULT NULL comment '市场价(划线价)',
-    stock        int           DEFAULT '0' comment '库存数量',
-    sales_count  int           DEFAULT '0' comment '累计销量',
-    status       tinyint(1)    DEFAULT '1' comment '商品状态(0=下架 1=上架)',
-    create_time  datetime      DEFAULT NULL comment '创建时间',
-    update_time  datetime      DEFAULT NULL comment '更新时间',
-    deleted      tinyint       DEFAULT '0' comment '是否删除(0=否 1=是)',
+CREATE TABLE IF NOT EXISTS cm_brand (
+    id          bigint        NOT NULL AUTO_INCREMENT comment '品牌ID',
+    name        varchar(100)  NOT NULL comment '品牌名称',
+    name_en     varchar(100)  DEFAULT NULL comment '品牌英文名',
+    logo        varchar(500)  DEFAULT NULL comment '品牌Logo URL',
+    description text          DEFAULT NULL comment '品牌描述/故事',
+    country     varchar(50)   DEFAULT NULL comment '品牌国别',
+    website     varchar(500)  DEFAULT NULL comment '官方网站',
+    status      tinyint(1)    DEFAULT 1 comment '状态(0=禁用 1=启用)',
+    sort_order  int           DEFAULT 0 comment '排序值(越小越靠前)',
+    create_time datetime      DEFAULT NULL comment '创建时间',
+    update_time datetime      DEFAULT NULL comment '更新时间',
+    deleted     tinyint(1)    DEFAULT 0 comment '是否删除(0=否 1=是)',
+    PRIMARY KEY (id),
+    UNIQUE KEY uk_name (name),
+    KEY idx_status (status)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 comment '品牌表';
+
+CREATE TABLE IF NOT EXISTS cm_product (
+    id          bigint        NOT NULL AUTO_INCREMENT comment '商品ID',
+    name        varchar(200)  NOT NULL comment '商品名称',
+    spu_code    varchar(50)   NOT NULL comment 'SPU编码',
+    description text          DEFAULT NULL comment '商品描述',
+    category_id bigint        DEFAULT NULL comment '所属分类ID',
+    brand_id    bigint        DEFAULT NULL comment '品牌ID',
+    image_id    bigint        DEFAULT NULL comment '主图ID（关联cm_product_image）',
+    status      tinyint(1)    DEFAULT 1 comment '商品状态(0=下架 1=上架)',
+    create_time datetime      DEFAULT NULL comment '创建时间',
+    update_time datetime      DEFAULT NULL comment '更新时间',
+    deleted     tinyint(1)    DEFAULT 0 comment '是否删除(0=否 1=是)',
     PRIMARY KEY (id),
     KEY idx_status (status),
     KEY idx_category (category_id),
-    UNIQUE KEY uk_spu (spu)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 comment '商品信息表';
+    KEY idx_brand_id (brand_id),
+    KEY idx_image_id (image_id),
+    UNIQUE KEY uk_spu_code (spu_code)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 comment '商品信息表(SPU)';
 
-CREATE TABLE IF NOT EXISTS cm_goods_sku (
-    id        bigint        NOT NULL AUTO_INCREMENT comment 'SKU ID',
-    goods_id  bigint        NOT NULL comment '所属商品ID',
-    spec_ids  varchar(200)  DEFAULT NULL comment '规格组合ID(JSON数组)',
-    image     varchar(500)  DEFAULT NULL comment 'SKU图片URL',
-    price     decimal(10,2) NOT NULL comment 'SKU价格',
-    stock     int           DEFAULT '0' comment 'SKU库存',
-    create_time datetime    DEFAULT NULL comment '创建时间',
-    update_time datetime    DEFAULT NULL comment '更新时间',
-    deleted   tinyint       DEFAULT '0' comment '是否删除(0=否 1=是)',
+CREATE TABLE IF NOT EXISTS cm_product_sku (
+    id           bigint        NOT NULL AUTO_INCREMENT comment 'SKU ID',
+    product_id   bigint        NOT NULL comment '所属商品ID',
+    sku_code     varchar(64)   DEFAULT NULL comment 'SKU编码',
+    price        decimal(10,2) NOT NULL comment '销售价格',
+    market_price decimal(10,2) DEFAULT NULL comment '市场价(划线价)',
+    stock        int           DEFAULT 0 comment '库存数量',
+    weight       decimal(10,2) DEFAULT 0.00 comment '重量(kg)',
+    image        varchar(500)  DEFAULT NULL comment 'SKU图片URL',
+    create_time  datetime      DEFAULT NULL comment '创建时间',
+    update_time  datetime      DEFAULT NULL comment '更新时间',
+    deleted      tinyint(1)    DEFAULT 0 comment '是否删除(0=否 1=是)',
     PRIMARY KEY (id),
-    KEY idx_goods_id (goods_id)
+    KEY idx_product_id (product_id),
+    UNIQUE KEY uk_sku_code (sku_code)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 comment '商品SKU表';
 
-CREATE TABLE IF NOT EXISTS cm_goods_spec (
-    id         bigint       NOT NULL AUTO_INCREMENT comment '规格ID',
-    goods_id   bigint       NOT NULL comment '所属商品ID',
-    name       varchar(50)  NOT NULL comment '规格名(如颜色、尺码)',
-    value      varchar(100) NOT NULL comment '规格值(如红色、XL)',
-    sort_order int          DEFAULT '0' comment '排序值(越小越靠前)',
-    create_time datetime    DEFAULT NULL comment '创建时间',
-    update_time datetime    DEFAULT NULL comment '更新时间',
-    deleted    tinyint      DEFAULT '0' comment '是否删除(0=否 1=是)',
+CREATE TABLE IF NOT EXISTS cm_product_spec_group (
+    id          bigint       NOT NULL AUTO_INCREMENT comment '规格组ID',
+    product_id  bigint       NOT NULL comment '所属商品ID',
+    name        varchar(50)  NOT NULL comment '规格名(如颜色、尺码)',
+    sort_order  int          DEFAULT 0 comment '排序值(越小越靠前)',
+    create_time datetime     DEFAULT NULL comment '创建时间',
+    update_time datetime     DEFAULT NULL comment '更新时间',
+    deleted     tinyint(1)   DEFAULT 0 comment '是否删除(0=否 1=是)',
     PRIMARY KEY (id),
-    KEY idx_goods_id (goods_id)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 comment '商品规格表';
+    KEY idx_product_id (product_id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 comment '商品规格组表';
+
+CREATE TABLE IF NOT EXISTS cm_product_spec_value (
+    id          bigint       NOT NULL AUTO_INCREMENT comment '规格值ID',
+    group_id    bigint       NOT NULL comment '所属规格组ID',
+    value       varchar(100) NOT NULL comment '规格值(如红色、XL)',
+    image       varchar(500) DEFAULT NULL comment '规格图片(色块/图标)',
+    sort_order  int          DEFAULT 0 comment '排序值(越小越靠前)',
+    create_time datetime     DEFAULT NULL comment '创建时间',
+    update_time datetime     DEFAULT NULL comment '更新时间',
+    deleted     tinyint(1)   DEFAULT 0 comment '是否删除(0=否 1=是)',
+    PRIMARY KEY (id),
+    KEY idx_group_id (group_id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 comment '商品规格值表';
+
+CREATE TABLE IF NOT EXISTS cm_product_sku_spec (
+    sku_id        bigint   NOT NULL comment 'SKU ID',
+    spec_value_id bigint   NOT NULL comment '规格值ID',
+    create_time   datetime DEFAULT NULL comment '创建时间',
+    PRIMARY KEY (sku_id, spec_value_id),
+    KEY idx_spec_value_id (spec_value_id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 comment 'SKU与规格值关联表';
+
+CREATE TABLE IF NOT EXISTS cm_product_image (
+    id          bigint        NOT NULL AUTO_INCREMENT comment '图片ID',
+    product_id  bigint        NOT NULL comment '商品ID',
+    url         varchar(500)  NOT NULL comment '图片URL',
+    is_main     tinyint(1)    NOT NULL DEFAULT 0 comment '是否主图(0=否 1=是)',
+    sort_order  int           NOT NULL DEFAULT 0 comment '排序（详情页轮播顺序）',
+    create_time datetime      DEFAULT CURRENT_TIMESTAMP comment '创建时间',
+    PRIMARY KEY (id),
+    KEY idx_product_id (product_id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 comment '商品图片表';
 
 CREATE TABLE IF NOT EXISTS cm_comment (
     id        bigint   NOT NULL AUTO_INCREMENT comment '评论ID',
-    goods_id  bigint   NOT NULL comment '商品ID',
+    product_id  bigint   NOT NULL comment '商品ID',
     user_id   bigint   NOT NULL comment '评论用户ID',
     order_id  bigint   DEFAULT NULL comment '关联订单ID',
     content   text     DEFAULT NULL comment '评论内容',
@@ -217,7 +266,7 @@ CREATE TABLE IF NOT EXISTS cm_comment (
     update_time datetime    DEFAULT NULL comment '更新时间',
     deleted    tinyint      DEFAULT '0' comment '是否删除(0=否 1=是)',
     PRIMARY KEY (id),
-    KEY idx_goods_id (goods_id),
+    KEY idx_product_id (product_id),
     KEY idx_user_id (user_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 comment '商品评论表';
 
@@ -237,12 +286,12 @@ CREATE TABLE IF NOT EXISTS cm_banner (
 CREATE TABLE IF NOT EXISTS cm_favorite (
     id         bigint   NOT NULL AUTO_INCREMENT comment '收藏ID',
     user_id    bigint   NOT NULL comment '用户ID',
-    goods_id   bigint   NOT NULL comment '商品ID',
+    product_id   bigint   NOT NULL comment '商品ID',
     create_time datetime DEFAULT NULL comment '收藏时间',
     update_time datetime    DEFAULT NULL comment '更新时间',
     deleted    tinyint      DEFAULT '0' comment '是否删除(0=否 1=是)',
     PRIMARY KEY (id),
-    UNIQUE KEY uk_user_goods (user_id, goods_id)
+    UNIQUE KEY uk_user_product (user_id, product_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 comment '用户收藏表';
 
 CREATE TABLE IF NOT EXISTS cm_unit (
@@ -316,10 +365,10 @@ CREATE TABLE IF NOT EXISTS cm_order (
 CREATE TABLE IF NOT EXISTS cm_order_item (
     id           bigint        NOT NULL AUTO_INCREMENT comment '订单项ID',
     order_id     bigint        NOT NULL comment '所属订单ID',
-    goods_id     bigint        NOT NULL comment '商品ID',
+    product_id     bigint        NOT NULL comment '商品ID',
     sku_id       bigint        DEFAULT NULL comment 'SKU ID',
-    goods_name   varchar(200)  DEFAULT NULL comment '商品名称(快照)',
-    goods_image  varchar(500)  DEFAULT NULL comment '商品图片(快照)',
+    product_name   varchar(200)  DEFAULT NULL comment '商品名称(快照)',
+    product_image  varchar(500)  DEFAULT NULL comment '商品图片(快照)',
     price        decimal(10,2) NOT NULL comment '成交单价',
     quantity     int           NOT NULL comment '购买数量',
     subtotal     decimal(10,2) NOT NULL comment '小计金额',
@@ -333,16 +382,15 @@ CREATE TABLE IF NOT EXISTS cm_order_item (
 CREATE TABLE IF NOT EXISTS cm_cart (
     id           bigint        NOT NULL AUTO_INCREMENT comment '购物车项ID',
     user_id      bigint        NOT NULL comment '用户ID',
-    goods_id     bigint        NOT NULL comment '商品ID',
+    product_id     bigint        NOT NULL comment '商品ID',
     sku_id       bigint        DEFAULT NULL comment 'SKU ID',
-    goods_name   varchar(200)  DEFAULT NULL comment '商品名称',
-    goods_image  varchar(500)  DEFAULT NULL comment '商品图片URL',
+    product_name   varchar(200)  DEFAULT NULL comment '商品名称',
+    product_image  varchar(500)  DEFAULT NULL comment '商品图片URL',
     price        decimal(10,2) NOT NULL comment '加入时单价',
     quantity     int           NOT NULL DEFAULT '1' comment '数量',
     selected     tinyint       DEFAULT '1' comment '是否选中(0=未选中 1=已选中)',
     create_time  datetime      DEFAULT NULL comment '加入时间',
     update_time  datetime      DEFAULT NULL comment '更新时间',
-    deleted    tinyint      DEFAULT '0' comment '是否删除(0=否 1=是)',
     PRIMARY KEY (id),
     KEY idx_user_id (user_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 comment '购物车表';
@@ -364,10 +412,10 @@ CREATE TABLE IF NOT EXISTS cm_seckill_activity (
     PRIMARY KEY (id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 comment '秒杀活动表';
 
-CREATE TABLE IF NOT EXISTS cm_seckill_goods (
+CREATE TABLE IF NOT EXISTS cm_seckill_product (
     id            bigint        NOT NULL AUTO_INCREMENT comment '秒杀商品ID',
     activity_id   bigint        NOT NULL comment '所属活动ID',
-    goods_id      bigint        NOT NULL comment '商品ID',
+    product_id      bigint        NOT NULL comment '商品ID',
     seckill_price decimal(10,2) NOT NULL comment '秒杀价格',
     stock         int           DEFAULT '0' comment '秒杀库存',
     sold_count    int           DEFAULT '0' comment '已售数量',
@@ -389,10 +437,10 @@ INSERT INTO cm_role (id, name, built_in, enable, description) VALUES (1, 'admin'
 -- API 资源权限
 INSERT INTO cm_resource (id, code, name, type) VALUES
     (1,  '*',                               '超级管理员（所有权限）',              'api'),
-    (10, 'goods:view',                      '商品查询',                          'api'),
-    (11, 'goods:create',                    '商品创建',                          'api'),
-    (12, 'goods:update',                    '商品更新',                          'api'),
-    (13, 'goods:delete',                    '商品删除',                          'api'),
+    (10, 'product:view',                      '商品查询',                          'api'),
+    (11, 'product:create',                    '商品创建',                          'api'),
+    (12, 'product:update',                    '商品更新',                          'api'),
+    (13, 'product:delete',                    '商品删除',                          'api'),
     (20, 'order:view',                      '订单查询',                          'api'),
     (21, 'order:create',                    '订单创建',                          'api'),
     (22, 'order:update',                    '订单更新',                          'api'),

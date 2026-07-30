@@ -33,7 +33,4 @@ public class CartDO {
 
     @TableField(fill = FieldFill.INSERT_UPDATE)
     private LocalDateTime updateTime;
-
-    @TableLogic
-    private Boolean deleted;
 }

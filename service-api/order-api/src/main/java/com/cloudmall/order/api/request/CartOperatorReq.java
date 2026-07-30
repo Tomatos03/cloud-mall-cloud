@@ -1,22 +1,26 @@
 package com.cloudmall.order.api.request;
 
-import java.math.BigDecimal;
-
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.experimental.Accessors;
 
+/**
+ * 购物车操作请求
+ *
+ * @author : Tomatos
+ */
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
 @Data
-public class CartAddReq {
-    private Long userId;
-    private Long goodsId;
+@Accessors(chain = true, fluent = true)
+public class CartOperatorReq {
+
+    /** SKU ID */
     private Long skuId;
-    private String goodsName;
-    private String goodsImage;
-    private BigDecimal price;
+
+    /** 数量 */
     private Integer quantity;
 }

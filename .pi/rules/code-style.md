@@ -1,5 +1,5 @@
 ---
-description: Java 代码风格约束，适用于所有 Java 源文件。
+description: Java代码风格约束。
 paths: "**/*.java"
 ---
 

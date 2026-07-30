@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.UUID;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -14,14 +15,13 @@ import org.springframework.transaction.annotation.Transactional;
 import com.cloudmall.common.enums.BizErrorCode;
 import com.cloudmall.common.utils.AssertUtils;
 import com.cloudmall.order.api.request.CreateReq;
-import com.cloudmall.order.api.response.ItemResp;
 import com.cloudmall.order.api.response.OrderResp;
+import com.cloudmall.order.convert.OrderConverter;
+import com.cloudmall.order.convert.OrderItemConverter;
 import com.cloudmall.order.entity.OrderDO;
 import com.cloudmall.order.entity.OrderItemDO;
-import com.cloudmall.order.convert.OrderConverter;
 import com.cloudmall.order.mapper.OrderItemMapper;
 import com.cloudmall.order.mapper.OrderMapper;
-import com.cloudmall.order.service.IOrderItemService;
 import com.cloudmall.order.model.req.OrderPageReq;
 import com.cloudmall.order.service.IOrderService;
 
@@ -32,7 +32,7 @@ public class OrderService implements IOrderService {
 
     private final OrderMapper orderMapper;
     private final OrderItemMapper orderItemMapper;
-    private final IOrderItemService orderItemService;
+    private final OrderItemConverter orderItemConverter;
     private final OrderConverter orderConverter;
 
     @Override
@@ -86,7 +86,11 @@ public class OrderService implements IOrderService {
 
     private OrderResp toResponse(OrderDO order) {
         OrderResp resp = orderConverter.toResp(order);
-        resp.setItems(orderItemService.listByOrderId(order.getId()));
+        resp.setItems(orderItemMapper.selectList(
+                Wrappers.<OrderItemDO>lambdaQuery().eq(OrderItemDO::getOrderId, order.getId())
+        ).stream()
+         .map(orderItemConverter::toItemResp)
+         .toList());
         return resp;
     }
 }

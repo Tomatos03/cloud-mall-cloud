@@ -1,6 +1,7 @@
 package com.cloudmall.user.controller;
 
-import com.baomidou.mybatisplus.core.metadata.IPage;
+import java.util.List;
+
 import com.cloudmall.common.context.UserContextHolder;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -17,7 +18,6 @@ import com.cloudmall.common.model.Result;
 import com.cloudmall.user.api.request.AddressUpdateReq;
 import com.cloudmall.user.api.request.CreateReq;
 import com.cloudmall.user.api.response.AddressResp;
-import com.cloudmall.user.model.req.AddressPageReq;
 import com.cloudmall.user.service.IAddressService;
 
 @RestController
@@ -27,9 +27,15 @@ public class AddressController {
 
     private final IAddressService addressService;
 
-    @GetMapping
-    public Result<IPage<AddressResp>> page(AddressPageReq req) {
-        return Result.success(addressService.page(req));
+    /**
+     * 获取当前用户所有收货地址
+     * <p>
+     * 地址数量上限 10 条，无需分页。
+     */
+    @GetMapping("/list")
+    public Result<List<AddressResp>> list() {
+        Long userId = UserContextHolder.getUserId();
+        return Result.success(addressService.list(userId));
     }
 
     @GetMapping("/{id}")
@@ -52,9 +58,9 @@ public class AddressController {
         return Result.success(null);
     }
 
-    @DeleteMapping("/{id}")
-    public Result<Void> delete(@PathVariable Long id) {
-        addressService.delete(id);
+    @DeleteMapping
+    public Result<Void> delete(@RequestBody List<Long> ids) {
+        addressService.delete(ids);
         return Result.success(null);
     }
 }
