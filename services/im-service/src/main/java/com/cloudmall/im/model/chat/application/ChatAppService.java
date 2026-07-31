@@ -57,10 +57,11 @@ public class ChatAppService implements IChatAppService {
 
         Long unReadCount = chatMessageService.countUnreadMessages(chatSession.getId());
         ChatMessage lastMessage = chatMessageService.getLastMessage(chatSession.getId());
-        ChatSessionVO.ChatSessionVOBuilder builder = ChatSessionVO.builder()
-                                                                   .id(chatSession.getId())
-                                                                   .userId(receiverId)
-                                                                   .name(
+        ChatSessionVO.ChatSessionVOBuilder builder = ChatSessionVO
+                .builder()
+                .id(chatSession.getId())
+                .userId(receiverId)
+                .name(
                                                                            receiverUser != null ? receiverUser.getNickname() : null
                                                                    )
                                                                    .avatar(
@@ -114,11 +115,12 @@ public class ChatAppService implements IChatAppService {
                                                     .eq(ChatSession::getAgentId, merchantId)
                                                     .one();
         if (chatSession == null) {
-            chatSession = ChatSession.builder()
-                                     .buyerId(userId)
-                                     .agentId(merchantId)
-                                     .createTime(LocalDateTime.now())
-                                     .build();
+            chatSession = ChatSession
+                    .builder()
+                    .buyerId(userId)
+                    .agentId(merchantId)
+                    .createTime(LocalDateTime.now())
+                    .build();
             chatSessionService.save(chatSession);
         }
 

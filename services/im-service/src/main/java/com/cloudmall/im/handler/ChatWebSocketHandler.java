@@ -68,7 +68,8 @@ public class ChatWebSocketHandler extends TextWebSocketHandler {
         if (targetUserOnline) {
             WebSocketSession userSession = webSocketSessionManager.getSession(receiverId);
             if (userSession != null && userSession.isOpen()) {
-                MessageVO messageVO = MessageVO.builder()
+                MessageVO messageVO = MessageVO
+                        .builder()
                         .content(messageDTO.getContent())
                         .time(LocalDateTime.now().toString())
                         .type(messageDTO.getType())

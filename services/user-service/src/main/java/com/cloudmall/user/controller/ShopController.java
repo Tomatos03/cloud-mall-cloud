@@ -32,7 +32,10 @@ public class ShopController {
      */
     @GetMapping
     public Result<ShopResp> getByUserId(@RequestParam Long userId) {
-        ShopGetReq req = ShopGetReq.builder().userId(userId).build();
+        ShopGetReq req = ShopGetReq
+                .builder()
+                .userId(userId)
+                .build();
         return Result.success(shopService.get(req));
     }
 
@@ -44,7 +47,10 @@ public class ShopController {
      */
     @GetMapping("/{id}")
     public Result<ShopResp> getById(@PathVariable Long id) {
-        ShopGetReq req = ShopGetReq.builder().id(id).build();
+        ShopGetReq req = ShopGetReq
+                .builder()
+                .id(id)
+                .build();
         return Result.success(shopService.get(req));
     }
 
@@ -55,9 +61,10 @@ public class ShopController {
      */
     @GetMapping("/current")
     public Result<ShopResp> getCurrent() {
-        ShopGetReq req = ShopGetReq.builder()
-                                     .userId(UserContextHolder.getUserId())
-                                     .build();
+        ShopGetReq req = ShopGetReq
+                .builder()
+                .userId(UserContextHolder.getUserId())
+                .build();
         return Result.success(shopService.get(req));
     }
 

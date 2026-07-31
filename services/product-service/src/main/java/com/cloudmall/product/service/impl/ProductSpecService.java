@@ -88,11 +88,11 @@ public class ProductSpecService implements IProductSpecService {
         if (CollUtil.isEmpty(specValueIds)) {
             return Map.of();
         }
+        final String skuIdInSql = "SELECT id FROM cm_product_sku WHERE product_id = " + productId;
         List<ProductSkuSpecDO> specs = productSkuSpecMapper.selectList(
                 Wrappers.<ProductSkuSpecDO>lambdaQuery()
                         .in(ProductSkuSpecDO::getSpecValueId, specValueIds)
-                        .inSql(ProductSkuSpecDO::getSkuId,
-                                "SELECT id FROM cm_product_sku WHERE product_id = " + productId)
+                        .inSql(ProductSkuSpecDO::getSkuId, skuIdInSql)
         );
         return specs.stream()
                     .collect(Collectors.groupingBy(

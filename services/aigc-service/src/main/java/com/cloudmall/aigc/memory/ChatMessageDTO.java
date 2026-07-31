@@ -40,14 +40,18 @@ public class ChatMessageDTO {
         Map<String, Object> meta = metadata != null ? metadata : Collections.emptyMap();
         return switch (type) {
             case USER -> {
-                UserMessage.Builder builder = UserMessage.builder().text(content).metadata(meta);
+                UserMessage.Builder builder = UserMessage
+                        .builder()
+                        .text(content)
+                        .metadata(meta);
                 if (media != null) {
                     builder.media(media);
                 }
                 yield builder.build();
             }
             case ASSISTANT -> {
-                var builder = AssistantMessage.builder()
+                var builder = AssistantMessage
+                        .builder()
                         .content(content)
                         .properties(meta);
                 if (toolCalls != null) {
@@ -58,7 +62,10 @@ public class ChatMessageDTO {
                 }
                 yield builder.build();
             }
-            case SYSTEM -> SystemMessage.builder().text(content).metadata(meta).build();
+            case SYSTEM -> SystemMessage.builder()
+                                        .text(content)
+                                        .metadata(meta)
+                                        .build();
             case TOOL -> {
                 ToolResponseMessage.Builder builder = ToolResponseMessage.builder().metadata(meta);
                 if (toolResponses != null) {
@@ -76,7 +83,8 @@ public class ChatMessageDTO {
      * @return 处理结果
      */
     public static ChatMessageDTO fromMessage(Message message) {
-        ChatMessageDTOBuilder builder = ChatMessageDTO.builder()
+        ChatMessageDTOBuilder builder = ChatMessageDTO
+                .builder()
                 .type(message.getMessageType())
                 .content(message.getText())
                 .metadata(message.getMetadata() != null ? new HashMap<>(message.getMetadata()) : null);

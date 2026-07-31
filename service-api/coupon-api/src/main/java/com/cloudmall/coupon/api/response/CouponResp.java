@@ -100,4 +100,15 @@ public class CouponResp {
 
     /** 指定分类 ID 列表（scopeType=CATEGORY 时返回） */
     private List<Long> categoryIds;
+
+    /**
+     * 是否已领完（存在总数限制且已领数达到总数）。
+     *
+     * @return true 表示已领完
+     */
+    public boolean isClaimedOut() {
+        return this.totalCount != null
+                && this.claimedCount != null
+                && this.claimedCount >= this.totalCount;
+    }
 }

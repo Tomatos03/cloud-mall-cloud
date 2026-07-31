@@ -33,9 +33,14 @@ public class TikaDocumentParser implements DocumentParser {
         InputStreamResource resource = new InputStreamResource(file.getInputStream());
         TikaDocumentReader reader = new TikaDocumentReader(resource);
         List<Document> documents = reader.get();
-        documents = documents.stream().map(doc ->
-                doc.mutate().id(UUID.randomUUID().toString()).build()
-        ).toList();
+        documents = documents
+                .stream()
+                .map(doc -> doc
+                        .mutate()
+                        .id(UUID.randomUUID().toString())
+                        .build()
+                )
+                .toList();
         return documents;
     }
 

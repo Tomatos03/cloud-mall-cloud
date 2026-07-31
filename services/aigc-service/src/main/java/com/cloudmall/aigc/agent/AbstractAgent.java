@@ -145,7 +145,8 @@ public abstract class AbstractAgent implements Agent {
         return getChatClient()
                 .prompt(req.getPrompt())
                 .advisors(advisorSpec -> advisorSpec
-                        .param(ChatMemory.CONVERSATION_ID, conversationId))
+                        .param(ChatMemory.CONVERSATION_ID, conversationId)
+                )
                 .call()
                 .content();
     }
@@ -170,9 +171,10 @@ public abstract class AbstractAgent implements Agent {
         if (StrUtil.isBlank(content)) {
             return;
         }
-        AssistantMessage message = AssistantMessage.builder()
-                                                   .content(content)
-                                                   .build();
+        AssistantMessage message = AssistantMessage
+                .builder()
+                .content(content)
+                .build();
         chatMemoryRepository.saveAll(conversationId, Collections.singletonList(message));
     }
 }

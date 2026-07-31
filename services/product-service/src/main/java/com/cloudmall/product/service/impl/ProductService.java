@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Function;
+import java.util.stream.Collector;
 import java.util.stream.Collectors;
 
 import cn.hutool.core.collection.CollUtil;
@@ -162,8 +163,7 @@ public class ProductService implements IProductService {
     public IPage<ProductResp> page(ProductPageReq req) {
         IPage<ProductDO> page = productMapper.selectPage(
                 req,
-                req.buildLambdaWrapper()
-                   .orderByDesc(ProductDO::getCreateTime)
+                req.buildLambdaWrapper().orderByDesc(ProductDO::getCreateTime)
         );
 
         List<ProductDO> records = page.getRecords();
@@ -186,8 +186,7 @@ public class ProductService implements IProductService {
         Map<Long, BrandDO> brandMap = new HashMap<>();
         if (CollUtil.isNotEmpty(brandIds)) {
             List<BrandDO> brands = brandMapper.selectByIds(brandIds);
-            brandMap = brands.stream()
-                             .collect(Collectors.toMap(BrandDO::getId, Function.identity()));
+            brandMap = brands.stream().collect(Collectors.toMap(BrandDO::getId, Function.identity()));
         }
 
         // 批量查询主图
@@ -208,7 +207,10 @@ public class ProductService implements IProductService {
         Map<Long, BrandDO> finalBrandMap = brandMap;
         Map<Long, ProductImageDO> finalImageMap = imageMap;
         return page.convert(product -> productConverter.toCompositeResp(
-                product, finalBrandMap, finalImageMap, lowestPriceMap
+                product,
+                finalBrandMap,
+                finalImageMap,
+                lowestPriceMap
         ));
     }
 
@@ -339,10 +341,11 @@ public class ProductService implements IProductService {
             productSkuMapper.insert(sku);
 
             for (Long specValueId : realIds) {
-                ProductSkuSpecDO skuSpec = ProductSkuSpecDO.builder()
-                                                           .skuId(sku.getId())
-                                                           .specValueId(specValueId)
-                                                           .build();
+                ProductSkuSpecDO skuSpec = ProductSkuSpecDO
+                        .builder()
+                        .skuId(sku.getId())
+                        .specValueId(specValueId)
+                        .build();
                 relations.add(skuSpec);
             }
         }
@@ -509,9 +512,9 @@ public class ProductService implements IProductService {
      */
     private static String specHash(List<Long> specValueIds) {
         return specValueIds.stream()
-                .sorted()
-                .map(String::valueOf)
-                .collect(Collectors.joining("_"));
+                           .sorted()
+                           .map(String::valueOf)
+                           .collect(Collectors.joining("_"));
     }
 
     /**
@@ -562,16 +565,17 @@ public class ProductService implements IProductService {
                 Wrappers.<ProductSkuDO>lambdaQuery()
                         .in(ProductSkuDO::getProductId, productIds)
         );
+        Collector<ProductSkuDO, ?, BigDecimal> priceCollector = Collectors.collectingAndThen(
+                Collectors.mapping(
+                        ProductSkuDO::getPrice,
+                        Collectors.minBy(BigDecimal::compareTo)
+                ),
+                opt -> opt.orElse(null)
+        );
         return skus.stream()
-                .collect(Collectors.groupingBy(
-                        ProductSkuDO::getProductId,
-                        Collectors.mapping(
-                                ProductSkuDO::getPrice,
-                                Collectors.collectingAndThen(
-                                        Collectors.minBy(BigDecimal::compareTo),
-                                        opt -> opt.orElse(null)
-                                )
-                        )
-                ));
+                   .collect(Collectors.groupingBy(
+                           ProductSkuDO::getProductId,
+                           priceCollector
+                   ));
     }
 }

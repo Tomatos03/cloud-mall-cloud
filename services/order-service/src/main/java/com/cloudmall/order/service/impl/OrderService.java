@@ -44,14 +44,18 @@ public class OrderService implements IOrderService {
     @Override
     @Transactional
     public OrderResp createOrder(CreateReq request) {
-        String orderNo = UUID.randomUUID().toString().replace("-", "").substring(0, 20);
+        String orderNo = UUID.randomUUID()
+                             .toString()
+                             .replace("-", "")
+                             .substring(0, 20);
 
         BigDecimal total = BigDecimal.ZERO;
         for (CreateReq.OrderItemRequest item : request.getItems()) {
             total = total.add(item.getPrice().multiply(BigDecimal.valueOf(item.getQuantity())));
         }
 
-        OrderDO order = OrderDO.builder()
+        OrderDO order = OrderDO
+                .builder()
                 .orderNo(orderNo)
                 .userId(request.getUserId())
                 .totalAmount(total)
@@ -62,7 +66,8 @@ public class OrderService implements IOrderService {
         orderMapper.insert(order);
 
         for (CreateReq.OrderItemRequest item : request.getItems()) {
-            OrderItemDO oi = OrderItemDO.builder()
+            OrderItemDO oi = OrderItemDO
+                    .builder()
                     .orderId(order.getId())
                     .goodsId(item.getGoodsId())
                     .skuId(item.getSkuId())

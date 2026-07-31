@@ -65,7 +65,8 @@ public class SeckillService implements ISeckillService {
     public void submitProduct(Long activityId, Long productId, BigDecimal seckillPrice, Integer stock) {
         SeckillActivityDO act = activityMapper.selectById(activityId);
         AssertUtils.notNull(act, BizErrorCode.DATA_NOT_FOUND);
-        SeckillProductDO product = SeckillProductDO.builder()
+        SeckillProductDO product = SeckillProductDO
+                .builder()
                 .activityId(activityId)
                 .productId(productId)
                 .seckillPrice(seckillPrice)

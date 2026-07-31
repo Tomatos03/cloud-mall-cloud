@@ -78,7 +78,8 @@ public class UserService implements IUserService {
 
         List<String> permissionCodes = resourceService.getPermissionCodes(user.getId());
 
-        UserContext userCtx = UserContext.builder()
+        UserContext userCtx = UserContext
+                .builder()
                 .userId(user.getId())
                 .username(user.getUsername())
                 .userType(ObjectUtil.defaultIfNull(user.getTypes(), UserTypeEnum.NORMAL).getCode())
@@ -209,10 +210,11 @@ public class UserService implements IUserService {
             boolean selfAccessible = StrUtil.isBlank(code) || userPerms.contains(code);
 
             if (hasVisibleChildren || selfAccessible) {
-                ResourceNodeResp prunedNode = ResourceNodeResp.builder()
-                                                              .resource(node.getResource())
-                                                              .children(prunedChildren)
-                                                              .build();
+                ResourceNodeResp prunedNode = ResourceNodeResp
+                        .builder()
+                        .resource(node.getResource())
+                        .children(prunedChildren)
+                        .build();
                 result.add(prunedNode);
             }
         }

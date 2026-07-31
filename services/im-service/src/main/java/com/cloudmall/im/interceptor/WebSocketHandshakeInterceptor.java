@@ -59,7 +59,8 @@ public class WebSocketHandshakeInterceptor implements HandshakeInterceptor {
             }
 
             log.info("WebSocket握手：token解析成功，userId: {}, username: {}", parsedToken.getUserId(),
-                     parsedToken.getUsername());
+                     parsedToken.getUsername()
+            );
 
             attributes.put("userId", parsedToken.getUserId());
             log.info("WebSocket握手：认证成功");

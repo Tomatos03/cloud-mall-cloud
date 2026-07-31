@@ -51,7 +51,8 @@ public enum UserTypeEnum {
                      .filter(t -> t.code.equals(code))
                      .findFirst()
                      .orElseThrow(() -> new IllegalArgumentException(
-                             "Invalid user type: '" + code + "', valid values: " + allCodes()));
+                             "Invalid user type: '" + code + "', valid values: " + allCodes()
+                     ));
     }
 
     /**

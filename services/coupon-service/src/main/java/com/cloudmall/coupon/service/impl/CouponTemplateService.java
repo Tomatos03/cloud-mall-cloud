@@ -81,7 +81,8 @@ public class CouponTemplateService implements ICouponTemplateService {
         validateScope(scopeType, req.getProductIds(), req.getCategoryIds(), ownerType, shopId);
 
         LocalDateTime now = LocalDateTime.now();
-        CouponDO coupon = CouponDO.builder()
+        CouponDO coupon = CouponDO
+                .builder()
                 .name(req.getName())
                 .ownerType(ownerType)
                 .shopId(shopId)
@@ -267,11 +268,7 @@ public class CouponTemplateService implements ICouponTemplateService {
     @Transactional
     public void end(Long id) {
         CouponDO coupon = getTemplate(id);
-        AssertUtils.isTrue(
-                coupon.getStatus() == CouponStatusEnum.ACTIVE
-                        || coupon.getStatus() == CouponStatusEnum.PAUSED,
-                BizErrorCode.COUPON_OPERATION_NOT_ALLOWED
-        );
+        AssertUtils.isTrue(coupon.isActiveOrPaused(), BizErrorCode.COUPON_OPERATION_NOT_ALLOWED);
         CouponStatusEnum from = coupon.getStatus();
         coupon.setStatus(CouponStatusEnum.ENDED);
         coupon.setUpdateTime(LocalDateTime.now());
@@ -370,11 +367,7 @@ public class CouponTemplateService implements ICouponTemplateService {
             ValidityModeEnum validityMode,
             Long shopId
     ) {
-        AssertUtils.isTrue(
-                BooleanUtil.isFalse(req.getClaimEnabled())
-                        || BooleanUtil.isFalse(req.getAutoIssueOnRegister()),
-                BizErrorCode.COUPON_RULE_INVALID
-        );
+        AssertUtils.isFalse(req.isBothIssueChannelsEnabled(), BizErrorCode.COUPON_RULE_INVALID);
         if (BooleanUtil.isTrue(req.getAutoIssueOnRegister())) {
             AssertUtils.isTrue(ownerType == CouponOwnerTypeEnum.PLATFORM, BizErrorCode.COUPON_OWNER_INVALID);
             AssertUtils.isFalse(BooleanUtil.isTrue(req.getClaimEnabled()), BizErrorCode.COUPON_RULE_INVALID);
@@ -389,35 +382,21 @@ public class CouponTemplateService implements ICouponTemplateService {
                         threshold.compareTo(BigDecimal.ZERO) > 0,
                         BizErrorCode.COUPON_RULE_INVALID
                 );
-                AssertUtils.isTrue(
-                        req.getDiscountAmount() != null
-                                && req.getDiscountAmount().compareTo(BigDecimal.ZERO) > 0
-                                && req.getDiscountAmount().compareTo(threshold) < 0,
-                        BizErrorCode.COUPON_RULE_INVALID
-                );
+                AssertUtils.isTrue(req.isDiscountAmountValid(threshold), BizErrorCode.COUPON_RULE_INVALID);
             }
             case CASH -> {
                 AssertUtils.isTrue(
                         threshold.compareTo(BigDecimal.ZERO) >= 0,
                         BizErrorCode.COUPON_RULE_INVALID
                 );
-                AssertUtils.isTrue(
-                        req.getDiscountAmount() != null
-                                && req.getDiscountAmount().compareTo(BigDecimal.ZERO) > 0,
-                        BizErrorCode.COUPON_RULE_INVALID
-                );
+                AssertUtils.isTrue(req.isDiscountAmountPositive(), BizErrorCode.COUPON_RULE_INVALID);
             }
             case DISCOUNT -> {
                 AssertUtils.isTrue(
                         threshold.compareTo(BigDecimal.ZERO) >= 0,
                         BizErrorCode.COUPON_RULE_INVALID
                 );
-                AssertUtils.isTrue(
-                        req.getDiscountRate() != null
-                                && req.getDiscountRate().compareTo(BigDecimal.ZERO) > 0
-                                && req.getDiscountRate().compareTo(BigDecimal.ONE) < 0,
-                        BizErrorCode.COUPON_RULE_INVALID
-                );
+                AssertUtils.isTrue(req.isDiscountRateValid(), BizErrorCode.COUPON_RULE_INVALID);
             }
         }
         if (scopeType == CouponScopeTypeEnum.PRODUCT) {
@@ -425,22 +404,11 @@ public class CouponTemplateService implements ICouponTemplateService {
         } else if (scopeType == CouponScopeTypeEnum.CATEGORY) {
             AssertUtils.isTrue(CollUtil.isNotEmpty(req.getCategoryIds()), BizErrorCode.COUPON_SCOPE_INVALID);
         }
-        AssertUtils.isTrue(
-                req.getIssueStartTime() != null && req.getIssueEndTime() != null
-                        && req.getIssueStartTime().isBefore(req.getIssueEndTime()),
-                BizErrorCode.COUPON_RULE_INVALID
-        );
+        AssertUtils.isTrue(req.isIssueTimeValid(), BizErrorCode.COUPON_RULE_INVALID);
         if (validityMode == ValidityModeEnum.FIXED) {
-            AssertUtils.isTrue(
-                    req.getFixedStartTime() != null && req.getFixedExpireTime() != null
-                            && req.getFixedStartTime().isBefore(req.getFixedExpireTime()),
-                    BizErrorCode.COUPON_RULE_INVALID
-            );
+            AssertUtils.isTrue(req.isFixedTimeValid(), BizErrorCode.COUPON_RULE_INVALID);
         } else if (validityMode == ValidityModeEnum.RELATIVE) {
-            AssertUtils.isTrue(
-                    req.getValidDays() != null && req.getValidDays() > 0,
-                    BizErrorCode.COUPON_RULE_INVALID
-            );
+            AssertUtils.isTrue(req.hasValidDays(), BizErrorCode.COUPON_RULE_INVALID);
         }
     }
 
@@ -461,7 +429,9 @@ public class CouponTemplateService implements ICouponTemplateService {
             Long shopId
     ) {
         if (scopeType == CouponScopeTypeEnum.PRODUCT) {
-            List<Long> distinct = productIds.stream().distinct().toList();
+            List<Long> distinct = productIds.stream()
+                                            .distinct()
+                                            .toList();
             for (Long productId : distinct) {
                 ProductResp product = callProduct(productId);
                 if (ownerType == CouponOwnerTypeEnum.SHOP) {
@@ -469,7 +439,9 @@ public class CouponTemplateService implements ICouponTemplateService {
                 }
             }
         } else if (scopeType == CouponScopeTypeEnum.CATEGORY) {
-            List<Long> distinct = categoryIds.stream().distinct().toList();
+            List<Long> distinct = categoryIds.stream()
+                                            .distinct()
+                                            .toList();
             for (Long categoryId : distinct) {
                 callCategory(categoryId);
             }
@@ -482,11 +454,7 @@ public class CouponTemplateService implements ICouponTemplateService {
      * @param coupon 模板
      */
     private void validatePublish(CouponDO coupon) {
-        AssertUtils.isTrue(
-                BooleanUtil.isTrue(coupon.getClaimEnabled())
-                        || BooleanUtil.isTrue(coupon.getAutoIssueOnRegister()),
-                BizErrorCode.COUPON_NOT_CLAIMABLE
-        );
+        AssertUtils.isTrue(coupon.isClaimable(), BizErrorCode.COUPON_NOT_CLAIMABLE);
         if (coupon.getScopeType() == CouponScopeTypeEnum.PRODUCT) {
             Long count = couponProductMapper.selectCount(
                     Wrappers.<CouponProductDO>lambdaQuery()
@@ -523,26 +491,34 @@ public class CouponTemplateService implements ICouponTemplateService {
                     Wrappers.<CouponProductDO>lambdaQuery()
                             .eq(CouponProductDO::getCouponId, couponId)
             );
-            List<Long> distinct = productIds.stream().distinct().toList();
+            List<Long> distinct = productIds.stream()
+                                            .distinct()
+                                            .toList();
             for (Long productId : distinct) {
-                couponProductMapper.insert(CouponProductDO.builder()
-                        .couponId(couponId)
-                        .productId(productId)
-                        .createTime(now)
-                        .build());
+                couponProductMapper.insert(
+                        CouponProductDO.builder()
+                                       .couponId(couponId)
+                                       .productId(productId)
+                                       .createTime(now)
+                                       .build()
+                );
             }
         } else if (scopeType == CouponScopeTypeEnum.CATEGORY) {
             couponCategoryMapper.delete(
                     Wrappers.<CouponCategoryDO>lambdaQuery()
                             .eq(CouponCategoryDO::getCouponId, couponId)
             );
-            List<Long> distinct = categoryIds.stream().distinct().toList();
+            List<Long> distinct = categoryIds.stream()
+                                            .distinct()
+                                            .toList();
             for (Long categoryId : distinct) {
-                couponCategoryMapper.insert(CouponCategoryDO.builder()
-                        .couponId(couponId)
-                        .categoryId(categoryId)
-                        .createTime(now)
-                        .build());
+                couponCategoryMapper.insert(
+                        CouponCategoryDO.builder()
+                                        .couponId(couponId)
+                                        .categoryId(categoryId)
+                                        .createTime(now)
+                                        .build()
+                );
             }
         } else {
             deleteScope(couponId);
@@ -576,7 +552,9 @@ public class CouponTemplateService implements ICouponTemplateService {
                 Wrappers.<CouponProductDO>lambdaQuery()
                         .eq(CouponProductDO::getCouponId, couponId)
         );
-        return list.stream().map(CouponProductDO::getProductId).toList();
+        return list.stream()
+                   .map(CouponProductDO::getProductId)
+                   .toList();
     }
 
     /**
@@ -590,7 +568,9 @@ public class CouponTemplateService implements ICouponTemplateService {
                 Wrappers.<CouponCategoryDO>lambdaQuery()
                         .eq(CouponCategoryDO::getCouponId, couponId)
         );
-        return list.stream().map(CouponCategoryDO::getCategoryId).toList();
+        return list.stream()
+                   .map(CouponCategoryDO::getCategoryId)
+                   .toList();
     }
 
     /**
@@ -611,18 +591,20 @@ public class CouponTemplateService implements ICouponTemplateService {
             String summary,
             String reason
     ) {
-        couponOperationLogMapper.insert(CouponOperationLogDO.builder()
-                .couponId(coupon.getId())
-                .operatorId(UserContextHolder.getUserId())
-                .operatorType(resolveOperatorType())
-                .shopId(coupon.getShopId())
-                .fromStatus(from)
-                .toStatus(to)
-                .actionType(action)
-                .changeSummary(summary)
-                .reason(reason)
-                .createTime(LocalDateTime.now())
-                .build());
+        couponOperationLogMapper.insert(
+                CouponOperationLogDO.builder()
+                                    .couponId(coupon.getId())
+                                    .operatorId(UserContextHolder.getUserId())
+                                    .operatorType(resolveOperatorType())
+                                    .shopId(coupon.getShopId())
+                                    .fromStatus(from)
+                                    .toStatus(to)
+                                    .actionType(action)
+                                    .changeSummary(summary)
+                                    .reason(reason)
+                                    .createTime(LocalDateTime.now())
+                                    .build()
+        );
     }
 
     /**

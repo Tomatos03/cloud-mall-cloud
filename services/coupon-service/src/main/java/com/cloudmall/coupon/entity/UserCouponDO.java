@@ -98,4 +98,25 @@ public class UserCouponDO {
     /** 是否删除（0=否 1=是） */
     @TableLogic
     private Boolean deleted;
+
+    /**
+     * 是否已过期（状态可用且到期时间已过）。
+     *
+     * @return true 表示已过期
+     */
+    public boolean isOverdue() {
+        return UserCouponStatusEnum.AVAILABLE.equals(this.status)
+                && this.expireTime != null
+                && this.expireTime.isBefore(LocalDateTime.now());
+    }
+
+    /**
+     * 状态是否为可用或已过期（回退冲突检查用）。
+     *
+     * @return true 表示可用或已过期
+     */
+    public boolean isAvailableOrExpired() {
+        return UserCouponStatusEnum.AVAILABLE.equals(this.status)
+                || UserCouponStatusEnum.EXPIRED.equals(this.status);
+    }
 }

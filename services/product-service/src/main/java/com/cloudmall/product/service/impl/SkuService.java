@@ -149,7 +149,9 @@ public class SkuService implements ISkuService {
         if (matched.size() != 1) {
             return null;
         }
-        Long skuId = matched.keySet().iterator().next();
+        Long skuId = matched.keySet()
+                            .iterator()
+                            .next();
         List<SkuResp> skus = listSkusByIds(List.of(skuId));
         return CollUtil.isEmpty(skus) ? null : skus.get(0);
     }

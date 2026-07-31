@@ -81,7 +81,8 @@ public class CouponController {
             @RequestParam(required = false) UserCouponStatusEnum status
     ) {
         Page<UserCouponResp> page = userCouponService.pageMine(
-                UserContextHolder.getUserId(), status, current, size);
+                UserContextHolder.getUserId(), status, current, size
+        );
         return Result.success(page);
     }
 

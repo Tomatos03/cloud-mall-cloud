@@ -32,7 +32,8 @@ public class SeckillController {
      */
     @PostMapping("/activities")
     public Result<Long> createActivity(@RequestBody ActivityCreateReq req) {
-        SeckillActivityDO activity = SeckillActivityDO.builder()
+        SeckillActivityDO activity = SeckillActivityDO
+                .builder()
                 .name(req.getName())
                 .startTime(req.getStartTime())
                 .endTime(req.getEndTime())

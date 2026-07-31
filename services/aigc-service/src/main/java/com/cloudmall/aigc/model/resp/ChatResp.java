@@ -24,8 +24,8 @@ public class ChatResp {
      */
     public static ChatResp end() {
         return ChatResp.builder()
-                .eventType(ChatEventType.DONE)
-                .build();
+                       .eventType(ChatEventType.DONE)
+                       .build();
     }
 
     /**
@@ -36,8 +36,8 @@ public class ChatResp {
      */
     public static ChatResp param(Map<String, Object> params) {
         return ChatResp.builder()
-                .data(params)
-                .eventType(ChatEventType.PARAM)
-                .build();
+                       .data(params)
+                       .eventType(ChatEventType.PARAM)
+                       .build();
     }
 }

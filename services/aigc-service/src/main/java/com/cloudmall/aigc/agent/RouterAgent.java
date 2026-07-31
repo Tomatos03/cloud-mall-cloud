@@ -164,7 +164,8 @@ public class RouterAgent implements Agent {
      * @return 格式化后的描述行，如 {@code - goods: 负责商品搜索...}
      */
     private String formatAgentDescription(Agent agent) {
-        return "- " + agent.getType().name().toLowerCase() + ": " + agent.getDescription();
+        String agentTypeName = agent.getType().name().toLowerCase();
+        return "- " + agentTypeName + ": " + agent.getDescription();
     }
 
     /**

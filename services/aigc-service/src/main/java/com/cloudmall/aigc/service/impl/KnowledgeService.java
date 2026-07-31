@@ -42,7 +42,8 @@ public class KnowledgeService implements IKnowledgeService {
     @Override
     public String uploadDocument(String content, Map<String, Object> metadata) {
         String documentId = UUID.randomUUID().toString();
-        Document document = Document.builder()
+        Document document = Document
+                .builder()
                 .id(documentId)
                 .text(content)
                 .metadata(metadata)
@@ -115,7 +116,8 @@ public class KnowledgeService implements IKnowledgeService {
      */
     @Override
     public List<Document> searchDocuments(String query, int topK) {
-        SearchRequest searchRequest = SearchRequest.builder()
+        SearchRequest searchRequest = SearchRequest
+                .builder()
                 .query(query)
                 .topK(topK)
                 .build();

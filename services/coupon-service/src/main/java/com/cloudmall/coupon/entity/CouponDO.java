@@ -5,6 +5,7 @@ import java.time.LocalDateTime;
 
 import com.baomidou.mybatisplus.annotation.TableLogic;
 import com.baomidou.mybatisplus.annotation.TableName;
+import cn.hutool.core.util.BooleanUtil;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -106,4 +107,53 @@ public class CouponDO {
     /** 是否删除（0=否 1=是） */
     @TableLogic
     private Boolean deleted;
+
+    /**
+     * 状态是否为启用或暂停（可结束发放）。
+     *
+     * @return true 表示可结束
+     */
+    public boolean isActiveOrPaused() {
+        return CouponStatusEnum.ACTIVE.equals(this.status)
+                || CouponStatusEnum.PAUSED.equals(this.status);
+    }
+
+    /**
+     * 是否至少开启一种发放方式。
+     *
+     * @return true 表示可发放
+     */
+    public boolean isClaimable() {
+        return BooleanUtil.isTrue(this.claimEnabled)
+                || BooleanUtil.isTrue(this.autoIssueOnRegister);
+    }
+
+    /**
+     * 发放是否尚未开始。
+     *
+     * @param now 当前时间
+     * @return true 表示未开始
+     */
+    public boolean isNotStarted(LocalDateTime now) {
+        return this.issueStartTime != null && this.issueStartTime.isAfter(now);
+    }
+
+    /**
+     * 发放是否已结束。
+     *
+     * @param now 当前时间
+     * @return true 表示已结束
+     */
+    public boolean isEnded(LocalDateTime now) {
+        return this.issueEndTime != null && this.issueEndTime.isBefore(now);
+    }
+
+    /**
+     * 库存是否充足（已领取数未达总数）。
+     *
+     * @return true 表示有库存
+     */
+    public boolean isStockAvailable() {
+        return this.claimedCount != null && this.claimedCount < this.totalCount;
+    }
 }

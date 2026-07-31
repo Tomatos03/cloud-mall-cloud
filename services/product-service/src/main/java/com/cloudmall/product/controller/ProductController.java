@@ -62,9 +62,10 @@ public class ProductController {
      */
     @GetMapping("/{id}")
     public Result<ProductResp> getById(@PathVariable Long id) {
-        ProductGetReq req = ProductGetReq.builder()
-                                         .id(id)
-                                         .build();
+        ProductGetReq req = ProductGetReq
+                .builder()
+                .id(id)
+                .build();
         return Result.success(productService.get(req));
     }
 
@@ -76,9 +77,10 @@ public class ProductController {
      */
     @GetMapping("/spu/{spu}")
     public Result<ProductResp> getBySpu(@PathVariable String spu) {
-        ProductGetReq req = ProductGetReq.builder()
-                                         .spuCode(spu)
-                                         .build();
+        ProductGetReq req = ProductGetReq
+                .builder()
+                .spuCode(spu)
+                .build();
         return Result.success(productService.get(req));
     }
 

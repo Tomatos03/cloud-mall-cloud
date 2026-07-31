@@ -102,7 +102,8 @@ public enum ResourceTypeEnum {
                 .filter(t -> t.code.equals(code))
                 .findFirst()
                 .orElseThrow(() -> new IllegalArgumentException(
-                        "Invalid resource type: '" + code + "', valid values: " + allTypeCodes()));
+                        "Invalid resource type: '" + code + "', valid values: " + allTypeCodes()
+                ));
     }
 
     /**

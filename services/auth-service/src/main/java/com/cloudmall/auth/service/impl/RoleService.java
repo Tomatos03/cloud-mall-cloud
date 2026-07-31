@@ -50,11 +50,12 @@ public class RoleService implements IRoleService {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public Long createRole(String name, String description, boolean enabled) {
-        RoleDO roleDo = RoleDO.builder()
-                              .name(name)
-                              .description(description)
-                              .enabled(enabled)
-                              .build();
+        RoleDO roleDo = RoleDO
+                .builder()
+                .name(name)
+                .description(description)
+                .enabled(enabled)
+                .build();
         roleMapper.insert(roleDo);
         return roleDo.getId();
     }
@@ -127,11 +128,10 @@ public class RoleService implements IRoleService {
         if (CollUtil.isNotEmpty(resourceIds)) {
             List<RoleResourceDO> list = resourceIds
                     .stream()
-                    .map(resourceId -> RoleResourceDO
-                            .builder()
-                            .roleId(roleId)
-                            .resourceId(resourceId)
-                            .build()
+                    .map(resourceId -> RoleResourceDO.builder()
+                                                     .roleId(roleId)
+                                                     .resourceId(resourceId)
+                                                     .build()
                     )
                     .toList();
             list.forEach(roleResourceMapper::insert);
@@ -163,11 +163,13 @@ public class RoleService implements IRoleService {
                         .eq(UserRoleDO::getUserId, userId)
         );
         if (CollUtil.isNotEmpty(roleIds)) {
-            List<UserRoleDO> list = roleIds.stream()
+            List<UserRoleDO> list = roleIds
+                    .stream()
                     .map(roleId -> UserRoleDO.builder()
-                            .userId(userId)
-                            .roleId(roleId)
-                            .build())
+                                             .userId(userId)
+                                             .roleId(roleId)
+                                             .build()
+                    )
                     .toList();
             list.forEach(userRoleMapper::insert);
         }
@@ -184,11 +186,13 @@ public class RoleService implements IRoleService {
                         .eq(UserRoleDO::getRoleId, roleId)
         );
         if (CollUtil.isNotEmpty(userIds)) {
-            List<UserRoleDO> list = userIds.stream()
+            List<UserRoleDO> list = userIds
+                    .stream()
                     .map(userId -> UserRoleDO.builder()
-                            .roleId(roleId)
-                            .userId(userId)
-                            .build())
+                                             .roleId(roleId)
+                                             .userId(userId)
+                                             .build()
+                    )
                     .toList();
             list.forEach(userRoleMapper::insert);
         }

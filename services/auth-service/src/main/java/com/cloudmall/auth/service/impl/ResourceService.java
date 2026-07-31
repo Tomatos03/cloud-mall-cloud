@@ -163,7 +163,8 @@ public class ResourceService implements IResourceService {
             AssertUtils.notNull(resourceMapper.selectById(req.getParentId()), BizErrorCode.DATA_NOT_FOUND);
         }
 
-        ResourceDO resourceDo = ResourceDO.builder()
+        ResourceDO resourceDo = ResourceDO
+                .builder()
                 .type(req.getType())
                 .code(req.getCode())
                 .name(req.getName())
@@ -272,7 +273,8 @@ public class ResourceService implements IResourceService {
      * @return 处理结果
      */
     static ResourceNodeResp treeToResourceNode(Tree<Long> tree) {
-        ResourceResp info = ResourceResp.builder()
+        ResourceResp info = ResourceResp
+                .builder()
                 .id(tree.getId())
                 .type((String) tree.get("type"))
                 .code((String) tree.get("code"))

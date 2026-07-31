@@ -61,11 +61,11 @@ public class SessionService implements ISessionService {
         String sessionId = newSession();
         List<HotTopicResp> examples = getHotTopics(topicCount);
         return CreateSessionResp.builder()
-                .sessionId(sessionId)
-                .title(agentProperties.getSession().getTitle())
-                .describe(agentProperties.getSession().getDescribe())
-                .examples(examples)
-                .build();
+                                .sessionId(sessionId)
+                                .title(agentProperties.getSession().getTitle())
+                                .describe(agentProperties.getSession().getDescribe())
+                                .examples(examples)
+                                .build();
     }
 
     /**
@@ -101,11 +101,10 @@ public class SessionService implements ISessionService {
                                m.getMessageType() == MessageType.USER
                                || m.getMessageType() == MessageType.ASSISTANT
                        )
-                       .map(m -> ChatMessageResp
-                               .builder()
-                               .role(m.getMessageType().name())
-                               .content(m.getText())
-                               .build()
+                       .map(m -> ChatMessageResp.builder()
+                                                .role(m.getMessageType().name())
+                                                .content(m.getText())
+                                                .build()
                        )
                        .toList();
     }
@@ -148,11 +147,12 @@ public class SessionService implements ISessionService {
             for (SessionTimeBucket bucket : SessionTimeBucket.values()) {
                 if (bucket.matches(session.getUpdateTime(), now)) {
                     result.computeIfAbsent(bucket.getDisplayName(), k -> new ArrayList<>())
-                          .add(SessionHistoryItemResp.builder()
-                                  .sessionId(session.getSessionId())
-                                  .title(session.getTitle())
-                                  .updateTime(session.getUpdateTime().format(formatter))
-                                  .build()
+                          .add(
+                                  SessionHistoryItemResp.builder()
+                                                        .sessionId(session.getSessionId())
+                                                        .title(session.getTitle())
+                                                        .updateTime(session.getUpdateTime().format(formatter))
+                                                        .build()
                           );
                     break;
                 }
@@ -236,7 +236,8 @@ public class SessionService implements ISessionService {
         Long userId = UserContextHolder.getUserId();
         String sessionId = IdWorker.getIdStr();
 
-        ChatSessionDO session = ChatSessionDO.builder()
+        ChatSessionDO session = ChatSessionDO
+                .builder()
                 .sessionId(sessionId)
                 .userId(userId)
                 .title("New Session")

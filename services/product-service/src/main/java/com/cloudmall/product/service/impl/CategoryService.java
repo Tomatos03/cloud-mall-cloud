@@ -108,7 +108,8 @@ public class CategoryService implements ICategoryService {
      * @return 处理结果
      */
     private CategoryNodeResp treeToResp(Tree<Long> tree) {
-        CategoryResp category = CategoryResp.builder()
+        CategoryResp category = CategoryResp
+                .builder()
                 .id(tree.getId())
                 .name(tree.getName().toString())
                 .parentId(tree.getParentId())
