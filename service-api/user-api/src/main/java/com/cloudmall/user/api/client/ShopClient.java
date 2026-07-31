@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import com.cloudmall.common.model.Result;
 import com.cloudmall.user.api.response.ShopResp;
 
-@FeignClient(name = "user-service", path = "/shops")
+@FeignClient(name = "user-service", contextId = "shopClient", path = "/shops")
 public interface ShopClient {
 
     @GetMapping

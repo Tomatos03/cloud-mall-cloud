@@ -2,7 +2,6 @@ package com.cloudmall.coupon.service.impl;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import lombok.RequiredArgsConstructor;
@@ -36,14 +35,14 @@ public class CouponService implements ICouponService {
                         .eq(CouponDO::getStatus, StatusEnum.ENABLED)
                         .gt(CouponDO::getExpireTime, LocalDateTime.now())
         );
-        return list.stream().map(this::toResponse).collect(Collectors.toList());
+        return couponConverter.toRespList(list);
     }
 
     @Override
     public CouponResp getById(Long id) {
         CouponDO coupon = couponMapper.selectById(id);
         AssertUtils.notNull(coupon, BizErrorCode.DATA_NOT_FOUND);
-        return toResponse(coupon);
+        return couponConverter.toResp(coupon);
     }
 
     @Override
@@ -96,9 +95,5 @@ public class CouponService implements ICouponService {
         uc.setStatus("USED");
         uc.setUsedTime(LocalDateTime.now());
         userCouponMapper.updateById(uc);
-    }
-
-    private CouponResp toResponse(CouponDO coupon) {
-        return couponConverter.toResp(coupon);
     }
 }

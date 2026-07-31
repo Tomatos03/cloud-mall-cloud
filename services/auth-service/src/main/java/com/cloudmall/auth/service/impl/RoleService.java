@@ -51,10 +51,10 @@ public class RoleService implements IRoleService {
     @Transactional(rollbackFor = Exception.class)
     public Long createRole(String name, String description, boolean enabled) {
         RoleDO roleDo = RoleDO.builder()
-                .name(name)
-                .description(description)
-                .enabled(enabled)
-                .build();
+                              .name(name)
+                              .description(description)
+                              .enabled(enabled)
+                              .build();
         roleMapper.insert(roleDo);
         return roleDo.getId();
     }
@@ -125,7 +125,8 @@ public class RoleService implements IRoleService {
                         .eq(RoleResourceDO::getRoleId, roleId)
         );
         if (CollUtil.isNotEmpty(resourceIds)) {
-            List<RoleResourceDO> list = resourceIds.stream()
+            List<RoleResourceDO> list = resourceIds
+                    .stream()
                     .map(resourceId -> RoleResourceDO.builder()
                             .roleId(roleId)
                             .resourceId(resourceId)

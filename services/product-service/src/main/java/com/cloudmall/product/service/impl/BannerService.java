@@ -24,9 +24,7 @@ public class BannerService implements IBannerService {
     @Override
     public List<BannerResp> list(BannerReq req) {
         List<BannerDO> list = bannerMapper.selectList(req.buildLambdaWrapper());
-        return list.stream()
-                   .map(bannerConverter::toResp)
-                   .toList();
+        return bannerConverter.toRespList(list);
     }
 
     @Override

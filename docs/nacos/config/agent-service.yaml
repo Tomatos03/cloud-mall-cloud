@@ -1,6 +1,3 @@
-server:
-  port: 8087
-
 spring:
   datasource:
     url: jdbc:mysql://localhost:3306/cm_mall?useUnicode=true&characterEncoding=utf-8&serverTimezone=Asia/Shanghai
@@ -19,17 +16,12 @@ mybatis-plus:
   type-aliases-package: com.cloudmall.agent.entity
 
 agent:
-  # ========== 多智能体提示词 Nacos 配置 ==========
-  # 全局 prompt 前缀，自动拼接在每个智能体专属 prompt 之前
   globalPrompt: |
     你运行在 Cloud Mall 电商平台 AI 客服系统中。
     请用中文以礼貌、专业、热情的语气回答用户的问题。
     回答内容应当简洁明了，必要时可提供详细解释。
-  # 默认 Nacos group 和读取超时（Agent 提示词使用独立 group）
   promptGroup: DEFAULT_GROUP
   readTimeout: 10000
-
-  # 各智能体的 Nacos 提示词文件映射
   prompts:
     route:
       dataId: agent-prompt-route
@@ -43,7 +35,6 @@ agent:
       dataId: agent-prompt-coupon
     user:
       dataId: agent-prompt-user
-
   session:
     title: Hello，我是Cloud Mall商城AI助理
     describe: 我是由Cloud Mall倾力打造的智能助理，我不仅能推荐课程、答疑解惑，还能为您激发创意、畅聊心事。

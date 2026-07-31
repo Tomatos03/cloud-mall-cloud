@@ -19,7 +19,6 @@ public class OrderResp {
     private String orderNo;
     private Long userId;
     private BigDecimal totalAmount;
-    private String status;
     private String remark;
     private LocalDateTime createTime;
     private List<ItemResp> items;

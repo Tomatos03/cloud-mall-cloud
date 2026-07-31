@@ -27,8 +27,40 @@ paths: "**/*.java"
 ## 格式
 
 - 4 空格缩进，K&R 大括号风格（左大括号不换行）
-- 链式调用 > 2 个：换行并对齐 `.`
-- 流式调用：每步独立一行，按 `.` 对齐
+
+### 链式调用
+
+- 调用方法数量 ≤ 2 个：方法调用书写在同一行。
+- 调用方法数量 > 2 个：每个方法单独占用一行，按 `.` 对齐：
+
+```java
+return Normalizer.normalize(text.trim(), Normalizer.Form.NFKC)
+                 .replaceAll("\\s+", " ")
+                 .toLowerCase();
+```
+
+- 链式调用展开后单行字符长度超过 100 时，书写风格改为每步独立一行，参数与 lambda 逐层展开：
+
+```java
+List<RoleResourceDO> list = resourceIds
+        .stream()
+        .map(resourceId -> RoleResourceDO.builder()
+                .roleId(roleId)
+                .resourceId(resourceId)
+                .build())
+        .toList();
+```
+
+### 方法调用参数换行
+
+进行方法调用时，如果方法参数过多，单行字符数量超过 110，使用以下书写风格：每个参数单独占一行，右括号 `)` 单独占一行。
+
+```java
+AssertUtils.isTrue(
+        values.add(normalize(value.getValue())),
+        BizErrorCode.SPEC_VALUE_INVALID
+);
+```
 
 ### 方法声明换行
 
@@ -96,6 +128,46 @@ public Long createResource(
 ```java
 DISABLED(0, "关闭"),
 ENABLED(1, "开启");
+```
+
+## 查询与转换分离
+
+Service 层中，数据库查询（mapper 调用）与对象转换（converter 调用）必须分步书写，禁止嵌套在同一个表达式中。
+查询结果先落入具名变量，再做转换，便于阅读、断点调试与结果复用。
+
+批量转换必须调用 converter 提供的 `toXxxList` 方法，禁止在 Service 层手写 `stream().map(converter::toXxx)`。
+
+| 禁止 | 必须 |
+|------|------|
+| `return brandConverter.toRespList(brandMapper.selectList(...));` | `List<BrandDO> brands = brandMapper.selectList(...); return brandConverter.toRespList(brands);` |
+| `resp.setItems(orderItemMapper.selectList(...).stream().map(...).toList());` | `List<OrderItemDO> items = orderItemMapper.selectList(...); resp.setItems(orderItemConverter.toItemRespList(items));` |
+| `resp.setItems(items.stream().map(orderItemConverter::toItemResp).toList());` | `resp.setItems(orderItemConverter.toItemRespList(items));` |
+
+```java
+// 禁止：查询与转换揉在一个表达式里
+return brandConverter.toRespList(
+        brandMapper.selectList(
+                Wrappers.<BrandDO>lambdaQuery()
+                        .in(BrandDO::getId, ids)
+        )
+);
+
+// 必须：先查询，后转换
+List<BrandDO> brands = brandMapper.selectList(
+        Wrappers.<BrandDO>lambdaQuery()
+                .in(BrandDO::getId, ids)
+);
+return brandConverter.toRespList(brands);
+```
+
+```java
+// 禁止：Service 层手写 stream 映射
+resp.setItems(items.stream()
+                   .map(orderItemConverter::toItemResp)
+                   .toList());
+
+// 必须：使用 converter 批量方法（converter 缺失时先补充）
+resp.setItems(orderItemConverter.toItemRespList(items));
 ```
 
 ## 工具方法

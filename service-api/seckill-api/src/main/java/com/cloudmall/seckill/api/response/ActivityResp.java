@@ -17,5 +17,4 @@ public class ActivityResp {
     private String name;
     private LocalDateTime startTime;
     private LocalDateTime endTime;
-    private String status;
 }

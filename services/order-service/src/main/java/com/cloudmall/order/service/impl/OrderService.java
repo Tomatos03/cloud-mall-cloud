@@ -86,11 +86,11 @@ public class OrderService implements IOrderService {
 
     private OrderResp toResponse(OrderDO order) {
         OrderResp resp = orderConverter.toResp(order);
-        resp.setItems(orderItemMapper.selectList(
-                Wrappers.<OrderItemDO>lambdaQuery().eq(OrderItemDO::getOrderId, order.getId())
-        ).stream()
-         .map(orderItemConverter::toItemResp)
-         .toList());
+        List<OrderItemDO> items = orderItemMapper.selectList(
+                Wrappers.<OrderItemDO>lambdaQuery()
+                        .eq(OrderItemDO::getOrderId, order.getId())
+        );
+        resp.setItems(orderItemConverter.toItemRespList(items));
         return resp;
     }
 }

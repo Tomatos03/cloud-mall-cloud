@@ -55,6 +55,7 @@ public enum BizErrorCode {
      SKU_SPECS_CANNOT_BE_EMPTY(20017, "SKU规格不能为空"),
      SKU_SPEC_NOT_MATCH(20018, "SKU中包含无效的规格"),
      GOODS_UNIT_NOT_EXIST(20019, "商品单位不存在"),
+    BRAND_NOT_EXIST(20020, "品牌不存在"),
 
     // 地址相关错误码 (30xxx)
     ADDRESS_NOT_EXIST(30000, "地址不存在"),

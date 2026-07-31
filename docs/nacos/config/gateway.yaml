@@ -1,6 +1,3 @@
-server:
-  port: 8079
-
 auth:
   whitelist:
     - /auth/sessions
@@ -49,6 +46,8 @@ spring:
               uri: lb://order-service
               predicates:
                 - Path=/order/**,/cart/**
+              filters:
+                - StripPrefix=0
 
       globalcors:
         cors-configurations:

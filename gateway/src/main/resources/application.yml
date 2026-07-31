@@ -1,3 +1,6 @@
+server:
+  port: 9000
+
 jwt:
   secret: cloud-mall-jwt-secret-key-2026-very-long-secret-key
 

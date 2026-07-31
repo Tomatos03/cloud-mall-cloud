@@ -200,12 +200,14 @@ CREATE TABLE IF NOT EXISTS cm_product_sku (
     stock        int           DEFAULT 0 comment '库存数量',
     weight       decimal(10,2) DEFAULT 0.00 comment '重量(kg)',
     image        varchar(500)  DEFAULT NULL comment 'SKU图片URL',
+    spec_hash    varchar(255)  DEFAULT NULL comment '规格值ID升序拼接(用于同一SPU下组合防重)',
     create_time  datetime      DEFAULT NULL comment '创建时间',
     update_time  datetime      DEFAULT NULL comment '更新时间',
     deleted      tinyint(1)    DEFAULT 0 comment '是否删除(0=否 1=是)',
     PRIMARY KEY (id),
     KEY idx_product_id (product_id),
-    UNIQUE KEY uk_sku_code (sku_code)
+    UNIQUE KEY uk_sku_code (sku_code),
+    UNIQUE KEY uk_product_spec (product_id, spec_hash)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 comment '商品SKU表';
 
 CREATE TABLE IF NOT EXISTS cm_product_spec_group (
@@ -431,7 +433,7 @@ CREATE TABLE IF NOT EXISTS cm_seckill_product (
 -- ============================================================
 
 -- 内置角色：admin（拥有所有权限）
-INSERT INTO cm_role (id, name, built_in, enable, description) VALUES (1, 'admin', 1, 1, '系统管理员');
+INSERT INTO cm_role (id, name, built_in, enabled, description) VALUES (1, 'admin', 1, 1, '系统管理员');
 
 -- API 资源权限
 INSERT INTO cm_resource (id, code, name, type) VALUES

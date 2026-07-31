@@ -31,9 +31,9 @@ public class ProductGetReq extends ConditionReq<ProductDO> {
     @QueryCondition(operator = Operator.EQ)
     private Long id;
 
-    /** 商品 SPU（等值匹配） */
+    /** 商品 SPU 编码（等值匹配） */
     @QueryCondition(operator = Operator.EQ)
-    private String spu;
+    private String spuCode;
 
     @QueryCondition(operator = Operator.EQ)
     private StatusEnum status;

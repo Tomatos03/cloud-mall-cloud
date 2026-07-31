@@ -1,6 +1,5 @@
 package com.cloudmall.product.entity;
 
-import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 import com.baomidou.mybatisplus.annotation.FieldFill;
@@ -21,16 +20,15 @@ import lombok.NoArgsConstructor;
 public class ProductDO {
     private Long id;
     private String name;
-    private String spu;
-    private String image;
-    private String images;
+    private String spuCode;
     private String description;
     private Long categoryId;
-    private String brand;
-    private BigDecimal price;
-    private Integer stock;
-    private Integer salesCount;
-    private StatusEnum status;
+    private Long brandId;
+    private Long imageId;
+    private Long shopId;
+
+    @Builder.Default
+    private StatusEnum status = StatusEnum.ENABLED;
 
     @TableField(fill = FieldFill.INSERT)
     private LocalDateTime createTime;

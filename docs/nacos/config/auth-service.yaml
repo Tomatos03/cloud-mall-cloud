@@ -1,5 +1,2 @@
-server:
-  port: 8081
-
 mybatis-plus:
   type-aliases-package: com.cloudmall.auth.entity

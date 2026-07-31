@@ -1,0 +1,25 @@
+package com.cloudmall.product.api.request;
+
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+/**
+ * 品牌创建请求。
+ *
+ * @author : Tomatos
+ */
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
+@Data
+public class BrandCreateReq {
+    private String name;
+    private String nameEn;
+    private String logo;
+    private String description;
+    private String country;
+    private String website;
+    private Integer sortOrder;
+}

@@ -1,6 +1,5 @@
 package com.cloudmall.user.api.response;
 
-import com.cloudmall.mybatisplus.enums.StatusEnum;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -18,6 +17,4 @@ public class UserResp {
     private String email;
     private String avatar;
     private String userType;
-    @Builder.Default
-    private StatusEnum status = StatusEnum.ENABLED;
 }

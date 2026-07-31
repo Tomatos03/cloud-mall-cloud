@@ -1,5 +1,2 @@
-server:
-  port: 8085
-
 mybatis-plus:
   type-aliases-package: com.cloudmall.coupon.entity
