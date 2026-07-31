@@ -25,7 +25,8 @@ public interface ICartService {
     /**
      * 更新购物车商品数量
      *
-     * @param userId   用户 ID
+     * @param userId 用户 ID
+     * @param req    更新数量请求（skuId + quantity）
      */
     void updateQuantity(Long userId, CartOperatorReq req);
 
@@ -40,7 +41,8 @@ public interface ICartService {
     /**
      * 选中/取消选中指定商品
      *
-     * @param userId   用户 ID
+     * @param userId 用户 ID
+     * @param req    选中请求（skuId + selected）
      */
     void selectItems(Long userId, CartSelectReq req);
 

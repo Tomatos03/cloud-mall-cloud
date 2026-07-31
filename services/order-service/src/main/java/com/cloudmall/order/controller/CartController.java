@@ -2,6 +2,8 @@ package com.cloudmall.order.controller;
 
 import java.util.List;
 
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -36,7 +38,7 @@ public class CartController {
      * 添加商品到购物车
      */
     @PostMapping
-    public Result<Long> add(@RequestBody CartOperatorReq req) {
+    public Result<Long> add(@Valid @RequestBody CartOperatorReq req) {
         Long userId = UserContextHolder.getUserId();
         return Result.success(cartService.addToCart(userId, req));
     }
@@ -69,7 +71,7 @@ public class CartController {
      * 选中/取消选中指定商品
      */
     @PutMapping("/selection")
-    public Result<Void> selectItems(@RequestBody CartSelectReq req) {
+    public Result<Void> selectItems(@Valid @RequestBody CartSelectReq req) {
         cartService.selectItems(UserContextHolder.getUserId(), req);
         return Result.success(null);
     }
@@ -88,8 +90,8 @@ public class CartController {
      */
     @PutMapping("/selection/shop/{shopId}")
     public Result<Void> selectShop(
-            @PathVariable Long shopId,
-            @RequestParam Boolean selected
+            @PathVariable @NotNull Long shopId,
+            @RequestParam @NotNull Boolean selected
     ) {
         cartService.selectShop(UserContextHolder.getUserId(), shopId, selected);
         return Result.success(null);

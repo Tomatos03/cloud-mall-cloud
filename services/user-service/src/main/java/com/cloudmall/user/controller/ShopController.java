@@ -1,8 +1,12 @@
 package com.cloudmall.user.controller;
 
+import java.util.List;
+
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -38,5 +42,16 @@ public class ShopController {
                                      .userId(UserContextHolder.getUserId())
                                      .build();
         return Result.success(shopService.get(req));
+    }
+
+    /**
+     * 批量查询店铺信息。
+     *
+     * @param shopIds 店铺 ID 列表
+     * @return 店铺信息列表
+     */
+    @PostMapping("/batch-query")
+    public Result<List<ShopResp>> listByIds(@RequestBody List<Long> shopIds) {
+        return Result.success(shopService.listByIds(shopIds));
     }
 }

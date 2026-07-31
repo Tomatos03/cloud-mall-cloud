@@ -2,6 +2,7 @@ package com.cloudmall.product.api.response;
 
 import java.math.BigDecimal;
 
+import com.cloudmall.mybatisplus.enums.StatusEnum;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -27,6 +28,15 @@ public class SkuResp {
     /** SKU 编码 */
     private String skuCode;
 
+    /** 所属商品 ID */
+    private Long productId;
+
+    /** 所属店铺 ID */
+    private Long shopId;
+
+    /** 商品名称 */
+    private String productName;
+
     /** 销售价格 */
     private BigDecimal price;
 
@@ -38,4 +48,10 @@ public class SkuResp {
 
     /** SKU 主图 URL */
     private String image;
+
+    /** 商品上下架状态 */
+    private StatusEnum status;
+
+    /** 规格描述，如 "红色；XL"，按规格组排序拼接 */
+    private String specDesc;
 }

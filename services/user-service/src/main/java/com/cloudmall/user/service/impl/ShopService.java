@@ -1,5 +1,9 @@
 package com.cloudmall.user.service.impl;
 
+import java.util.Collections;
+import java.util.List;
+
+import cn.hutool.core.collection.CollUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -21,5 +25,14 @@ public class ShopService implements IShopService {
     public ShopResp get(ShopGetReq req) {
         ShopDO shop = shopMapper.selectOne(req.buildLambdaWrapper());
         return shopConverter.toResp(shop);
+    }
+
+    @Override
+    public List<ShopResp> listByIds(List<Long> shopIds) {
+        if (CollUtil.isEmpty(shopIds)) {
+            return Collections.emptyList();
+        }
+        List<ShopDO> shops = shopMapper.selectByIds(shopIds);
+        return shopConverter.toRespList(shops);
     }
 }

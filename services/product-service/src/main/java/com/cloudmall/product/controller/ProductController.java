@@ -1,5 +1,7 @@
 package com.cloudmall.product.controller;
 
+import java.util.List;
+
 import com.baomidou.mybatisplus.core.metadata.IPage;
 
 import jakarta.validation.Valid;
@@ -18,6 +20,7 @@ import com.cloudmall.product.api.request.ProductCreateReq;
 import com.cloudmall.product.api.request.StockReq;
 import com.cloudmall.product.api.response.ProductDetailResp;
 import com.cloudmall.product.api.response.ProductResp;
+import com.cloudmall.product.api.response.SkuResp;
 import com.cloudmall.product.model.req.ProductGetReq;
 import com.cloudmall.product.model.req.ProductPageReq;
 import com.cloudmall.product.service.IProductService;
@@ -111,5 +114,18 @@ public class ProductController {
     @PutMapping("/{skuId}/stock")
     public Result<Boolean> updateStock(@PathVariable Long skuId, @RequestBody StockReq req) {
         return Result.success(productService.updateStock(skuId, req.getQuantity()));
+    }
+
+    /**
+     * 批量查询 SKU 信息（含实时价格、库存、上下架状态、规格描述、所属店铺）。
+     * <p>
+     * 供购物车、订单等场景一次取齐，避免逐条调用。
+     *
+     * @param skuIds SKU ID 列表
+     * @return SKU 信息列表
+     */
+    @PostMapping("/skus/batch-query")
+    public Result<List<SkuResp>> listSkusByIds(@RequestBody List<Long> skuIds) {
+        return Result.success(productService.listSkusByIds(skuIds));
     }
 }

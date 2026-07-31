@@ -1,5 +1,7 @@
 package com.cloudmall.user.convert;
 
+import java.util.List;
+
 import org.mapstruct.Mapper;
 
 import com.cloudmall.user.api.response.ShopResp;
@@ -9,4 +11,12 @@ import com.cloudmall.user.entity.ShopDO;
 public interface ShopConverter {
 
     ShopResp toResp(ShopDO shop);
+
+    /**
+     * ShopDO 列表批量转换
+     *
+     * @param shops 店铺实体列表
+     * @return 店铺响应列表
+     */
+    List<ShopResp> toRespList(List<ShopDO> shops);
 }

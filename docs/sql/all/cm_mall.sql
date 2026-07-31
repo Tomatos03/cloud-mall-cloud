@@ -383,6 +383,7 @@ CREATE TABLE IF NOT EXISTS cm_order_item (
 CREATE TABLE IF NOT EXISTS cm_cart (
     id           bigint        NOT NULL AUTO_INCREMENT comment '购物车项ID',
     user_id      bigint        NOT NULL comment '用户ID',
+    shop_id      bigint        DEFAULT NULL comment '所属店铺ID',
     product_id     bigint        NOT NULL comment '商品ID',
     sku_id       bigint        DEFAULT NULL comment 'SKU ID',
     product_name   varchar(200)  DEFAULT NULL comment '商品名称',

@@ -26,4 +26,7 @@ public class ProductResp {
     private Integer stock;
     private List<String> images;
     private String description;
+
+    /** 所属店铺 ID */
+    private Long shopId;
 }

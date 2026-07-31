@@ -20,10 +20,11 @@ import lombok.NoArgsConstructor;
 public class CartDO {
     private Long id;
     private Long userId;
-    private Long goodsId;
+    private Long shopId;
+    private Long productId;
     private Long skuId;
-    private String goodsName;
-    private String goodsImage;
+    private String productName;
+    private String productImage;
     private BigDecimal price;
     private Integer quantity;
     private Boolean selected;
