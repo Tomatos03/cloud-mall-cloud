@@ -1,4 +1,4 @@
-package com.cloudmall.product.api.request;
+package com.cloudmall.user.api.request;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -11,6 +11,5 @@ import lombok.NoArgsConstructor;
 @Data
 public class FavoriteToggleReq {
 
-    private Long userId;
     private Long productId;
 }

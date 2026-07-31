@@ -1,16 +1,15 @@
-package com.cloudmall.product.service.impl;
+package com.cloudmall.user.service.impl;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import com.cloudmall.product.entity.FavoriteDO;
-import com.cloudmall.product.mapper.FavoriteMapper;
-import com.cloudmall.product.service.IFavoriteService;
+import com.cloudmall.user.entity.FavoriteDO;
+import com.cloudmall.user.mapper.FavoriteMapper;
+import com.cloudmall.user.service.IFavoriteService;
 
 @Service
 @RequiredArgsConstructor
@@ -29,12 +28,12 @@ public class FavoriteService implements IFavoriteService {
             favoriteMapper.deleteById(existing.getId());
             return false;
         } else {
-            FavoriteDO f = FavoriteDO.builder()
+            FavoriteDO favorite = FavoriteDO.builder()
                     .userId(userId)
                     .productId(productId)
                     .createTime(LocalDateTime.now())
                     .build();
-            favoriteMapper.insert(f);
+            favoriteMapper.insert(favorite);
             return true;
         }
     }
@@ -48,7 +47,7 @@ public class FavoriteService implements IFavoriteService {
         );
         return list.stream()
                    .map(FavoriteDO::getProductId)
-                   .collect(Collectors.toList());
+                   .toList();
     }
 
     @Override

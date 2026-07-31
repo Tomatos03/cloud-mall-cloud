@@ -1,4 +1,4 @@
-package com.cloudmall.product.entity;
+package com.cloudmall.user.entity;
 
 import java.time.LocalDateTime;
 

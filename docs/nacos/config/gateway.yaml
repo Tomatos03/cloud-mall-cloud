@@ -19,7 +19,7 @@ spring:
             - id: user-service
               uri: lb://user-service
               predicates:
-                - Path=/user/**
+                - Path=/user/**,/favorites/**
               filters:
                 - StripPrefix=0
 
@@ -33,7 +33,7 @@ spring:
             - id: product-service
               uri: lb://product-service
               predicates:
-                - Path=/product/**,/category/**,/banner/**,/comment/**,/favorite/**,/unit/**
+                - Path=/product/**,/category/**,/banner/**,/comment/**,/unit/**
               filters:
                 - StripPrefix=0
 
