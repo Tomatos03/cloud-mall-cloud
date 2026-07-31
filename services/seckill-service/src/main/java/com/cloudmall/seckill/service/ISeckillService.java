@@ -9,9 +9,9 @@ public interface ISeckillService {
     // Activity CRUD
     Long createActivity(SeckillActivityDO activity);
     ActivityResp getActivity(Long id);
-    // Goods submit for seckill
-    void submitGoods(Long activityId, Long goodsId, BigDecimal seckillPrice, Integer stock);
+    // Product submit for seckill
+    void submitProduct(Long activityId, Long productId, BigDecimal seckillPrice, Integer stock);
     // Audit
-    void auditGoods(Long goodsId, boolean approved);
-    boolean verifyGoods(Long activityId, Long goodsId);
+    void auditProduct(Long productId, boolean approved);
+    boolean verifyProduct(Long activityId, Long productId);
 }

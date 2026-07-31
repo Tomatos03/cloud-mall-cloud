@@ -30,7 +30,6 @@ public interface UserConverter {
 
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "avatarUrl", ignore = true)
-    @Mapping(target = "storeId", ignore = true)
     @Mapping(target = "bio", ignore = true)
     @Mapping(target = "createTime", ignore = true)
     @Mapping(target = "updateTime", ignore = true)

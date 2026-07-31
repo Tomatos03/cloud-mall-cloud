@@ -14,6 +14,5 @@ public class UserInfoResp {
     private String username;
     private String nickname;
     private String avatar;
-    private Long storeId;
     private String userType;
 }

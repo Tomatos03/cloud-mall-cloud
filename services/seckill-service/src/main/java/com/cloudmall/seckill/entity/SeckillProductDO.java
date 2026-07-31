@@ -16,11 +16,11 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Data
-@TableName("cm_seckill_goods")
-public class SeckillGoodsDO {
+@TableName("cm_seckill_product")
+public class SeckillProductDO {
     private Long id;
     private Long activityId;
-    private Long goodsId;
+    private Long productId;
     private BigDecimal seckillPrice;
     private Integer stock;
     private Integer soldCount;

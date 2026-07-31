@@ -13,6 +13,6 @@ public interface SeckillClient {
     @GetMapping("/activities/{id}")
     Result<ActivityResp> getActivity(@PathVariable("id") Long id);
 
-    @GetMapping("/activities/{activityId}/goods/{goodsId}/verification")
-    Result<Boolean> verifyGoods(@PathVariable("activityId") Long activityId, @PathVariable("goodsId") Long goodsId);
+    @GetMapping("/activities/{activityId}/products/{productId}/verification")
+    Result<Boolean> verifyProduct(@PathVariable("activityId") Long activityId, @PathVariable("productId") Long productId);
 }

@@ -3,8 +3,8 @@ package com.cloudmall.seckill.mapper;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import org.apache.ibatis.annotations.Mapper;
 
-import com.cloudmall.seckill.entity.SeckillGoodsDO;
+import com.cloudmall.seckill.entity.SeckillProductDO;
 
 @Mapper
-public interface SeckillGoodsMapper extends BaseMapper<SeckillGoodsDO> {
+public interface SeckillProductMapper extends BaseMapper<SeckillProductDO> {
 }

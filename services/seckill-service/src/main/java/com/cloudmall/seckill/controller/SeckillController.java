@@ -11,8 +11,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.cloudmall.common.model.Result;
 import com.cloudmall.seckill.api.request.ActivityCreateReq;
-import com.cloudmall.seckill.api.request.ActivityGoodsAuditReq;
-import com.cloudmall.seckill.api.request.ActivityGoodsSubmitReq;
+import com.cloudmall.seckill.api.request.ActivityProductAuditReq;
+import com.cloudmall.seckill.api.request.ActivityProductSubmitReq;
 import com.cloudmall.seckill.api.response.ActivityResp;
 import com.cloudmall.seckill.entity.SeckillActivityDO;
 import com.cloudmall.seckill.service.ISeckillService;
@@ -40,24 +40,24 @@ public class SeckillController {
         return Result.success(seckillService.getActivity(id));
     }
 
-    @PostMapping("/activities/{activityId}/goods")
-    public Result<Void> submitGoods(@PathVariable Long activityId, @RequestBody ActivityGoodsSubmitReq req) {
-        seckillService.submitGoods(activityId, req.getGoodsId(), req.getSeckillPrice(), req.getStock());
+    @PostMapping("/activities/{activityId}/products")
+    public Result<Void> submitProduct(@PathVariable Long activityId, @RequestBody ActivityProductSubmitReq req) {
+        seckillService.submitProduct(activityId, req.getProductId(), req.getSeckillPrice(), req.getStock());
         return Result.success(null);
     }
 
-    @PatchMapping("/activities/{activityId}/goods/{goodsId}")
-    public Result<Void> auditGoods(
+    @PatchMapping("/activities/{activityId}/products/{productId}")
+    public Result<Void> auditProduct(
             @PathVariable Long activityId,
-            @PathVariable Long goodsId,
-            @RequestBody ActivityGoodsAuditReq req
+            @PathVariable Long productId,
+            @RequestBody ActivityProductAuditReq req
     ) {
-        seckillService.auditGoods(goodsId, req.isApproved());
+        seckillService.auditProduct(productId, req.isApproved());
         return Result.success(null);
     }
 
-    @GetMapping("/activities/{activityId}/goods/{goodsId}/verification")
-    public Result<Boolean> verifyGoods(@PathVariable Long activityId, @PathVariable Long goodsId) {
-        return Result.success(seckillService.verifyGoods(activityId, goodsId));
+    @GetMapping("/activities/{activityId}/products/{productId}/verification")
+    public Result<Boolean> verifyProduct(@PathVariable Long activityId, @PathVariable Long productId) {
+        return Result.success(seckillService.verifyProduct(activityId, productId));
     }
 }

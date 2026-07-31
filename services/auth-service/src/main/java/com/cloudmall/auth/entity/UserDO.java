@@ -48,9 +48,6 @@ public class UserDO {
     /** 头像 URL */
     private String avatarUrl;
 
-    /** 关联店铺 ID */
-    private Long storeId;
-
     /** 用户类型（普通用户 / 管理员 / 店铺商家） */
     private UserTypeEnum types;
 

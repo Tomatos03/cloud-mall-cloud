@@ -1,5 +1,7 @@
 package com.cloudmall.seckill.api.request;
 
+import java.math.BigDecimal;
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -9,7 +11,9 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Data
-public class ActivityGoodsAuditReq {
+public class ActivityProductSubmitReq {
 
-    private boolean approved;
+    private Long productId;
+    private BigDecimal seckillPrice;
+    private Integer stock;
 }

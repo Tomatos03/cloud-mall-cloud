@@ -11,9 +11,9 @@ import com.cloudmall.common.enums.BizErrorCode;
 import com.cloudmall.common.utils.AssertUtils;
 import com.cloudmall.seckill.api.response.ActivityResp;
 import com.cloudmall.seckill.entity.SeckillActivityDO;
-import com.cloudmall.seckill.entity.SeckillGoodsDO;
+import com.cloudmall.seckill.entity.SeckillProductDO;
 import com.cloudmall.seckill.mapper.SeckillActivityMapper;
-import com.cloudmall.seckill.mapper.SeckillGoodsMapper;
+import com.cloudmall.seckill.mapper.SeckillProductMapper;
 import com.cloudmall.seckill.convert.SeckillConverter;
 import com.cloudmall.seckill.service.ISeckillService;
 
@@ -21,7 +21,7 @@ import com.cloudmall.seckill.service.ISeckillService;
 @RequiredArgsConstructor
 public class SeckillService implements ISeckillService {
     private final SeckillActivityMapper activityMapper;
-    private final SeckillGoodsMapper goodsMapper;
+    private final SeckillProductMapper productMapper;
     private final SeckillConverter seckillConverter;
 
     @Override
@@ -40,36 +40,36 @@ public class SeckillService implements ISeckillService {
 
     @Override
     @Transactional
-    public void submitGoods(Long activityId, Long goodsId, BigDecimal seckillPrice, Integer stock) {
+    public void submitProduct(Long activityId, Long productId, BigDecimal seckillPrice, Integer stock) {
         SeckillActivityDO act = activityMapper.selectById(activityId);
         AssertUtils.notNull(act, BizErrorCode.DATA_NOT_FOUND);
-        SeckillGoodsDO g = SeckillGoodsDO.builder()
+        SeckillProductDO product = SeckillProductDO.builder()
                 .activityId(activityId)
-                .goodsId(goodsId)
+                .productId(productId)
                 .seckillPrice(seckillPrice)
                 .stock(stock)
                 .auditStatus("PENDING")
                 .build();
-        goodsMapper.insert(g);
+        productMapper.insert(product);
     }
 
     @Override
     @Transactional
-    public void auditGoods(Long goodsId, boolean approved) {
-        SeckillGoodsDO g = goodsMapper.selectById(goodsId);
-        AssertUtils.notNull(g, BizErrorCode.DATA_NOT_FOUND);
-        g.setAuditStatus(approved ? "APPROVED" : "REJECTED");
-        goodsMapper.updateById(g);
+    public void auditProduct(Long productId, boolean approved) {
+        SeckillProductDO product = productMapper.selectById(productId);
+        AssertUtils.notNull(product, BizErrorCode.DATA_NOT_FOUND);
+        product.setAuditStatus(approved ? "APPROVED" : "REJECTED");
+        productMapper.updateById(product);
     }
 
     @Override
-    public boolean verifyGoods(Long activityId, Long goodsId) {
-        SeckillGoodsDO g = goodsMapper.selectOne(
-                Wrappers.<SeckillGoodsDO>lambdaQuery()
-                        .eq(SeckillGoodsDO::getActivityId, activityId)
-                        .eq(SeckillGoodsDO::getGoodsId, goodsId)
-                        .eq(SeckillGoodsDO::getAuditStatus, "APPROVED")
+    public boolean verifyProduct(Long activityId, Long productId) {
+        SeckillProductDO product = productMapper.selectOne(
+                Wrappers.<SeckillProductDO>lambdaQuery()
+                        .eq(SeckillProductDO::getActivityId, activityId)
+                        .eq(SeckillProductDO::getProductId, productId)
+                        .eq(SeckillProductDO::getAuditStatus, "APPROVED")
         );
-        return g != null;
+        return product != null;
     }
 }
