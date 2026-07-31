@@ -25,26 +25,56 @@ public class CouponController {
 
     private final ICouponService couponService;
 
-    @GetMapping("/list")
+    /**
+     * 查询数据列表。
+     *
+     * @return 处理结果
+     */
+    @GetMapping
     public Result<List<CouponResp>> list() {
         return Result.success(couponService.listAvailable());
     }
 
+    /**
+     * 获取相关数据。
+     *
+     * @param id 对象标识
+     * @return 处理结果
+     */
     @GetMapping("/{id}")
     public Result<CouponResp> getById(@PathVariable Long id) {
         return Result.success(couponService.getById(id));
     }
 
+    /**
+     * 领取优惠券。
+     *
+     * @param request 请求参数
+     * @return 处理结果
+     */
     @PostMapping("/claim")
     public Result<Boolean> claim(@RequestBody @Valid ClaimReq request) {
         return Result.success(couponService.claim(request));
     }
 
+    /**
+     * 校验相关数据。
+     *
+     * @param couponId 优惠券标识
+     * @param userId 用户标识
+     * @return 处理结果
+     */
     @GetMapping("/verify")
     public Result<CouponResp> verify(@RequestParam Long couponId, @RequestParam Long userId) {
         return Result.success(couponService.verifyCoupon(couponId, userId));
     }
 
+    /**
+     * 标记优惠券为已使用。
+     *
+     * @param id 对象标识
+     * @return 处理结果
+     */
     @PutMapping("/use/{id}")
     public Result<Void> markUsed(@PathVariable Long id) {
         couponService.markUsed(id);

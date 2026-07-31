@@ -1,5 +1,7 @@
 package com.cloudmall.auth.convert;
 
+import java.util.List;
+
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
@@ -25,6 +27,14 @@ public interface ResourceConverter {
      * @return RBAC 资源信息值对象
      */
     ResourceResp toResourceResp(ResourceDO resourceDo);
+
+    /**
+     * 将数据库实体列表转换为 RBAC 接口值对象列表。
+     *
+     * @param resources 数据库实体列表
+     * @return RBAC 资源信息值对象列表
+     */
+    List<ResourceResp> toResourceRespList(List<ResourceDO> resources);
 
     /**
      * 将请求中的非 null 字段合并到已有实体上。

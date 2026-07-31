@@ -11,6 +11,13 @@ import com.cloudmall.user.api.response.AddressResp;
 
 @FeignClient(name = "user-service", contextId = "addressClient", path = "/addresses")
 public interface AddressClient {
-    @GetMapping("/list")
+
+    /**
+     * 查询数据列表。
+     *
+     * @param userId 用户标识
+     * @return 处理结果
+     */
+    @GetMapping
     Result<List<AddressResp>> listAddresses(@RequestParam("userId") Long userId);
 }

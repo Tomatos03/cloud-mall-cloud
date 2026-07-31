@@ -1,5 +1,7 @@
 package com.cloudmall.aigc.convert;
 
+import java.util.List;
+
 import org.mapstruct.Mapper;
 
 import com.cloudmall.aigc.model.resp.HotTopicResp;
@@ -20,4 +22,12 @@ public interface HotTopicConverter {
      * @return 响应对象
      */
     HotTopicResp toResp(AgentProperties.HotTopic hotTopic);
+
+    /**
+     * 转换对象数据。
+     *
+     * @param hotTopics 热点话题列表
+     * @return 数据列表
+     */
+    List<HotTopicResp> toRespList(List<AgentProperties.HotTopic> hotTopics);
 }
