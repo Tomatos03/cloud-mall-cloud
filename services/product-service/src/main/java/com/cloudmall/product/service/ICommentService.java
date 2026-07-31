@@ -8,5 +8,5 @@ import com.cloudmall.product.model.req.CommentPageReq;
 
 public interface ICommentService {
     IPage<CommentResp> page(CommentPageReq req);
-    Long create(CommentCreateReq req);
+    void create(CommentCreateReq req);
 }

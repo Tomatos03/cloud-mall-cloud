@@ -6,6 +6,7 @@ import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.lang.tree.Tree;
 import cn.hutool.core.lang.tree.TreeNode;
 import cn.hutool.core.lang.tree.TreeUtil;
+import cn.hutool.core.util.ObjectUtil;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -24,6 +25,8 @@ import com.cloudmall.mybatisplus.enums.StatusEnum;
 @Service
 @RequiredArgsConstructor
 public class CategoryService implements ICategoryService {
+
+    private static final int MAX_CATEGORY_LEVEL = 3;
 
     private final CategoryMapper categoryMapper;
     private final CategoryConverter categoryConverter;
@@ -55,13 +58,12 @@ public class CategoryService implements ICategoryService {
     }
 
     @Override
-    public Long create(CategoryCreateReq req) {
+    public void create(CategoryCreateReq req) {
         CategoryDO cat = categoryConverter.toDO(req);
         int level = resolveLevel(req.getParentId());
         cat.setLevel(level);
 
         categoryMapper.insert(cat);
-        return cat.getId();
     }
 
     private int resolveLevel(Long parentId) {
@@ -70,7 +72,9 @@ public class CategoryService implements ICategoryService {
         }
         CategoryDO parent = categoryMapper.selectById(parentId);
         AssertUtils.notNull(parent, BizErrorCode.DATA_NOT_FOUND);
-        return parent.getLevel() + 1;
+        int level = ObjectUtil.defaultIfNull(parent.getLevel(), 1) + 1;
+        AssertUtils.isTrue(level <= MAX_CATEGORY_LEVEL, BizErrorCode.CATEGORY_BEYOND_MAX_LEVEL);
+        return level;
     }
 
     private CategoryNodeResp treeToResp(Tree<Long> tree) {

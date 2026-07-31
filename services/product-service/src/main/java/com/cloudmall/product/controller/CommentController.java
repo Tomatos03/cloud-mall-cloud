@@ -1,6 +1,7 @@
 package com.cloudmall.product.controller;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -39,8 +40,9 @@ public class CommentController {
      * @return 评论ID
      */
     @PostMapping
-    public Result<Long> create(@RequestBody CommentCreateReq req) {
-        return Result.success(commentService.create(req));
+    public Result<Void> create(@RequestBody @Valid CommentCreateReq req) {
+        commentService.create(req);
+        return Result.success();
     }
 
 }

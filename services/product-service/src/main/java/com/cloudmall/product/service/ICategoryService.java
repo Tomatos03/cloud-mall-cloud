@@ -11,5 +11,5 @@ public interface ICategoryService {
 
     CategoryResp getById(Long id);
 
-    Long create(CategoryCreateReq req);
+    void create(CategoryCreateReq req);
 }

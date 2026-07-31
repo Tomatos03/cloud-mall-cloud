@@ -35,7 +35,8 @@ public class CategoryController {
     }
 
     @PostMapping
-    public Result<Long> create(@RequestBody CategoryCreateReq req) {
-        return Result.success(categoryService.create(req));
+    public Result<Void> create(@RequestBody CategoryCreateReq req) {
+        categoryService.create(req);
+        return Result.success();
     }
 }
