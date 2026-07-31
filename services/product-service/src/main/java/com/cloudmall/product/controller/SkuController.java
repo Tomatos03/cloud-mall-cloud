@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.cloudmall.common.model.Result;
+import com.cloudmall.product.api.request.SkuMatchReq;
 import com.cloudmall.product.api.request.StockReq;
 import com.cloudmall.product.api.response.SkuResp;
 import com.cloudmall.product.service.ISkuService;
@@ -55,5 +56,18 @@ public class SkuController {
     @PostMapping("/batch-query")
     public Result<List<SkuResp>> listSkusByIds(@RequestBody List<Long> skuIds) {
         return Result.success(skuService.listSkusByIds(skuIds));
+    }
+
+    /**
+     * 按已选规格值匹配唯一 SKU（详情页规格选择联动）。
+     * <p>
+     * 所有规格组均有选值时唯一命中一个 SKU；未选全或组合不成立时返回 null。
+     *
+     * @param req 商品 ID + 已选规格值 ID 列表
+     * @return 唯一命中的 SKU 信息，未命中时为 null
+     */
+    @PostMapping("/match")
+    public Result<SkuResp> matchSku(@RequestBody SkuMatchReq req) {
+        return Result.success(skuService.matchSkuBySpec(req.getProductId(), req.getSpecValueIds()));
     }
 }

@@ -32,7 +32,7 @@ public class ProductTool {
      * @param toolContext 工具上下文，用于存储查询结果
      * @return 商品详情对象，未找到时为 null
      */
-    @Tool(description = "根据商品SPU编号查询商品详情，返回商品名称、价格、销量、库存、分类等完整信息")
+    @Tool(description = "根据商品SPU编号查询商品详情，返回商品名称、价格、分类、品牌、描述等完整信息")
     public ProductResp getProductBySpu(
             @ToolParam(description = "商品SPU编号") String spu,
             ToolContext toolContext

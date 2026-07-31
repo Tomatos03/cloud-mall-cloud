@@ -33,6 +33,7 @@ import com.cloudmall.product.mapper.ProductSkuMapper;
 import com.cloudmall.product.mapper.ProductSkuSpecMapper;
 import com.cloudmall.product.mapper.ProductSpecGroupMapper;
 import com.cloudmall.product.mapper.ProductSpecValueMapper;
+import com.cloudmall.product.service.IProductSpecService;
 import com.cloudmall.product.service.ISkuService;
 
 /**
@@ -50,6 +51,7 @@ public class SkuService implements ISkuService {
     private final ProductSpecValueMapper productSpecValueMapper;
     private final ProductSpecGroupMapper productSpecGroupMapper;
     private final SkuConverter skuConverter;
+    private final IProductSpecService productSpecService;
 
     @Override
     @Transactional
@@ -115,6 +117,20 @@ public class SkuService implements ISkuService {
             respList.add(resp);
         }
         return respList;
+    }
+
+    @Override
+    public SkuResp matchSkuBySpec(Long productId, List<Long> specValueIds) {
+        if (CollUtil.isEmpty(specValueIds)) {
+            return null;
+        }
+        Map<Long, List<Long>> matched = productSpecService.getSpecValueSkuMap(productId, specValueIds);
+        if (matched.size() != 1) {
+            return null;
+        }
+        Long skuId = matched.keySet().iterator().next();
+        List<SkuResp> skus = listSkusByIds(List.of(skuId));
+        return CollUtil.isEmpty(skus) ? null : skus.get(0);
     }
 
     /**

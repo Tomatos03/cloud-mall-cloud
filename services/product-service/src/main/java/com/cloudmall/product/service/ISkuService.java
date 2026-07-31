@@ -32,4 +32,17 @@ public interface ISkuService {
      * @return 上架商品的 SKU 信息列表（顺序不保证）
      */
     List<SkuResp> listSkusByIds(List<Long> skuIds);
+
+    /**
+     * 按已选规格值匹配唯一 SKU。
+     * <p>
+     * 用于商品详情页规格选择联动：当所有规格组均有选值时恰好命中一个 SKU，
+     * 返回该 SKU 的完整信息（含实时价格、库存、规格描述）；
+     * 未选中全部规格组或组合不成立时返回 null。
+     *
+     * @param productId    商品 ID
+     * @param specValueIds 已选规格值 ID 列表
+     * @return 唯一命中的 SKU 信息，未命中时为 null
+     */
+    SkuResp matchSkuBySpec(Long productId, List<Long> specValueIds);
 }

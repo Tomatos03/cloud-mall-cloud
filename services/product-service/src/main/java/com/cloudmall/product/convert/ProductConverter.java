@@ -37,14 +37,10 @@ public interface ProductConverter {
      * @param product SPU 实体
      * @return 商品列表响应
      */
-    @Mapping(target = "spu", source = "spuCode")
     @Mapping(target = "categoryName", ignore = true)
     @Mapping(target = "brand", ignore = true)
     @Mapping(target = "image", ignore = true)
-    @Mapping(target = "images", ignore = true)
     @Mapping(target = "price", ignore = true)
-    @Mapping(target = "stock", ignore = true)
-    @Mapping(target = "salesCount", ignore = true)
     ProductResp toResp(ProductDO product);
 
     /**
