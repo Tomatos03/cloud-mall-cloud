@@ -6,11 +6,11 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import com.cloudmall.product.entity.BrandDO;
 import com.cloudmall.mybatisplus.annotation.Operator;
 import com.cloudmall.mybatisplus.annotation.QueryCondition;
 import com.cloudmall.mybatisplus.enums.StatusEnum;
 import com.cloudmall.mybatisplus.model.PageReq;
+import com.cloudmall.product.entity.BrandDO;
 
 /**
  * 品牌分页查询请求。
@@ -37,10 +37,21 @@ public class BrandPageReq extends PageReq<BrandDO> {
     @QueryCondition(operator = Operator.LIKE)
     private String nameEn;
 
+    /**
+     * 使用指定参数构造对象。
+     *
+     * @param current 当前页码
+     * @param size 页大小
+     */
     public BrandPageReq(long current, long size) {
         super(current, size);
     }
 
+    /**
+     * 构建所需对象。
+     *
+     * @return 处理结果
+     */
     @Override
     public LambdaQueryWrapper<BrandDO> buildLambdaWrapper() {
         LambdaQueryWrapper<BrandDO> wrapper = super.buildLambdaWrapper();

@@ -1,8 +1,8 @@
 package com.cloudmall.aigc.controller;
 
-import com.cloudmall.aigc.model.req.KnowledgeUploadReq;
-import com.cloudmall.aigc.service.IKnowledgeService;
-import com.cloudmall.common.model.Result;
+import java.io.IOException;
+import java.util.List;
+
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.ai.document.Document;
@@ -16,8 +16,9 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.IOException;
-import java.util.List;
+import com.cloudmall.aigc.model.req.KnowledgeUploadReq;
+import com.cloudmall.aigc.service.IKnowledgeService;
+import com.cloudmall.common.model.Result;
 
 /**
  * 知识库管理接口

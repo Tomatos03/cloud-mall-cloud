@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 
 import com.cloudmall.common.enums.BizErrorCode;
 import com.cloudmall.common.utils.AssertUtils;
+import com.cloudmall.mybatisplus.enums.StatusEnum;
 import com.cloudmall.product.api.request.CategoryCreateReq;
 import com.cloudmall.product.api.response.CategoryNodeResp;
 import com.cloudmall.product.api.response.CategoryResp;
@@ -20,7 +21,6 @@ import com.cloudmall.product.convert.CategoryConverter;
 import com.cloudmall.product.entity.CategoryDO;
 import com.cloudmall.product.mapper.CategoryMapper;
 import com.cloudmall.product.service.ICategoryService;
-import com.cloudmall.mybatisplus.enums.StatusEnum;
 
 @Service
 @RequiredArgsConstructor
@@ -31,6 +31,11 @@ public class CategoryService implements ICategoryService {
     private final CategoryMapper categoryMapper;
     private final CategoryConverter categoryConverter;
 
+    /**
+     * 查询分类树。
+     *
+     * @return 数据列表
+     */
     @Override
     public List<CategoryNodeResp> tree() {
         List<CategoryDO> categoryList = categoryMapper.selectList(
@@ -50,6 +55,13 @@ public class CategoryService implements ICategoryService {
                        .toList();
     }
 
+    /**
+     * 获取相关数据。
+     *
+     * @param id 对象标识
+     * @return 处理结果
+     * @throws BizException 处理过程中可能抛出该异常
+     */
     @Override
     public CategoryResp getById(Long id) {
         CategoryDO cat = categoryMapper.selectById(id);
@@ -57,6 +69,11 @@ public class CategoryService implements ICategoryService {
         return categoryConverter.toResp(cat);
     }
 
+    /**
+     * 创建并保存数据。
+     *
+     * @param req 请求参数
+     */
     @Override
     public void create(CategoryCreateReq req) {
         CategoryDO cat = categoryConverter.toDO(req);
@@ -66,6 +83,13 @@ public class CategoryService implements ICategoryService {
         categoryMapper.insert(cat);
     }
 
+    /**
+     * 解析相关数据。
+     *
+     * @param parentId 父级标识
+     * @return 结果标识或数值
+     * @throws BizException 处理过程中可能抛出该异常
+     */
     private int resolveLevel(Long parentId) {
         if (parentId == null || parentId == 0L) {
             return 1;
@@ -77,6 +101,12 @@ public class CategoryService implements ICategoryService {
         return level;
     }
 
+    /**
+     * 将分类树节点转换为响应对象。
+     *
+     * @param tree 资源树
+     * @return 处理结果
+     */
     private CategoryNodeResp treeToResp(Tree<Long> tree) {
         CategoryResp category = CategoryResp.builder()
                 .id(tree.getId())

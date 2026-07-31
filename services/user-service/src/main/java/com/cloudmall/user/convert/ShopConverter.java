@@ -10,6 +10,12 @@ import com.cloudmall.user.entity.ShopDO;
 @Mapper(componentModel = "spring")
 public interface ShopConverter {
 
+    /**
+     * 转换对象数据。
+     *
+     * @param shop 店铺实体
+     * @return 处理结果
+     */
     ShopResp toResp(ShopDO shop);
 
     /**

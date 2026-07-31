@@ -2,6 +2,7 @@ package com.cloudmall.auth.controller;
 
 import java.util.List;
 
+import cn.hutool.core.util.BooleanUtil;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -16,7 +17,6 @@ import org.springframework.web.bind.annotation.RestController;
 import com.cloudmall.auth.model.req.RolePageReq;
 import com.cloudmall.auth.model.req.RoleReq;
 import com.cloudmall.auth.model.resp.RoleResp;
-import cn.hutool.core.util.BooleanUtil;
 import com.cloudmall.auth.service.IRoleService;
 import com.cloudmall.common.model.Result;
 
@@ -36,7 +36,10 @@ public class RoleController {
     private final IRoleService roleService;
 
     /**
-     * 创建角色
+     * 创建角色。
+     *
+     * @param req 请求参数
+     * @return 处理结果
      */
     @PostMapping
     public Result<Long> createRole(@RequestBody RoleReq req) {
@@ -48,10 +51,14 @@ public class RoleController {
     }
 
     /**
-     * 更新角色
+     * 更新角色。
      * <p>
      * 仅传入需要更新的字段即可，未传的字段保持不变。
      * 支持字段：name、description、enabled（布尔值）。
+     *
+     * @param id 对象标识
+     * @param req 请求参数
+     * @return 处理结果
      */
     @PutMapping("/{id}")
     public Result<Void> updateRole(
@@ -63,7 +70,10 @@ public class RoleController {
     }
 
     /**
-     * 删除角色
+     * 删除角色。
+     *
+     * @param id 对象标识
+     * @return 处理结果
      */
     @DeleteMapping("/{id}")
     public Result<Void> deleteRole(@PathVariable Long id) {
@@ -72,7 +82,10 @@ public class RoleController {
     }
 
     /**
-     * 查询角色
+     * 查询角色。
+     *
+     * @param id 对象标识
+     * @return 处理结果
      */
     @GetMapping("/{id}")
     public Result<RoleResp> getRole(@PathVariable Long id) {
@@ -80,7 +93,10 @@ public class RoleController {
     }
 
     /**
-     * 分页查询角色
+     * 分页查询角色。
+     *
+     * @param req 请求参数
+     * @return 分页数据
      */
     @GetMapping
     public Result<IPage<RoleResp>> pageRoles(RolePageReq req) {
@@ -88,7 +104,11 @@ public class RoleController {
     }
 
     /**
-     * 覆盖分配资源到角色
+     * 覆盖分配资源到角色。
+     *
+     * @param id 对象标识
+     * @param resourceIds 资源标识列表
+     * @return 处理结果
      */
     @PutMapping("/{id}/resources")
     public Result<Void> assignResources(
@@ -100,7 +120,10 @@ public class RoleController {
     }
 
     /**
-     * 角色的资源 ID 列表
+     * 查询角色的资源 ID 列表。
+     *
+     * @param id 对象标识
+     * @return 处理结果
      */
     @GetMapping("/{id}/resources")
     public Result<List<Long>> getRoleResourceIds(@PathVariable Long id) {
@@ -108,7 +131,11 @@ public class RoleController {
     }
 
     /**
-     * 覆盖分配用户到角色
+     * 覆盖分配用户到角色。
+     *
+     * @param id 对象标识
+     * @param userIds 用户标识列表
+     * @return 处理结果
      */
     @PutMapping("/{id}/users")
     public Result<Void> assignUsers(
@@ -120,7 +147,10 @@ public class RoleController {
     }
 
     /**
-     * 角色的用户 ID 列表
+     * 查询角色的用户 ID 列表。
+     *
+     * @param id 对象标识
+     * @return 处理结果
      */
     @GetMapping("/{id}/users")
     public Result<List<Long>> getRoleUserIds(@PathVariable Long id) {

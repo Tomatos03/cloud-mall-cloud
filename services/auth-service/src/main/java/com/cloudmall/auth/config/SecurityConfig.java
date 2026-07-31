@@ -13,11 +13,22 @@ import org.springframework.security.web.SecurityFilterChain;
 @EnableWebSecurity
 public class SecurityConfig {
 
+    /**
+     * 创建密码编码器。
+     *
+     * @return 处理结果
+     */
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
 
+    /**
+     * 配置 Spring Security 过滤器链。
+     *
+     * @param http HTTP 安全配置
+     * @return 处理结果
+     */
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http

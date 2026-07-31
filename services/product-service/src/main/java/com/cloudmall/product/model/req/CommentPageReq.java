@@ -6,11 +6,11 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import com.cloudmall.product.entity.CommentDO;
 import com.cloudmall.mybatisplus.annotation.Operator;
 import com.cloudmall.mybatisplus.annotation.QueryCondition;
 import com.cloudmall.mybatisplus.enums.StatusEnum;
 import com.cloudmall.mybatisplus.model.PageReq;
+import com.cloudmall.product.entity.CommentDO;
 
 /**
  * 评论分页查询请求。
@@ -34,10 +34,21 @@ public class CommentPageReq extends PageReq<CommentDO> {
     @QueryCondition(operator = Operator.EQ)
     private StatusEnum status = StatusEnum.ENABLED;
 
+    /**
+     * 使用指定参数构造对象。
+     *
+     * @param current 当前页码
+     * @param size 页大小
+     */
     public CommentPageReq(long current, long size) {
         super(current, size);
     }
 
+    /**
+     * 构建所需对象。
+     *
+     * @return 处理结果
+     */
     @Override
     public LambdaQueryWrapper<CommentDO> buildLambdaWrapper() {
         LambdaQueryWrapper<CommentDO> wrapper = super.buildLambdaWrapper();

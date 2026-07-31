@@ -22,10 +22,13 @@ public enum ResourceTypeEnum {
 
     /** 菜单项 — 功能页面，通常绑定权限编码 */
     MENU("menu"),
+
     /** 目录 — 菜单分组容器 */
     CATALOG("catalog"),
+
     /** 布局页 — 承载子页面 */
     LAYOUT("layout"),
+
     /** 按钮级权限 — 仅作为权限标识，不参与菜单树 */
     BUTTON("button");
 
@@ -122,6 +125,11 @@ public enum ResourceTypeEnum {
         return uiTypeCodes().contains(code);
     }
 
+    /**
+     * 转换对象数据。
+     *
+     * @return 字符串结果
+     */
     @Override
     public String toString() {
         return code;

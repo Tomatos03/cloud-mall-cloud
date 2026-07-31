@@ -1,8 +1,11 @@
 package com.cloudmall.aigc.service.impl;
 
-import com.cloudmall.aigc.parser.DocumentParser;
-import com.cloudmall.aigc.parser.DocumentParserFactory;
-import com.cloudmall.aigc.service.IKnowledgeService;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
+
 import lombok.RequiredArgsConstructor;
 import org.springframework.ai.document.Document;
 import org.springframework.ai.vectorstore.SearchRequest;
@@ -10,11 +13,9 @@ import org.springframework.ai.vectorstore.VectorStore;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import com.cloudmall.aigc.parser.DocumentParser;
+import com.cloudmall.aigc.parser.DocumentParserFactory;
+import com.cloudmall.aigc.service.IKnowledgeService;
 
 /**
  * 知识库服务实现

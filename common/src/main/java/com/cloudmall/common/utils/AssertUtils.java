@@ -18,6 +18,9 @@ import com.cloudmall.common.exception.BizException;
  */
 public class AssertUtils {
 
+    /**
+     * 使用指定参数构造对象。
+     */
     private AssertUtils() {
         throw new AssertionError("Cannot instantiate utility class");
     }
@@ -61,12 +64,25 @@ public class AssertUtils {
         }
     }
 
+    /**
+     * 断言对象不为空，否则抛出业务异常。
+     *
+     * @param obj 待校验对象
+     * @param exceptionSupplier 异常供应器
+     */
     public static <X extends RuntimeException> void notNull(Object obj, Supplier<X> exceptionSupplier) {
         if (obj == null) {
             throw exceptionSupplier.get();
         }
     }
 
+    /**
+     * 断言对象为空，否则抛出业务异常。
+     *
+     * @param obj 待校验对象
+     * @param errorCode 错误码
+     * @throws BizException 处理过程中可能抛出该异常
+     */
     public static void isNull(Object obj, BizErrorCode errorCode) {
         if (obj != null) {
             throw new BizException(errorCode);
@@ -128,48 +144,108 @@ public class AssertUtils {
         }
     }
 
+    /**
+     * 断言数值为零，否则抛出业务异常。
+     *
+     * @param value 待校验的值
+     * @param errorCode 错误码
+     * @throws BizException 处理过程中可能抛出该异常
+     */
     public static void isZero(long value, BizErrorCode errorCode) {
         if (value != 0) {
             throw new BizException(errorCode);
         }
     }
 
+    /**
+     * 断言数值不为零，否则抛出业务异常。
+     *
+     * @param value 待校验的值
+     * @param errorCode 错误码
+     * @throws BizException 处理过程中可能抛出该异常
+     */
     public static void isNotZero(long value, BizErrorCode errorCode) {
         if (value == 0) {
             throw new BizException(errorCode);
         }
     }
 
+    /**
+     * 断言数值为正数，否则抛出业务异常。
+     *
+     * @param value 待校验的值
+     * @param errorCode 错误码
+     * @throws BizException 处理过程中可能抛出该异常
+     */
     public static void isPositive(long value, BizErrorCode errorCode) {
         if (value <= 0) {
             throw new BizException(errorCode);
         }
     }
 
+    /**
+     * 断言数值大于下限，否则抛出业务异常。
+     *
+     * @param value 待校验的值
+     * @param min 最小值
+     * @param errorCode 错误码
+     * @throws BizException 处理过程中可能抛出该异常
+     */
     public static void greaterThan(long value, long min, BizErrorCode errorCode) {
         if (value <= min) {
             throw new BizException(errorCode);
         }
     }
 
+    /**
+     * 断言数值不小于下限，否则抛出业务异常。
+     *
+     * @param value 待校验的值
+     * @param min 最小值
+     * @param errorCode 错误码
+     * @throws BizException 处理过程中可能抛出该异常
+     */
     public static void greaterOrEqual(long value, long min, BizErrorCode errorCode) {
         if (value < min) {
             throw new BizException(errorCode);
         }
     }
 
+    /**
+     * 断言数值小于上限，否则抛出业务异常。
+     *
+     * @param value 待校验的值
+     * @param max 最大值
+     * @param errorCode 错误码
+     * @throws BizException 处理过程中可能抛出该异常
+     */
     public static void lessThan(long value, long max, BizErrorCode errorCode) {
         if (value >= max) {
             throw new BizException(errorCode);
         }
     }
 
+    /**
+     * 断言数值位于指定范围内，否则抛出业务异常。
+     *
+     * @param value 待校验的值
+     * @param min 最小值
+     * @param max 最大值
+     * @param errorCode 错误码
+     * @throws BizException 处理过程中可能抛出该异常
+     */
     public static void inRange(long value, long min, long max, BizErrorCode errorCode) {
         if (value < min || value > max) {
             throw new BizException(errorCode);
         }
     }
 
+    /**
+     * 断言字符串不为空白，否则抛出业务异常。
+     *
+     * @param str 待校验字符串
+     * @param errorCode 错误码
+     */
     public static void notBlank(String str, BizErrorCode errorCode) {
         assertNotBlank(str, errorCode);
     }
@@ -187,6 +263,13 @@ public class AssertUtils {
         }
     }
 
+    /**
+     * 断言至少一个表达式为真，否则抛出业务异常。
+     *
+     * @param errorCode 错误码
+     * @param expressions 布尔表达式列表
+     * @throws BizException 处理过程中可能抛出该异常
+     */
     public static void anyTrue(BizErrorCode errorCode, boolean... expressions) {
         if (expressions == null || expressions.length == 0) {
             throw new BizException(errorCode);

@@ -1,13 +1,13 @@
 package com.cloudmall.aigc.parser;
 
-import org.springframework.ai.document.Document;
-import org.springframework.stereotype.Component;
-import org.springframework.web.multipart.MultipartFile;
-
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.UUID;
+
+import org.springframework.ai.document.Document;
+import org.springframework.stereotype.Component;
+import org.springframework.web.multipart.MultipartFile;
 
 /**
  * 纯文本文档解析器

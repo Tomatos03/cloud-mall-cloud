@@ -144,23 +144,23 @@ public class UserService implements IUserService {
         return pruneTree(tree, new HashSet<>(userPermissions));
     }
 
-        /**
-         * * 获取当前用户的权限编码列表
-         *
-         * @return 数据列表
-         */
+    /**
+     * 获取当前用户的权限编码列表。
+     *
+     * @return 数据列表
+     */
     private List<String> getCurrentUserPermissionCodes() {
         return Optional.ofNullable(UserContextHolder.get())
                        .map(UserContext::getPermissionCodes)
                        .orElse(Collections.emptyList());
     }
 
-        /**
-         * * 加载当前用户有权限访问的 UI 资源列表
-         *
-         * @param userPermissions 用户权限编码列表
-         * @return 数据列表
-         */
+    /**
+     * 加载当前用户有权限访问的 UI 资源列表。
+     *
+     * @param userPermissions 用户权限编码列表
+     * @return 数据列表
+     */
     private List<ResourceDO> loadAccessibleUiResources(List<String> userPermissions) {
         List<ResourceDO> allUiResources = resourceMapper.selectList(
                 Wrappers.<ResourceDO>lambdaQuery()
@@ -176,25 +176,25 @@ public class UserService implements IUserService {
                              .toList();
     }
 
-        /**
-         * * 判断资源是否对当前用户可见
-         *
-         * @param resource 资源实体
-         * @param userPerms 用户权限集合
-         * @return 是否满足条件
-         */
+    /**
+     * 判断资源是否对当前用户可见。
+     *
+     * @param resource 资源实体
+     * @param userPerms 用户权限集合
+     * @return 是否满足条件
+     */
     private boolean isAccessible(ResourceDO resource, List<String> userPerms) {
         String code = resource.getCode();
         return StrUtil.isBlank(code) || userPerms.contains(code);
     }
 
-        /**
-         * * 裁剪菜单树：移除用户无权限的节点
-         *
-         * @param nodes 资源节点列表
-         * @param userPerms 用户权限集合
-         * @return 数据列表
-         */
+    /**
+     * 裁剪菜单树，移除用户无权限的节点。
+     *
+     * @param nodes 资源节点列表
+     * @param userPerms 用户权限集合
+     * @return 数据列表
+     */
     private List<ResourceNodeResp> pruneTree(List<ResourceNodeResp> nodes, Set<String> userPerms) {
         if (CollUtil.isEmpty(nodes)) {
             return Collections.emptyList();

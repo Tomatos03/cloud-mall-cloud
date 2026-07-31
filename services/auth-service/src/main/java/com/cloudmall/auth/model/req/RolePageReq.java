@@ -1,9 +1,9 @@
 package com.cloudmall.auth.model.req;
 
-import com.cloudmall.auth.entity.RoleDO;
 import lombok.Getter;
 import lombok.Setter;
 
+import com.cloudmall.auth.entity.RoleDO;
 import com.cloudmall.mybatisplus.model.PageReq;
 
 /**
@@ -25,16 +25,25 @@ public class RolePageReq extends PageReq<RoleDO> {
     /** 是否启用 */
     private Boolean enabled;
 
+    /** 使用指定参数构造对象。 */
     public RolePageReq() {
     }
 
     /**
      * 兼容 URL 参数 ?page=&size=
+     *
+     * @param page 页码
      */
     public void setPage(int page) {
         setCurrent(page);
     }
 
+    /**
+     * 使用指定参数构造对象。
+     *
+     * @param current 当前页码
+     * @param size 页大小
+     */
     public RolePageReq(long current, long size) {
         super(current, size);
     }

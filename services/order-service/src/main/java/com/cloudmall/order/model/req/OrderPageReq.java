@@ -29,10 +29,21 @@ public class OrderPageReq extends PageReq<OrderDO> {
     @QueryCondition(operator = Operator.EQ)
     private Long userId;
 
+    /**
+     * 使用指定参数构造对象。
+     *
+     * @param current 当前页码
+     * @param size 页大小
+     */
     public OrderPageReq(long current, long size) {
         super(current, size);
     }
 
+    /**
+     * 构建所需对象。
+     *
+     * @return 处理结果
+     */
     @Override
     public LambdaQueryWrapper<OrderDO> buildLambdaWrapper() {
         LambdaQueryWrapper<OrderDO> wrapper = super.buildLambdaWrapper();

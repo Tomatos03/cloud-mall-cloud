@@ -28,6 +28,12 @@ public class AddressPageReq extends PageReq<AddressDO> {
     @QueryCondition(operator = Operator.EQ)
     private Long userId;
 
+    /**
+     * 使用指定参数构造对象。
+     *
+     * @param current 当前页码
+     * @param size 页大小
+     */
     public AddressPageReq(long current, long size) {
         super(current, size);
     }

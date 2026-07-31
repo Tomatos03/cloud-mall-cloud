@@ -15,12 +15,29 @@ import com.cloudmall.user.api.response.ShopResp;
 @FeignClient(name = "user-service", contextId = "shopClient", path = "/shops")
 public interface ShopClient {
 
+    /**
+     * 获取相关数据。
+     *
+     * @param userId 用户标识
+     * @return 处理结果
+     */
     @GetMapping
     Result<ShopResp> getByUserId(@RequestParam("userId") Long userId);
 
+    /**
+     * 获取相关数据。
+     *
+     * @param id 对象标识
+     * @return 处理结果
+     */
     @GetMapping("/{id}")
     Result<ShopResp> getById(@PathVariable("id") Long id);
 
+    /**
+     * 获取相关数据。
+     *
+     * @return 处理结果
+     */
     @GetMapping("/current")
     Result<ShopResp> getCurrent();
 

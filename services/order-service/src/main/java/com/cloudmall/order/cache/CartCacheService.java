@@ -22,6 +22,12 @@ public class CartCacheService {
 
     private final StringRedisTemplate stringRedisTemplate;
 
+    /**
+     * 构建所需对象。
+     *
+     * @param userId 用户标识
+     * @return 字符串结果
+     */
     private String buildKey(String userId) {
         return  CART_KEY_PREFIX + userId;
     }

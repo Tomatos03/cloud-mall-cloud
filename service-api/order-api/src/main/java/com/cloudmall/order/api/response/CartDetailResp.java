@@ -3,11 +3,12 @@ package com.cloudmall.order.api.response;
 import java.math.BigDecimal;
 import java.util.List;
 
-import com.cloudmall.order.api.model.CartShopGroup;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+
+import com.cloudmall.order.api.model.CartShopGroup;
 
 /**
  * 购物车摘要响应

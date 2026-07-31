@@ -16,17 +16,17 @@ import com.cloudmall.aigc.service.ISessionService;
 @Service
 public class ProductAgent extends AbstractAgent {
 
-        /**
-         * * 构造商品咨询智能体实例。
-         *
-         * @param promptLoader 提示词加载器
-         * @param chatClientBuilder 聊天客户端构建器
-         * @param generatingSessionManager 生成会话管理器
-         * @param chatMemoryRepository 聊天记忆仓库
-         * @param sessionService 会话服务
-         * @param toolRegistry 工具注册表
-         * @param messageChatMemoryAdvisor 聊天记忆顾问
-         */
+    /**
+     * 构造商品咨询智能体实例。
+     *
+     * @param promptLoader 提示词加载器
+     * @param chatClientBuilder 聊天客户端构建器
+     * @param generatingSessionManager 生成会话管理器
+     * @param chatMemoryRepository 聊天记忆仓库
+     * @param sessionService 会话服务
+     * @param toolRegistry 工具注册表
+     * @param messageChatMemoryAdvisor 聊天记忆顾问
+     */
     protected ProductAgent(
             AgentPromptLoader promptLoader,
             ChatClient.Builder chatClientBuilder,

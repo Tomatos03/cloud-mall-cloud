@@ -12,6 +12,7 @@ import org.springframework.stereotype.Component;
  * <p>
  * 使用示例：
  * <pre>{@code
+ *
  * @AgentTool(agents = AgentType.PRODUCT)
  * public class ProductSpuTool {
  *     @Tool(description = "根据SPU查询商品详情")

@@ -1,10 +1,10 @@
 package com.cloudmall.aigc.manager;
 
+import java.time.Duration;
+
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Component;
-
-import java.time.Duration;
 
 /**
  * 生成中会话管理器

@@ -6,11 +6,11 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import com.cloudmall.product.entity.UnitDO;
 import com.cloudmall.mybatisplus.annotation.Operator;
 import com.cloudmall.mybatisplus.annotation.QueryCondition;
 import com.cloudmall.mybatisplus.enums.StatusEnum;
 import com.cloudmall.mybatisplus.model.PageReq;
+import com.cloudmall.product.entity.UnitDO;
 
 /**
  * 单位分页查询请求。
@@ -34,10 +34,21 @@ public class UnitPageReq extends PageReq<UnitDO> {
     @QueryCondition(operator = Operator.LIKE)
     private String name;
 
+    /**
+     * 使用指定参数构造对象。
+     *
+     * @param current 当前页码
+     * @param size 页大小
+     */
     public UnitPageReq(long current, long size) {
         super(current, size);
     }
 
+    /**
+     * 构建所需对象。
+     *
+     * @return 处理结果
+     */
     @Override
     public LambdaQueryWrapper<UnitDO> buildLambdaWrapper() {
         LambdaQueryWrapper<UnitDO> wrapper = super.buildLambdaWrapper();

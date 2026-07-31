@@ -28,16 +28,25 @@ public class UserPageReq extends PageReq<UserDO> {
     @QueryCondition
     private Boolean enabled;
 
+    /** 使用指定参数构造对象。 */
     public UserPageReq() {
     }
 
     /**
      * 兼容 URL 参数 ?page=&size=
+     *
+     * @param page 页码
      */
     public void setPage(int page) {
         setCurrent(page);
     }
 
+    /**
+     * 使用指定参数构造对象。
+     *
+     * @param current 当前页码
+     * @param size 页大小
+     */
     public UserPageReq(long current, long size) {
         super(current, size);
     }

@@ -1,7 +1,6 @@
 package com.cloudmall.order.api.request;
 
 import jakarta.validation.constraints.NotNull;
-
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;

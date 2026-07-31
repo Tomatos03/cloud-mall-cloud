@@ -162,12 +162,12 @@ public class SessionService implements ISessionService {
         return result;
     }
 
-        /**
-         * * 更新会话标题
-         *
-         * @param sessionId 会话 ID
-         * @return 字符串结果
-         */
+    /**
+     * 更新会话标题。
+     *
+     * @param sessionId 会话 ID
+     * @return 字符串结果
+     */
     @Override
     public String getSessionTitle(String sessionId) {
         ChatSessionDO session = getValidatedSession(sessionId);

@@ -1,16 +1,16 @@
 package com.cloudmall.product.model.req;
 
-import com.cloudmall.mybatisplus.enums.StatusEnum;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.Accessors;
 
-import com.cloudmall.product.entity.ProductDO;
 import com.cloudmall.mybatisplus.annotation.Operator;
 import com.cloudmall.mybatisplus.annotation.QueryCondition;
+import com.cloudmall.mybatisplus.enums.StatusEnum;
 import com.cloudmall.mybatisplus.model.ConditionReq;
+import com.cloudmall.product.entity.ProductDO;
 
 /**
  * 商品单个查询请求。

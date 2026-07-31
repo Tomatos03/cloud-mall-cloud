@@ -1,12 +1,8 @@
 package com.cloudmall.aigc.controller;
 
-import com.cloudmall.aigc.model.req.SessionUpdateReq;
-import com.cloudmall.aigc.model.resp.ChatMessageResp;
-import com.cloudmall.aigc.model.resp.CreateSessionResp;
-import com.cloudmall.aigc.model.resp.HotTopicResp;
-import com.cloudmall.aigc.model.resp.SessionHistoryItemResp;
-import com.cloudmall.aigc.service.ISessionService;
-import com.cloudmall.common.model.Result;
+import java.util.List;
+import java.util.Map;
+
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -19,8 +15,13 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.List;
-import java.util.Map;
+import com.cloudmall.aigc.model.req.SessionUpdateReq;
+import com.cloudmall.aigc.model.resp.ChatMessageResp;
+import com.cloudmall.aigc.model.resp.CreateSessionResp;
+import com.cloudmall.aigc.model.resp.HotTopicResp;
+import com.cloudmall.aigc.model.resp.SessionHistoryItemResp;
+import com.cloudmall.aigc.service.ISessionService;
+import com.cloudmall.common.model.Result;
 
 /**
  * 会话管理接口 — 用户会话创建、热门话题查询、历史消息查看

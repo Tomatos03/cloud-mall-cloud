@@ -10,6 +10,11 @@ import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
 @ConfigurationPropertiesScan
 public class AIGCApplication {
 
+    /**
+     * 启动应用程序。
+     *
+     * @param args 启动参数
+     */
     public static void main(String[] args) {
         SpringApplication.run(AIGCApplication.class, args);
     }

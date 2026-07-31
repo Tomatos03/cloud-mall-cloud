@@ -24,18 +24,35 @@ public class ShopController {
 
     private final IShopService shopService;
 
+    /**
+     * 获取相关数据。
+     *
+     * @param userId 用户标识
+     * @return 处理结果
+     */
     @GetMapping
     public Result<ShopResp> getByUserId(@RequestParam Long userId) {
         ShopGetReq req = ShopGetReq.builder().userId(userId).build();
         return Result.success(shopService.get(req));
     }
 
+    /**
+     * 获取相关数据。
+     *
+     * @param id 对象标识
+     * @return 处理结果
+     */
     @GetMapping("/{id}")
     public Result<ShopResp> getById(@PathVariable Long id) {
         ShopGetReq req = ShopGetReq.builder().id(id).build();
         return Result.success(shopService.get(req));
     }
 
+    /**
+     * 获取相关数据。
+     *
+     * @return 处理结果
+     */
     @GetMapping("/current")
     public Result<ShopResp> getCurrent() {
         ShopGetReq req = ShopGetReq.builder()

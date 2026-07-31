@@ -37,6 +37,7 @@ import com.cloudmall.mybatisplus.query.ConditionBuilder;
  */
 public class PageReq<T> extends Page<T> implements ConditionBuilder<T> {
 
+    /** 使用指定参数构造对象。 */
     public PageReq() {
         this(1, 10);
     }

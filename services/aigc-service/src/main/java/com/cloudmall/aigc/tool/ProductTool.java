@@ -1,14 +1,15 @@
 package com.cloudmall.aigc.tool;
 
+import lombok.RequiredArgsConstructor;
+import org.springframework.ai.chat.model.ToolContext;
+import org.springframework.ai.tool.annotation.Tool;
+import org.springframework.ai.tool.annotation.ToolParam;
+
 import com.cloudmall.aigc.agent.AgentTool;
 import com.cloudmall.aigc.agent.AgentType;
 import com.cloudmall.common.model.Result;
 import com.cloudmall.product.api.client.ProductClient;
 import com.cloudmall.product.api.response.ProductResp;
-import lombok.RequiredArgsConstructor;
-import org.springframework.ai.chat.model.ToolContext;
-import org.springframework.ai.tool.annotation.Tool;
-import org.springframework.ai.tool.annotation.ToolParam;
 
 /**
  * 商品查询工具

@@ -32,16 +32,6 @@ import com.cloudmall.aigc.properties.AgentProperties;
 public class AgentConfig {
 
     /**
-     * 创建 ChatClient Bean
-     *
-     * @param builder        ChatClient 构建器
-     * @param advisors       所有 Advisor 列表
-     * @param tools          所有 AgentTool 列表
-     * @param agentProperties Agent 配置属性
-     * @return ChatClient 实例
-     */
-
-    /**
      * 日志 Advisor
      *
      * @return SimpleLoggerAdvisor 实例

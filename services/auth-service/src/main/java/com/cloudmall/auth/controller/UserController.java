@@ -41,21 +41,45 @@ public class UserController {
     private final IUserService userService;
     private final IRoleService roleService;
 
+    /**
+     * 执行用户登录认证。
+     *
+     * @param request 请求参数
+     * @return 处理结果
+     */
     @PostMapping("/login")
     public Result<LoginResp> login(@RequestBody @Valid LoginReq request) {
         return Result.success(userService.login(request));
     }
 
+    /**
+     * 创建并保存数据。
+     *
+     * @param request 请求参数
+     * @return 处理结果
+     */
     @PostMapping("/register")
     public Result<Long> register(@RequestBody @Valid RegisterReq request) {
         return Result.success(userService.register(request));
     }
 
+    /**
+     * 分页查询数据。
+     *
+     * @param req 请求参数
+     * @return 分页数据
+     */
     @GetMapping
     public Result<IPage<UserInfoResp>> pageUsers(UserPageReq req) {
         return Result.success(userService.pageUserInfos(req));
     }
 
+    /**
+     * 获取相关数据。
+     *
+     * @param id 对象标识
+     * @return 处理结果
+     */
     @GetMapping("/{id}")
     public Result<UserInfoResp> getUser(@PathVariable Long id) {
         return Result.success(userService.getUserInfo(id));
@@ -74,12 +98,24 @@ public class UserController {
         return Result.success(userService.getMenuResourceTree());
     }
 
+    /**
+     * 更新相关数据。
+     *
+     * @param roleIds 角色标识列表
+     * @return 处理结果
+     */
     @PutMapping("/roles")
     public Result<Void> assignRoles(@RequestBody List<Long> roleIds) {
         roleService.assignRoles(UserContextHolder.getUserId(), roleIds);
         return Result.success();
     }
 
+    /**
+     * 获取相关数据。
+     *
+     * @param id 对象标识
+     * @return 处理结果
+     */
     @GetMapping("/{id}/roles")
     public Result<List<Long>> getUserRoleIds(@PathVariable Long id) {
         return Result.success(userService.getUserRoleIds(id));

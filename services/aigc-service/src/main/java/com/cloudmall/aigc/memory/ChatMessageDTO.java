@@ -1,5 +1,10 @@
 package com.cloudmall.aigc.memory;
 
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -12,11 +17,6 @@ import org.springframework.ai.chat.messages.ToolResponseMessage;
 import org.springframework.ai.chat.messages.UserMessage;
 import org.springframework.ai.content.Media;
 import org.springframework.ai.content.MediaContent;
-
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 @Data
 @Builder
@@ -31,6 +31,11 @@ public class ChatMessageDTO {
     private List<AssistantMessage.ToolCall> toolCalls;
     private List<ToolResponseMessage.ToolResponse> toolResponses;
 
+    /**
+     * 转换对象数据。
+     *
+     * @return 处理结果
+     */
     public Message toMessage() {
         Map<String, Object> meta = metadata != null ? metadata : Collections.emptyMap();
         return switch (type) {
@@ -64,6 +69,12 @@ public class ChatMessageDTO {
         };
     }
 
+    /**
+     * 转换对象数据。
+     *
+     * @param message 消息
+     * @return 处理结果
+     */
     public static ChatMessageDTO fromMessage(Message message) {
         ChatMessageDTOBuilder builder = ChatMessageDTO.builder()
                 .type(message.getMessageType())

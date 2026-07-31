@@ -1,4 +1,4 @@
- package com.cloudmall.aigc.controller;
+package com.cloudmall.aigc.controller;
 
 import java.util.List;
 
@@ -19,7 +19,7 @@ import com.cloudmall.aigc.model.resp.ChatTemplate;
 import com.cloudmall.aigc.service.IChatService;
 import com.cloudmall.common.model.Result;
 
- /**
+/**
  * AI 智能客服接口 — 流式聊天、纯文本聊天、模板查询、停止生成
  *
  * @author : Tomatos
@@ -68,9 +68,10 @@ public class ChatController {
     }
 
     /**
-     * 停止指定会话的 AI 生成
+     * 停止指定会话的 AI 生成。
      *
      * @param sessionId 会话 ID
+     * @return 处理结果
      */
     @PostMapping("/{sessionId}/stop")
     public Result<Void> stop(@PathVariable String sessionId) {

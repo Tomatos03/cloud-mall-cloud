@@ -24,6 +24,12 @@ public class ProductImageService implements IProductImageService {
     private final ProductImageMapper productImageMapper;
     private final ImageConverter imageConverter;
 
+    /**
+     * 查询数据列表。
+     *
+     * @param productId 商品标识
+     * @return 数据列表
+     */
     @Override
     public List<ImageResp> listByProductId(Long productId) {
         List<ProductImageDO> images = productImageMapper.selectList(

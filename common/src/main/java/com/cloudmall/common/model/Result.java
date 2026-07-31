@@ -1,6 +1,7 @@
 package com.cloudmall.common.model;
 
 import lombok.Data;
+
 import com.cloudmall.common.enums.BizErrorCode;
 
 /**
@@ -30,6 +31,13 @@ public class Result<T> {
      */
     private T data;
 
+    /**
+     * 使用指定参数构造对象。
+     *
+     * @param code 编码
+     * @param message 消息
+     * @param data 响应数据
+     */
     private Result(int code, String message, T data) {
         this.code = code;
         this.message = message;
@@ -38,6 +46,7 @@ public class Result<T> {
 
     /**
      * 成功响应（无返回数据）
+     *
      * @return Result
      */
     public static Result<Void> success() {
@@ -46,6 +55,7 @@ public class Result<T> {
 
     /**
      * 成功响应
+     *
      * @param data 数据
      * @return Result
      */
@@ -55,6 +65,7 @@ public class Result<T> {
 
     /**
      * 成功响应
+     *
      * @param message 消息
      * @param data 数据
      * @return Result
@@ -65,6 +76,7 @@ public class Result<T> {
 
     /**
      * 错误响应（业务异常）
+     *
      * @param errorCode 业务错误码
      * @return Result
      */
@@ -74,6 +86,7 @@ public class Result<T> {
 
     /**
      * 错误响应
+     *
      * @param message 消息
      * @return Result
      */
@@ -83,6 +96,7 @@ public class Result<T> {
 
     /**
      * 错误响应
+     *
      * @param message 消息
      * @param code 错误码
      * @return Result

@@ -19,15 +19,33 @@ import com.cloudmall.auth.entity.UserDO;
 @Mapper(componentModel = "spring")
 public interface UserConverter {
 
+    /**
+     * 转换对象数据。
+     *
+     * @param user 用户实体
+     * @return 处理结果
+     */
     @Mapping(source = "id", target = "userId")
     @Mapping(source = "types", target = "userType")
     LoginResp toLoginResp(UserDO user);
 
+    /**
+     * 转换对象数据。
+     *
+     * @param user 用户实体
+     * @return 处理结果
+     */
     @Mapping(source = "id", target = "userId")
     @Mapping(source = "avatarUrl", target = "avatar")
     @Mapping(source = "types", target = "userType")
     UserInfoResp toResp(UserDO user);
 
+    /**
+     * 转换对象数据。
+     *
+     * @param req 请求参数
+     * @return 处理结果
+     */
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "avatarUrl", ignore = true)
     @Mapping(target = "bio", ignore = true)

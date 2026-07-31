@@ -12,9 +12,23 @@ import com.cloudmall.order.api.response.OrderResp;
 @FeignClient(name = "order-service", contextId = "orderClient", path = "/orders")
 public interface OrderClient {
 
+    /**
+     * 获取相关数据。
+     *
+     * @param id 对象标识
+     * @return 处理结果
+     */
     @GetMapping("/{id}")
     Result<OrderResp> getById(@PathVariable("id") Long id);
 
+    /**
+     * 分页查询数据。
+     *
+     * @param userId 用户标识
+     * @param current 当前页码
+     * @param size 页大小
+     * @return 分页数据
+     */
     @GetMapping
     Result<Page<OrderResp>> page(@RequestParam("userId") Long userId,
                                  @RequestParam(value = "current", defaultValue = "1") long current,

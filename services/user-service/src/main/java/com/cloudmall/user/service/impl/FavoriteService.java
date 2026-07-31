@@ -17,6 +17,13 @@ public class FavoriteService implements IFavoriteService {
 
     private final FavoriteMapper favoriteMapper;
 
+    /**
+     * 转换对象数据。
+     *
+     * @param userId 用户标识
+     * @param productId 商品标识
+     * @return 是否满足条件
+     */
     @Override
     public boolean toggle(Long userId, Long productId) {
         FavoriteDO existing = favoriteMapper.selectOne(
@@ -38,6 +45,12 @@ public class FavoriteService implements IFavoriteService {
         }
     }
 
+    /**
+     * 查询数据列表。
+     *
+     * @param userId 用户标识
+     * @return 数据列表
+     */
     @Override
     public List<Long> listProductIds(Long userId) {
         List<FavoriteDO> list = favoriteMapper.selectList(
@@ -50,6 +63,13 @@ public class FavoriteService implements IFavoriteService {
                    .toList();
     }
 
+    /**
+     * 判断是否满足条件。
+     *
+     * @param userId 用户标识
+     * @param productId 商品标识
+     * @return 是否满足条件
+     */
     @Override
     public boolean isFavorited(Long userId, Long productId) {
         return favoriteMapper.selectCount(

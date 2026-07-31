@@ -1,16 +1,17 @@
 package com.cloudmall.aigc.tool;
 
-import com.cloudmall.aigc.agent.AgentTool;
-import com.cloudmall.aigc.agent.AgentType;
-import com.cloudmall.common.context.UserContextHolder;
-import com.cloudmall.order.api.client.OrderClient;
-import com.cloudmall.order.api.response.OrderResp;
+import java.util.List;
+
 import lombok.RequiredArgsConstructor;
 import org.springframework.ai.chat.model.ToolContext;
 import org.springframework.ai.tool.annotation.Tool;
 import org.springframework.ai.tool.annotation.ToolParam;
 
-import java.util.List;
+import com.cloudmall.aigc.agent.AgentTool;
+import com.cloudmall.aigc.agent.AgentType;
+import com.cloudmall.common.context.UserContextHolder;
+import com.cloudmall.order.api.client.OrderClient;
+import com.cloudmall.order.api.response.OrderResp;
 
 /**
  * 订单工具，提供订单查询能力。

@@ -13,6 +13,9 @@ public final class UserContextHolder {
 
     private static final ThreadLocal<UserContext> TL = new ThreadLocal<>();
 
+    /**
+     * 使用指定参数构造对象。
+     */
     private UserContextHolder() {}
 
     /**

@@ -2,11 +2,12 @@ package com.cloudmall.product.api.response;
 
 import java.util.List;
 
-import com.cloudmall.mybatisplus.enums.StatusEnum;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+
+import com.cloudmall.mybatisplus.enums.StatusEnum;
 
 /**
  * 商品详情响应对象

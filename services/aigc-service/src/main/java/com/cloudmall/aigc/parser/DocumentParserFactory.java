@@ -1,12 +1,12 @@
 package com.cloudmall.aigc.parser;
 
-import org.springframework.stereotype.Component;
-
 import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+
+import org.springframework.stereotype.Component;
 
 /**
  * 文档解析器工厂
@@ -21,6 +21,11 @@ public class DocumentParserFactory {
 
     private final Map<DocumentType, DocumentParser> parserMap;
 
+    /**
+     * 使用指定参数构造对象。
+     *
+     * @param parsers 文档解析器列表
+     */
     public DocumentParserFactory(List<DocumentParser> parsers) {
         this.parserMap = parsers.stream()
                                 .collect(Collectors.toMap(

@@ -15,11 +15,24 @@ public class AuthTokenException extends RuntimeException {
 
     private final String token;
 
+    /**
+     * 使用指定参数构造对象。
+     *
+     * @param message 消息
+     * @param token 令牌
+     */
     public AuthTokenException(String message, String token) {
         super(message);
         this.token = token;
     }
 
+    /**
+     * 使用指定参数构造对象。
+     *
+     * @param message 消息
+     * @param token 令牌
+     * @param cause 原始异常
+     */
     public AuthTokenException(String message, String token, Throwable cause) {
         super(message, cause);
         this.token = token;

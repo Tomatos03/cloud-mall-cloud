@@ -1,10 +1,11 @@
 package com.cloudmall.product.api.request;
 
-import com.cloudmall.mybatisplus.enums.StatusEnum;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+
+import com.cloudmall.mybatisplus.enums.StatusEnum;
 
 /**
  * 品牌更新请求。

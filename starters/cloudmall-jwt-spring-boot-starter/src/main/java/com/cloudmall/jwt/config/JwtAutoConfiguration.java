@@ -12,6 +12,12 @@ import com.cloudmall.jwt.service.JwtTokenService;
 @EnableConfigurationProperties(JwtProperties.class)
 public class JwtAutoConfiguration {
 
+    /**
+     * 创建令牌服务。
+     *
+     * @param properties 配置属性
+     * @return 处理结果
+     */
     @Bean
     @ConditionalOnMissingBean
     public ITokenService authTokenService(JwtProperties properties) {

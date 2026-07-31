@@ -66,13 +66,13 @@ public class AgentPromptLoader {
         }
     }
 
-        /**
-         * * 懒加载：首次加载从 Nacos 读取，之后走缓存。
-         * 返回的提示词已包含 globalPrompt + 专属 prompt。
-         *
-         * @param type 类型
-         * @return 字符串结果
-         */
+    /**
+     * 懒加载：首次加载从 Nacos 读取，之后走缓存。
+     * 返回的提示词已包含 globalPrompt + 专属 prompt。
+     *
+     * @param type 类型
+     * @return 字符串结果
+     */
     public String load(AgentType type) {
         boolean cached = cache.containsKey(type);
         String agentPrompt = cache.computeIfAbsent(type, this::loadFromNacos);
@@ -134,26 +134,24 @@ public class AgentPromptLoader {
 
         try {
             configService.addListener(dataId, group, new Listener() {
-                @Override
-
                 /**
                  * 接收配置变更。
                  *
                  * @param config 配置内容
                  */
+                @Override
                 public void receiveConfigInfo(String config) {
                     cache.put(type, config);
                     log.info("提示词热更新: type={}, dataId={}", type, dataId);
                     onUpdate.run();
                 }
 
-                @Override
-
                 /**
                  * 获取相关数据。
                  *
                  * @return 处理结果
                  */
+                @Override
                 public Executor getExecutor() {
                     return Executors.newSingleThreadExecutor();
                 }

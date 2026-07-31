@@ -1,5 +1,10 @@
 package com.cloudmall.aigc.memory;
 
+import java.util.Collections;
+import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
+
 import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.json.JSONUtil;
 import lombok.RequiredArgsConstructor;
@@ -10,14 +15,7 @@ import org.springframework.data.redis.core.Cursor;
 import org.springframework.data.redis.core.ScanOptions;
 import org.springframework.data.redis.core.StringRedisTemplate;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
-
 /**
- *
- *
  * @author : Tomatos
  * @date : 2026/7/21
  */
@@ -27,6 +25,11 @@ public class CacheChatMemoryRepository implements ChatMemoryRepository {
     private final static String KEY_PREFIX = "chat:";
     private final StringRedisTemplate stringRedisTemplate;
 
+    /**
+     * 查找符合条件的数据。
+     *
+     * @return 数据列表
+     */
     @Override
     public List<String> findConversationIds() {
         Set<String> keys;
@@ -46,6 +49,12 @@ public class CacheChatMemoryRepository implements ChatMemoryRepository {
                    .toList();
     }
 
+    /**
+     * 查找符合条件的数据。
+     *
+     * @param conversationId 会话标识
+     * @return 数据列表
+     */
     @Override
     public List<Message> findByConversationId(String conversationId) {
         List<String> messageJsons = stringRedisTemplate
@@ -61,6 +70,12 @@ public class CacheChatMemoryRepository implements ChatMemoryRepository {
                            .toList();
     }
 
+    /**
+     * 保存数据。
+     *
+     * @param conversationId 会话标识
+     * @param messages 消息列表
+     */
     @Override
     public void saveAll(String conversationId, List<Message> messages) {
         log.debug("保存会话消息到 Redis, conversationId: {}, messages: {}", conversationId, messages);
@@ -72,11 +87,22 @@ public class CacheChatMemoryRepository implements ChatMemoryRepository {
                            .rightPush(JSONUtil.toJsonStr(newMessage));
     }
 
+    /**
+     * 删除相关数据。
+     *
+     * @param conversationId 会话标识
+     */
     @Override
     public void deleteByConversationId(String conversationId) {
         stringRedisTemplate.delete(buildKey(conversationId));
     }
 
+    /**
+     * 构建所需对象。
+     *
+     * @param conversationId 会话标识
+     * @return 字符串结果
+     */
     private String buildKey(String conversationId) {
         return KEY_PREFIX + conversationId;
     }

@@ -16,6 +16,11 @@ import com.cloudmall.common.enums.BizErrorCode;
 public class BizException extends RuntimeException {
     private BizErrorCode bizErrorCode;
 
+    /**
+     * 使用指定参数构造对象。
+     *
+     * @param bizErrorCode 业务错误码
+     */
     public BizException(BizErrorCode bizErrorCode) {
         super(bizErrorCode.getErrorMessage());
         this.bizErrorCode = bizErrorCode;

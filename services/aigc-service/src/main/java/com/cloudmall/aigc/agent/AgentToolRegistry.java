@@ -34,6 +34,9 @@ public class AgentToolRegistry {
 
     /**
      * 获取指定智能体可用的工具数组。
+     *
+     * @param type 类型
+     * @return 处理结果
      */
     public Object[] getTools(AgentType type) {
         return toolMap.getOrDefault(type, new Object[0]);

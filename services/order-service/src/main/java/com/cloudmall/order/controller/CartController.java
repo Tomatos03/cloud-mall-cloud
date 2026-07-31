@@ -35,7 +35,10 @@ public class CartController {
     private final ICartService cartService;
 
     /**
-     * 添加商品到购物车
+     * 添加商品到购物车。
+     *
+     * @param req 请求参数
+     * @return 处理结果
      */
     @PostMapping
     public Result<Long> add(@Valid @RequestBody CartOperatorReq req) {
@@ -44,7 +47,11 @@ public class CartController {
     }
 
     /**
-     * 更新购物车商品数量
+     * 更新购物车商品数量。
+     *
+     * @param skuId SKU 标识
+     * @param quantity 数量
+     * @return 处理结果
      */
     @PutMapping("/sku/{skuId}")
     public Result<Void> updateQuantity(
@@ -59,7 +66,10 @@ public class CartController {
     }
 
     /**
-     * 移除购物车中的商品
+     * 移除购物车中的商品。
+     *
+     * @param skuIds SKU 标识列表
+     * @return 处理结果
      */
     @DeleteMapping("/skus")
     public Result<Void> removeItem(@RequestBody List<Long> skuIds) {
@@ -68,7 +78,10 @@ public class CartController {
     }
 
     /**
-     * 选中/取消选中指定商品
+     * 选中或取消选中指定商品。
+     *
+     * @param req 请求参数
+     * @return 处理结果
      */
     @PutMapping("/selection")
     public Result<Void> selectItems(@Valid @RequestBody CartSelectReq req) {
@@ -77,7 +90,10 @@ public class CartController {
     }
 
     /**
-     * 全选/全不选
+     * 全选或取消全选购物车商品。
+     *
+     * @param selected 是否选中
+     * @return 处理结果
      */
     @PutMapping("/selection/all")
     public Result<Void> selectAll(@RequestParam Boolean selected) {
@@ -86,7 +102,11 @@ public class CartController {
     }
 
     /**
-     * 选中/取消选中指定店铺的所有商品
+     * 选中或取消选中指定店铺的所有商品。
+     *
+     * @param shopId 店铺标识
+     * @param selected 是否选中
+     * @return 处理结果
      */
     @PutMapping("/selection/shop/{shopId}")
     public Result<Void> selectShop(
@@ -98,7 +118,9 @@ public class CartController {
     }
 
     /**
-     * 清空购物车
+     * 清空购物车。
+     *
+     * @return 处理结果
      */
     @DeleteMapping
     public Result<Void> clear() {
@@ -107,9 +129,11 @@ public class CartController {
     }
 
     /**
-     * 获取用户购物车内容
+     * 获取用户购物车内容。
      * <p>
      * 返回按店铺分组的商品列表及全车汇总统计。
+     *
+     * @return 处理结果
      */
     @GetMapping
     public Result<CartDetailResp> getCart() {

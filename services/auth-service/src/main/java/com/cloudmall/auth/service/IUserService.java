@@ -22,10 +22,28 @@ import com.cloudmall.auth.model.resp.ResourceNodeResp;
  */
 public interface IUserService {
 
+    /**
+     * 执行用户登录认证。
+     *
+     * @param request 请求参数
+     * @return 处理结果
+     */
     LoginResp login(LoginReq request);
 
+    /**
+     * 创建并保存数据。
+     *
+     * @param request 请求参数
+     * @return 结果标识或数值
+     */
     Long register(RegisterReq request);
 
+    /**
+     * 获取相关数据。
+     *
+     * @param userId 用户标识
+     * @return 处理结果
+     */
     UserInfoResp getUserInfo(Long userId);
 
     /**

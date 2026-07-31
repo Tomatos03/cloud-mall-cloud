@@ -1,10 +1,10 @@
 package com.cloudmall.aigc.model.enums;
 
-import cn.hutool.core.date.LocalDateTimeUtil;
-import lombok.Getter;
-
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
+
+import cn.hutool.core.date.LocalDateTimeUtil;
+import lombok.Getter;
 
 /**
  * 会话时间分类枚举
@@ -16,12 +16,28 @@ import java.time.temporal.ChronoUnit;
 public enum SessionTimeBucket {
 
     TODAY("当天") {
+
+        /**
+         * 匹配并处理相关数据。
+         *
+         * @param updateTime 更新时间
+         * @param now 当前时间
+         * @return 是否满足条件
+         */
         @Override
         public boolean matches(LocalDateTime updateTime, LocalDateTime now) {
             return LocalDateTimeUtil.isSameDay(updateTime, now);
         }
     },
     LAST_30_DAYS("最近30天") {
+
+        /**
+         * 匹配并处理相关数据。
+         *
+         * @param updateTime 更新时间
+         * @param now 当前时间
+         * @return 是否满足条件
+         */
         @Override
         public boolean matches(LocalDateTime updateTime, LocalDateTime now) {
             return !LocalDateTimeUtil.isSameDay(updateTime, now)
@@ -29,6 +45,14 @@ public enum SessionTimeBucket {
         }
     },
     LAST_1_YEAR("最近1年") {
+
+        /**
+         * 匹配并处理相关数据。
+         *
+         * @param updateTime 更新时间
+         * @param now 当前时间
+         * @return 是否满足条件
+         */
         @Override
         public boolean matches(LocalDateTime updateTime, LocalDateTime now) {
             long days = LocalDateTimeUtil.between(updateTime, now, ChronoUnit.DAYS);
@@ -37,6 +61,14 @@ public enum SessionTimeBucket {
         }
     },
     OLDER("1年以上") {
+
+        /**
+         * 匹配并处理相关数据。
+         *
+         * @param updateTime 更新时间
+         * @param now 当前时间
+         * @return 是否满足条件
+         */
         @Override
         public boolean matches(LocalDateTime updateTime, LocalDateTime now) {
             return LocalDateTimeUtil.between(updateTime, now, ChronoUnit.YEARS) >= 1;

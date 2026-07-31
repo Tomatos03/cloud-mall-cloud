@@ -25,8 +25,10 @@ public enum UserTypeEnum {
 
     /** 普通用户 */
     NORMAL("NORMAL", "普通用户"),
+
     /** 管理员 */
     ADMIN("ADMIN", "管理员"),
+
     /** 店铺商家 */
     MERCHANT("MERCHANT", "店铺商家");
 

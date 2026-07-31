@@ -1,11 +1,11 @@
 package com.cloudmall.feign.autoconfigure;
 
-import com.cloudmall.feign.interceptor.FeignUserContextInterceptor;
 import com.fasterxml.jackson.databind.ObjectMapper;
-
 import org.springframework.cloud.openfeign.EnableFeignClients;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+
+import com.cloudmall.feign.interceptor.FeignUserContextInterceptor;
 
 /**
  * Feign 客户端自动配置
@@ -18,6 +18,12 @@ import org.springframework.context.annotation.Configuration;
 @EnableFeignClients(basePackages = "com.cloudmall")
 public class CloudmallFeignAutoConfiguration {
 
+    /**
+     * 创建 Feign 用户上下文拦截器。
+     *
+     * @param objectMapper JSON 对象映射器
+     * @return 处理结果
+     */
     @Bean
     FeignUserContextInterceptor feignUserContextInterceptor(ObjectMapper objectMapper) {
         return new FeignUserContextInterceptor(objectMapper);

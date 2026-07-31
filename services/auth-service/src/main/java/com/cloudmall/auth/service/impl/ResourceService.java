@@ -265,12 +265,12 @@ public class ResourceService implements IResourceService {
         t.putExtra("enabled", r.getEnabled());
     }
 
-        /**
-         * * 将 Hutool Tree 节点转换为业务 ResourceNode
-         *
-         * @param tree 资源树
-         * @return 处理结果
-         */
+    /**
+     * 将 Hutool Tree 节点转换为业务 ResourceNode。
+     *
+     * @param tree 资源树
+     * @return 处理结果
+     */
     static ResourceNodeResp treeToResourceNode(Tree<Long> tree) {
         ResourceResp info = ResourceResp.builder()
                 .id(tree.getId())

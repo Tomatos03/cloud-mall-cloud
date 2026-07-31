@@ -10,11 +10,11 @@ import org.springframework.transaction.annotation.Transactional;
 import com.cloudmall.common.enums.BizErrorCode;
 import com.cloudmall.common.utils.AssertUtils;
 import com.cloudmall.seckill.api.response.ActivityResp;
+import com.cloudmall.seckill.convert.SeckillConverter;
 import com.cloudmall.seckill.entity.SeckillActivityDO;
 import com.cloudmall.seckill.entity.SeckillProductDO;
 import com.cloudmall.seckill.mapper.SeckillActivityMapper;
 import com.cloudmall.seckill.mapper.SeckillProductMapper;
-import com.cloudmall.seckill.convert.SeckillConverter;
 import com.cloudmall.seckill.service.ISeckillService;
 
 @Service
@@ -24,6 +24,12 @@ public class SeckillService implements ISeckillService {
     private final SeckillProductMapper productMapper;
     private final SeckillConverter seckillConverter;
 
+    /**
+     * 创建并保存数据。
+     *
+     * @param activity 秒杀活动实体
+     * @return 结果标识或数值
+     */
     @Override
     public Long createActivity(SeckillActivityDO activity) {
         activity.setStatus("DRAFT");
@@ -31,6 +37,13 @@ public class SeckillService implements ISeckillService {
         return activity.getId();
     }
 
+    /**
+     * 获取相关数据。
+     *
+     * @param id 对象标识
+     * @return 处理结果
+     * @throws BizException 处理过程中可能抛出该异常
+     */
     @Override
     public ActivityResp getActivity(Long id) {
         SeckillActivityDO act = activityMapper.selectById(id);
@@ -38,6 +51,15 @@ public class SeckillService implements ISeckillService {
         return seckillConverter.toResp(act);
     }
 
+    /**
+     * 提交商品参加秒杀活动。
+     *
+     * @param activityId 活动标识
+     * @param productId 商品标识
+     * @param seckillPrice 秒杀价格
+     * @param stock 库存数量
+     * @throws BizException 处理过程中可能抛出该异常
+     */
     @Override
     @Transactional
     public void submitProduct(Long activityId, Long productId, BigDecimal seckillPrice, Integer stock) {
@@ -53,6 +75,13 @@ public class SeckillService implements ISeckillService {
         productMapper.insert(product);
     }
 
+    /**
+     * 审核秒杀活动商品。
+     *
+     * @param productId 商品标识
+     * @param approved 是否通过审核
+     * @throws BizException 处理过程中可能抛出该异常
+     */
     @Override
     @Transactional
     public void auditProduct(Long productId, boolean approved) {
@@ -62,6 +91,13 @@ public class SeckillService implements ISeckillService {
         productMapper.updateById(product);
     }
 
+    /**
+     * 校验相关数据。
+     *
+     * @param activityId 活动标识
+     * @param productId 商品标识
+     * @return 是否满足条件
+     */
     @Override
     public boolean verifyProduct(Long activityId, Long productId) {
         SeckillProductDO product = productMapper.selectOne(

@@ -1,12 +1,12 @@
 package com.cloudmall.aigc.service;
 
+import java.util.List;
+import java.util.Map;
+
 import com.cloudmall.aigc.model.resp.ChatMessageResp;
 import com.cloudmall.aigc.model.resp.CreateSessionResp;
 import com.cloudmall.aigc.model.resp.HotTopicResp;
 import com.cloudmall.aigc.model.resp.SessionHistoryItemResp;
-
-import java.util.List;
-import java.util.Map;
 
 /**
  * 会话管理服务接口

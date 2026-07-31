@@ -1,11 +1,11 @@
 package com.cloudmall.aigc.service;
 
-import org.springframework.ai.document.Document;
-import org.springframework.web.multipart.MultipartFile;
-
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
+
+import org.springframework.ai.document.Document;
+import org.springframework.web.multipart.MultipartFile;
 
 /**
  * 知识库服务接口

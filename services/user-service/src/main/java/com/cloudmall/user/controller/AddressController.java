@@ -27,13 +27,13 @@ public class AddressController {
 
     private final IAddressService addressService;
 
-        /**
-         * * 获取当前用户所有收货地址
-         * <p>
-         * 地址数量上限 10 条，无需分页。
-         *
-         * @return 处理结果
-         */
+    /**
+     * 获取当前用户所有收货地址。
+     * <p>
+     * 地址数量上限 10 条，无需分页。
+     *
+     * @return 处理结果
+     */
     @GetMapping
     public Result<List<AddressResp>> list() {
         Long userId = UserContextHolder.getUserId();

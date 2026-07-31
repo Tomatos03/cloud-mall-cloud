@@ -1,12 +1,12 @@
 package com.cloudmall.aigc.model.req;
 
+import java.util.Map;
+
 import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
-import java.util.Map;
 
 /**
  * 知识库文档上传请求

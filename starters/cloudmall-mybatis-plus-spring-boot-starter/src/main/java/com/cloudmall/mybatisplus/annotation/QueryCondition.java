@@ -14,6 +14,7 @@ import java.lang.annotation.Target;
  *
  * <pre>{@code
  * // 例 1：字段名 = 实体属性名，等值查询
+ *
  * @QueryCondition(operator = EQ)
  * private Long categoryId;
  *

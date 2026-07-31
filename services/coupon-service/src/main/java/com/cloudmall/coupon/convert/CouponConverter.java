@@ -11,6 +11,12 @@ import com.cloudmall.coupon.entity.CouponDO;
 @Mapper(componentModel = "spring")
 public interface CouponConverter {
 
+    /**
+     * 转换对象数据。
+     *
+     * @param coupon 优惠券实体
+     * @return 处理结果
+     */
     @Mapping(target = "claimed", ignore = true)
     CouponResp toResp(CouponDO coupon);
 

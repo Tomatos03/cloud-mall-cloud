@@ -11,6 +11,12 @@ import com.cloudmall.common.model.Result;
 @FeignClient(name = "auth-service", contextId = "authClient", path = "/auth")
 public interface AuthClient {
 
+    /**
+     * 执行用户登录认证。
+     *
+     * @param request 请求参数
+     * @return 处理结果
+     */
     @PostMapping("/login")
     Result<LoginResp> login(@RequestBody LoginReq request);
 }

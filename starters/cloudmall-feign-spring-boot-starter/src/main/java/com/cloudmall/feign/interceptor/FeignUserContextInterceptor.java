@@ -1,13 +1,14 @@
 package com.cloudmall.feign.interceptor;
 
-import com.cloudmall.common.context.UserContext;
-import com.cloudmall.common.context.UserContextHolder;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import feign.RequestInterceptor;
 import feign.RequestTemplate;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+
+import com.cloudmall.common.context.UserContext;
+import com.cloudmall.common.context.UserContextHolder;
 
 /**
  * Feign 请求拦截器
@@ -23,6 +24,11 @@ public class FeignUserContextInterceptor implements RequestInterceptor {
 
     private final ObjectMapper objectMapper;
 
+    /**
+     * 应用相关配置。
+     *
+     * @param template 请求模板
+     */
     @Override
     public void apply(RequestTemplate template) {
         UserContext ctx = UserContextHolder.get();

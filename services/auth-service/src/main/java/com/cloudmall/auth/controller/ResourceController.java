@@ -83,10 +83,11 @@ public class ResourceController {
     }
 
     /**
-     * 更新资源
+     * 更新资源。
      *
      * @param id  资源 ID
      * @param req 待更新的资源字段
+     * @return 处理结果
      */
     @PutMapping("/{id}")
     public Result<Void> updateResource(
@@ -98,9 +99,10 @@ public class ResourceController {
     }
 
     /**
-     * 删除资源
+     * 删除资源。
      *
      * @param id 资源 ID
+     * @return 处理结果
      */
     @DeleteMapping("/{id}")
     public Result<Void> deleteResource(@PathVariable Long id) {

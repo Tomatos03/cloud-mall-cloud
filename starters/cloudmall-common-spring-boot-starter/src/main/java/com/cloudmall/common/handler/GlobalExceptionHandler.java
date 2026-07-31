@@ -1,8 +1,5 @@
 package com.cloudmall.common.handler;
 
-import com.cloudmall.common.model.Result;
-import com.cloudmall.common.enums.BizErrorCode;
-import com.cloudmall.common.exception.BizException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplication;
 import org.springframework.http.HttpStatus;
@@ -14,6 +11,10 @@ import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.servlet.NoHandlerFoundException;
+
+import com.cloudmall.common.enums.BizErrorCode;
+import com.cloudmall.common.exception.BizException;
+import com.cloudmall.common.model.Result;
 
 /**
  * 全局异常处理器
@@ -29,6 +30,9 @@ public class GlobalExceptionHandler {
 
     /**
      * 业务异常
+     *
+     * @param e 异常对象
+     * @return 处理结果
      */
     @ExceptionHandler(BizException.class)
     public ResponseEntity<Result<Void>> handleBizException(BizException e) {
@@ -38,7 +42,10 @@ public class GlobalExceptionHandler {
     }
 
     /**
-     * 参数校验失败 (@Valid / @Validated)
+     * 参数校验失败（@Valid / @Validated）。
+     *
+     * @param e 异常对象
+     * @return 处理结果
      */
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<Result<Void>> handleValidation(MethodArgumentNotValidException e) {
@@ -53,7 +60,10 @@ public class GlobalExceptionHandler {
     }
 
     /**
-     * 请求参数缺失
+     * 请求参数缺失。
+     *
+     * @param e 异常对象
+     * @return 处理结果
      */
     @ExceptionHandler(MissingServletRequestParameterException.class)
     public ResponseEntity<Result<Void>> handleMissingParam(MissingServletRequestParameterException e) {
@@ -62,7 +72,10 @@ public class GlobalExceptionHandler {
     }
 
     /**
-     * 请求体格式错误（如 JSON 解析失败）
+     * 请求体格式错误（如 JSON 解析失败）。
+     *
+     * @param e 异常对象
+     * @return 处理结果
      */
     @ExceptionHandler(HttpMessageNotReadableException.class)
     public ResponseEntity<Result<Void>> handleMsgNotReadable(HttpMessageNotReadableException e) {
@@ -72,7 +85,10 @@ public class GlobalExceptionHandler {
     }
 
     /**
-     * 接口不存在
+     * 接口不存在。
+     *
+     * @param e 异常对象
+     * @return 处理结果
      */
     @ExceptionHandler(NoHandlerFoundException.class)
     public ResponseEntity<Result<Void>> handleNotFound(NoHandlerFoundException e) {
@@ -81,7 +97,10 @@ public class GlobalExceptionHandler {
     }
 
     /**
-     * 请求方法不支持
+     * 请求方法不支持。
+     *
+     * @param e 异常对象
+     * @return 处理结果
      */
     @ExceptionHandler(HttpRequestMethodNotSupportedException.class)
     public ResponseEntity<Result<Void>> handleMethodNotSupported(HttpRequestMethodNotSupportedException e) {
@@ -90,7 +109,10 @@ public class GlobalExceptionHandler {
     }
 
     /**
-     * 兜底——未知内部异常
+     * 兜底处理未知内部异常。
+     *
+     * @param e 异常对象
+     * @return 处理结果
      */
     @ExceptionHandler(Exception.class)
     public ResponseEntity<Result<Void>> handleUnknown(Exception e) {

@@ -1,9 +1,9 @@
 package com.cloudmall.aigc.parser;
 
+import java.util.Arrays;
+
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-
-import java.util.Arrays;
 
 /**
  * 文档类型枚举

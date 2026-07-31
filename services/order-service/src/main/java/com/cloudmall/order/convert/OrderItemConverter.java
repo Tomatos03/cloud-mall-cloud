@@ -15,6 +15,12 @@ import com.cloudmall.order.entity.OrderItemDO;
 @Mapper(componentModel = "spring")
 public interface OrderItemConverter {
 
+    /**
+     * 转换对象数据。
+     *
+     * @param item 订单项实体
+     * @return 处理结果
+     */
     ItemResp toItemResp(OrderItemDO item);
 
     /**

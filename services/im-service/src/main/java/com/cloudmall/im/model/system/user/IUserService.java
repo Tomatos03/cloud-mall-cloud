@@ -1,6 +1,7 @@
 package com.cloudmall.im.model.system.user;
 
 import com.baomidou.mybatisplus.extension.service.IService;
+
 import com.cloudmall.im.model.system.user.entity.User;
 
 /**

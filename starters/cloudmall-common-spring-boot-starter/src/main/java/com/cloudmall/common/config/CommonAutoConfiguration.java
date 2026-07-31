@@ -1,6 +1,5 @@
 package com.cloudmall.common.config;
 
-import com.cloudmall.common.filter.UserContextFilter;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplication;
@@ -8,10 +7,18 @@ import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.core.Ordered;
 
+import com.cloudmall.common.filter.UserContextFilter;
+
 @AutoConfiguration
 @ConditionalOnWebApplication(type = ConditionalOnWebApplication.Type.SERVLET)
 public class CommonAutoConfiguration {
 
+    /**
+     * 注册用户上下文过滤器。
+     *
+     * @param objectMapper JSON 对象映射器
+     * @return 处理结果
+     */
     @Bean
     public FilterRegistrationBean<UserContextFilter> userContextFilter(ObjectMapper objectMapper) {
         FilterRegistrationBean<UserContextFilter> reg = new FilterRegistrationBean<>();

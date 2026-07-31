@@ -373,40 +373,40 @@ public class ProductService implements IProductService {
         return productConverter.toDetailResp(product, brand, images, skus, specGroups);
     }
 
-        /**
-         * * 校验品牌是否存在。
-         *
-         * @param brandId 品牌 ID
-         * @throws BizException 处理过程中可能抛出该异常
-         */
+    /**
+     * 校验品牌是否存在。
+     *
+     * @param brandId 品牌 ID
+     * @throws BizException 处理过程中可能抛出该异常
+     */
     private void validateBrandExists(Long brandId) {
         BrandDO brand = brandMapper.selectById(brandId);
         AssertUtils.notNull(brand, BizErrorCode.BRAND_NOT_EXIST);
     }
 
-        /**
-         * * 校验分类是否存在。
-         *
-         * @param categoryId 分类 ID
-         * @throws BizException 处理过程中可能抛出该异常
-         */
+    /**
+     * 校验分类是否存在。
+     *
+     * @param categoryId 分类 ID
+     * @throws BizException 处理过程中可能抛出该异常
+     */
     private void validateCategoryExists(Long categoryId) {
         CategoryDO category = categoryMapper.selectById(categoryId);
         AssertUtils.notNull(category, BizErrorCode.CATEGORY_NOT_EXIST_OR_NO_ENABLE);
     }
 
-        /**
-         * * 校验规格组与 SKU 的拓扑结构。
-         * <p>
-         * 逐项校验：组名不重复、组内规格值不重复、每个 SKU 为每个规格组恰好指定一个值、
-         * 第 g 位的值确实存在于第 g 个规格组、SKU 之间规格组合不重复。
-         * <p>
-         * 按组隔离查找是这里的关键：{@code ["M", "L"]} 这种请求里，"M" 虽是合法规格值但属于尺码组，
-         * 第 0 位只在颜色组的候选里查，因此查不到而被拒绝。
-         *
-         * @param req 创建请求
-         * @throws BizException 处理过程中可能抛出该异常
-         */
+    /**
+     * 校验规格组与 SKU 的拓扑结构。
+     * <p>
+     * 逐项校验：组名不重复、组内规格值不重复、每个 SKU 为每个规格组恰好指定一个值、
+     * 第 g 位的值确实存在于第 g 个规格组、SKU 之间规格组合不重复。
+     * <p>
+     * 按组隔离查找是这里的关键：{@code ["M", "L"]} 这种请求里，"M" 虽是合法规格值但属于尺码组，
+     * 第 0 位只在颜色组的候选里查，因此查不到而被拒绝。
+     *
+     * @param req 创建请求
+     * @throws BizException 处理过程中可能抛出该异常
+     */
     private void validateSkuTopology(ProductCreateReq req) {
         List<SpecGroupItem> groups = req.getSpecGroups();
 
@@ -450,12 +450,12 @@ public class ProductService implements IProductService {
         }
     }
 
-        /**
-         * * 校验 SKU 价格。市场价存在时，售价不得高于市场价。
-         *
-         * @param req 创建请求
-         * @throws BizException 处理过程中可能抛出该异常
-         */
+    /**
+     * 校验 SKU 价格。市场价存在时，售价不得高于市场价。
+     *
+     * @param req 创建请求
+     * @throws BizException 处理过程中可能抛出该异常
+     */
     private void validatePrices(ProductCreateReq req) {
         for (SkuItem sku : req.getSkus()) {
             if (sku.getMarketPrice() != null) {
@@ -514,12 +514,12 @@ public class ProductService implements IProductService {
                 .collect(Collectors.joining("_"));
     }
 
-        /**
-         * * 校验当前登录用户是否存在店铺，并返回店铺 ID。
-         *
-         * @return 店铺 ID
-         * @throws BizException 处理过程中可能抛出该异常
-         */
+    /**
+     * 校验当前登录用户是否存在店铺，并返回店铺 ID。
+     *
+     * @return 店铺 ID
+     * @throws BizException 处理过程中可能抛出该异常
+     */
     private Long validateAndReturnShopId() {
         Long userId = UserContextHolder.getUserId();
         Result<ShopResp> result = shopClient.getByUserId(userId);

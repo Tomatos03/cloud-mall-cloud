@@ -2,11 +2,12 @@ package com.cloudmall.product.api.response;
 
 import java.math.BigDecimal;
 
-import com.cloudmall.mybatisplus.enums.StatusEnum;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+
+import com.cloudmall.mybatisplus.enums.StatusEnum;
 
 /**
  * SKU 响应对象

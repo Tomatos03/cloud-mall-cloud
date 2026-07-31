@@ -2,10 +2,11 @@ package com.cloudmall.aigc.service;
 
 import java.util.List;
 
+import reactor.core.publisher.Flux;
+
 import com.cloudmall.aigc.model.req.ChatReq;
 import com.cloudmall.aigc.model.resp.ChatResp;
 import com.cloudmall.aigc.model.resp.ChatTemplate;
-import reactor.core.publisher.Flux;
 
 /**
  * AI 智能客服接口

@@ -7,9 +7,26 @@ import com.cloudmall.product.api.response.CategoryNodeResp;
 import com.cloudmall.product.api.response.CategoryResp;
 
 public interface ICategoryService {
+
+    /**
+     * 查询分类树。
+     *
+     * @return 数据列表
+     */
     List<CategoryNodeResp> tree();
 
+    /**
+     * 获取相关数据。
+     *
+     * @param id 对象标识
+     * @return 处理结果
+     */
     CategoryResp getById(Long id);
 
+    /**
+     * 创建并保存数据。
+     *
+     * @param req 请求参数
+     */
     void create(CategoryCreateReq req);
 }
