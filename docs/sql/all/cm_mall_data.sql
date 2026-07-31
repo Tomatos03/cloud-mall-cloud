@@ -1,7 +1,7 @@
 -- ============================================================
 -- cm_mall — 种子数据（供开发 / 测试环境使用）
 -- 执行前请先执行 cm_mall.sql 初始化表结构
--- 与 cm_mall.sql 当前表结构严格对齐（cm_product_* 多规格模型 + cm_shop + cm_brand）
+-- 与 cm_mall.sql 当前表结构严格对齐（优惠券新模型 + 父子订单 + 商品多规格 + cm_shop）
 -- ============================================================
 
 USE cm_mall;
@@ -362,59 +362,142 @@ INSERT INTO cm_comment (id, product_id, user_id, order_id, content, rating, imag
 ALTER TABLE cm_comment AUTO_INCREMENT = 1000;
 
 -- ============================================================
--- 优惠券模板
+-- 优惠券模板（新模型：平台券/店铺券双轨，发布后核心规则冻结）
 -- ============================================================
-INSERT INTO cm_coupon (id, name, type, threshold, discount, total_count, claimed_count, status, start_time, expire_time) VALUES
-(1, '新人满减券',   'FULL_REDUCTION', 100.00,  20.00,   1000, 150,  1, NOW(), DATE_ADD(NOW(), INTERVAL 30 DAY)),
-(2, '满500减50',    'FULL_REDUCTION', 500.00,  50.00,   500,  80,   1, NOW(), DATE_ADD(NOW(), INTERVAL 30 DAY)),
-(3, '满1000减120',  'FULL_REDUCTION', 1000.00, 120.00,  200,  30,   1, NOW(), DATE_ADD(NOW(), INTERVAL 30 DAY)),
-(4, '全场9折券',     'DISCOUNT',       NULL,    0.10,    500,  200,  1, NOW(), DATE_ADD(NOW(), INTERVAL 15 DAY)),
-(5, '无门槛10元券',   'CASH',           NULL,    10.00,   300,  100,  1, NOW(), DATE_ADD(NOW(), INTERVAL 7 DAY));
+-- 模板1-5 已发放；模板6 草稿；模板7 已暂停；模板8 已结束；模板9 可领取立减券
+INSERT INTO cm_coupon (id, name, owner_type, shop_id, created_by, type, scope_type, threshold, discount_amount, discount_rate, total_count, claimed_count, claim_enabled, auto_issue_on_register, validity_mode, issue_start_time, issue_end_time, fixed_start_time, fixed_expire_time, valid_days, status, first_issued_time) VALUES
+(1, '新人注册礼（满100减20）',   'PLATFORM', NULL, 1, 'FULL_REDUCTION', 'ALL',      100.00,  20.00,  NULL,     NULL, 2, 0, 1, 'RELATIVE', DATE_SUB(NOW(), INTERVAL 30 DAY), DATE_ADD(NOW(), INTERVAL 30 DAY), NULL, NULL, 30, 'ACTIVE', DATE_SUB(NOW(), INTERVAL 10 DAY)),
+(2, '平台满500减50',            'PLATFORM', NULL, 1, 'FULL_REDUCTION', 'ALL',      500.00,  50.00,  NULL,     5000, 1, 1, 0, 'FIXED',    DATE_SUB(NOW(), INTERVAL 30 DAY), DATE_ADD(NOW(), INTERVAL 30 DAY), NOW(), DATE_ADD(NOW(), INTERVAL 90 DAY), NULL, 'ACTIVE', NOW()),
+(3, '数码分类9折券',            'PLATFORM', NULL, 1, 'DISCOUNT',       'CATEGORY', 0.00,    NULL,   0.100000, 1000, 1, 1, 0, 'FIXED',    DATE_SUB(NOW(), INTERVAL 30 DAY), DATE_ADD(NOW(), INTERVAL 30 DAY), NOW(), DATE_ADD(NOW(), INTERVAL 90 DAY), NULL, 'ACTIVE', NOW()),
+(4, '锐意数码满1000减120',      'SHOP',     1,   2, 'FULL_REDUCTION', 'ALL',      1000.00, 120.00, NULL,     200,  1, 1, 0, 'FIXED',    DATE_SUB(NOW(), INTERVAL 30 DAY), DATE_ADD(NOW(), INTERVAL 30 DAY), NOW(), DATE_ADD(NOW(), INTERVAL 90 DAY), NULL, 'ACTIVE', NOW()),
+(5, '芳华服饰满300减40',        'SHOP',     2,   3, 'FULL_REDUCTION', 'CATEGORY', 300.00,  40.00,  NULL,     1000, 2, 1, 0, 'FIXED',    DATE_SUB(NOW(), INTERVAL 30 DAY), DATE_ADD(NOW(), INTERVAL 30 DAY), NOW(), DATE_ADD(NOW(), INTERVAL 90 DAY), NULL, 'ACTIVE', NOW()),
+(6, '平台满200减30（草稿）',    'PLATFORM', NULL, 1, 'FULL_REDUCTION', 'ALL',      200.00,  30.00,  NULL,     1000, 0, 1, 0, 'FIXED',    DATE_ADD(NOW(), INTERVAL 7 DAY),   DATE_ADD(NOW(), INTERVAL 37 DAY),  DATE_ADD(NOW(), INTERVAL 7 DAY), DATE_ADD(NOW(), INTERVAL 97 DAY), NULL, 'DRAFT', NULL),
+(7, '鲜享食品满50减10（已暂停）','SHOP',     3,   6, 'FULL_REDUCTION', 'ALL',      50.00,   10.00,  NULL,     500,  0, 1, 0, 'FIXED',    DATE_SUB(NOW(), INTERVAL 30 DAY), DATE_ADD(NOW(), INTERVAL 30 DAY), NOW(), DATE_ADD(NOW(), INTERVAL 90 DAY), NULL, 'PAUSED', NULL),
+(8, '平台满1000减100（已结束）', 'PLATFORM', NULL, 1, 'FULL_REDUCTION', 'PRODUCT',  1000.00, 100.00, NULL,     100,  0, 1, 0, 'FIXED',    DATE_SUB(NOW(), INTERVAL 60 DAY), DATE_SUB(NOW(), INTERVAL 30 DAY), DATE_SUB(NOW(), INTERVAL 60 DAY), DATE_SUB(NOW(), INTERVAL 30 DAY), NULL, 'ENDED', NULL),
+(9, '平台无门槛立减5元',         'PLATFORM', NULL, 1, 'CASH',           'ALL',      0.00,    5.00,   NULL,     2000, 0, 1, 0, 'FIXED',    DATE_SUB(NOW(), INTERVAL 30 DAY), DATE_ADD(NOW(), INTERVAL 30 DAY), NOW(), DATE_ADD(NOW(), INTERVAL 90 DAY), NULL, 'ACTIVE', NULL);
 
 ALTER TABLE cm_coupon AUTO_INCREMENT = 100;
 
 -- ============================================================
--- 用户领取的优惠券
+-- 优惠券范围关联（scope_type=ALL 不产生关联记录）
 -- ============================================================
-INSERT INTO cm_user_coupon (id, user_id, coupon_id, status, claimed_time, order_id) VALUES
-(1, 4, 1, 'UNUSED', NOW(), NULL),
-(2, 4, 4, 'UNUSED', NOW(), NULL),
-(3, 5, 1, 'UNUSED', NOW(), NULL),
-(4, 5, 5, 'UNUSED', NOW(), NULL);
+INSERT INTO cm_coupon_category (coupon_id, category_id) VALUES
+(3, 1),   -- 数码9折券 → 数码电子（含全部后代分类）
+(5, 20);  -- 芳华满300减40 → 服饰鞋包（含全部后代分类）
+
+INSERT INTO cm_coupon_product (coupon_id, product_id) VALUES
+(8, 1);   -- 已结束平台券 → 华为 Mate 70 Pro
+
+-- ============================================================
+-- 用户领取的优惠券（保存领取时核心快照）
+-- ============================================================
+INSERT INTO cm_user_coupon (id, user_id, coupon_id, owner_type, shop_id, name_snapshot, type_snapshot, scope_type_snapshot, threshold_snapshot, discount_amount_snapshot, discount_rate_snapshot, effective_time, expire_time, status, locked_order_no, lock_expire_time, state_time, issued_source, issued_event_id) VALUES
+(1, 4, 1, 'PLATFORM', NULL, '新人注册礼（满100减20）',   'FULL_REDUCTION', 'ALL',      100.00,  20.00,  NULL,     DATE_SUB(NOW(), INTERVAL 10 DAY), DATE_ADD(NOW(), INTERVAL 20 DAY), 'AVAILABLE', NULL, NULL, NOW(), 'REGISTER_AUTO', 'EVT-UREG-000001'),
+(2, 4, 2, 'PLATFORM', NULL, '平台满500减50',            'FULL_REDUCTION', 'ALL',      500.00,  50.00,  NULL,     NOW(), DATE_ADD(NOW(), INTERVAL 90 DAY), 'USED',       NULL, NULL, NOW(), 'PUBLIC_CLAIM',  NULL),
+(3, 4, 4, 'SHOP',     1,    '锐意数码满1000减120',      'FULL_REDUCTION', 'ALL',      1000.00, 120.00, NULL,     NOW(), DATE_ADD(NOW(), INTERVAL 90 DAY), 'USED',       NULL, NULL, NOW(), 'PUBLIC_CLAIM',  NULL),
+(4, 4, 5, 'SHOP',     2,    '芳华服饰满300减40',        'FULL_REDUCTION', 'CATEGORY', 300.00,  40.00,  NULL,     NOW(), DATE_ADD(NOW(), INTERVAL 90 DAY), 'AVAILABLE', NULL, NULL, NOW(), 'PUBLIC_CLAIM',  NULL),
+(5, 5, 1, 'PLATFORM', NULL, '新人注册礼（满100减20）',   'FULL_REDUCTION', 'ALL',      100.00,  20.00,  NULL,     DATE_SUB(NOW(), INTERVAL 5 DAY),  DATE_ADD(NOW(), INTERVAL 25 DAY), 'AVAILABLE', NULL, NULL, NOW(), 'REGISTER_AUTO', 'EVT-UREG-000002'),
+(6, 5, 5, 'SHOP',     2,    '芳华服饰满300减40',        'FULL_REDUCTION', 'CATEGORY', 300.00,  40.00,  NULL,     NOW(), DATE_ADD(NOW(), INTERVAL 90 DAY), 'USED',       NULL, NULL, NOW(), 'PUBLIC_CLAIM',  NULL),
+(7, 5, 3, 'PLATFORM', NULL, '数码分类9折券',            'DISCOUNT',       'CATEGORY', 0.00,    NULL,   0.100000, NOW(), DATE_ADD(NOW(), INTERVAL 90 DAY), 'AVAILABLE', NULL, NULL, NOW(), 'PUBLIC_CLAIM',  NULL);
 
 ALTER TABLE cm_user_coupon AUTO_INCREMENT = 100;
 
 -- ============================================================
--- 订单（total_amount 与明细小计一致）
+-- 用户券状态流水（追加写入，event_id+operation_type 幂等）
 -- ============================================================
-INSERT INTO cm_order (id, order_no, user_id, total_amount, status, address_snapshot, remark) VALUES
-(1, 'ORD202507010001', 4, 11087.90, 'PAID',
+INSERT INTO cm_user_coupon_log (id, user_coupon_id, coupon_id, user_id, order_no, event_id, operation_type, from_status, to_status, source, operator_id, reason) VALUES
+(1,  1, 1, 4, NULL,              'EVT-UREG-000001',                'ISSUE',   NULL,       'AVAILABLE', 'SYSTEM',  NULL, '注册自动发放新人券'),
+(2,  2, 2, 4, NULL,              NULL,                             'ISSUE',   NULL,       'AVAILABLE', 'USER',    4,    '公开领取'),
+(3,  2, 2, 4, 'ORD202507010001', 'ORD202507010001-LOCK-000001',   'LOCK',    'AVAILABLE','LOCKED',    'ORDER',   NULL, '订单创建锁券'),
+(4,  2, 2, 4, 'ORD202507010001', 'ORD202507010001-COMMIT-000001', 'COMMIT',  'LOCKED',   'USED',      'PAYMENT', NULL, '支付成功核销'),
+(5,  3, 4, 4, NULL,              NULL,                             'ISSUE',   NULL,       'AVAILABLE', 'USER',    4,    '公开领取'),
+(6,  3, 4, 4, 'ORD202507010001', 'ORD202507010001-LOCK-000002',   'LOCK',    'AVAILABLE','LOCKED',    'ORDER',   NULL, '订单创建锁券'),
+(7,  3, 4, 4, 'ORD202507010001', 'ORD202507010001-COMMIT-000002', 'COMMIT',  'LOCKED',   'USED',      'PAYMENT', NULL, '支付成功核销'),
+(8,  4, 5, 4, NULL,              NULL,                             'ISSUE',   NULL,       'AVAILABLE', 'USER',    4,    '公开领取'),
+(9,  5, 1, 5, NULL,              'EVT-UREG-000002',                'ISSUE',   NULL,       'AVAILABLE', 'SYSTEM',  NULL, '注册自动发放新人券'),
+(10, 6, 5, 5, NULL,              NULL,                             'ISSUE',   NULL,       'AVAILABLE', 'USER',    5,    '公开领取'),
+(11, 6, 5, 5, 'ORD202507020002', 'ORD202507020002-LOCK-000001',   'LOCK',    'AVAILABLE','LOCKED',    'ORDER',   NULL, '订单创建锁券'),
+(12, 6, 5, 5, 'ORD202507020002', 'ORD202507020002-COMMIT-000001', 'COMMIT',  'LOCKED',   'USED',      'PAYMENT', NULL, '支付成功核销'),
+(13, 7, 3, 5, NULL,              NULL,                             'ISSUE',   NULL,       'AVAILABLE', 'USER',    5,    '公开领取');
+
+ALTER TABLE cm_user_coupon_log AUTO_INCREMENT = 100;
+
+-- ============================================================
+-- 模板操作流水（追加写入）
+-- ============================================================
+INSERT INTO cm_coupon_operation_log (id, coupon_id, operator_id, operator_type, shop_id, from_status, to_status, action_type, change_summary, reason) VALUES
+(1,  1, 1, 'OPERATOR', NULL, 'DRAFT',  'ACTIVE', 'PUBLISH', '新人券发布',        '运营发布平台新人券'),
+(2,  2, 1, 'OPERATOR', NULL, 'DRAFT',  'ACTIVE', 'PUBLISH', '平台券发布',        '运营发布平台券'),
+(3,  3, 1, 'OPERATOR', NULL, 'DRAFT',  'ACTIVE', 'PUBLISH', '平台券发布',        '运营发布数码分类折扣券'),
+(4,  4, 2, 'MERCHANT', 1,    NULL,     'DRAFT',  'CREATE',  '创建店铺券草稿',    '商家创建店铺券'),
+(5,  4, 2, 'MERCHANT', 1,    'DRAFT',  'ACTIVE', 'PUBLISH', '店铺券发布',        '商家发布店铺券'),
+(6,  5, 3, 'MERCHANT', 2,    NULL,     'DRAFT',  'CREATE',  '创建店铺券草稿',    '商家创建店铺券'),
+(7,  5, 3, 'MERCHANT', 2,    'DRAFT',  'ACTIVE', 'PUBLISH', '店铺券发布',        '商家发布店铺券'),
+(8,  6, 1, 'OPERATOR', NULL, NULL,     'DRAFT',  'CREATE',  '创建平台券草稿',    '运营创建草稿模板'),
+(9,  7, 6, 'MERCHANT', 3,    NULL,     'DRAFT',  'CREATE',  '创建店铺券草稿',    '商家创建店铺券'),
+(10, 7, 6, 'MERCHANT', 3,    'DRAFT',  'ACTIVE', 'PUBLISH', '店铺券发布',        '商家发布店铺券'),
+(11, 7, 6, 'MERCHANT', 3,    'ACTIVE', 'PAUSED', 'PAUSE',   '暂停发放',          '商家暂停发放'),
+(12, 8, 1, 'OPERATOR', NULL, NULL,     'DRAFT',  'CREATE',  '创建平台券草稿',    '运营创建草稿模板'),
+(13, 8, 1, 'OPERATOR', NULL, 'DRAFT',  'ACTIVE', 'PUBLISH', '平台券发布',        '运营发布平台券'),
+(14, 8, 1, 'OPERATOR', NULL, 'ACTIVE', 'ENDED',  'END',     '结束发放',          '运营结束发放'),
+(15, 9, 1, 'OPERATOR', NULL, 'DRAFT',  'ACTIVE', 'PUBLISH', '平台券发布',        '运营发布立减券');
+
+ALTER TABLE cm_coupon_operation_log AUTO_INCREMENT = 100;
+
+-- ============================================================
+-- 父订单（金额为快照：原价总额/店铺券优惠/平台券优惠/商品应付/运费/最终应付）
+-- 订单1 使用店铺券+平台券；订单2 仅店铺券；订单3 无券待支付
+-- ============================================================
+INSERT INTO cm_order (id, order_no, user_id, total_original_amount, total_shop_discount_amount, total_platform_discount_amount, goods_payable_amount, freight_amount, payable_amount, status, address_snapshot, remark) VALUES
+(1, 'ORD202507010001', 4, 11087.90, 120.00, 50.00, 10917.90, 0.00, 10917.90, 'PAID',
     '{"consignee":"张三","phone":"13800000004","province":"广东省","city":"深圳市","district":"南山区","detail":"科技园南区A栋1201"}',
     '请尽快发货'),
-(2, 'ORD202507020002', 5, 658.00,  'SHIPPED',
+(2, 'ORD202507020002', 5, 658.00,   40.00,  0.00,  618.00,   0.00, 618.00,   'PAID',
     '{"consignee":"赵六","phone":"13800000005","province":"北京市","city":"北京市","district":"朝阳区","detail":"望京SOHO T3 2204"}',
     NULL),
-(3, 'ORD202507030003', 4, 89.90,  'PENDING',
+(3, 'ORD202507030003', 4, 89.90,    0.00,   0.00,  89.90,    0.00, 89.90,    'PENDING_PAYMENT',
     '{"consignee":"张三","phone":"13800000004","province":"广东省","city":"深圳市","district":"南山区","detail":"科技园南区A栋1201"}',
     NULL);
 
 ALTER TABLE cm_order AUTO_INCREMENT = 1000;
 
 -- ============================================================
--- 订单明细（product_name / product_image 为快照列）
+-- 店铺子订单（每父订单每店铺一条，平台优惠按子订单分摊）
 -- ============================================================
-INSERT INTO cm_order_item (id, order_id, product_id, sku_id, product_name, product_image, price, quantity, subtotal) VALUES
--- 订单1：华为 Mate 70 Pro 曜金黑 512GB + Sony WH-1000XM6 黑色 + 每日坚果
-(1, 1, 1, 2,  '华为 Mate 70 Pro（曜金黑 512GB）', NULL, 7999.00, 1, 7999.00),
-(2, 1, 4, 9,  'Sony WH-1000XM6 降噪耳机（黑色）', NULL, 2999.00, 1, 2999.00),
-(3, 1, 7, 16, '三只松鼠每日坚果礼盒',            NULL, 89.90,   1, 89.90),
--- 订单2：连衣裙 M码米白色 + 衬衫
-(4, 2, 5, 13, '女士蕾丝刺绣连衣裙（M 米白色）',   NULL, 399.00,  1, 399.00),
-(5, 2, 6, 15, '男士纯棉商务衬衫',                 NULL, 259.00,  1, 259.00),
--- 订单3：每日坚果（待付款）
-(6, 3, 7, 16, '三只松鼠每日坚果礼盒',            NULL, 89.90,   1, 89.90);
+INSERT INTO cm_order_sub (id, sub_order_no, parent_order_id, shop_id, original_amount, shop_discount_amount, platform_discount_amount, payable_amount, merchant_settlement_amount, status) VALUES
+(1, 'SUB202507010001', 1, 1, 10998.00, 120.00, 49.59, 10828.41, 10828.41, 'PENDING_SHIPMENT'),
+(2, 'SUB202507010002', 1, 3, 89.90,    0.00,   0.41,  89.49,    89.49,    'PENDING_SHIPMENT'),
+(3, 'SUB202507020001', 2, 2, 658.00,   40.00,  0.00,  618.00,   618.00,   'SHIPPED'),
+(4, 'SUB202507030001', 3, 3, 89.90,    0.00,   0.00,  89.90,    89.90,    'PENDING_SHIPMENT');
+
+ALTER TABLE cm_order_sub AUTO_INCREMENT = 1000;
+
+-- ============================================================
+-- 订单明细（归属于子订单，保存金额快照与优惠分摊）
+-- ============================================================
+INSERT INTO cm_order_item (id, sub_order_id, product_id, sku_id, shop_id, category_id, product_name, product_image, spec_snapshot, unit_price, quantity, original_amount, shop_discount_amount, platform_discount_amount, payable_amount) VALUES
+-- 订单1 子订单1（锐意数码）：Mate 70 Pro 曜金黑512GB + Sony WH-1000XM6 黑色
+(1, 1, 1, 2,  1, 101, '华为 Mate 70 Pro（曜金黑 512GB）', NULL, NULL, 7999.00, 1, 7999.00, 87.28, 36.07, 7875.65),
+(2, 1, 4, 9,  1, 121, 'Sony WH-1000XM6 降噪耳机（黑色）', NULL, NULL, 2999.00, 1, 2999.00, 32.72, 13.52, 2952.76),
+-- 订单1 子订单2（鲜享食品）：每日坚果
+(3, 2, 7, 16, 3, 301, '三只松鼠每日坚果礼盒',            NULL, NULL, 89.90,   1, 89.90,   0.00,   0.41,  89.49),
+-- 订单2 子订单3（芳华服饰）：连衣裙 M码米白色 + 衬衫
+(4, 3, 5, 13, 2, 201, '女士蕾丝刺绣连衣裙（M 米白色）',   NULL, NULL, 399.00,  1, 399.00,  24.26,  0.00,  374.74),
+(5, 3, 6, 15, 2, 211, '男士纯棉商务衬衫',                 NULL, NULL, 259.00,  1, 259.00,  15.74,  0.00,  243.26),
+-- 订单3 子订单4（鲜享食品）：每日坚果（待支付）
+(6, 4, 7, 16, 3, 301, '三只松鼠每日坚果礼盒',            NULL, NULL, 89.90,   1, 89.90,   0.00,   0.00,  89.90);
 
 ALTER TABLE cm_order_item AUTO_INCREMENT = 1000;
+
+-- ============================================================
+-- 订单优惠关联（平台券挂父订单，店铺券挂子订单）
+-- ============================================================
+INSERT INTO cm_order_coupon (id, parent_order_id, sub_order_id, user_coupon_id, coupon_id, owner_type, shop_id, type_snapshot, threshold_snapshot, discount_amount_snapshot, discount_rate_snapshot, applicable_amount, discount_amount) VALUES
+(1, 1, 1,    3, 4, 'SHOP',     1,    'FULL_REDUCTION', 1000.00, 120.00, NULL,     10998.00, 120.00),
+(2, 1, NULL, 2, 2, 'PLATFORM', NULL, 'FULL_REDUCTION', 500.00,  50.00,  NULL,     10967.90, 50.00),
+(3, 2, 3,    6, 5, 'SHOP',     2,    'FULL_REDUCTION', 300.00,  40.00,  NULL,     658.00,   40.00);
+
+ALTER TABLE cm_order_coupon AUTO_INCREMENT = 1000;
 
 -- ============================================================
 -- 购物车（shop_id 冗余自商品所属店铺，便于按店聚合）
