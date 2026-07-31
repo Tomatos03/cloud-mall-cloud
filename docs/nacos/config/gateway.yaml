@@ -33,7 +33,7 @@ spring:
             - id: product-service
               uri: lb://product-service
               predicates:
-                - Path=/product/**,/category/**,/banner/**,/comment/**,/unit/**
+                - Path=/product/**,/category/**,/banner/**,/comment/**,/unit/**,/skus/**
               filters:
                 - StripPrefix=0
 

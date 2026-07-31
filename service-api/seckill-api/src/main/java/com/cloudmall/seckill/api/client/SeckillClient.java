@@ -7,7 +7,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import com.cloudmall.common.model.Result;
 import com.cloudmall.seckill.api.response.ActivityResp;
 
-@FeignClient(name = "seckill-service", path = "/seckill")
+@FeignClient(name = "seckill-service", contextId = "seckillClient", path = "/seckill")
 public interface SeckillClient {
 
     @GetMapping("/activities/{id}")

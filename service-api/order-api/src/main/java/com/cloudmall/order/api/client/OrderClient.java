@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import com.cloudmall.common.model.Result;
 import com.cloudmall.order.api.response.OrderResp;
 
-@FeignClient(name = "order-service", path = "/orders")
+@FeignClient(name = "order-service", contextId = "orderClient", path = "/orders")
 public interface OrderClient {
 
     @GetMapping("/{id}")

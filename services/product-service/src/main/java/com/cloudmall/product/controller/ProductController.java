@@ -1,26 +1,19 @@
 package com.cloudmall.product.controller;
 
-import java.util.List;
-
 import com.baomidou.mybatisplus.core.metadata.IPage;
-
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.cloudmall.common.model.Result;
 import com.cloudmall.product.api.request.ProductCreateReq;
-import com.cloudmall.product.api.request.StockReq;
 import com.cloudmall.product.api.response.ProductDetailResp;
 import com.cloudmall.product.api.response.ProductResp;
-import com.cloudmall.product.api.response.SkuResp;
 import com.cloudmall.product.model.req.ProductGetReq;
 import com.cloudmall.product.model.req.ProductPageReq;
 import com.cloudmall.product.service.IProductService;
@@ -28,7 +21,7 @@ import com.cloudmall.product.service.IProductService;
 /**
  * 商品 Controller。
  * <p>
- * 提供 SPU 查询、SKU 库存管理等端点。
+ * 提供 SPU 查询、创建等端点。SKU 相关端点见 {@link com.cloudmall.product.controller.SkuController}。
  *
  * @author : Tomatos
  */
@@ -84,8 +77,8 @@ public class ProductController {
     @GetMapping("/spu/{spu}")
     public Result<ProductResp> getBySpu(@PathVariable String spu) {
         ProductGetReq req = ProductGetReq.builder()
-                                     .spuCode(spu)
-                                     .build();
+                                         .spuCode(spu)
+                                         .build();
         return Result.success(productService.get(req));
     }
 
@@ -100,32 +93,5 @@ public class ProductController {
     @GetMapping
     public Result<IPage<ProductResp>> page(ProductPageReq req) {
         return Result.success(productService.page(req));
-    }
-
-    /**
-     * 更新商品 SKU 库存。
-     * <p>
-     * quantity >= 0 时回滚库存，quantity < 0 时扣减库存。
-     *
-     * @param skuId SKU ID
-     * @param req   库存变更请求
-     * @return 操作是否成功
-     */
-    @PutMapping("/{skuId}/stock")
-    public Result<Boolean> updateStock(@PathVariable Long skuId, @RequestBody StockReq req) {
-        return Result.success(productService.updateStock(skuId, req.getQuantity()));
-    }
-
-    /**
-     * 批量查询 SKU 信息（含实时价格、库存、上下架状态、规格描述、所属店铺）。
-     * <p>
-     * 供购物车、订单等场景一次取齐，避免逐条调用。
-     *
-     * @param skuIds SKU ID 列表
-     * @return SKU 信息列表
-     */
-    @PostMapping("/skus/batch-query")
-    public Result<List<SkuResp>> listSkusByIds(@RequestBody List<Long> skuIds) {
-        return Result.success(productService.listSkusByIds(skuIds));
     }
 }

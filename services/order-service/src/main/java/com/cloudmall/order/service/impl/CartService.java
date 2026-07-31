@@ -32,7 +32,7 @@ import com.cloudmall.order.convert.CartConverter;
 import com.cloudmall.order.entity.CartDO;
 import com.cloudmall.order.mapper.CartMapper;
 import com.cloudmall.order.service.ICartService;
-import com.cloudmall.product.api.client.ProductClient;
+import com.cloudmall.product.api.client.SkuClient;
 import com.cloudmall.product.api.response.SkuResp;
 import com.cloudmall.user.api.client.ShopClient;
 import com.cloudmall.user.api.response.ShopResp;
@@ -59,7 +59,7 @@ public class CartService implements ICartService {
 
     private final CartMapper cartMapper;
     private final CartConverter cartConverter;
-    private final ProductClient productClient;
+    private final SkuClient skuClient;
     private final ShopClient shopClient;
 
     @Override
@@ -236,7 +236,7 @@ public class CartService implements ICartService {
      * @return SKU 信息列表，SKU 不存在或已删除时不包含对应项
      */
     private List<SkuResp> fetchSkus(List<Long> skuIds) {
-        Result<List<SkuResp>> result = productClient.listSkusByIds(skuIds);
+        Result<List<SkuResp>> result = skuClient.listSkusByIds(skuIds);
         AssertUtils.isTrue(
                 result != null && result.getCode() == Result.SUCCESS_CODE,
                 BizErrorCode.SERVICE_UNAVAILABLE

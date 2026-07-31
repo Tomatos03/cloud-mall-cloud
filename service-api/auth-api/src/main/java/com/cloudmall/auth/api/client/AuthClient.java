@@ -8,7 +8,7 @@ import com.cloudmall.auth.api.request.LoginReq;
 import com.cloudmall.auth.api.response.LoginResp;
 import com.cloudmall.common.model.Result;
 
-@FeignClient(name = "auth-service", path = "/auth")
+@FeignClient(name = "auth-service", contextId = "authClient", path = "/auth")
 public interface AuthClient {
 
     @PostMapping("/login")

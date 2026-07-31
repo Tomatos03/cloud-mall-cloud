@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import com.cloudmall.common.model.Result;
 import com.cloudmall.coupon.api.response.CouponResp;
 
-@FeignClient(name = "coupon-service", path = "/coupons")
+@FeignClient(name = "coupon-service", contextId = "couponClient", path = "/coupons")
 public interface CouponClient {
     @GetMapping("/verify")
     Result<CouponResp> verifyCoupon(@RequestParam("couponId") Long couponId,
