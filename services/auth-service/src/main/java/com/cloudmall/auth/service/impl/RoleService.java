@@ -108,8 +108,8 @@ public class RoleService implements IRoleService {
      */
     @Override
     public IPage<RoleResp> pageRoles(RolePageReq req) {
-        return roleMapper.selectPage(req, req.buildLambdaWrapper())
-                         .convert(roleConverter::toRoleResp);
+        IPage<RoleDO> page = roleMapper.selectPage(req, req.buildLambdaWrapper());
+        return page.convert(roleConverter::toRoleResp);
     }
 
     /**
@@ -141,12 +141,13 @@ public class RoleService implements IRoleService {
      */
     @Override
     public List<Long> getRoleResourceIds(Long roleId) {
-        return roleResourceMapper.selectList(
+        List<RoleResourceDO> roleResources = roleResourceMapper.selectList(
                 Wrappers.<RoleResourceDO>lambdaQuery()
                         .eq(RoleResourceDO::getRoleId, roleId)
-        ).stream()
-         .map(RoleResourceDO::getResourceId)
-         .toList();
+        );
+        return roleResources.stream()
+                            .map(RoleResourceDO::getResourceId)
+                            .toList();
     }
 
     /**
@@ -196,11 +197,12 @@ public class RoleService implements IRoleService {
      */
     @Override
     public List<Long> getRoleUserIds(Long roleId) {
-        return userRoleMapper.selectList(
-                                     Wrappers.<UserRoleDO>lambdaQuery()
-                                             .eq(UserRoleDO::getRoleId, roleId)
-                             ).stream()
-                             .map(UserRoleDO::getUserId)
-                             .toList();
+        List<UserRoleDO> userRoles = userRoleMapper.selectList(
+                Wrappers.<UserRoleDO>lambdaQuery()
+                        .eq(UserRoleDO::getRoleId, roleId)
+        );
+        return userRoles.stream()
+                        .map(UserRoleDO::getUserId)
+                        .toList();
     }
 }

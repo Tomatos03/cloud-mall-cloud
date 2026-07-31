@@ -1,5 +1,6 @@
 package com.cloudmall.product.service.impl;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -11,12 +12,12 @@ import org.springframework.stereotype.Service;
 
 import com.cloudmall.product.api.response.SpecGroupResp;
 import com.cloudmall.product.convert.SpecGroupConverter;
+import com.cloudmall.product.entity.ProductSkuSpecDO;
 import com.cloudmall.product.entity.ProductSpecGroupDO;
 import com.cloudmall.product.entity.ProductSpecValueDO;
-import com.cloudmall.product.entity.ProductSkuSpecDO;
+import com.cloudmall.product.mapper.ProductSkuSpecMapper;
 import com.cloudmall.product.mapper.ProductSpecGroupMapper;
 import com.cloudmall.product.mapper.ProductSpecValueMapper;
-import com.cloudmall.product.mapper.ProductSkuSpecMapper;
 import com.cloudmall.product.service.IProductSpecService;
 
 @Service
@@ -28,6 +29,12 @@ public class ProductSpecService implements IProductSpecService {
     private final ProductSkuSpecMapper productSkuSpecMapper;
     private final SpecGroupConverter specGroupConverter;
 
+    /**
+     * 获取相关数据。
+     *
+     * @param productId 商品标识
+     * @return 数据列表
+     */
     @Override
     public List<SpecGroupResp> getSpecGroups(Long productId) {
         List<ProductSpecGroupDO> groups = productSpecGroupMapper.selectList(
@@ -35,18 +42,24 @@ public class ProductSpecService implements IProductSpecService {
                         .eq(ProductSpecGroupDO::getProductId, productId)
                         .orderByAsc(ProductSpecGroupDO::getSortOrder)
         );
-        return groups.stream()
-                     .map(group -> {
-                         List<ProductSpecValueDO> values = productSpecValueMapper.selectList(
-                                 Wrappers.<ProductSpecValueDO>lambdaQuery()
-                                         .eq(ProductSpecValueDO::getGroupId, group.getId())
-                                         .orderByAsc(ProductSpecValueDO::getSortOrder)
-                         );
-                         return specGroupConverter.toResp(group, values);
-                     })
-                     .toList();
+        List<SpecGroupResp> responses = new ArrayList<>(groups.size());
+        for (ProductSpecGroupDO group : groups) {
+            List<ProductSpecValueDO> values = productSpecValueMapper.selectList(
+                    Wrappers.<ProductSpecValueDO>lambdaQuery()
+                            .eq(ProductSpecValueDO::getGroupId, group.getId())
+                            .orderByAsc(ProductSpecValueDO::getSortOrder)
+            );
+            responses.add(specGroupConverter.toResp(group, values));
+        }
+        return responses;
     }
 
+    /**
+     * 获取相关数据。
+     *
+     * @param skuIds SKU 标识列表
+     * @return 数据列表
+     */
     @Override
     public Map<Long, List<Long>> getSkuSpecMap(List<Long> skuIds) {
         if (CollUtil.isEmpty(skuIds)) {
@@ -63,6 +76,13 @@ public class ProductSpecService implements IProductSpecService {
                     ));
     }
 
+    /**
+     * 获取相关数据。
+     *
+     * @param productId 商品标识
+     * @param specValueIds 规格值标识列表
+     * @return 数据列表
+     */
     @Override
     public Map<Long, List<Long>> getSpecValueSkuMap(Long productId, List<Long> specValueIds) {
         if (CollUtil.isEmpty(specValueIds)) {

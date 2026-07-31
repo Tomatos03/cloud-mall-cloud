@@ -7,14 +7,14 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
+import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.util.ObjectUtil;
+import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import cn.hutool.core.collection.CollUtil;
-import cn.hutool.core.util.ObjectUtil;
-import cn.hutool.core.util.StrUtil;
 
 import com.cloudmall.auth.api.request.LoginReq;
 import com.cloudmall.auth.api.request.RegisterReq;
@@ -125,8 +125,8 @@ public class UserService implements IUserService {
      */
     @Override
     public IPage<UserInfoResp> pageUserInfos(UserPageReq req) {
-        return userMapper.selectPage(req, req.buildLambdaWrapper())
-                         .convert(userConverter::toResp);
+        IPage<UserDO> page = userMapper.selectPage(req, req.buildLambdaWrapper());
+        return page.convert(userConverter::toResp);
     }
 
     /**
@@ -144,18 +144,23 @@ public class UserService implements IUserService {
         return pruneTree(tree, new HashSet<>(userPermissions));
     }
 
-    /**
-     * 获取当前用户的权限编码列表
-     */
+        /**
+         * * 获取当前用户的权限编码列表
+         *
+         * @return 数据列表
+         */
     private List<String> getCurrentUserPermissionCodes() {
         return Optional.ofNullable(UserContextHolder.get())
                        .map(UserContext::getPermissionCodes)
                        .orElse(Collections.emptyList());
     }
 
-    /**
-     * 加载当前用户有权限访问的 UI 资源列表
-     */
+        /**
+         * * 加载当前用户有权限访问的 UI 资源列表
+         *
+         * @param userPermissions 用户权限编码列表
+         * @return 数据列表
+         */
     private List<ResourceDO> loadAccessibleUiResources(List<String> userPermissions) {
         List<ResourceDO> allUiResources = resourceMapper.selectList(
                 Wrappers.<ResourceDO>lambdaQuery()
@@ -171,17 +176,25 @@ public class UserService implements IUserService {
                              .toList();
     }
 
-    /**
-     * 判断资源是否对当前用户可见
-     */
+        /**
+         * * 判断资源是否对当前用户可见
+         *
+         * @param resource 资源实体
+         * @param userPerms 用户权限集合
+         * @return 是否满足条件
+         */
     private boolean isAccessible(ResourceDO resource, List<String> userPerms) {
         String code = resource.getCode();
         return StrUtil.isBlank(code) || userPerms.contains(code);
     }
 
-    /**
-     * 裁剪菜单树：移除用户无权限的节点
-     */
+        /**
+         * * 裁剪菜单树：移除用户无权限的节点
+         *
+         * @param nodes 资源节点列表
+         * @param userPerms 用户权限集合
+         * @return 数据列表
+         */
     private List<ResourceNodeResp> pruneTree(List<ResourceNodeResp> nodes, Set<String> userPerms) {
         if (CollUtil.isEmpty(nodes)) {
             return Collections.emptyList();
@@ -190,7 +203,7 @@ public class UserService implements IUserService {
         List<ResourceNodeResp> result = new ArrayList<>();
         for (ResourceNodeResp node : nodes) {
             List<ResourceNodeResp> prunedChildren = pruneTree(node.getChildren(), userPerms);
-            boolean hasVisibleChildren = !prunedChildren.isEmpty();
+            boolean hasVisibleChildren = CollUtil.isNotEmpty(prunedChildren);
 
             String code = node.getResource().getCode();
             boolean selfAccessible = StrUtil.isBlank(code) || userPerms.contains(code);
@@ -211,11 +224,12 @@ public class UserService implements IUserService {
      */
     @Override
     public List<Long> getUserRoleIds(Long userId) {
-        return userRoleMapper.selectList(
+        List<UserRoleDO> userRoles = userRoleMapper.selectList(
                 Wrappers.<UserRoleDO>lambdaQuery()
                         .eq(UserRoleDO::getUserId, userId)
-        ).stream()
-         .map(UserRoleDO::getRoleId)
-         .toList();
+        );
+        return userRoles.stream()
+                        .map(UserRoleDO::getRoleId)
+                        .toList();
     }
 }

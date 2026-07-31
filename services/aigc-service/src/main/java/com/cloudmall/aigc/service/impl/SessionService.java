@@ -1,31 +1,5 @@
 package com.cloudmall.aigc.service.impl;
 
-import cn.hutool.core.collection.CollectionUtil;
-import cn.hutool.core.util.RandomUtil;
-import com.baomidou.mybatisplus.core.toolkit.IdWorker;
-import com.baomidou.mybatisplus.core.toolkit.Wrappers;
-import com.cloudmall.aigc.convert.HotTopicConverter;
-import com.cloudmall.aigc.entity.ChatSessionDO;
-import com.cloudmall.mybatisplus.enums.LimitEnum;
-import com.cloudmall.aigc.mapper.ChatSessionMapper;
-import com.cloudmall.aigc.model.resp.ChatMessageResp;
-import com.cloudmall.aigc.model.resp.CreateSessionResp;
-import com.cloudmall.aigc.model.resp.HotTopicResp;
-import com.cloudmall.aigc.properties.AgentProperties;
-import com.cloudmall.aigc.service.ISessionService;
-import com.cloudmall.common.enums.BizErrorCode;
-import com.cloudmall.common.exception.BizException;
-import com.cloudmall.common.utils.AssertUtils;
-import com.cloudmall.aigc.model.enums.SessionTimeBucket;
-import com.cloudmall.aigc.model.resp.SessionHistoryItemResp;
-import com.cloudmall.common.context.UserContextHolder;
-import lombok.RequiredArgsConstructor;
-import org.springframework.ai.chat.memory.ChatMemoryRepository;
-import org.springframework.ai.chat.messages.Message;
-import org.springframework.ai.chat.messages.MessageType;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -33,7 +7,33 @@ import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
+
+import cn.hutool.core.collection.CollectionUtil;
+import cn.hutool.core.util.RandomUtil;
+import com.baomidou.mybatisplus.core.toolkit.IdWorker;
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import lombok.RequiredArgsConstructor;
+import org.springframework.ai.chat.memory.ChatMemoryRepository;
+import org.springframework.ai.chat.messages.Message;
+import org.springframework.ai.chat.messages.MessageType;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import com.cloudmall.aigc.convert.HotTopicConverter;
+import com.cloudmall.aigc.entity.ChatSessionDO;
+import com.cloudmall.aigc.mapper.ChatSessionMapper;
+import com.cloudmall.aigc.model.enums.SessionTimeBucket;
+import com.cloudmall.aigc.model.resp.ChatMessageResp;
+import com.cloudmall.aigc.model.resp.CreateSessionResp;
+import com.cloudmall.aigc.model.resp.HotTopicResp;
+import com.cloudmall.aigc.model.resp.SessionHistoryItemResp;
+import com.cloudmall.aigc.properties.AgentProperties;
+import com.cloudmall.aigc.service.ISessionService;
+import com.cloudmall.common.context.UserContextHolder;
+import com.cloudmall.common.enums.BizErrorCode;
+import com.cloudmall.common.exception.BizException;
+import com.cloudmall.common.utils.AssertUtils;
 
 /**
  * 会话管理服务实现
@@ -82,10 +82,8 @@ public class SessionService implements ISessionService {
         }
 
         int count = Math.min(topicCount, all.size());
-        return RandomUtil.randomEleList(all, count)
-                .stream()
-                .map(hotTopicConverter::toResp)
-                .collect(Collectors.toList());
+        List<AgentProperties.HotTopic> selected = RandomUtil.randomEleList(all, count);
+        return hotTopicConverter.toRespList(selected);
     }
 
     /**
@@ -133,12 +131,13 @@ public class SessionService implements ISessionService {
     public Map<String, List<SessionHistoryItemResp>> getSessionHistory() {
         Long userId = UserContextHolder.getUserId();
 
-        List<ChatSessionDO> sessions = chatSessionMapper.selectList(
+        Page<ChatSessionDO> page = chatSessionMapper.selectPage(
+                new Page<>(1, 30),
                 Wrappers.<ChatSessionDO>lambdaQuery()
                         .eq(ChatSessionDO::getUserId, userId)
                         .orderByDesc(ChatSessionDO::getUpdateTime)
-                        .last(LimitEnum.THIRTY.getSql())
         );
+        List<ChatSessionDO> sessions = page.getRecords();
 
         LocalDateTime now = LocalDateTime.now();
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
@@ -163,17 +162,24 @@ public class SessionService implements ISessionService {
         return result;
     }
 
-    /**
-     * 更新会话标题
-     *
-     * @param sessionId 会话 ID
-     */
+        /**
+         * * 更新会话标题
+         *
+         * @param sessionId 会话 ID
+         * @return 字符串结果
+         */
     @Override
     public String getSessionTitle(String sessionId) {
         ChatSessionDO session = getValidatedSession(sessionId);
         return session.getTitle();
     }
 
+    /**
+     * 更新相关数据。
+     *
+     * @param sessionId 会话标识
+     * @param title 标题
+     */
     @Override
     public void updateSessionTitle(String sessionId, String title) {
         ChatSessionDO session = getValidatedSession(sessionId);

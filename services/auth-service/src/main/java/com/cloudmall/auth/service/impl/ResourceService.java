@@ -72,33 +72,39 @@ public class ResourceService implements IResourceService {
      */
     @Override
     public List<String> getPermissionCodes(Long userId) {
-        List<Long> roleIds = userRoleMapper.selectList(
+        List<UserRoleDO> userRoles = userRoleMapper.selectList(
                 Wrappers.<UserRoleDO>lambdaQuery()
                         .eq(UserRoleDO::getUserId, userId)
-        ).stream().map(UserRoleDO::getRoleId).toList();
+        );
+        List<Long> roleIds = userRoles.stream()
+                                      .map(UserRoleDO::getRoleId)
+                                      .toList();
 
         if (CollUtil.isEmpty(roleIds)) {
             return Collections.emptyList();
         }
 
-        List<Long> resourceIds = roleResourceMapper.selectList(
+        List<RoleResourceDO> roleResources = roleResourceMapper.selectList(
                 Wrappers.<RoleResourceDO>lambdaQuery()
                         .in(RoleResourceDO::getRoleId, roleIds)
-        ).stream().map(RoleResourceDO::getResourceId).toList();
+        );
+        List<Long> resourceIds = roleResources.stream()
+                                              .map(RoleResourceDO::getResourceId)
+                                              .toList();
 
         if (CollUtil.isEmpty(resourceIds)) {
             return Collections.emptyList();
         }
 
-        return resourceMapper.selectList(
-                                     Wrappers.<ResourceDO>lambdaQuery()
-                                             .in(ResourceDO::getId, resourceIds)
-                                             .eq(ResourceDO::getEnabled, StatusEnum.ENABLED)
-                             )
-                             .stream()
-                             .map(ResourceDO::getCode)
-                             .distinct()
-                             .toList();
+        List<ResourceDO> resources = resourceMapper.selectList(
+                Wrappers.<ResourceDO>lambdaQuery()
+                        .in(ResourceDO::getId, resourceIds)
+                        .eq(ResourceDO::getEnabled, StatusEnum.ENABLED)
+        );
+        return resources.stream()
+                        .map(ResourceDO::getCode)
+                        .distinct()
+                        .toList();
     }
 
     /**
@@ -136,14 +142,13 @@ public class ResourceService implements IResourceService {
             AssertUtils.isTrue(ResourceTypeEnum.isValid(type), BizErrorCode.INVALID_RESOURCE_TYPE);
         }
 
-        return resourceMapper.selectList(
+        List<ResourceDO> resources = resourceMapper.selectList(
                 Wrappers.<ResourceDO>lambdaQuery()
                         .eq(type != null, ResourceDO::getType, type)
                         .eq(ResourceDO::getEnabled, StatusEnum.ENABLED)
                         .orderByAsc(ResourceDO::getSort)
-        ).stream()
-         .map(resourceConverter::toResourceResp)
-         .toList();
+        );
+        return resourceConverter.toResourceRespList(resources);
     }
 
     /**
@@ -244,6 +249,12 @@ public class ResourceService implements IResourceService {
                          .toList();
     }
 
+    /**
+     * 将资源实体写入资源树。
+     *
+     * @param r 资源实体
+     * @param t 资源树
+     */
     private static void resourceToTree(ResourceDO r, Tree<Long> t) {
         t.setId(r.getId());
         t.setParentId(r.getParentId());
@@ -254,9 +265,12 @@ public class ResourceService implements IResourceService {
         t.putExtra("enabled", r.getEnabled());
     }
 
-    /**
-     * 将 Hutool Tree 节点转换为业务 ResourceNode
-     */
+        /**
+         * * 将 Hutool Tree 节点转换为业务 ResourceNode
+         *
+         * @param tree 资源树
+         * @return 处理结果
+         */
     static ResourceNodeResp treeToResourceNode(Tree<Long> tree) {
         ResourceResp info = ResourceResp.builder()
                 .id(tree.getId())
@@ -264,7 +278,7 @@ public class ResourceService implements IResourceService {
                 .code((String) tree.get("code"))
                 .name(StrUtil.toStringOrNull(tree.getName()))
                 .parentId(tree.getParentId())
-                .sort(tree.getWeight() != null ? ((Number) tree.getWeight()).intValue() : 0)
+                .sort(((Number) ObjectUtil.defaultIfNull(tree.getWeight(), 0)).intValue())
                 .enabled(BooleanUtil.isTrue((Boolean) tree.get("enabled")))
                 .build();
 

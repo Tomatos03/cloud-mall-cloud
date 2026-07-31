@@ -31,6 +31,13 @@ public class UnitService implements IUnitService {
     private final UnitMapper unitMapper;
     private final UnitConverter unitConverter;
 
+    /**
+     * 获取相关数据。
+     *
+     * @param id 对象标识
+     * @return 处理结果
+     * @throws BizException 处理过程中可能抛出该异常
+     */
     @Override
     public UnitResp getById(Long id) {
         UnitDO unit = unitMapper.selectById(id);
@@ -38,12 +45,24 @@ public class UnitService implements IUnitService {
         return unitConverter.toResp(unit);
     }
 
+    /**
+     * 分页查询数据。
+     *
+     * @param req 请求参数
+     * @return 分页数据
+     */
     @Override
     public IPage<UnitResp> page(UnitPageReq req) {
-        return unitMapper.selectPage(req, req.buildLambdaWrapper())
-                         .convert(unitConverter::toResp);
+        IPage<UnitDO> page = unitMapper.selectPage(req, req.buildLambdaWrapper());
+        return page.convert(unitConverter::toResp);
     }
 
+    /**
+     * 创建并保存数据。
+     *
+     * @param req 请求参数
+     * @return 结果标识或数值
+     */
     @Override
     @Transactional
     public Long create(UnitCreateReq req) {
@@ -52,6 +71,13 @@ public class UnitService implements IUnitService {
         return unit.getId();
     }
 
+    /**
+     * 更新相关数据。
+     *
+     * @param id 对象标识
+     * @param req 请求参数
+     * @throws BizException 处理过程中可能抛出该异常
+     */
     @Override
     @Transactional
     public void update(Long id, UnitUpdateReq req) {
@@ -61,6 +87,12 @@ public class UnitService implements IUnitService {
         unitMapper.updateById(unit);
     }
 
+    /**
+     * 删除相关数据。
+     *
+     * @param ids 对象标识列表
+     * @throws BizException 处理过程中可能抛出该异常
+     */
     @Override
     @Transactional
     public void delete(List<Long> ids) {

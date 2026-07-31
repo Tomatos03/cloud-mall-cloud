@@ -6,6 +6,8 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
 
+import cn.hutool.core.util.ObjectUtil;
+import cn.hutool.core.util.StrUtil;
 import com.alibaba.cloud.nacos.NacosConfigManager;
 import com.alibaba.nacos.api.config.ConfigService;
 import com.alibaba.nacos.api.config.listener.Listener;
@@ -63,11 +65,14 @@ public class AgentPromptLoader {
             this.promptConfigs = Map.of();
         }
     }
-    
-    /**
-     * 懒加载：首次加载从 Nacos 读取，之后走缓存。
-     * 返回的提示词已包含 globalPrompt + 专属 prompt。
-     */
+
+        /**
+         * * 懒加载：首次加载从 Nacos 读取，之后走缓存。
+         * 返回的提示词已包含 globalPrompt + 专属 prompt。
+         *
+         * @param type 类型
+         * @return 字符串结果
+         */
     public String load(AgentType type) {
         boolean cached = cache.containsKey(type);
         String agentPrompt = cache.computeIfAbsent(type, this::loadFromNacos);
@@ -85,18 +90,18 @@ public class AgentPromptLoader {
      */
     private String loadFromNacos(AgentType type) {
         PromptConfig cfg = promptConfigs.get(type);
-        if (cfg == null || cfg.getDataId() == null || cfg.getDataId().isBlank()) {
+        if (cfg == null || StrUtil.isBlank(cfg.getDataId())) {
             log.warn("智能体未配置 Nacos dataId: type={}", type);
             return DEFAULT_PROMPT;
         }
 
         String dataId = cfg.getDataId();
-        String group = cfg.getGroup() != null ? cfg.getGroup() : defaultGroup;
-        int timeout = cfg.getReadTimeout() != null ? cfg.getReadTimeout() : defaultTimeout;
+        String group = ObjectUtil.defaultIfNull(cfg.getGroup(), defaultGroup);
+        int timeout = ObjectUtil.defaultIfNull(cfg.getReadTimeout(), defaultTimeout);
 
         try {
             String content = configService.getConfig(dataId, group, timeout);
-            if (content == null || content.isEmpty()) {
+            if (StrUtil.isBlank(content)) {
                 log.warn("Nacos 提示词为空: type={}, dataId={}, group={}", type, dataId, group);
                 return DEFAULT_PROMPT;
             }
@@ -119,17 +124,23 @@ public class AgentPromptLoader {
      */
     public void registerListener(AgentType type, Runnable onUpdate) {
         PromptConfig cfg = promptConfigs.get(type);
-        if (cfg == null || cfg.getDataId() == null || cfg.getDataId().isBlank()) {
+        if (cfg == null || StrUtil.isBlank(cfg.getDataId())) {
             log.warn("智能体未配置 Nacos dataId，跳过监听注册: type={}", type);
             return;
         }
 
         String dataId = cfg.getDataId();
-        String group = cfg.getGroup() != null ? cfg.getGroup() : defaultGroup;
+        String group = ObjectUtil.defaultIfNull(cfg.getGroup(), defaultGroup);
 
         try {
             configService.addListener(dataId, group, new Listener() {
                 @Override
+
+                /**
+                 * 接收配置变更。
+                 *
+                 * @param config 配置内容
+                 */
                 public void receiveConfigInfo(String config) {
                     cache.put(type, config);
                     log.info("提示词热更新: type={}, dataId={}", type, dataId);
@@ -137,6 +148,12 @@ public class AgentPromptLoader {
                 }
 
                 @Override
+
+                /**
+                 * 获取相关数据。
+                 *
+                 * @return 处理结果
+                 */
                 public Executor getExecutor() {
                     return Executors.newSingleThreadExecutor();
                 }
@@ -154,7 +171,7 @@ public class AgentPromptLoader {
      * @return 合并后的完整 prompt
      */
     private String combineWithGlobal(String agentPrompt) {
-        if (globalPrompt == null || globalPrompt.isBlank()) {
+        if (StrUtil.isBlank(globalPrompt)) {
             return agentPrompt;
         }
         return globalPrompt + "\n\n" + agentPrompt;
@@ -170,10 +187,27 @@ public class AgentPromptLoader {
         private String group;
         private Integer readTimeout;
 
+        /**
+         * 获取相关数据。
+         *
+         * @return 字符串结果
+         */
         public String getDataId() { return dataId; }
         public void setDataId(String dataId) { this.dataId = dataId; }
+
+        /**
+         * 获取相关数据。
+         *
+         * @return 字符串结果
+         */
         public String getGroup() { return group; }
         public void setGroup(String group) { this.group = group; }
+
+        /**
+         * 获取相关数据。
+         *
+         * @return 结果标识或数值
+         */
         public Integer getReadTimeout() { return readTimeout; }
         public void setReadTimeout(Integer readTimeout) { this.readTimeout = readTimeout; }
     }

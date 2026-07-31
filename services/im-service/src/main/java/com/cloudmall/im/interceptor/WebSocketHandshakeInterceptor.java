@@ -4,6 +4,7 @@ import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.util.Map;
 
+import cn.hutool.core.util.StrUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.server.ServerHttpRequest;
@@ -44,7 +45,7 @@ public class WebSocketHandshakeInterceptor implements HandshakeInterceptor {
             }
 
             String token = extractTokenFromQuery(query);
-            if (token == null || token.isEmpty()) {
+            if (StrUtil.isBlank(token)) {
                 log.warn("WebSocket token参数为空");
                 return false;
             }
@@ -70,8 +71,12 @@ public class WebSocketHandshakeInterceptor implements HandshakeInterceptor {
     }
 
     @Override
-    public void afterHandshake(ServerHttpRequest request, ServerHttpResponse response, WebSocketHandler wsHandler,
-                               @Nullable Exception exception) {
+    public void afterHandshake(
+            ServerHttpRequest request,
+            ServerHttpResponse response,
+            WebSocketHandler wsHandler,
+            @Nullable Exception exception
+    ) {
     }
 
     /**

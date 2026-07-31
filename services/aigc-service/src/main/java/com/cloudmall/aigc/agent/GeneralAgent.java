@@ -16,9 +16,17 @@ import com.cloudmall.aigc.service.ISessionService;
 @Service
 public class GeneralAgent extends AbstractAgent {
 
-    /**
-     * 构造通用智能体实例。
-     */
+        /**
+         * * 构造通用智能体实例。
+         *
+         * @param promptLoader 提示词加载器
+         * @param chatClientBuilder 聊天客户端构建器
+         * @param generatingSessionManager 生成会话管理器
+         * @param chatMemoryRepository 聊天记忆仓库
+         * @param sessionService 会话服务
+         * @param toolRegistry 工具注册表
+         * @param messageChatMemoryAdvisor 聊天记忆顾问
+         */
     protected GeneralAgent(
             AgentPromptLoader promptLoader,
             ChatClient.Builder chatClientBuilder,
@@ -28,7 +36,15 @@ public class GeneralAgent extends AbstractAgent {
             AgentToolRegistry toolRegistry,
             MessageChatMemoryAdvisor messageChatMemoryAdvisor
     ) {
-        super(promptLoader, chatClientBuilder, generatingSessionManager, chatMemoryRepository, sessionService, toolRegistry, messageChatMemoryAdvisor);
+        super(
+                promptLoader,
+                chatClientBuilder,
+                generatingSessionManager,
+                chatMemoryRepository,
+                sessionService,
+                toolRegistry,
+                messageChatMemoryAdvisor
+        );
     }
 
     /**

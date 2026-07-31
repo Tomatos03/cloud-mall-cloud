@@ -2,6 +2,7 @@ package com.cloudmall.mybatisplus.query;
 
 import java.util.Collection;
 
+import cn.hutool.core.collection.CollUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.TableFieldInfo;
 import com.baomidou.mybatisplus.core.metadata.TableInfo;
@@ -59,7 +60,7 @@ public final class QueryConditionHelper {
             return s.isBlank();
         }
         if (value instanceof Collection<?> c) {
-            return c.isEmpty();
+            return CollUtil.isEmpty(c);
         }
         return false;
     }
@@ -120,6 +121,9 @@ public final class QueryConditionHelper {
         }
     }
 
+    /**
+     * 使用指定参数构造对象。
+     */
     private QueryConditionHelper() {
     }
 }

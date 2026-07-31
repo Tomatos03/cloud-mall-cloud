@@ -22,12 +22,24 @@ public class CommentService implements ICommentService {
     private final CommentMapper commentMapper;
     private final CommentConverter commentConverter;
 
+    /**
+     * 分页查询数据。
+     *
+     * @param req 请求参数
+     * @return 分页数据
+     */
     @Override
     public IPage<CommentResp> page(CommentPageReq req) {
-        return commentMapper.selectPage(req, req.buildLambdaWrapper())
-                            .convert(commentConverter::toResp);
+        IPage<CommentDO> page = commentMapper.selectPage(req, req.buildLambdaWrapper());
+        return page.convert(commentConverter::toResp);
     }
 
+    /**
+     * 创建并保存数据。
+     *
+     * @param req 请求参数
+     * @throws BizException 处理过程中可能抛出该异常
+     */
     @Override
     public void create(CommentCreateReq req) {
         Long userId = UserContextHolder.getUserId();

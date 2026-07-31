@@ -19,6 +19,7 @@ import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.cloudmall.common.enums.BizErrorCode;
 import com.cloudmall.common.model.Result;
@@ -36,7 +37,6 @@ import com.cloudmall.product.api.client.SkuClient;
 import com.cloudmall.product.api.response.SkuResp;
 import com.cloudmall.user.api.client.ShopClient;
 import com.cloudmall.user.api.response.ShopResp;
-import org.springframework.transaction.annotation.Transactional;
 
 /**
  * 购物车服务实现
@@ -62,6 +62,13 @@ public class CartService implements ICartService {
     private final SkuClient skuClient;
     private final ShopClient shopClient;
 
+    /**
+     * 创建并保存数据。
+     *
+     * @param userId 用户标识
+     * @param req 请求参数
+     * @return 结果标识或数值
+     */
     @Override
     public Long addToCart(Long userId, CartOperatorReq req) {
         SkuResp sku = fetchSku(req.skuId());
@@ -75,6 +82,13 @@ public class CartService implements ICartService {
         return insertNewItem(userId, sku, req.quantity());
     }
 
+    /**
+     * 更新相关数据。
+     *
+     * @param userId 用户标识
+     * @param req 请求参数
+     * @throws BizException 处理过程中可能抛出该异常
+     */
     @Override
     public void updateQuantity(Long userId, CartOperatorReq req) {
         int updated = cartMapper.update(
@@ -87,6 +101,12 @@ public class CartService implements ICartService {
         AssertUtils.isTrue(updated > 0, BizErrorCode.CART_ITEM_NOT_EXIST);
     }
 
+    /**
+     * 删除相关数据。
+     *
+     * @param userId 用户标识
+     * @param skuIds SKU 标识列表
+     */
     @Override
     public void removeItems(Long userId, List<Long> skuIds) {
         if (CollUtil.isEmpty(skuIds)) {
@@ -99,6 +119,13 @@ public class CartService implements ICartService {
         );
     }
 
+    /**
+     * 更新购物车商品的选中状态。
+     *
+     * @param userId 用户标识
+     * @param req 请求参数
+     * @throws BizException 处理过程中可能抛出该异常
+     */
     @Override
     public void selectItems(Long userId, CartSelectReq req) {
         int updated = cartMapper.update(
@@ -110,6 +137,13 @@ public class CartService implements ICartService {
         AssertUtils.isTrue(updated > 0, BizErrorCode.CART_ITEM_NOT_EXIST);
     }
 
+    /**
+     * 更新购物车全选状态。
+     *
+     * @param userId 用户标识
+     * @param selected 是否选中
+     * @throws BizException 处理过程中可能抛出该异常
+     */
     @Override
     public void selectAll(Long userId, Boolean selected) {
         AssertUtils.notNull(selected, BizErrorCode.INVALID_PARAM);
@@ -120,6 +154,13 @@ public class CartService implements ICartService {
         );
     }
 
+    /**
+     * 更新店铺商品的选中状态。
+     *
+     * @param userId 用户标识
+     * @param shopId 店铺标识
+     * @param selected 是否选中
+     */
     @Override
     public void selectShop(Long userId, Long shopId, Boolean selected) {
         cartMapper.update(
@@ -130,6 +171,12 @@ public class CartService implements ICartService {
         );
     }
 
+    /**
+     * 获取相关数据。
+     *
+     * @param userId 用户标识
+     * @return 处理结果
+     */
     @Override
     public CartDetailResp getCart(Long userId) {
         List<CartDO> carts = listCartItems(userId);
@@ -146,6 +193,11 @@ public class CartService implements ICartService {
         return buildDetail(groups, items);
     }
 
+    /**
+     * 删除相关数据。
+     *
+     * @param userId 用户标识
+     */
     @Override
     public void clear(Long userId) {
         cartMapper.delete(
@@ -176,6 +228,7 @@ public class CartService implements ICartService {
      * @param sku      SKU 实时信息
      * @param quantity 新增数量
      * @return 购物车记录 ID
+     * @throws BizException 处理过程中可能抛出该异常
      */
     private Long mergeToExisting(CartDO existing, SkuResp sku, Integer quantity) {
         int newQuantity = existing.getQuantity() + quantity;
@@ -194,6 +247,7 @@ public class CartService implements ICartService {
      * 校验购物车商品种数未达上限。
      *
      * @param userId 用户 ID
+     * @throws BizException 处理过程中可能抛出该异常
      */
     private void checkCartCapacity(Long userId) {
         Long count = cartMapper.selectCount(
@@ -222,6 +276,7 @@ public class CartService implements ICartService {
      *
      * @param skuId SKU ID
      * @return SKU 实时信息
+     * @throws BizException 处理过程中可能抛出该异常
      */
     private SkuResp fetchSku(Long skuId) {
         List<SkuResp> skus = fetchSkus(Collections.singletonList(skuId));
@@ -234,6 +289,7 @@ public class CartService implements ICartService {
      *
      * @param skuIds SKU ID 列表
      * @return SKU 信息列表，SKU 不存在或已删除时不包含对应项
+     * @throws BizException 处理过程中可能抛出该异常
      */
     private List<SkuResp> fetchSkus(List<Long> skuIds) {
         Result<List<SkuResp>> result = skuClient.listSkusByIds(skuIds);
@@ -249,6 +305,7 @@ public class CartService implements ICartService {
      *
      * @param shopIds 店铺 ID 集合
      * @return shopId -> 店铺信息
+     * @throws BizException 处理过程中可能抛出该异常
      */
     private Map<Long, ShopResp> fetchShops(Set<Long> shopIds) {
         if (CollUtil.isEmpty(shopIds)) {
@@ -355,7 +412,7 @@ public class CartService implements ICartService {
         group.setItemCount(items.size());
         group.setSelectedCount(selectedCount);
         group.setSelectedAmount(sumAmount(items, CartItem::getSelected));
-        group.setShopSelected(!items.isEmpty() && selectedCount == items.size());
+        group.setShopSelected(CollUtil.isNotEmpty(items) && selectedCount == items.size());
         return group;
     }
 

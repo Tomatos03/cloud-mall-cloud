@@ -60,8 +60,12 @@ public class ChatAppService implements IChatAppService {
         ChatSessionVO.ChatSessionVOBuilder builder = ChatSessionVO.builder()
                                                                    .id(chatSession.getId())
                                                                    .userId(receiverId)
-                                                                   .name(receiverUser != null ? receiverUser.getNickname() : null)
-                                                                   .avatar(receiverUser != null ? receiverUser.getAvatarUrl() : null)
+                                                                   .name(
+                                                                           receiverUser != null ? receiverUser.getNickname() : null
+                                                                   )
+                                                                   .avatar(
+                                                                           receiverUser != null ? receiverUser.getAvatarUrl() : null
+                                                                   )
                                                                    .unreadCount(unReadCount);
 
         if (lastMessage != null) {

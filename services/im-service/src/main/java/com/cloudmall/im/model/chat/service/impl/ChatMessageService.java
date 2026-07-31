@@ -2,6 +2,7 @@ package com.cloudmall.im.model.chat.service.impl;
 
 import java.time.LocalDateTime;
 
+import cn.hutool.core.collection.CollUtil;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
@@ -64,11 +65,11 @@ public class ChatMessageService extends ServiceImpl<ChatMessageMapper, ChatMessa
 
     @Override
     public ChatMessage getLastMessage(Long sessionId) {
-        return lambdaQuery()
+        IPage<ChatMessage> page = lambdaQuery()
                 .eq(ChatMessage::getSessionId, sessionId)
                 .orderByDesc(ChatMessage::getCreateTime)
-                .last("limit 1")
-                .one();
+                .page(new Page<>(1, 1));
+        return CollUtil.getFirst(page.getRecords());
     }
 
     @Override

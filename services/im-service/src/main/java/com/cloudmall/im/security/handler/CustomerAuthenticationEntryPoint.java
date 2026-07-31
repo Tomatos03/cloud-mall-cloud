@@ -23,7 +23,11 @@ public class CustomerAuthenticationEntryPoint implements AuthenticationEntryPoin
     private static final String FORBIDDEN = "未认证, 请先认证";
 
     @Override
-    public void commence(HttpServletRequest request, HttpServletResponse response, AuthenticationException authException) throws IOException {
+    public void commence(
+            HttpServletRequest request,
+            HttpServletResponse response,
+            AuthenticationException authException
+    ) throws IOException {
         log.warn("未认证的请求{}", request.getRequestURI());
         ResponseWriteUtil.writeForbidden(response, FORBIDDEN);
     }

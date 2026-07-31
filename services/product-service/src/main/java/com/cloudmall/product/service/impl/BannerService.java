@@ -1,8 +1,8 @@
 package com.cloudmall.product.service.impl;
 
-import com.baomidou.mybatisplus.core.metadata.IPage;
 import java.util.List;
 
+import com.baomidou.mybatisplus.core.metadata.IPage;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -21,15 +21,27 @@ public class BannerService implements IBannerService {
     private final BannerMapper bannerMapper;
     private final BannerConverter bannerConverter;
 
+    /**
+     * 查询数据列表。
+     *
+     * @param req 请求参数
+     * @return 数据列表
+     */
     @Override
     public List<BannerResp> list(BannerReq req) {
         List<BannerDO> list = bannerMapper.selectList(req.buildLambdaWrapper());
         return bannerConverter.toRespList(list);
     }
 
+    /**
+     * 分页查询数据。
+     *
+     * @param req 请求参数
+     * @return 分页数据
+     */
     @Override
     public IPage<BannerResp> page(BannerPageReq req) {
-        return bannerMapper.selectPage(req, req.buildLambdaWrapper())
-                           .convert(bannerConverter::toResp);
+        IPage<BannerDO> page = bannerMapper.selectPage(req, req.buildLambdaWrapper());
+        return page.convert(bannerConverter::toResp);
     }
 }

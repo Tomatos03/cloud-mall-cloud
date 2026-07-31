@@ -27,6 +27,17 @@ public abstract class AbstractAgent implements Agent {
     private final ISessionService sessionService;
     protected ChatClient chatClient;
 
+    /**
+     * 使用指定参数构造对象。
+     *
+     * @param promptLoader 提示词加载器
+     * @param chatClientBuilder 聊天客户端构建器
+     * @param generatingSessionManager 生成会话管理器
+     * @param chatMemoryRepository 聊天记忆仓库
+     * @param sessionService 会话服务
+     * @param toolRegistry 工具注册表
+     * @param messageChatMemoryAdvisor 聊天记忆顾问
+     */
     protected AbstractAgent(
             AgentPromptLoader promptLoader,
             ChatClient.Builder chatClientBuilder,
@@ -57,7 +68,6 @@ public abstract class AbstractAgent implements Agent {
 
     /** Nacos 提示词热更新回调 — 子类覆写，重建自己持有的 ChatClient。 */
     protected abstract void rebuildChatClient();
-
 
     /**
      * 处理聊天请求，返回流式响应。

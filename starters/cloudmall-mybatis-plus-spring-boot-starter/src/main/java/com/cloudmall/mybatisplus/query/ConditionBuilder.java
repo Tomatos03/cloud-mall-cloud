@@ -5,6 +5,7 @@ import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 
 import cn.hutool.core.util.ReflectUtil;
+import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 
@@ -60,7 +61,7 @@ public interface ConditionBuilder<T> {
                 continue;
             }
 
-            String property = ann.property().isEmpty() ? field.getName() : ann.property();
+            String property = StrUtil.isBlank(ann.property()) ? field.getName() : ann.property();
             String column = QueryConditionHelper.resolveColumn(entityClass, property);
             if (column == null) {
                 continue;
@@ -84,6 +85,8 @@ public interface ConditionBuilder<T> {
      * <p>
      * 通过反射获取父类的类型参数 {@code T} 的实际类型。
      * 例如 {@code GoodsListReq extends ConditionReq<GoodsDO>} 返回 {@code GoodsDO.class}。
+     *
+     * @return 处理结果
      */
     @SuppressWarnings("unchecked")
     private Class<T> resolveEntityClass() {

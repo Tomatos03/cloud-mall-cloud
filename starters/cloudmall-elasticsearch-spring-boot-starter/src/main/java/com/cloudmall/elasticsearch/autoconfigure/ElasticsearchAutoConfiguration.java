@@ -1,9 +1,9 @@
 package com.cloudmall.elasticsearch.autoconfigure;
 
+import cn.hutool.core.util.StrUtil;
 import co.elastic.clients.elasticsearch.ElasticsearchClient;
 import co.elastic.clients.json.jackson.JacksonJsonpMapper;
 import co.elastic.clients.transport.rest_client.RestClientTransport;
-import com.cloudmall.elasticsearch.properties.ElasticsearchProperties;
 import org.apache.http.HttpHost;
 import org.apache.http.auth.AuthScope;
 import org.apache.http.auth.UsernamePasswordCredentials;
@@ -16,6 +16,8 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
+
+import com.cloudmall.elasticsearch.properties.ElasticsearchProperties;
 
 /**
  * Elasticsearch 自动配置类
@@ -41,7 +43,7 @@ public class ElasticsearchAutoConfiguration {
     @ConditionalOnMissingBean
     public ElasticsearchClient elasticsearchClient(ElasticsearchProperties properties) {
         BasicCredentialsProvider credentialsProvider = new BasicCredentialsProvider();
-        if (properties.getUsername() != null && !properties.getUsername().isEmpty()) {
+        if (StrUtil.isNotBlank(properties.getUsername())) {
             credentialsProvider.setCredentials(AuthScope.ANY,
                     new UsernamePasswordCredentials(properties.getUsername(), properties.getPassword()));
         }

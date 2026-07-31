@@ -35,6 +35,12 @@ public class OrderService implements IOrderService {
     private final OrderItemConverter orderItemConverter;
     private final OrderConverter orderConverter;
 
+    /**
+     * 创建并保存数据。
+     *
+     * @param request 请求参数
+     * @return 处理结果
+     */
     @Override
     @Transactional
     public OrderResp createOrder(CreateReq request) {
@@ -72,18 +78,36 @@ public class OrderService implements IOrderService {
         return getById(order.getId());
     }
 
+    /**
+     * 获取相关数据。
+     *
+     * @param id 对象标识
+     * @return 处理结果
+     */
     @Override
     public OrderResp getById(Long id) {
         OrderDO order = orderMapper.selectById(id);
         return toResponse(order);
     }
 
+    /**
+     * 分页查询数据。
+     *
+     * @param req 请求参数
+     * @return 分页数据
+     */
     @Override
     public IPage<OrderResp> page(OrderPageReq req) {
-        return orderMapper.selectPage(req, req.buildLambdaWrapper())
-                          .convert(this::toResponse);
+        IPage<OrderDO> page = orderMapper.selectPage(req, req.buildLambdaWrapper());
+        return page.convert(this::toResponse);
     }
 
+    /**
+     * 转换对象数据。
+     *
+     * @param order 订单实体
+     * @return 处理结果
+     */
     private OrderResp toResponse(OrderDO order) {
         OrderResp resp = orderConverter.toResp(order);
         List<OrderItemDO> items = orderItemMapper.selectList(

@@ -53,6 +53,14 @@ public class SkuService implements ISkuService {
     private final SkuConverter skuConverter;
     private final IProductSpecService productSpecService;
 
+    /**
+     * 更新相关数据。
+     *
+     * @param skuId SKU 标识
+     * @param quantity 数量
+     * @return 是否满足条件
+     * @throws BizException 处理过程中可能抛出该异常
+     */
     @Override
     @Transactional
     public Boolean updateStock(Long skuId, Integer quantity) {
@@ -72,6 +80,12 @@ public class SkuService implements ISkuService {
         return Boolean.TRUE;
     }
 
+    /**
+     * 查询数据列表。
+     *
+     * @param skuIds SKU 标识列表
+     * @return 数据列表
+     */
     @Override
     public List<SkuResp> listSkusByIds(List<Long> skuIds) {
         if (CollUtil.isEmpty(skuIds)) {
@@ -89,12 +103,12 @@ public class SkuService implements ISkuService {
         Set<Long> productIds = skus.stream()
                                    .map(ProductSkuDO::getProductId)
                                    .collect(Collectors.toSet());
-        Map<Long, ProductDO> productMap = productMapper.selectByIds(productIds)
-                                                       .stream()
-                                                       .collect(Collectors.toMap(
-                                                               ProductDO::getId,
-                                                               Function.identity()
-                                                       ));
+        List<ProductDO> products = productMapper.selectByIds(productIds);
+        Map<Long, ProductDO> productMap = products.stream()
+                                                  .collect(Collectors.toMap(
+                                                          ProductDO::getId,
+                                                          Function.identity()
+                                                  ));
 
         // 批量查询规格描述（skuId -> "红色；XL"）
         Set<Long> skuIdSet = skus.stream()
@@ -119,6 +133,13 @@ public class SkuService implements ISkuService {
         return respList;
     }
 
+    /**
+     * 匹配并处理相关数据。
+     *
+     * @param productId 商品标识
+     * @param specValueIds 规格值标识列表
+     * @return 处理结果
+     */
     @Override
     public SkuResp matchSkuBySpec(Long productId, List<Long> specValueIds) {
         if (CollUtil.isEmpty(specValueIds)) {
@@ -153,25 +174,23 @@ public class SkuService implements ISkuService {
         Set<Long> specValueIds = relations.stream()
                                           .map(ProductSkuSpecDO::getSpecValueId)
                                           .collect(Collectors.toSet());
-        Map<Long, ProductSpecValueDO> valueMap = productSpecValueMapper
-                .selectByIds(specValueIds)
-                .stream()
-                .collect(Collectors.toMap(
-                        ProductSpecValueDO::getId,
-                        Function.identity()
-                ));
+        List<ProductSpecValueDO> values = productSpecValueMapper.selectByIds(specValueIds);
+        Map<Long, ProductSpecValueDO> valueMap = values.stream()
+                                                       .collect(Collectors.toMap(
+                                                               ProductSpecValueDO::getId,
+                                                               Function.identity()
+                                                       ));
 
         Set<Long> groupIds = valueMap.values()
                                      .stream()
                                      .map(ProductSpecValueDO::getGroupId)
                                      .collect(Collectors.toSet());
-        Map<Long, ProductSpecGroupDO> groupMap = productSpecGroupMapper
-                .selectByIds(groupIds)
-                .stream()
-                .collect(Collectors.toMap(
-                        ProductSpecGroupDO::getId,
-                        Function.identity()
-                ));
+        List<ProductSpecGroupDO> groups = productSpecGroupMapper.selectByIds(groupIds);
+        Map<Long, ProductSpecGroupDO> groupMap = groups.stream()
+                                                       .collect(Collectors.toMap(
+                                                               ProductSpecGroupDO::getId,
+                                                               Function.identity()
+                                                       ));
 
         return relations.stream()
                         .collect(Collectors.groupingBy(

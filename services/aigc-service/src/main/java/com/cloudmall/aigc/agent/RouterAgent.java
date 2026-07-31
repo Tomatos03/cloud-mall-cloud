@@ -67,7 +67,9 @@ public class RouterAgent implements Agent {
     }
 
     /**
-     * 构建路由 ChatClient：从 Nacos 加载 prompt 模板.
+     * 构建路由 ChatClient：从 Nacos 加载 prompt 模板。
+     *
+     * @return 路由 ChatClient
      */
     private ChatClient buildRouterChatClient() {
         String systemPrompt = promptLoader.load(AgentType.ROUTE);
@@ -129,7 +131,10 @@ public class RouterAgent implements Agent {
 
         return Mono.fromCallable(() -> classifyIntent(req.getPrompt()))
                    .flatMapMany(decision -> {
-                       Agent agent = agentMap.getOrDefault(decision.agentType(), agentMap.get(AgentType.GENERAL));
+                       Agent agent = agentMap.getOrDefault(
+                           decision.agentType(),
+                           agentMap.get(AgentType.GENERAL)
+                       );
                        log.debug("路由决策: sessionId={}, agent={}, confidence={}, reason={}",
                                 req.getSessionId(), decision.agentType(),
                                 decision.confidence(), decision.reason()
@@ -144,6 +149,7 @@ public class RouterAgent implements Agent {
      * 非流式聊天应直接调用业务智能体（如 {@link GeneralAgent}），无需经过意图路由。
      *
      * @param req 聊天请求
+     * @return 字符串结果
      * @throws UnsupportedOperationException 始终抛出，路由智能体不支持此操作
      */
     @Override

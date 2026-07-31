@@ -4,6 +4,7 @@ import java.math.BigDecimal;
 import java.text.Normalizer;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -90,6 +91,12 @@ public class ProductService implements IProductService {
     private final IProductSpecService productSpecService;
     private final IProductImageService productImageService;
 
+    /**
+     * 获取相关数据。
+     *
+     * @param req 请求参数
+     * @return 处理结果
+     */
     @Override
     public ProductResp get(ProductGetReq req) {
         ProductDO product = productMapper.selectOne(req.buildLambdaWrapper());
@@ -145,6 +152,12 @@ public class ProductService implements IProductService {
         }
     }
 
+    /**
+     * 分页查询数据。
+     *
+     * @param req 请求参数
+     * @return 分页数据
+     */
     @Override
     public IPage<ProductResp> page(ProductPageReq req) {
         IPage<ProductDO> page = productMapper.selectPage(
@@ -170,31 +183,41 @@ public class ProductService implements IProductService {
                                       .collect(Collectors.toSet());
 
         // 批量查询品牌
-        Map<Long, BrandDO> brandMap = brandIds.isEmpty()
-                ? Collections.emptyMap()
-                : brandMapper.selectByIds(brandIds)
-                             .stream()
+        Map<Long, BrandDO> brandMap = new HashMap<>();
+        if (CollUtil.isNotEmpty(brandIds)) {
+            List<BrandDO> brands = brandMapper.selectByIds(brandIds);
+            brandMap = brands.stream()
                              .collect(Collectors.toMap(BrandDO::getId, Function.identity()));
+        }
 
         // 批量查询主图
-        Map<Long, ProductImageDO> imageMap = imageIds.isEmpty()
-                ? Collections.emptyMap()
-                : productImageMapper.selectByIds(imageIds)
-                                    .stream()
-                                    .collect(Collectors.toMap(
-                                            ProductImageDO::getId,
-                                            Function.identity()
-                                    ));
+        Map<Long, ProductImageDO> imageMap = new HashMap<>();
+        if (CollUtil.isNotEmpty(imageIds)) {
+            List<ProductImageDO> images = productImageMapper.selectByIds(imageIds);
+            imageMap = images.stream()
+                             .collect(Collectors.toMap(
+                                     ProductImageDO::getId,
+                                     Function.identity()
+                             ));
+        }
 
         // 批量查询每个 SPU 的最低 SKU 价格
         Map<Long, BigDecimal> lowestPriceMap = batchFindLowestPrice(productIds);
 
         // 组装响应
+        Map<Long, BrandDO> finalBrandMap = brandMap;
+        Map<Long, ProductImageDO> finalImageMap = imageMap;
         return page.convert(product -> productConverter.toCompositeResp(
-                product, brandMap, imageMap, lowestPriceMap
+                product, finalBrandMap, finalImageMap, lowestPriceMap
         ));
     }
 
+    /**
+     * 创建并保存数据。
+     *
+     * @param req 请求参数
+     * @return 结果标识或数值
+     */
     @Override
     @Transactional(rollbackFor = Exception.class)
     public Long create(ProductCreateReq req) {
@@ -327,6 +350,13 @@ public class ProductService implements IProductService {
         productSkuSpecMapper.insert(relations);
     }
 
+    /**
+     * 获取商品详情。
+     *
+     * @param id 对象标识
+     * @return 处理结果
+     * @throws BizException 处理过程中可能抛出该异常
+     */
     @Override
     public ProductDetailResp detail(Long id) {
         ProductDO product = productMapper.selectById(id);
@@ -343,37 +373,40 @@ public class ProductService implements IProductService {
         return productConverter.toDetailResp(product, brand, images, skus, specGroups);
     }
 
-    /**
-     * 校验品牌是否存在。
-     *
-     * @param brandId 品牌 ID
-     */
+        /**
+         * * 校验品牌是否存在。
+         *
+         * @param brandId 品牌 ID
+         * @throws BizException 处理过程中可能抛出该异常
+         */
     private void validateBrandExists(Long brandId) {
         BrandDO brand = brandMapper.selectById(brandId);
         AssertUtils.notNull(brand, BizErrorCode.BRAND_NOT_EXIST);
     }
 
-    /**
-     * 校验分类是否存在。
-     *
-     * @param categoryId 分类 ID
-     */
+        /**
+         * * 校验分类是否存在。
+         *
+         * @param categoryId 分类 ID
+         * @throws BizException 处理过程中可能抛出该异常
+         */
     private void validateCategoryExists(Long categoryId) {
         CategoryDO category = categoryMapper.selectById(categoryId);
         AssertUtils.notNull(category, BizErrorCode.CATEGORY_NOT_EXIST_OR_NO_ENABLE);
     }
 
-    /**
-     * 校验规格组与 SKU 的拓扑结构。
-     * <p>
-     * 逐项校验：组名不重复、组内规格值不重复、每个 SKU 为每个规格组恰好指定一个值、
-     * 第 g 位的值确实存在于第 g 个规格组、SKU 之间规格组合不重复。
-     * <p>
-     * 按组隔离查找是这里的关键：{@code ["M", "L"]} 这种请求里，"M" 虽是合法规格值但属于尺码组，
-     * 第 0 位只在颜色组的候选里查，因此查不到而被拒绝。
-     *
-     * @param req 创建请求
-     */
+        /**
+         * * 校验规格组与 SKU 的拓扑结构。
+         * <p>
+         * 逐项校验：组名不重复、组内规格值不重复、每个 SKU 为每个规格组恰好指定一个值、
+         * 第 g 位的值确实存在于第 g 个规格组、SKU 之间规格组合不重复。
+         * <p>
+         * 按组隔离查找是这里的关键：{@code ["M", "L"]} 这种请求里，"M" 虽是合法规格值但属于尺码组，
+         * 第 0 位只在颜色组的候选里查，因此查不到而被拒绝。
+         *
+         * @param req 创建请求
+         * @throws BizException 处理过程中可能抛出该异常
+         */
     private void validateSkuTopology(ProductCreateReq req) {
         List<SpecGroupItem> groups = req.getSpecGroups();
 
@@ -417,11 +450,12 @@ public class ProductService implements IProductService {
         }
     }
 
-    /**
-     * 校验 SKU 价格。市场价存在时，售价不得高于市场价。
-     *
-     * @param req 创建请求
-     */
+        /**
+         * * 校验 SKU 价格。市场价存在时，售价不得高于市场价。
+         *
+         * @param req 创建请求
+         * @throws BizException 处理过程中可能抛出该异常
+         */
     private void validatePrices(ProductCreateReq req) {
         for (SkuItem sku : req.getSkus()) {
             if (sku.getMarketPrice() != null) {
@@ -480,11 +514,12 @@ public class ProductService implements IProductService {
                 .collect(Collectors.joining("_"));
     }
 
-    /**
-     * 校验当前登录用户是否存在店铺，并返回店铺 ID。
-     *
-     * @return 店铺 ID
-     */
+        /**
+         * * 校验当前登录用户是否存在店铺，并返回店铺 ID。
+         *
+         * @return 店铺 ID
+         * @throws BizException 处理过程中可能抛出该异常
+         */
     private Long validateAndReturnShopId() {
         Long userId = UserContextHolder.getUserId();
         Result<ShopResp> result = shopClient.getByUserId(userId);

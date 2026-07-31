@@ -29,13 +29,21 @@ public class ResponseWriteUtil {
         writeErrorResponse(response, message, HttpStatus.FORBIDDEN.value());
     }
 
-    public static void writeErrorResponse(HttpServletResponse response, String message, int httpStatus) throws IOException {
+    public static void writeErrorResponse(
+            HttpServletResponse response,
+            String message,
+            int httpStatus
+    ) throws IOException {
         Map<String, Object> result = new HashMap<>();
         result.put("message", message);
         writeResponse(response, result, httpStatus);
     }
 
-    private static void writeResponse(HttpServletResponse response, Map<String, Object> result, int httpStatus) throws IOException {
+    private static void writeResponse(
+            HttpServletResponse response,
+            Map<String, Object> result,
+            int httpStatus
+    ) throws IOException {
         response.setStatus(httpStatus);
         response.setContentType(CONTENT_TYPE);
         response.setCharacterEncoding(StandardCharsets.UTF_8.name());

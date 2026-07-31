@@ -10,9 +10,25 @@ import com.cloudmall.seckill.api.response.ActivityResp;
 @FeignClient(name = "seckill-service", contextId = "seckillClient", path = "/seckill")
 public interface SeckillClient {
 
+    /**
+     * 获取相关数据。
+     *
+     * @param id 对象标识
+     * @return 处理结果
+     */
     @GetMapping("/activities/{id}")
     Result<ActivityResp> getActivity(@PathVariable("id") Long id);
 
+    /**
+     * 校验相关数据。
+     *
+     * @param activityId 活动标识
+     * @param productId 商品标识
+     * @return 处理结果
+     */
     @GetMapping("/activities/{activityId}/products/{productId}/verification")
-    Result<Boolean> verifyProduct(@PathVariable("activityId") Long activityId, @PathVariable("productId") Long productId);
+    Result<Boolean> verifyProduct(
+            @PathVariable("activityId") Long activityId,
+            @PathVariable("productId") Long productId
+    );
 }

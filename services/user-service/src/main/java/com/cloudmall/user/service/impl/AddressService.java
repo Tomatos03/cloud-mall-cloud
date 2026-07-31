@@ -3,6 +3,9 @@ package com.cloudmall.user.service.impl;
 import java.util.List;
 
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
+
 import com.cloudmall.common.enums.BizErrorCode;
 import com.cloudmall.common.utils.AssertUtils;
 import com.cloudmall.user.api.request.AddressUpdateReq;
@@ -12,8 +15,6 @@ import com.cloudmall.user.convert.AddressConverter;
 import com.cloudmall.user.entity.AddressDO;
 import com.cloudmall.user.mapper.AddressMapper;
 import com.cloudmall.user.service.IAddressService;
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
@@ -24,17 +25,28 @@ public class AddressService implements IAddressService {
     private final AddressMapper addressMapper;
     private final AddressConverter addressConverter;
 
+    /**
+     * 查询数据列表。
+     *
+     * @param userId 用户标识
+     * @return 数据列表
+     */
     @Override
     public List<AddressResp> list(Long userId) {
         List<AddressDO> list = addressMapper.selectList(
                 Wrappers.<AddressDO>lambdaQuery()
                         .eq(AddressDO::getUserId, userId)
         );
-        return list.stream()
-                   .map(addressConverter::toResp)
-                   .toList();
+        return addressConverter.toRespList(list);
     }
 
+    /**
+     * 获取相关数据。
+     *
+     * @param id 对象标识
+     * @return 处理结果
+     * @throws BizException 处理过程中可能抛出该异常
+     */
     @Override
     public AddressResp getById(Long id) {
         AddressDO address = addressMapper.selectById(id);
@@ -42,6 +54,14 @@ public class AddressService implements IAddressService {
         return addressConverter.toResp(address);
     }
 
+    /**
+     * 创建并保存数据。
+     *
+     * @param request 请求参数
+     * @param userId 用户标识
+     * @return 结果标识或数值
+     * @throws BizException 处理过程中可能抛出该异常
+     */
     @Override
     public Long create(CreateReq request, Long userId) {
         long count = addressMapper.selectCount(
@@ -55,6 +75,12 @@ public class AddressService implements IAddressService {
         return address.getId();
     }
 
+    /**
+     * 更新相关数据。
+     *
+     * @param request 请求参数
+     * @throws BizException 处理过程中可能抛出该异常
+     */
     @Override
     public void update(AddressUpdateReq request) {
         AddressDO address = addressMapper.selectById(request.getId());
@@ -63,6 +89,12 @@ public class AddressService implements IAddressService {
         addressMapper.updateById(address);
     }
 
+    /**
+     * 删除相关数据。
+     *
+     * @param ids 对象标识列表
+     * @throws BizException 处理过程中可能抛出该异常
+     */
     @Override
     public void delete(List<Long> ids) {
         List<AddressDO> addresses = addressMapper.selectBatchIds(ids);

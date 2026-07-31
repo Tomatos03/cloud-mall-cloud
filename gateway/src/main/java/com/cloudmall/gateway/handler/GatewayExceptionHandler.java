@@ -1,7 +1,10 @@
 package com.cloudmall.gateway.handler;
 
-import com.cloudmall.common.model.Result;
-import com.cloudmall.common.enums.BizErrorCode;
+import java.net.ConnectException;
+import java.nio.charset.StandardCharsets;
+import java.util.concurrent.TimeoutException;
+
+import cn.hutool.core.util.StrUtil;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
@@ -18,9 +21,8 @@ import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 
-import java.net.ConnectException;
-import java.nio.charset.StandardCharsets;
-import java.util.concurrent.TimeoutException;
+import com.cloudmall.common.enums.BizErrorCode;
+import com.cloudmall.common.model.Result;
 
 /**
  * Gateway 全局异常处理器
@@ -36,6 +38,13 @@ public class GatewayExceptionHandler implements ErrorWebExceptionHandler {
 
     private final ObjectMapper objectMapper;
 
+    /**
+     * 处理相关异常。
+     *
+     * @param exchange HTTP 交换对象
+     * @param ex 异常对象
+     * @return 处理结果
+     */
     @Override
     public Mono<Void> handle(ServerWebExchange exchange, Throwable ex) {
         int businessCode;
@@ -57,7 +66,7 @@ public class GatewayExceptionHandler implements ErrorWebExceptionHandler {
                     ? Result.INTERNAL_ERROR_CODE
                     : httpStatus.value();
             message = statusException.getReason();
-            if (message == null || message.isBlank()) {
+            if (StrUtil.isBlank(message)) {
                 message = "服务器内部错误";
             }
         } else if (ex instanceof TimeoutException
@@ -78,7 +87,21 @@ public class GatewayExceptionHandler implements ErrorWebExceptionHandler {
         return writeJsonResponse(exchange.getResponse(), httpStatus, businessCode, message);
     }
 
-    private Mono<Void> writeJsonResponse(ServerHttpResponse response, HttpStatus httpStatus, int businessCode, String message) {
+    /**
+     * 将业务错误信息写入 JSON 响应。
+     *
+     * @param response HTTP 响应对象
+     * @param httpStatus HTTP 状态码
+     * @param businessCode 业务错误码
+     * @param message 消息
+     * @return 处理结果
+     */
+    private Mono<Void> writeJsonResponse(
+            ServerHttpResponse response,
+            HttpStatus httpStatus,
+            int businessCode,
+            String message
+    ) {
         response.setStatusCode(httpStatus);
         response.getHeaders().setContentType(MediaType.APPLICATION_JSON);
 

@@ -63,7 +63,10 @@ public class SecurityChainConfig {
                            .cors(cors -> {
                                cors.configurationSource(corsConfigurationSource());
                            })
-                           .addFilterAfter(tokenAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
+                           .addFilterAfter(
+                                   tokenAuthenticationFilter,
+                                   UsernamePasswordAuthenticationFilter.class
+                           )
                            .csrf(AbstractHttpConfigurer::disable)
                            .build();
     }

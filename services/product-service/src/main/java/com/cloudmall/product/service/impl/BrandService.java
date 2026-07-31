@@ -32,6 +32,13 @@ public class BrandService implements IBrandService {
     private final BrandMapper brandMapper;
     private final BrandConverter brandConverter;
 
+    /**
+     * 获取相关数据。
+     *
+     * @param id 对象标识
+     * @return 处理结果
+     * @throws BizException 处理过程中可能抛出该异常
+     */
     @Override
     public BrandResp getById(Long id) {
         BrandDO brand = brandMapper.selectById(id);
@@ -39,6 +46,12 @@ public class BrandService implements IBrandService {
         return brandConverter.toResp(brand);
     }
 
+    /**
+     * 查询数据列表。
+     *
+     * @param ids 对象标识列表
+     * @return 数据列表
+     */
     @Override
     public List<BrandResp> listByIds(List<Long> ids) {
         if (CollUtil.isEmpty(ids)) {
@@ -51,12 +64,24 @@ public class BrandService implements IBrandService {
         return brandConverter.toRespList(brands);
     }
 
+    /**
+     * 分页查询数据。
+     *
+     * @param req 请求参数
+     * @return 分页数据
+     */
     @Override
     public IPage<BrandResp> page(BrandPageReq req) {
-        return brandMapper.selectPage(req, req.buildLambdaWrapper())
-                          .convert(brandConverter::toResp);
+        IPage<BrandDO> page = brandMapper.selectPage(req, req.buildLambdaWrapper());
+        return page.convert(brandConverter::toResp);
     }
 
+    /**
+     * 创建并保存数据。
+     *
+     * @param req 请求参数
+     * @return 结果标识或数值
+     */
     @Override
     @Transactional
     public Long create(BrandCreateReq req) {
@@ -65,6 +90,13 @@ public class BrandService implements IBrandService {
         return brand.getId();
     }
 
+    /**
+     * 更新相关数据。
+     *
+     * @param id 对象标识
+     * @param req 请求参数
+     * @throws BizException 处理过程中可能抛出该异常
+     */
     @Override
     @Transactional
     public void update(Long id, BrandUpdateReq req) {
@@ -74,6 +106,12 @@ public class BrandService implements IBrandService {
         brandMapper.updateById(brand);
     }
 
+    /**
+     * 删除相关数据。
+     *
+     * @param ids 对象标识列表
+     * @throws BizException 处理过程中可能抛出该异常
+     */
     @Override
     @Transactional
     public void delete(List<Long> ids) {
