@@ -43,7 +43,8 @@ public enum CouponOwnerTypeEnum {
                      .filter(t -> t.code.equals(code))
                      .findFirst()
                      .orElseThrow(() -> new IllegalArgumentException(
-                         "Invalid coupon owner type: '" + code + "', valid values: " + Arrays.toString(values())
+                             "Invalid coupon owner type: '" + code + "', valid values: "
+                                     + Arrays.toString(values())
                      ));
     }
 }

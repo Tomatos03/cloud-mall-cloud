@@ -42,6 +42,8 @@ public enum IssuedSourceEnum {
                      .filter(t -> t.code.equals(code))
                      .findFirst()
                      .orElseThrow(() -> new IllegalArgumentException(
-                             "Invalid issued source: '" + code + "', valid values: " + Arrays.toString(values())));
+                             "Invalid issued source: '" + code + "', valid values: "
+                                     + Arrays.toString(values())
+                     ));
     }
 }

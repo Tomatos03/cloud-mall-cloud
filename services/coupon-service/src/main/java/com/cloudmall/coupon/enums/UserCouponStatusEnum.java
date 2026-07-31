@@ -52,7 +52,8 @@ public enum UserCouponStatusEnum {
                      .filter(t -> t.code.equals(code))
                      .findFirst()
                      .orElseThrow(() -> new IllegalArgumentException(
-                             "Invalid user coupon status: '" + code + "', valid values: " + Arrays.toString(values()))
-                     );
+                             "Invalid user coupon status: '" + code + "', valid values: "
+                                     + Arrays.toString(values())
+                     ));
     }
 }

@@ -65,6 +65,7 @@ public enum CouponOperationActionEnum {
                      .findFirst()
                      .orElseThrow(() -> new IllegalArgumentException(
                              "Invalid coupon operation action: '" + code + "', valid values: "
-                                     + Arrays.toString(values())));
+                                     + Arrays.toString(values())
+                     ));
     }
 }

@@ -230,6 +230,25 @@ public enum BizErrorCode {
     REFUND_ORDER_FAILED(93012, "退款失败"),
     COUPON_STOCK_RUN_OUT(93013, "优惠券已被领完"),
 
+    // 优惠券重构错误码（新模型领域）
+    COUPON_TEMPLATE_NOT_FOUND(93100, "优惠券模板不存在"),
+    COUPON_NOT_CLAIMABLE(93101, "当前模板不可领取"),
+    COUPON_NOT_STARTED(93102, "发放窗口尚未开始"),
+    COUPON_ISSUE_ENDED(93103, "发放窗口已结束"),
+    USER_COUPON_NOT_FOUND(93104, "用户券不存在"),
+    USER_COUPON_NOT_BELONG_TO_USER(93105, "用户券不属于当前用户"),
+    USER_COUPON_EXPIRED(93106, "用户券已过期"),
+    USER_COUPON_LOCKED(93107, "用户券已被其他订单锁定"),
+    USER_COUPON_USED(93108, "用户券已使用"),
+    USER_COUPON_STATE_CONFLICT(93109, "状态迁移非法"),
+    COUPON_SCOPE_INVALID(93110, "适用范围配置无效"),
+    COUPON_OWNER_INVALID(93111, "券归属不合法"),
+    COUPON_RULE_FROZEN(93112, "模板核心规则已冻结"),
+    COUPON_QUOTE_INVALID(93113, "优惠试算结果无效"),
+    COUPON_LOCK_FAILED(93114, "锁券失败"),
+    COUPON_OPERATION_NOT_ALLOWED(93115, "当前角色或状态不允许操作"),
+    COUPON_RULE_INVALID(93116, "优惠券规则配置无效"),
+
     // AI Agent 相关错误码 (91xxx)
     SESSION_NOT_FOUND(91004, "会话不存在或已经过期")
     ;

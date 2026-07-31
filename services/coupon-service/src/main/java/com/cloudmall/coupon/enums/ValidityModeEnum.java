@@ -43,7 +43,8 @@ public enum ValidityModeEnum {
                      .filter(t -> t.code.equals(code))
                      .findFirst()
                      .orElseThrow(() -> new IllegalArgumentException(
-                             "Invalid validity mode: '" + code + "', valid values: " + Arrays.toString(values())
+                             "Invalid validity mode: '" + code + "', valid values: "
+                                     + Arrays.toString(values())
                      ));
     }
 }

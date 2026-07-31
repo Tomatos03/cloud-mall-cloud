@@ -51,7 +51,8 @@ public enum UserCouponLogSourceEnum {
                      .filter(t -> t.code.equals(code))
                      .findFirst()
                      .orElseThrow(() -> new IllegalArgumentException(
-                         "Invalid user coupon log source: '" + code + "', valid values: " + Arrays.toString(values())
+                             "Invalid user coupon log source: '" + code + "', valid values: "
+                                     + Arrays.toString(values())
                      ));
     }
 }

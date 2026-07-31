@@ -6,11 +6,20 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+/**
+ * 领取优惠券请求
+ * <p>
+ * 用户端不接收 userId，统一从请求上下文获取当前用户。
+ *
+ * @author : Tomatos
+ */
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
 @Data
 public class ClaimReq {
-    @NotNull private Long couponId;
-    @NotNull private Long userId;
+
+    /** 优惠券模板 ID */
+    @NotNull
+    private Long couponId;
 }

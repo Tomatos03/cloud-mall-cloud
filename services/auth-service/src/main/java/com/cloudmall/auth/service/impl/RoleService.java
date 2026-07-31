@@ -127,10 +127,12 @@ public class RoleService implements IRoleService {
         if (CollUtil.isNotEmpty(resourceIds)) {
             List<RoleResourceDO> list = resourceIds
                     .stream()
-                    .map(resourceId -> RoleResourceDO.builder()
+                    .map(resourceId -> RoleResourceDO
+                            .builder()
                             .roleId(roleId)
                             .resourceId(resourceId)
-                            .build())
+                            .build()
+                    )
                     .toList();
             list.forEach(roleResourceMapper::insert);
         }

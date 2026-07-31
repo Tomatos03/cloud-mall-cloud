@@ -45,6 +45,8 @@ public enum CouponTypeEnum {
                      .filter(t -> t.code.equals(code))
                      .findFirst()
                      .orElseThrow(() -> new IllegalArgumentException(
-                             "Invalid coupon type: '" + code + "', valid values: " + Arrays.toString(values())));
+                             "Invalid coupon type: '" + code + "', valid values: "
+                                     + Arrays.toString(values())
+                     ));
     }
 }
