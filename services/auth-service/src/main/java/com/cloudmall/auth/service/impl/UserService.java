@@ -12,6 +12,9 @@ import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.util.ObjectUtil;
+import cn.hutool.core.util.StrUtil;
 
 import com.cloudmall.auth.api.request.LoginReq;
 import com.cloudmall.auth.api.request.RegisterReq;
@@ -22,6 +25,7 @@ import com.cloudmall.auth.entity.ResourceDO;
 import com.cloudmall.auth.entity.UserDO;
 import com.cloudmall.auth.entity.UserRoleDO;
 import com.cloudmall.auth.enums.ResourceTypeEnum;
+import com.cloudmall.auth.enums.UserTypeEnum;
 import com.cloudmall.auth.mapper.ResourceMapper;
 import com.cloudmall.auth.mapper.UserMapper;
 import com.cloudmall.auth.mapper.UserRoleMapper;
@@ -36,8 +40,6 @@ import com.cloudmall.common.utils.AssertUtils;
 import com.cloudmall.jwt.service.ITokenService;
 import com.cloudmall.mybatisplus.enums.StatusEnum;
 
-import cn.hutool.core.collection.CollUtil;
-import cn.hutool.core.util.StrUtil;
 
 /**
  * 用户服务实现
@@ -79,7 +81,7 @@ public class UserService implements IUserService {
         UserContext userCtx = UserContext.builder()
                 .userId(user.getId())
                 .username(user.getUsername())
-                .userType(user.getTypes())
+                .userType(ObjectUtil.defaultIfNull(user.getTypes(), UserTypeEnum.NORMAL).getCode())
                 .permissionCodes(permissionCodes)
                 .build();
         String token = authTokenService.createToken(userCtx);
@@ -102,7 +104,7 @@ public class UserService implements IUserService {
 
         UserDO user = userConverter.toDO(request);
         user.setPassword(passwordEncoder.encode(request.getPassword()));
-        user.setTypes("NORMAL");
+        user.setTypes(UserTypeEnum.NORMAL);
 
         userMapper.insert(user);
         return user.getId();

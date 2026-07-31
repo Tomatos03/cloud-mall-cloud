@@ -12,6 +12,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import com.cloudmall.auth.enums.UserTypeEnum;
+
 /**
  * 用户实体
  * <p>
@@ -49,8 +51,8 @@ public class UserDO {
     /** 关联店铺 ID */
     private Long storeId;
 
-    /** 用户类型（NORMAL / ADMIN / MERCHANT） */
-    private String types;
+    /** 用户类型（普通用户 / 管理员 / 店铺商家） */
+    private UserTypeEnum types;
 
     @TableField(fill = FieldFill.INSERT)
     private LocalDateTime createTime;
