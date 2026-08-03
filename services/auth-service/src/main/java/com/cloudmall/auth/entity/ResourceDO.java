@@ -79,5 +79,6 @@ public class ResourceDO {
      * 软删除标记
      */
     @TableLogic
+    @TableField(fill = FieldFill.INSERT)
     private Boolean deleted;
 }

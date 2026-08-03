@@ -3,6 +3,9 @@ package com.cloudmall.coupon.enums;
 import java.util.Arrays;
 
 import com.baomidou.mybatisplus.annotation.EnumValue;
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonValue;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
@@ -30,6 +33,7 @@ public enum CouponStatusEnum {
     ENDED("ENDED", "已结束");
     /** 数据库存储值 */
     @EnumValue
+    @JsonValue
     private final String code;
     /** 状态描述 */
     private final String desc;
@@ -40,7 +44,8 @@ public enum CouponStatusEnum {
      * @return 匹配的模板状态
      * @throws IllegalArgumentException 编码非法或为 null 时抛出
      */
-    public static CouponStatusEnum fromCode(String code) {
+    @JsonCreator
+    public static CouponStatusEnum fromCode(@JsonProperty("code") String code) {
         return Arrays
                 .stream(values())
                 .filter(t -> t.code.equals(code))

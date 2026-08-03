@@ -27,6 +27,7 @@ import com.cloudmall.coupon.api.response.CouponResp;
 import com.cloudmall.coupon.api.response.UserCouponResp;
 import com.cloudmall.coupon.convert.CouponConverter;
 import com.cloudmall.coupon.convert.UserCouponConverter;
+import com.cloudmall.coupon.convert.UserCouponLogConverter;
 import com.cloudmall.coupon.entity.CouponDO;
 import com.cloudmall.coupon.entity.UserCouponDO;
 import com.cloudmall.coupon.entity.UserCouponLogDO;
@@ -58,6 +59,7 @@ public class UserCouponService implements IUserCouponService {
     private final CouponMapper couponMapper;
     private final CouponConverter couponConverter;
     private final UserCouponConverter userCouponConverter;
+    private final UserCouponLogConverter userCouponLogConverter;
     private final ICouponTemplateService couponTemplateService;
 
     /**
@@ -225,7 +227,7 @@ public class UserCouponService implements IUserCouponService {
             resp.setClaimed(findClaimed(userId, couponId) != null);
         }
         boolean claimed = BooleanUtil.isTrue(resp.getClaimed());
-        resp.setClaimable(calcClaimable(resp, LocalDateTime.now(), claimed));
+        resp.setClaimable(resp.isClaimable(LocalDateTime.now(), claimed));
         resp.setStockRemaining(calcStockRemaining(resp));
         return resp;
     }
@@ -456,25 +458,9 @@ public class UserCouponService implements IUserCouponService {
             return 0;
         }
         int affected = userCouponMapper.revokeAvailableByCoupon(couponId);
-        LocalDateTime now = LocalDateTime.now();
-        for (UserCouponDO uc : available) {
-            userCouponLogMapper.insert(
-                    UserCouponLogDO.builder()
-                                   .userCouponId(uc.getId())
-                                   .couponId(uc.getCouponId())
-                                   .userId(uc.getUserId())
-                                   .orderNo(null)
-                                   .eventId(null)
-                                   .operationType(UserCouponOperationTypeEnum.REVOKE)
-                                   .fromStatus(UserCouponStatusEnum.AVAILABLE)
-                                   .toStatus(UserCouponStatusEnum.REVOKED)
-                                   .source(UserCouponLogSourceEnum.OPERATOR)
-                                   .operatorId(operatorId)
-                                   .reason(ObjectUtil.defaultIfNull(reason, "运营紧急撤销"))
-                                   .createTime(now)
-                                   .build()
-            );
-        }
+        userCouponLogMapper.insert(
+                userCouponLogConverter.toRevokeLogList(available, operatorId, reason)
+        );
         return affected;
     }
 
@@ -554,51 +540,30 @@ public class UserCouponService implements IUserCouponService {
             effective = now;
             expire = now.plusDays(template.getValidDays());
         }
-        UserCouponDO uc = UserCouponDO
-                .builder()
-                .userId(userId)
-                .couponId(template.getId())
-                .ownerType(template.getOwnerType())
-                .shopId(template.getShopId())
-                .nameSnapshot(template.getName())
-                .typeSnapshot(template.getType())
-                .scopeTypeSnapshot(template.getScopeType())
-                .thresholdSnapshot(template.getThreshold())
-                .discountAmountSnapshot(template.getDiscountAmount())
-                .discountRateSnapshot(template.getDiscountRate())
-                .effectiveTime(effective)
-                .expireTime(expire)
-                .status(UserCouponStatusEnum.AVAILABLE)
-                .lockedOrderNo(null)
-                .lockExpireTime(null)
-                .stateTime(now)
-                .issuedSource(source)
-                .issuedEventId(source == IssuedSourceEnum.REGISTER_AUTO ? eventId : null)
-                .createTime(now)
-                .updateTime(now)
-                .deleted(false)
-                .build();
+        UserCouponDO uc = userCouponConverter.toIssue(
+                template,
+                userId,
+                source,
+                eventId,
+                now,
+                effective,
+                expire
+        );
         userCouponMapper.insert(uc);
         userCouponLogMapper.insert(
-                UserCouponLogDO
-                        .builder()
-                        .userCouponId(uc.getId())
-                        .couponId(template.getId())
-                        .userId(userId)
-                        .orderNo(null)
-                        .eventId(
-                                source == IssuedSourceEnum.REGISTER_AUTO
-                                        ? eventId + ":" + template.getId()
-                                        : null
-                        )
-                        .operationType(UserCouponOperationTypeEnum.ISSUE)
-                        .fromStatus(null)
-                        .toStatus(UserCouponStatusEnum.AVAILABLE)
-                        .source(logSource)
-                        .operatorId(operatorId)
-                        .reason(reason)
-                        .createTime(now)
-                        .build()
+                userCouponLogConverter.toLog(
+                        uc,
+                        UserCouponOperationTypeEnum.ISSUE,
+                        null,
+                        UserCouponStatusEnum.AVAILABLE,
+                        logSource,
+                        null,
+                        source == IssuedSourceEnum.REGISTER_AUTO
+                                ? eventId + ":" + template.getId()
+                                : null,
+                        operatorId,
+                        reason
+                )
         );
         return userCouponConverter.toResp(uc);
     }
@@ -656,22 +621,7 @@ public class UserCouponService implements IUserCouponService {
                         .eq(UserCouponDO::getStatus, UserCouponStatusEnum.AVAILABLE)
         );
         uc.setStatus(UserCouponStatusEnum.EXPIRED);
-        userCouponLogMapper.insert(
-                UserCouponLogDO.builder()
-                               .userCouponId(uc.getId())
-                               .couponId(uc.getCouponId())
-                               .userId(uc.getUserId())
-                               .orderNo(null)
-                               .eventId(null)
-                               .operationType(UserCouponOperationTypeEnum.EXPIRE)
-                               .fromStatus(UserCouponStatusEnum.AVAILABLE)
-                               .toStatus(UserCouponStatusEnum.EXPIRED)
-                               .source(UserCouponLogSourceEnum.SYSTEM)
-                               .operatorId(null)
-                               .reason("实时过期校验")
-                               .createTime(now)
-                               .build()
-        );
+        userCouponLogMapper.insert(userCouponLogConverter.toExpireLog(uc, "实时过期校验"));
     }
 
     /**
@@ -680,25 +630,7 @@ public class UserCouponService implements IUserCouponService {
      * @param overdue 过期用户券列表
      */
     private void appendExpireLogs(List<UserCouponDO> overdue) {
-        LocalDateTime now = LocalDateTime.now();
-        for (UserCouponDO uc : overdue) {
-            userCouponLogMapper.insert(
-                    UserCouponLogDO.builder()
-                                   .userCouponId(uc.getId())
-                                   .couponId(uc.getCouponId())
-                                   .userId(uc.getUserId())
-                                   .orderNo(null)
-                                   .eventId(null)
-                                   .operationType(UserCouponOperationTypeEnum.EXPIRE)
-                                   .fromStatus(UserCouponStatusEnum.AVAILABLE)
-                                   .toStatus(UserCouponStatusEnum.EXPIRED)
-                                   .source(UserCouponLogSourceEnum.SYSTEM)
-                                   .operatorId(null)
-                                   .reason("批量过期任务")
-                                   .createTime(now)
-                                   .build()
-            );
-        }
+        userCouponLogMapper.insert(userCouponLogConverter.toExpireLogList(overdue, "批量过期任务"));
     }
 
     /**
@@ -756,20 +688,17 @@ public class UserCouponService implements IUserCouponService {
             String reason
     ) {
         userCouponLogMapper.insert(
-                UserCouponLogDO.builder()
-                               .userCouponId(uc.getId())
-                               .couponId(uc.getCouponId())
-                               .userId(uc.getUserId())
-                               .orderNo(orderNo)
-                               .eventId(eventId)
-                               .operationType(op)
-                               .fromStatus(from)
-                               .toStatus(to)
-                               .source(source)
-                               .operatorId(operatorId)
-                               .reason(reason)
-                               .createTime(LocalDateTime.now())
-                               .build()
+                userCouponLogConverter.toLog(
+                        uc,
+                        op,
+                        from,
+                        to,
+                        source,
+                        orderNo,
+                        eventId,
+                        operatorId,
+                        reason
+                )
         );
     }
 
@@ -791,7 +720,7 @@ public class UserCouponService implements IUserCouponService {
         for (CouponResp resp : resps) {
             boolean claimed = claimedIds.contains(resp.getId());
             resp.setClaimed(userId == null ? null : claimed);
-            resp.setClaimable(calcClaimable(resp, now, claimed));
+            resp.setClaimable(resp.isClaimable(now, claimed));
             resp.setStockRemaining(calcStockRemaining(resp));
         }
         return resps;
@@ -811,30 +740,4 @@ public class UserCouponService implements IUserCouponService {
         return Math.max(0L, resp.getTotalCount() - claimed);
     }
 
-    /**
-     * 计算当前是否可领取。
-     *
-     * @param resp 模板响应
-     * @param now 当前时间
-     * @param claimed 是否已领取
-     * @return true 为可领取
-     */
-    private boolean calcClaimable(CouponResp resp, LocalDateTime now, boolean claimed) {
-        if (claimed) {
-            return false;
-        }
-        if (!CouponStatusEnum.ACTIVE.getCode().equals(resp.getStatus())) {
-            return false;
-        }
-        if (resp.getIssueStartTime() != null && resp.getIssueStartTime().isAfter(now)) {
-            return false;
-        }
-        if (resp.getIssueEndTime() != null && resp.getIssueEndTime().isBefore(now)) {
-            return false;
-        }
-        if (resp.isClaimedOut()) {
-            return false;
-        }
-        return true;
-    }
 }

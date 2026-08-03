@@ -36,9 +36,12 @@ import com.cloudmall.auth.service.IUserService;
 import com.cloudmall.common.context.UserContext;
 import com.cloudmall.common.context.UserContextHolder;
 import com.cloudmall.common.enums.BizErrorCode;
+import com.cloudmall.common.model.Result;
 import com.cloudmall.common.utils.AssertUtils;
 import com.cloudmall.jwt.service.ITokenService;
 import com.cloudmall.mybatisplus.enums.StatusEnum;
+import com.cloudmall.user.api.client.ShopClient;
+import com.cloudmall.user.api.response.ShopResp;
 
 /**
  * 用户服务实现
@@ -59,7 +62,7 @@ public class UserService implements IUserService {
     private final PasswordEncoder passwordEncoder;
     private final UserConverter userConverter;
     private final IResourceService resourceService;
-
+    private final ShopClient shopClient;
     /**
      * {@inheritDoc}
      */
@@ -81,6 +84,7 @@ public class UserService implements IUserService {
                 .userId(user.getId())
                 .username(user.getUsername())
                 .userType(ObjectUtil.defaultIfNull(user.getTypes(), UserTypeEnum.NORMAL).getCode())
+                .shopId(resolveShopId(user))
                 .permissionCodes(permissionCodes)
                 .build();
         String token = authTokenService.createToken(userCtx);
@@ -88,6 +92,23 @@ public class UserService implements IUserService {
         LoginResp response = userConverter.toLoginResp(user);
         response.setToken(token);
         return response;
+    }
+
+    /**
+     * 解析用户店铺 ID：仅商家查询其名下唯一店铺，其余类型或未开店时返回 null。
+     *
+     * @param user 用户实体
+     * @return 店铺 ID，无店铺时为 null
+     */
+    private Long resolveShopId(UserDO user) {
+        if (user.getTypes() != UserTypeEnum.MERCHANT) {
+            return null;
+        }
+        Result<ShopResp> result = shopClient.getByUserId(user.getId());
+        if (result.getCode() == Result.SUCCESS_CODE && result.getData() != null) {
+            return result.getData().getId();
+        }
+        return null;
     }
 
     /**

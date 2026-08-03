@@ -113,6 +113,10 @@ mvn test -pl services/user-service
 mvn clean compile -DskipTests 2>&1 | tail -20
 ```
 
+## 代码风格
+
+- 每次 `mvn` 编译通过之后，运行 `jstyle format` 执行一次格式化
+
 ## 数据库
 
 - 单库 `cm_mall`

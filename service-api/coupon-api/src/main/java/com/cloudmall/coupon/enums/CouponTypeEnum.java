@@ -3,6 +3,9 @@ package com.cloudmall.coupon.enums;
 import java.util.Arrays;
 
 import com.baomidou.mybatisplus.annotation.EnumValue;
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonValue;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
@@ -26,6 +29,7 @@ public enum CouponTypeEnum {
     CASH("CASH", "立减");
     /** 数据库存储值 */
     @EnumValue
+    @JsonValue
     private final String code;
     /** 类型描述 */
     private final String desc;
@@ -36,7 +40,8 @@ public enum CouponTypeEnum {
      * @return 匹配的优惠券类型
      * @throws IllegalArgumentException 编码非法或为 null 时抛出
      */
-    public static CouponTypeEnum fromCode(String code) {
+    @JsonCreator
+    public static CouponTypeEnum fromCode(@JsonProperty("code") String code) {
         return Arrays
                 .stream(values())
                 .filter(t -> t.code.equals(code))

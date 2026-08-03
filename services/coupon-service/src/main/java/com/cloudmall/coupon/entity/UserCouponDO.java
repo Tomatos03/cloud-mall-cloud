@@ -3,6 +3,8 @@ package com.cloudmall.coupon.entity;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
+import com.baomidou.mybatisplus.annotation.FieldFill;
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableLogic;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.AllArgsConstructor;
@@ -90,13 +92,16 @@ public class UserCouponDO {
     private String issuedEventId;
 
     /** 发放时间 */
+    @TableField(fill = FieldFill.INSERT)
     private LocalDateTime createTime;
 
     /** 更新时间 */
+    @TableField(fill = FieldFill.INSERT_UPDATE)
     private LocalDateTime updateTime;
 
     /** 是否删除（0=否 1=是） */
     @TableLogic
+    @TableField(fill = FieldFill.INSERT)
     private Boolean deleted;
 
     /**

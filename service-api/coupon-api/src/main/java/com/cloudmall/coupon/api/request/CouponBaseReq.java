@@ -12,10 +12,15 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 
+import com.cloudmall.coupon.enums.CouponOwnerTypeEnum;
+import com.cloudmall.coupon.enums.CouponScopeTypeEnum;
+import com.cloudmall.coupon.enums.CouponTypeEnum;
+import com.cloudmall.coupon.enums.ValidityModeEnum;
+
 /**
- * 优惠券模板请求基类
+ * 优惠券模板请求体
  * <p>
- * 包含创建与编辑共用的模板核心规则字段。
+ * 创建与编辑共用的模板核心规则字段，CouponUpdateReq 继承本类复用字段。
  *
  * @author : Tomatos
  */
@@ -23,20 +28,23 @@ import lombok.experimental.SuperBuilder;
 @SuperBuilder
 @NoArgsConstructor
 @AllArgsConstructor
-public abstract class CouponBaseReq {
+public class CouponBaseReq {
 
     /** 券展示名称 */
     @NotBlank
     private String name;
 
+    /** 券归属（PLATFORM / SHOP） */
+    @NotNull
+    private CouponOwnerTypeEnum ownerType;
+
     /** 券类型（FULL_REDUCTION / DISCOUNT / CASH） */
-    @NotBlank
-    private String type;
+    @NotNull
+    private CouponTypeEnum type;
 
     /** 适用范围（ALL / PRODUCT / CATEGORY） */
-    @NotBlank
-    private String scopeType;
-
+    @NotNull
+    private CouponScopeTypeEnum scopeType;
     /** 使用门槛（0 表示无门槛） */
     private BigDecimal threshold;
 
@@ -56,8 +64,8 @@ public abstract class CouponBaseReq {
     private Boolean autoIssueOnRegister;
 
     /** 有效期模式（FIXED / RELATIVE） */
-    @NotBlank
-    private String validityMode;
+    @NotNull
+    private ValidityModeEnum validityMode;
 
     /** 发放窗口开始时间 */
     @NotNull

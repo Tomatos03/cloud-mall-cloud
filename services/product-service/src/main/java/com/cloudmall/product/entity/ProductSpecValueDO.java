@@ -30,5 +30,6 @@ public class ProductSpecValueDO {
     private LocalDateTime updateTime;
 
     @TableLogic
+    @TableField(fill = FieldFill.INSERT)
     private Boolean deleted;
 }

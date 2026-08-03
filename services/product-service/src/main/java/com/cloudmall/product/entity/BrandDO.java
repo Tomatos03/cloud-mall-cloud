@@ -39,5 +39,6 @@ public class BrandDO {
     private LocalDateTime updateTime;
 
     @TableLogic
+    @TableField(fill = FieldFill.INSERT)
     private Boolean deleted;
 }

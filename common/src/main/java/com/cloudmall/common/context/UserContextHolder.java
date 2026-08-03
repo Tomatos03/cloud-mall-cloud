@@ -67,6 +67,16 @@ public final class UserContextHolder {
     }
 
     /**
+     * 获取当前用户店铺 ID。
+     *
+     * @return 店铺 ID，非商家或未登录时返回 null
+     */
+    public static Long getShopId() {
+        UserContext c = get();
+        return c != null ? c.getShopId() : null;
+    }
+
+    /**
      * 清除当前请求的用户上下文。 <p>
      * 务必在请求结束后调用，防止 ThreadLocal 内存泄漏。
      */

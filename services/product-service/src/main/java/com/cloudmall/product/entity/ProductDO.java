@@ -38,5 +38,6 @@ public class ProductDO {
     private LocalDateTime updateTime;
 
     @TableLogic
+    @TableField(fill = FieldFill.INSERT)
     private Boolean deleted;
 }

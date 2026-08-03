@@ -20,7 +20,7 @@ import com.cloudmall.jwt.exception.AuthTokenException;
 /**
  * 基于 JJWT 的认证令牌实现
  * <p>
- * 使用 HMAC-SHA 签名，token 中携带 userId、username、userType、permissionCodes 和扩展字段。
+ * 使用 HMAC-SHA 签名，token 中携带 userId、username、userType、shopId、permissionCodes 和扩展字段。
  *
  * @author : Tomatos
  * @date : 2026/7/25
@@ -43,7 +43,7 @@ public class JwtTokenService implements ITokenService {
     /**
      * 创建 JWT Token <p>
      * 将用户上下文编码为 JWT 字符串，包含 userId、username、userType、
-     * permissionCodes 和扩展字段。
+     * shopId、permissionCodes 和扩展字段。
      *
      * @param userContext 用户上下文
      * @return JWT token 字符串
@@ -61,6 +61,10 @@ public class JwtTokenService implements ITokenService {
                                  .issuedAt(now)
                                  .expiration(new Date(now.getTime() + expirationMs))
                                  .signWith(key);
+
+        if (userContext.getShopId() != null) {
+            builder.claim("shopId", userContext.getShopId());
+        }
 
         if (CollUtil.isNotEmpty(extra)) {
             builder.claims().add(extra);
@@ -119,6 +123,7 @@ public class JwtTokenService implements ITokenService {
                 .userId(claims.get("userId", Long.class))
                 .username(claims.get("username", String.class))
                 .userType(claims.get("userType", String.class))
+                .shopId(claims.get("shopId", Long.class))
                 .extra(claims.get("extra", Map.class));
 
         Object permissionCodesObj = claims.get("permissionCodes");

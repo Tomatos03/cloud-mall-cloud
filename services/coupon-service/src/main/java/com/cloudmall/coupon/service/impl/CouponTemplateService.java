@@ -18,7 +18,6 @@ import com.cloudmall.common.enums.BizErrorCode;
 import com.cloudmall.common.model.Result;
 import com.cloudmall.common.utils.AssertUtils;
 import com.cloudmall.coupon.api.request.CouponBaseReq;
-import com.cloudmall.coupon.api.request.CouponCreateReq;
 import com.cloudmall.coupon.api.request.CouponUpdateReq;
 import com.cloudmall.coupon.api.response.CouponResp;
 import com.cloudmall.coupon.convert.CouponConverter;
@@ -31,7 +30,6 @@ import com.cloudmall.coupon.enums.CouponOperatorTypeEnum;
 import com.cloudmall.coupon.enums.CouponOwnerTypeEnum;
 import com.cloudmall.coupon.enums.CouponScopeTypeEnum;
 import com.cloudmall.coupon.enums.CouponStatusEnum;
-import com.cloudmall.coupon.enums.CouponTypeEnum;
 import com.cloudmall.coupon.enums.ValidityModeEnum;
 import com.cloudmall.coupon.mapper.CouponCategoryMapper;
 import com.cloudmall.coupon.mapper.CouponMapper;
@@ -42,8 +40,6 @@ import com.cloudmall.product.api.client.CategoryClient;
 import com.cloudmall.product.api.client.ProductClient;
 import com.cloudmall.product.api.response.CategoryResp;
 import com.cloudmall.product.api.response.ProductResp;
-import com.cloudmall.user.api.client.ShopClient;
-import com.cloudmall.user.api.response.ShopResp;
 
 /**
  * 优惠券模板领域服务实现。
@@ -61,7 +57,6 @@ public class CouponTemplateService implements ICouponTemplateService {
     private final CouponConverter couponConverter;
     private final ProductClient productClient;
     private final CategoryClient categoryClient;
-    private final ShopClient shopClient;
 
     /**
      * 创建模板草稿。
@@ -71,45 +66,14 @@ public class CouponTemplateService implements ICouponTemplateService {
      */
     @Override
     @Transactional
-    public Long createDraft(CouponCreateReq req) {
-        CouponOwnerTypeEnum ownerType = CouponOwnerTypeEnum.fromCode(req.getOwnerType());
-        CouponTypeEnum type = CouponTypeEnum.fromCode(req.getType());
-        CouponScopeTypeEnum scopeType = CouponScopeTypeEnum.fromCode(req.getScopeType());
-        ValidityModeEnum validityMode = ValidityModeEnum.fromCode(req.getValidityMode());
-        Long shopId = resolveShopId(ownerType);
-        validateRule(req, ownerType, type, scopeType, validityMode, shopId);
-        validateScope(scopeType, req.getProductIds(), req.getCategoryIds(), ownerType, shopId);
+    public Long createDraft(CouponBaseReq req) {
+        Long shopId = UserContextHolder.getShopId();
+        validateRule(req, shopId);
+        validateScope(req, shopId);
 
-        LocalDateTime now = LocalDateTime.now();
-        CouponDO coupon = CouponDO
-                .builder()
-                .name(req.getName())
-                .ownerType(ownerType)
-                .shopId(shopId)
-                .createdBy(currentUserId())
-                .type(type)
-                .scopeType(scopeType)
-                .threshold(ObjectUtil.defaultIfNull(req.getThreshold(), BigDecimal.ZERO))
-                .discountAmount(req.getDiscountAmount())
-                .discountRate(req.getDiscountRate())
-                .totalCount(req.getTotalCount())
-                .claimedCount(0L)
-                .claimEnabled(BooleanUtil.isTrue(req.getClaimEnabled()))
-                .autoIssueOnRegister(BooleanUtil.isTrue(req.getAutoIssueOnRegister()))
-                .validityMode(validityMode)
-                .issueStartTime(req.getIssueStartTime())
-                .issueEndTime(req.getIssueEndTime())
-                .fixedStartTime(req.getFixedStartTime())
-                .fixedExpireTime(req.getFixedExpireTime())
-                .validDays(req.getValidDays())
-                .status(CouponStatusEnum.DRAFT)
-                .firstIssuedTime(null)
-                .createTime(now)
-                .updateTime(now)
-                .deleted(false)
-                .build();
+        CouponDO coupon = couponConverter.toDraft(req);
         couponMapper.insert(coupon);
-        saveScope(coupon.getId(), scopeType, req.getProductIds(), req.getCategoryIds(), now);
+        saveScope(coupon.getId(), req.getScopeType(), req.getProductIds(), req.getCategoryIds());
         appendOperationLog(
                 coupon,
                 null,
@@ -135,37 +99,18 @@ public class CouponTemplateService implements ICouponTemplateService {
                 coupon.getStatus() == CouponStatusEnum.DRAFT,
                 BizErrorCode.COUPON_RULE_FROZEN
         );
-        CouponTypeEnum type = CouponTypeEnum.fromCode(req.getType());
-        CouponScopeTypeEnum scopeType = CouponScopeTypeEnum.fromCode(req.getScopeType());
-        ValidityModeEnum validityMode = ValidityModeEnum.fromCode(req.getValidityMode());
-        validateRule(req, coupon.getOwnerType(), type, scopeType, validityMode, coupon.getShopId());
-        validateScope(
-                scopeType,
-                req.getProductIds(),
-                req.getCategoryIds(),
-                coupon.getOwnerType(),
-                coupon.getShopId()
+        AssertUtils.isTrue(
+                req.getOwnerType() == coupon.getOwnerType(),
+                BizErrorCode.COUPON_OWNER_INVALID
         );
+        validateRule(req, coupon.getShopId());
+        validateScope(req, coupon.getShopId());
 
         LocalDateTime now = LocalDateTime.now();
-        coupon.setName(req.getName());
-        coupon.setType(type);
-        coupon.setScopeType(scopeType);
-        coupon.setThreshold(ObjectUtil.defaultIfNull(req.getThreshold(), BigDecimal.ZERO));
-        coupon.setDiscountAmount(req.getDiscountAmount());
-        coupon.setDiscountRate(req.getDiscountRate());
-        coupon.setTotalCount(req.getTotalCount());
-        coupon.setClaimEnabled(BooleanUtil.isTrue(req.getClaimEnabled()));
-        coupon.setAutoIssueOnRegister(BooleanUtil.isTrue(req.getAutoIssueOnRegister()));
-        coupon.setValidityMode(validityMode);
-        coupon.setIssueStartTime(req.getIssueStartTime());
-        coupon.setIssueEndTime(req.getIssueEndTime());
-        coupon.setFixedStartTime(req.getFixedStartTime());
-        coupon.setFixedExpireTime(req.getFixedExpireTime());
-        coupon.setValidDays(req.getValidDays());
+        couponConverter.applyUpdate(coupon, req);
         coupon.setUpdateTime(now);
         couponMapper.updateById(coupon);
-        saveScope(id, scopeType, req.getProductIds(), req.getCategoryIds(), now);
+        saveScope(id, req.getScopeType(), req.getProductIds(), req.getCategoryIds());
         appendOperationLog(
                 coupon,
                 CouponStatusEnum.DRAFT,
@@ -338,45 +283,16 @@ public class CouponTemplateService implements ICouponTemplateService {
     }
 
     /**
-     * 解析店铺归属：SHOP 归属时从当前用户上下文查询唯一店铺。
-     *
-     * @param ownerType 券归属
-     * @return 店铺 ID（平台券为 null）
-     */
-    private Long resolveShopId(CouponOwnerTypeEnum ownerType) {
-        if (ownerType == CouponOwnerTypeEnum.PLATFORM) {
-            return null;
-        }
-        Result<ShopResp> result = shopClient.getByUserId(currentUserId());
-        AssertUtils.isTrue(
-                result.getCode() == Result.SUCCESS_CODE && result.getData() != null,
-                BizErrorCode.MERCHANT_NO_SHOP
-        );
-        return result.getData().getId();
-    }
-
-    /**
      * 校验模板核心规则（创建与编辑共用）。
      *
      * @param req 请求参数
-     * @param ownerType 券归属
-     * @param type 券类型
-     * @param scopeType 适用范围
-     * @param validityMode 有效期模式
      * @param shopId 店铺 ID
      */
-    private void validateRule(
-            CouponBaseReq req,
-            CouponOwnerTypeEnum ownerType,
-            CouponTypeEnum type,
-            CouponScopeTypeEnum scopeType,
-            ValidityModeEnum validityMode,
-            Long shopId
-    ) {
+    private void validateRule(CouponBaseReq req, Long shopId) {
         AssertUtils.isFalse(req.isBothIssueChannelsEnabled(), BizErrorCode.COUPON_RULE_INVALID);
         if (BooleanUtil.isTrue(req.getAutoIssueOnRegister())) {
             AssertUtils.isTrue(
-                    ownerType == CouponOwnerTypeEnum.PLATFORM,
+                    req.getOwnerType() == CouponOwnerTypeEnum.PLATFORM,
                     BizErrorCode.COUPON_OWNER_INVALID
             );
             AssertUtils.isFalse(
@@ -384,11 +300,11 @@ public class CouponTemplateService implements ICouponTemplateService {
                     BizErrorCode.COUPON_RULE_INVALID
             );
         }
-        if (ownerType == CouponOwnerTypeEnum.SHOP) {
+        if (req.getOwnerType() == CouponOwnerTypeEnum.SHOP) {
             AssertUtils.notNull(shopId, BizErrorCode.COUPON_OWNER_INVALID);
         }
         BigDecimal threshold = ObjectUtil.defaultIfNull(req.getThreshold(), BigDecimal.ZERO);
-        switch (type) {
+        switch (req.getType()) {
             case FULL_REDUCTION -> {
                 AssertUtils.isTrue(
                         threshold.compareTo(BigDecimal.ZERO) > 0,
@@ -414,21 +330,21 @@ public class CouponTemplateService implements ICouponTemplateService {
                 AssertUtils.isTrue(req.isDiscountRateValid(), BizErrorCode.COUPON_RULE_INVALID);
             }
         }
-        if (scopeType == CouponScopeTypeEnum.PRODUCT) {
+        if (req.getScopeType() == CouponScopeTypeEnum.PRODUCT) {
             AssertUtils.isTrue(
                     CollUtil.isNotEmpty(req.getProductIds()),
                     BizErrorCode.COUPON_SCOPE_INVALID
             );
-        } else if (scopeType == CouponScopeTypeEnum.CATEGORY) {
+        } else if (req.getScopeType() == CouponScopeTypeEnum.CATEGORY) {
             AssertUtils.isTrue(
                     CollUtil.isNotEmpty(req.getCategoryIds()),
                     BizErrorCode.COUPON_SCOPE_INVALID
             );
         }
         AssertUtils.isTrue(req.isIssueTimeValid(), BizErrorCode.COUPON_RULE_INVALID);
-        if (validityMode == ValidityModeEnum.FIXED) {
+        if (req.getValidityMode() == ValidityModeEnum.FIXED) {
             AssertUtils.isTrue(req.isFixedTimeValid(), BizErrorCode.COUPON_RULE_INVALID);
-        } else if (validityMode == ValidityModeEnum.RELATIVE) {
+        } else if (req.getValidityMode() == ValidityModeEnum.RELATIVE) {
             AssertUtils.isTrue(req.hasValidDays(), BizErrorCode.COUPON_RULE_INVALID);
         }
     }
@@ -436,36 +352,29 @@ public class CouponTemplateService implements ICouponTemplateService {
     /**
      * 校验适用范围配置（商品/分类存在性，店铺券目标商品必须属于当前店铺）。
      *
-     * @param scopeType 适用范围
-     * @param productIds 商品 ID 列表
-     * @param categoryIds 分类 ID 列表
-     * @param ownerType 券归属
+     * @param req 请求参数
      * @param shopId 店铺 ID
      */
-    private void validateScope(
-            CouponScopeTypeEnum scopeType,
-            List<Long> productIds,
-            List<Long> categoryIds,
-            CouponOwnerTypeEnum ownerType,
-            Long shopId
-    ) {
-        if (scopeType == CouponScopeTypeEnum.PRODUCT) {
-            List<Long> distinct = productIds.stream()
-                                            .distinct()
-                                            .toList();
+    private void validateScope(CouponBaseReq req, Long shopId) {
+        if (req.getScopeType() == CouponScopeTypeEnum.PRODUCT) {
+            List<Long> distinct = req.getProductIds()
+                                     .stream()
+                                     .distinct()
+                                     .toList();
             for (Long productId : distinct) {
                 ProductResp product = callProduct(productId);
-                if (ownerType == CouponOwnerTypeEnum.SHOP) {
+                if (req.getOwnerType() == CouponOwnerTypeEnum.SHOP) {
                     AssertUtils.isTrue(
                             shopId.equals(product.getShopId()),
                             BizErrorCode.COUPON_SCOPE_INVALID
                     );
                 }
             }
-        } else if (scopeType == CouponScopeTypeEnum.CATEGORY) {
-            List<Long> distinct = categoryIds.stream()
-                                             .distinct()
-                                             .toList();
+        } else if (req.getScopeType() == CouponScopeTypeEnum.CATEGORY) {
+            List<Long> distinct = req.getCategoryIds()
+                                     .stream()
+                                     .distinct()
+                                     .toList();
             for (Long categoryId : distinct) {
                 callCategory(categoryId);
             }
@@ -500,50 +409,51 @@ public class CouponTemplateService implements ICouponTemplateService {
      * @param couponId 模板 ID
      * @param scopeType 适用范围
      * @param productIds 商品 ID 列表
+     * @param categoryIds 分类 ID 列表 /** 保存范围关联（先删后插，ALL 范围
+     *                    清空关联）。
+     * @param couponId 模板 ID
+     * @param scopeType 适用范围
+     * @param productIds 商品 ID 列表
      * @param categoryIds 分类 ID 列表
-     * @param now 当前时间
      */
     private void saveScope(
             Long couponId,
             CouponScopeTypeEnum scopeType,
             List<Long> productIds,
-            List<Long> categoryIds,
-            LocalDateTime now
+            List<Long> categoryIds
     ) {
         if (scopeType == CouponScopeTypeEnum.PRODUCT) {
             couponProductMapper.delete(
                     Wrappers.<CouponProductDO>lambdaQuery()
                             .eq(CouponProductDO::getCouponId, couponId)
             );
-            List<Long> distinct = productIds.stream()
-                                            .distinct()
-                                            .toList();
-            for (Long productId : distinct) {
-                couponProductMapper.insert(
-                        CouponProductDO.builder()
-                                       .couponId(couponId)
-                                       .productId(productId)
-                                       .createTime(now)
-                                       .build()
-                );
-            }
+            List<CouponProductDO> list = productIds
+                    .stream()
+                    .distinct()
+                    .map(
+                            productId -> CouponProductDO.builder()
+                                                        .couponId(couponId)
+                                                        .productId(productId)
+                                                        .build()
+                    )
+                    .toList();
+            couponProductMapper.insert(list);
         } else if (scopeType == CouponScopeTypeEnum.CATEGORY) {
             couponCategoryMapper.delete(
                     Wrappers.<CouponCategoryDO>lambdaQuery()
                             .eq(CouponCategoryDO::getCouponId, couponId)
             );
-            List<Long> distinct = categoryIds.stream()
-                                             .distinct()
-                                             .toList();
-            for (Long categoryId : distinct) {
-                couponCategoryMapper.insert(
-                        CouponCategoryDO.builder()
-                                        .couponId(couponId)
-                                        .categoryId(categoryId)
-                                        .createTime(now)
-                                        .build()
-                );
-            }
+            List<CouponCategoryDO> list = categoryIds
+                    .stream()
+                    .distinct()
+                    .map(
+                            categoryId -> CouponCategoryDO.builder()
+                                                          .couponId(couponId)
+                                                          .categoryId(categoryId)
+                                                          .build()
+                    )
+                    .toList();
+            couponCategoryMapper.insert(list);
         } else {
             deleteScope(couponId);
         }
@@ -638,17 +548,6 @@ public class CouponTemplateService implements ICouponTemplateService {
             return CouponOperatorTypeEnum.MERCHANT;
         }
         return CouponOperatorTypeEnum.OPERATOR;
-    }
-
-    /**
-     * 获取当前登录用户 ID。
-     *
-     * @return 用户 ID
-     */
-    private Long currentUserId() {
-        Long userId = UserContextHolder.getUserId();
-        AssertUtils.notNull(userId, BizErrorCode.USER_NOT_AUTHENTICATED);
-        return userId;
     }
 
     /**

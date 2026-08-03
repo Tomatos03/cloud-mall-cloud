@@ -34,5 +34,6 @@ public class ShopDO {
     private LocalDateTime updateTime;
 
     @TableLogic
+    @TableField(fill = FieldFill.INSERT)
     private Boolean deleted;
 }

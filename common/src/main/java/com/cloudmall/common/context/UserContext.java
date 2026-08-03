@@ -16,6 +16,7 @@ public class UserContext {
     private Long userId;
     private String username;
     private String userType;
+    private Long shopId;
     private List<String> permissionCodes;
     private Map<String, Object> extra;
 }

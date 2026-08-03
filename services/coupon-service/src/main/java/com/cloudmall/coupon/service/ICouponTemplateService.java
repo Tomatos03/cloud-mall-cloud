@@ -1,6 +1,6 @@
 package com.cloudmall.coupon.service;
 
-import com.cloudmall.coupon.api.request.CouponCreateReq;
+import com.cloudmall.coupon.api.request.CouponBaseReq;
 import com.cloudmall.coupon.api.request.CouponUpdateReq;
 import com.cloudmall.coupon.api.response.CouponResp;
 import com.cloudmall.coupon.entity.CouponDO;
@@ -17,12 +17,12 @@ public interface ICouponTemplateService {
 
     /**
      * 创建模板草稿。 <p>
-     * ownerType=SHOP 时从当前用户上下文解析唯一店铺；平台券 shopId 恒为空。
+     * ownerType=SHOP 时 shopId 取自登录令牌；平台券 shopId 恒为空。
      *
      * @param req 创建请求
      * @return 新模板 ID
      */
-    Long createDraft(CouponCreateReq req);
+    Long createDraft(CouponBaseReq req);
 
     /**
      * 编辑模板草稿，仅 DRAFT 状态可编辑。

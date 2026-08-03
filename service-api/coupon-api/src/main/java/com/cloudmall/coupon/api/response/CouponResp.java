@@ -9,6 +9,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import com.cloudmall.coupon.enums.CouponStatusEnum;
+
 /**
  * 优惠券模板响应对象
  * <p>
@@ -109,5 +111,28 @@ public class CouponResp {
     public boolean isClaimedOut() {
         return this.totalCount != null && this.claimedCount != null
                        && this.claimedCount >= this.totalCount;
+    }
+
+    /**
+     * 当前是否可领取：未领取、已发布、在发放窗口内且未领完。
+     *
+     * @param now 当前时间
+     * @param claimed 当前用户是否已领取
+     * @return true 表示可领取
+     */
+    public boolean isClaimable(LocalDateTime now, boolean claimed) {
+        if (claimed) {
+            return false;
+        }
+        if (!CouponStatusEnum.ACTIVE.getCode().equals(this.status)) {
+            return false;
+        }
+        if (this.issueStartTime != null && this.issueStartTime.isAfter(now)) {
+            return false;
+        }
+        if (this.issueEndTime != null && this.issueEndTime.isBefore(now)) {
+            return false;
+        }
+        return !isClaimedOut();
     }
 }

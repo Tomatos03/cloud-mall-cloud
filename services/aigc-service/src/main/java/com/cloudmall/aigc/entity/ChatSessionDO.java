@@ -37,5 +37,6 @@ public class ChatSessionDO implements Serializable {
     private LocalDateTime updateTime;
 
     @TableLogic
+    @TableField(fill = FieldFill.INSERT)
     private Boolean deleted;
 }
