@@ -60,6 +60,33 @@ services:
     extra_hosts:
       - "host.docker.internal:host-gateway"
 
+  rocketmq-namesrv:
+    container_name: cm-rocketmq-namesrv
+    image: apache/rocketmq:5.3.1
+    command: sh mqnamesrv
+    ports:
+      - "9876:9876"
+    volumes:
+      - rocketmq-namesrv-logs:/root/logs
+
+  rocketmq-broker:
+    container_name: cm-rocketmq-broker
+    image: apache/rocketmq:5.3.1
+    command: sh mqbroker -n rocketmq-namesrv:9876 --enable-proxy
+    depends_on:
+      rocketmq-namesrv:
+        condition: service_started
+    environment:
+      NAMESRV_ADDR: rocketmq-namesrv:9876
+      JAVA_OPT_EXT: "-Xms512m -Xmx512m -Xmn256m"
+    ports:
+      - "10911:10911"
+      - "10909:10909"
+      - "8081:8081"
+    volumes:
+      - rocketmq-broker-logs:/root/logs
+      - rocketmq-broker-store:/root/store
+
   elasticsearch:
     container_name: cm-elasticsearch
     image: docker.elastic.co/elasticsearch/elasticsearch:8.15.5
@@ -81,3 +108,6 @@ services:
 volumes:
   mysql-data:
   elasticsearch-data:
+  rocketmq-namesrv-logs:
+  rocketmq-broker-logs:
+  rocketmq-broker-store:

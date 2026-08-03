@@ -15,6 +15,7 @@ import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.cloudmall.auth.api.request.LoginReq;
 import com.cloudmall.auth.api.request.RegisterReq;
@@ -31,6 +32,7 @@ import com.cloudmall.auth.mapper.UserMapper;
 import com.cloudmall.auth.mapper.UserRoleMapper;
 import com.cloudmall.auth.model.req.UserPageReq;
 import com.cloudmall.auth.model.resp.ResourceNodeResp;
+import com.cloudmall.auth.service.IAuthOutboxService;
 import com.cloudmall.auth.service.IResourceService;
 import com.cloudmall.auth.service.IUserService;
 import com.cloudmall.common.context.UserContext;
@@ -56,6 +58,7 @@ import com.cloudmall.user.api.response.ShopResp;
 public class UserService implements IUserService {
 
     private final UserMapper userMapper;
+    private final IAuthOutboxService authOutboxService;
     private final UserRoleMapper userRoleMapper;
     private final ResourceMapper resourceMapper;
     private final ITokenService authTokenService;
@@ -115,6 +118,7 @@ public class UserService implements IUserService {
      * {@inheritDoc}
      */
     @Override
+    @Transactional
     public Long register(RegisterReq request) {
         Long count = userMapper.selectCount(
                 Wrappers.<UserDO>lambdaQuery().eq(UserDO::getUsername, request.getUsername())
@@ -126,6 +130,7 @@ public class UserService implements IUserService {
         user.setTypes(UserTypeEnum.NORMAL);
 
         userMapper.insert(user);
+        authOutboxService.appendUserRegistered(user.getId(), user.getUsername());
         return user.getId();
     }
 
