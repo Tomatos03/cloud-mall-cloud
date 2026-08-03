@@ -1,8 +1,12 @@
 package com.cloudmall.product.api.client;
 
+import java.util.List;
+
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 
 import com.cloudmall.common.model.Result;
 import com.cloudmall.product.api.response.CategoryResp;
@@ -25,5 +29,17 @@ public interface CategoryClient {
     Result<CategoryResp> getById(
             @PathVariable("id")
             Long id
+    );
+
+    /**
+     * 批量查询分类（分类后代匹配用）。
+     *
+     * @param ids 分类 ID 列表
+     * @return 分类信息列表
+     */
+    @PostMapping("/batch")
+    Result<List<CategoryResp>> getByIds(
+            @RequestBody
+            List<Long> ids
     );
 }

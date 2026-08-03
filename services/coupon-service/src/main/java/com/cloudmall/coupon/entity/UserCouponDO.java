@@ -122,4 +122,49 @@ public class UserCouponDO {
     public boolean isAvailableOrExpired() {
         return UserCouponStatusEnum.AVAILABLE.equals(this.status) || UserCouponStatusEnum.EXPIRED.equals(this.status);
     }
+
+    /**
+     * 状态是否为可用。
+     *
+     * @return true 表示可用
+     */
+    public boolean isAvailable() {
+        return UserCouponStatusEnum.AVAILABLE.equals(this.status);
+    }
+
+    /**
+     * 状态是否为已锁定。
+     *
+     * @return true 表示已锁定
+     */
+    public boolean isLocked() {
+        return UserCouponStatusEnum.LOCKED.equals(this.status);
+    }
+
+    /**
+     * 状态是否为已使用。
+     *
+     * @return true 表示已使用
+     */
+    public boolean isUsed() {
+        return UserCouponStatusEnum.USED.equals(this.status);
+    }
+
+    /**
+     * 归属是否为平台券。
+     *
+     * @return true 表示平台券
+     */
+    public boolean isPlatform() {
+        return CouponOwnerTypeEnum.PLATFORM.equals(this.ownerType);
+    }
+
+    /**
+     * 归属是否为店铺券。
+     *
+     * @return true 表示店铺券
+     */
+    public boolean isShop() {
+        return CouponOwnerTypeEnum.SHOP.equals(this.ownerType);
+    }
 }

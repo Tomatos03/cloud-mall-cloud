@@ -1,7 +1,9 @@
 package com.cloudmall.product.service.impl;
 
+import java.util.Collections;
 import java.util.List;
 
+import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.lang.tree.Tree;
 import cn.hutool.core.lang.tree.TreeNode;
@@ -74,6 +76,21 @@ public class CategoryService implements ICategoryService {
         CategoryDO cat = categoryMapper.selectById(id);
         AssertUtils.notNull(cat, BizErrorCode.DATA_NOT_FOUND);
         return categoryConverter.toResp(cat);
+    }
+
+    /**
+     * 批量查询分类（忽略已删除）。
+     *
+     * @param ids 分类 ID 列表
+     * @return 分类响应列表
+     */
+    @Override
+    public List<CategoryResp> getByIds(List<Long> ids) {
+        if (CollUtil.isEmpty(ids)) {
+            return Collections.emptyList();
+        }
+        List<CategoryDO> categories = categoryMapper.selectBatchIds(ids);
+        return categoryConverter.toRespList(categories);
     }
 
     /**

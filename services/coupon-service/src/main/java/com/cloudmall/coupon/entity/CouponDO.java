@@ -159,4 +159,22 @@ public class CouponDO {
     public boolean isStockAvailable() {
         return this.claimedCount != null && this.claimedCount < this.totalCount;
     }
+
+    /**
+     * 归属是否为平台券。
+     *
+     * @return true 表示平台券
+     */
+    public boolean isPlatform() {
+        return CouponOwnerTypeEnum.PLATFORM.equals(this.ownerType);
+    }
+
+    /**
+     * 归属是否为店铺券。
+     *
+     * @return true 表示店铺券
+     */
+    public boolean isShop() {
+        return CouponOwnerTypeEnum.SHOP.equals(this.ownerType);
+    }
 }

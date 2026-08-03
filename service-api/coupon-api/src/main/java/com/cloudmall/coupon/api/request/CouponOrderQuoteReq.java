@@ -1,0 +1,43 @@
+package com.cloudmall.coupon.api.request;
+
+import java.util.List;
+import java.util.Map;
+
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotNull;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import lombok.experimental.SuperBuilder;
+
+import com.cloudmall.coupon.api.dto.CouponCalcItem;
+
+/**
+ * 优惠券试算请求
+ * <p>
+ * 内部接口，由订单服务在下单试算时调用，无副作用。
+ * 用户身份显式传入（异步场景无用户上下文），不信任客户端金额。
+ *
+ * @author : Tomatos
+ */
+@Data
+@SuperBuilder
+@NoArgsConstructor
+@AllArgsConstructor
+public class CouponOrderQuoteReq {
+
+    /** 下单用户 ID（内部接口显式传入） */
+    @NotNull
+    private Long userId;
+
+    /** 可信商品明细列表 */
+    @NotEmpty
+    private List<@Valid CouponCalcItem> items;
+
+    /** 平台券 userCouponId（可空，表示不使用平台券） */
+    private Long platformUserCouponId;
+
+    /** 店铺券选择：shopId → userCouponId（可空，表示对应店铺不使用店铺券） */
+    private Map<Long, Long> shopUserCouponIds;
+}

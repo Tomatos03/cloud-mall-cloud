@@ -1,5 +1,7 @@
 package com.cloudmall.product.convert;
 
+import java.util.List;
+
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
@@ -17,6 +19,14 @@ public interface CategoryConverter {
      * @return 处理结果
      */
     CategoryResp toResp(CategoryDO category);
+
+    /**
+     * 批量转换分类实体列表。
+     *
+     * @param categories 分类实体列表
+     * @return 分类响应列表
+     */
+    List<CategoryResp> toRespList(List<CategoryDO> categories);
 
     /**
      * 转换对象数据。
