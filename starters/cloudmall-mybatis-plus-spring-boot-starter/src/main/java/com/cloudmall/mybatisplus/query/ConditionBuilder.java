@@ -40,11 +40,10 @@ import com.cloudmall.mybatisplus.annotation.QueryCondition;
 public interface ConditionBuilder<T> {
 
     /**
-     * 构建查询条件。
-     * <p>
-     * 遍历实现类中所有带 {@code @QueryCondition} 的字段，
-     * 按注解声明的操作符和属性映射生成 {@link LambdaQueryWrapper}。
-     * 值为 {@code null} 或空白时自动跳过（{@code IS_NULL / IS_NOT_NULL} 除外）。
+     * 构建查询条件。 <p>
+     * 遍历实现类中所有带 {@code @QueryCondition} 的字段， 按注解声明的操作符和属
+     * 性映射生成 {@link LambdaQueryWrapper}。 值为 {@code null}
+     * 或空白时自动跳过（{@code IS_NULL / IS_NOT_NULL} 除外）。
      *
      * @return LambdaQueryWrapper，包含所有非空注解条件
      */
@@ -69,9 +68,8 @@ public interface ConditionBuilder<T> {
 
             Object value = ReflectUtil.getFieldValue(this, field);
             boolean isSelfSufficient = ann.operator() == Operator.IS_NULL
-                    || ann.operator() == Operator.IS_NOT_NULL;
-            if (!isSelfSufficient && ann.ignoreNull()
-                    && QueryConditionHelper.isNullOrEmpty(value)) {
+                                               || ann.operator() == Operator.IS_NOT_NULL;
+            if (!isSelfSufficient && ann.ignoreNull() && QueryConditionHelper.isNullOrEmpty(value)) {
                 continue;
             }
 
@@ -81,10 +79,10 @@ public interface ConditionBuilder<T> {
     }
 
     /**
-     * 从子类泛型参数推断实体类型。
-     * <p>
-     * 通过反射获取父类的类型参数 {@code T} 的实际类型。
-     * 例如 {@code GoodsListReq extends ConditionReq<GoodsDO>} 返回 {@code GoodsDO.class}。
+     * 从子类泛型参数推断实体类型。 <p>
+     * 通过反射获取父类的类型参数 {@code T} 的实际类型。 例如
+     * {@code GoodsListReq extends ConditionReq<GoodsDO>}
+     * 返回 {@code GoodsDO.class}。
      *
      * @return 处理结果
      */

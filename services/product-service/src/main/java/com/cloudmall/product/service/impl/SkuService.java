@@ -92,8 +92,7 @@ public class SkuService implements ISkuService {
             return Collections.emptyList();
         }
         List<ProductSkuDO> skus = productSkuMapper.selectList(
-                Wrappers.<ProductSkuDO>lambdaQuery()
-                        .in(ProductSkuDO::getId, skuIds)
+                Wrappers.<ProductSkuDO>lambdaQuery().in(ProductSkuDO::getId, skuIds)
         );
         if (CollUtil.isEmpty(skus)) {
             return Collections.emptyList();
@@ -105,10 +104,12 @@ public class SkuService implements ISkuService {
                                    .collect(Collectors.toSet());
         List<ProductDO> products = productMapper.selectByIds(productIds);
         Map<Long, ProductDO> productMap = products.stream()
-                                                  .collect(Collectors.toMap(
-                                                          ProductDO::getId,
-                                                          Function.identity()
-                                                  ));
+                                                  .collect(
+                                                          Collectors.toMap(
+                                                                  ProductDO::getId,
+                                                                  Function.identity()
+                                                          )
+                                                  );
 
         // 批量查询规格描述（skuId -> "红色；XL"）
         Set<Long> skuIdSet = skus.stream()
@@ -145,7 +146,10 @@ public class SkuService implements ISkuService {
         if (CollUtil.isEmpty(specValueIds)) {
             return null;
         }
-        Map<Long, List<Long>> matched = productSpecService.getSpecValueSkuMap(productId, specValueIds);
+        Map<Long, List<Long>> matched = productSpecService.getSpecValueSkuMap(
+                productId,
+                specValueIds
+        );
         if (matched.size() != 1) {
             return null;
         }
@@ -157,8 +161,7 @@ public class SkuService implements ISkuService {
     }
 
     /**
-     * 批量查询 SKU 的规格描述。
-     * <p>
+     * 批量查询 SKU 的规格描述。 <p>
      * 规格值与规格组分属两张关联表，分三步批量查询后按规格组排序拼接。
      *
      * @param skuIds SKU ID 集合
@@ -166,8 +169,7 @@ public class SkuService implements ISkuService {
      */
     private Map<Long, String> batchBuildSpecDesc(Set<Long> skuIds) {
         List<ProductSkuSpecDO> relations = productSkuSpecMapper.selectList(
-                Wrappers.<ProductSkuSpecDO>lambdaQuery()
-                        .in(ProductSkuSpecDO::getSkuId, skuIds)
+                Wrappers.<ProductSkuSpecDO>lambdaQuery().in(ProductSkuSpecDO::getSkuId, skuIds)
         );
         if (CollUtil.isEmpty(relations)) {
             return Collections.emptyMap();
@@ -178,10 +180,12 @@ public class SkuService implements ISkuService {
                                           .collect(Collectors.toSet());
         List<ProductSpecValueDO> values = productSpecValueMapper.selectByIds(specValueIds);
         Map<Long, ProductSpecValueDO> valueMap = values.stream()
-                                                       .collect(Collectors.toMap(
-                                                               ProductSpecValueDO::getId,
-                                                               Function.identity()
-                                                       ));
+                                                       .collect(
+                                                               Collectors.toMap(
+                                                                       ProductSpecValueDO::getId,
+                                                                       Function.identity()
+                                                               )
+                                                       );
 
         Set<Long> groupIds = valueMap.values()
                                      .stream()
@@ -189,27 +193,31 @@ public class SkuService implements ISkuService {
                                      .collect(Collectors.toSet());
         List<ProductSpecGroupDO> groups = productSpecGroupMapper.selectByIds(groupIds);
         Map<Long, ProductSpecGroupDO> groupMap = groups.stream()
-                                                       .collect(Collectors.toMap(
-                                                               ProductSpecGroupDO::getId,
-                                                               Function.identity()
-                                                       ));
+                                                       .collect(
+                                                               Collectors.toMap(
+                                                                       ProductSpecGroupDO::getId,
+                                                                       Function.identity()
+                                                               )
+                                                       );
 
         return relations.stream()
-                        .collect(Collectors.groupingBy(
-                                ProductSkuSpecDO::getSkuId,
-                                Collectors.collectingAndThen(
-                                        Collectors.toList(),
-                                        list -> buildSpecDesc(list, valueMap, groupMap)
+                        .collect(
+                                Collectors.groupingBy(
+                                        ProductSkuSpecDO::getSkuId,
+                                        Collectors.collectingAndThen(
+                                                Collectors.toList(),
+                                                list -> buildSpecDesc(list, valueMap, groupMap)
+                                        )
                                 )
-                        ));
+                        );
     }
 
     /**
      * 将单个 SKU 的规格值按规格组排序拼接为描述。
      *
      * @param relations SKU 与规格值关联列表
-     * @param valueMap  规格值主键 -> 规格值
-     * @param groupMap  规格组主键 -> 规格组
+     * @param valueMap 规格值主键 -> 规格值
+     * @param groupMap 规格组主键 -> 规格组
      * @return 规格描述，如 "红色；XL"
      */
     private String buildSpecDesc(
@@ -217,14 +225,17 @@ public class SkuService implements ISkuService {
             Map<Long, ProductSpecValueDO> valueMap,
             Map<Long, ProductSpecGroupDO> groupMap
     ) {
-        return relations.stream()
-                        .sorted(Comparator.comparingInt(r -> specValueSort(r, valueMap, groupMap)))
-                        .map(r -> {
+        return relations
+                .stream()
+                .sorted(Comparator.comparingInt(r -> specValueSort(r, valueMap, groupMap)))
+                .map(
+                        r -> {
                             ProductSpecValueDO value = valueMap.get(r.getSpecValueId());
                             return value == null ? null : value.getValue();
-                        })
-                        .filter(Objects::nonNull)
-                        .collect(Collectors.joining("；"));
+                        }
+                )
+                .filter(Objects::nonNull)
+                .collect(Collectors.joining("；"));
     }
 
     /**

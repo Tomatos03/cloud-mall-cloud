@@ -3,9 +3,9 @@ package com.cloudmall.coupon.entity;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
+import cn.hutool.core.util.BooleanUtil;
 import com.baomidou.mybatisplus.annotation.TableLogic;
 import com.baomidou.mybatisplus.annotation.TableName;
-import cn.hutool.core.util.BooleanUtil;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -25,10 +25,10 @@ import com.cloudmall.coupon.enums.ValidityModeEnum;
  *
  * @author : Tomatos
  */
+@Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Data
 @TableName("cm_coupon")
 public class CouponDO {
 
@@ -114,8 +114,7 @@ public class CouponDO {
      * @return true 表示可结束
      */
     public boolean isActiveOrPaused() {
-        return CouponStatusEnum.ACTIVE.equals(this.status)
-                || CouponStatusEnum.PAUSED.equals(this.status);
+        return CouponStatusEnum.ACTIVE.equals(this.status) || CouponStatusEnum.PAUSED.equals(this.status);
     }
 
     /**
@@ -124,8 +123,7 @@ public class CouponDO {
      * @return true 表示可发放
      */
     public boolean isClaimable() {
-        return BooleanUtil.isTrue(this.claimEnabled)
-                || BooleanUtil.isTrue(this.autoIssueOnRegister);
+        return BooleanUtil.isTrue(this.claimEnabled) || BooleanUtil.isTrue(this.autoIssueOnRegister);
     }
 
     /**

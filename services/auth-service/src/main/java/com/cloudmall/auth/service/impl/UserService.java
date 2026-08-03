@@ -40,7 +40,6 @@ import com.cloudmall.common.utils.AssertUtils;
 import com.cloudmall.jwt.service.ITokenService;
 import com.cloudmall.mybatisplus.enums.StatusEnum;
 
-
 /**
  * 用户服务实现
  * <p>
@@ -67,8 +66,7 @@ public class UserService implements IUserService {
     @Override
     public LoginResp login(LoginReq request) {
         UserDO user = userMapper.selectOne(
-                Wrappers.<UserDO>lambdaQuery()
-                        .eq(UserDO::getUsername, request.getUsername())
+                Wrappers.<UserDO>lambdaQuery().eq(UserDO::getUsername, request.getUsername())
         );
         AssertUtils.notNull(user, BizErrorCode.USER_NOT_EXISTS);
         AssertUtils.isTrue(
@@ -98,8 +96,7 @@ public class UserService implements IUserService {
     @Override
     public Long register(RegisterReq request) {
         Long count = userMapper.selectCount(
-                Wrappers.<UserDO>lambdaQuery()
-                        .eq(UserDO::getUsername, request.getUsername())
+                Wrappers.<UserDO>lambdaQuery().eq(UserDO::getUsername, request.getUsername())
         );
         AssertUtils.isZero(count, BizErrorCode.USER_ALREADY_EXISTS);
 
@@ -210,11 +207,10 @@ public class UserService implements IUserService {
             boolean selfAccessible = StrUtil.isBlank(code) || userPerms.contains(code);
 
             if (hasVisibleChildren || selfAccessible) {
-                ResourceNodeResp prunedNode = ResourceNodeResp
-                        .builder()
-                        .resource(node.getResource())
-                        .children(prunedChildren)
-                        .build();
+                ResourceNodeResp prunedNode = ResourceNodeResp.builder()
+                                                              .resource(node.getResource())
+                                                              .children(prunedChildren)
+                                                              .build();
                 result.add(prunedNode);
             }
         }
@@ -227,8 +223,7 @@ public class UserService implements IUserService {
     @Override
     public List<Long> getUserRoleIds(Long userId) {
         List<UserRoleDO> userRoles = userRoleMapper.selectList(
-                Wrappers.<UserRoleDO>lambdaQuery()
-                        .eq(UserRoleDO::getUserId, userId)
+                Wrappers.<UserRoleDO>lambdaQuery().eq(UserRoleDO::getUserId, userId)
         );
         return userRoles.stream()
                         .map(UserRoleDO::getRoleId)

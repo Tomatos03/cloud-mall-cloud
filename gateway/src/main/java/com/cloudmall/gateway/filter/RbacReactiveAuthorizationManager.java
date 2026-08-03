@@ -44,7 +44,7 @@ public class RbacReactiveAuthorizationManager implements ReactiveAuthorizationMa
      * 执行授权检查
      *
      * @param authentication Mono 包装的当前用户认证信息
-     * @param context        授权上下文（包含请求信息）
+     * @param context 授权上下文（包含请求信息）
      * @return 授权决策
      */
     @Override
@@ -53,8 +53,14 @@ public class RbacReactiveAuthorizationManager implements ReactiveAuthorizationMa
             AuthorizationContext context
     ) {
 
-        String method = context.getExchange().getRequest().getMethod().name();
-        String path = context.getExchange().getRequest().getURI().getPath();
+        String method = context.getExchange()
+                               .getRequest()
+                               .getMethod()
+                               .name();
+        String path = context.getExchange()
+                             .getRequest()
+                             .getURI()
+                             .getPath();
 
         // 匹配路径规则
         AuthProperties.UrlPermission matched = authProperties.match(method, path);
@@ -64,15 +70,14 @@ public class RbacReactiveAuthorizationManager implements ReactiveAuthorizationMa
         }
 
         // 有匹配规则，检查用户权限
-        return authentication
-                .map(auth -> checkPermissions(auth, matched))
-                .defaultIfEmpty(new AuthorizationDecision(false));
+        return authentication.map(auth -> checkPermissions(auth, matched))
+                             .defaultIfEmpty(new AuthorizationDecision(false));
     }
 
     /**
      * 检查用户是否拥有规则所需的任一权限
      *
-     * @param auth    用户认证信息
+     * @param auth 用户认证信息
      * @param matched 匹配的权限规则
      * @return 授权决策
      */
@@ -86,12 +91,12 @@ public class RbacReactiveAuthorizationManager implements ReactiveAuthorizationMa
                                           .collect(Collectors.toSet());
 
         // 检查用户是否拥有任一所需权限（OR 逻辑）
-        boolean granted = matched.getPermissions().stream()
+        boolean granted = matched.getPermissions()
+                                 .stream()
                                  .anyMatch(userPermissions::contains);
 
         if (!granted) {
-            log.warn("权限不足: 用户 authorities={}, 所需权限={}",
-                    userPermissions, matched.getPermissions());
+            log.warn("权限不足: 用户 authorities={}, 所需权限={}", userPermissions, matched.getPermissions());
         }
 
         return new AuthorizationDecision(granted);

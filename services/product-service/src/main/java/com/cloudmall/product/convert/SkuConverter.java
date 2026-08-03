@@ -16,22 +16,21 @@ import com.cloudmall.product.entity.ProductSkuDO;
 public interface SkuConverter {
 
     /**
-     * 将 SKU 请求模型转换为实体。
-     * <p>
+     * 将 SKU 请求模型转换为实体。 <p>
      * specHash 由 Service 层在解析出规格值 ID 后赋值。
      *
-     * @param item      SKU 请求模型
+     * @param item SKU 请求模型
      * @param productId 所属商品 ID
-     * @param skuCode   SKU 编码
+     * @param skuCode SKU 编码
      * @return SKU 实体
      */
     @Mapping(target = "id", ignore = true)
-    @Mapping(target = "productId", source = "productId")
-    @Mapping(target = "skuCode", source = "skuCode")
+    @Mapping(target = "deleted", ignore = true)
     @Mapping(target = "specHash", ignore = true)
     @Mapping(target = "createTime", ignore = true)
     @Mapping(target = "updateTime", ignore = true)
-    @Mapping(target = "deleted", ignore = true)
+    @Mapping(target = "skuCode", source = "skuCode")
+    @Mapping(target = "productId", source = "productId")
     ProductSkuDO toDO(SkuItem item, Long productId, String skuCode);
 
     /**

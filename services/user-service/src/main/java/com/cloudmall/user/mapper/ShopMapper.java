@@ -6,4 +6,5 @@ import org.apache.ibatis.annotations.Mapper;
 import com.cloudmall.user.entity.ShopDO;
 
 @Mapper
-public interface ShopMapper extends BaseMapper<ShopDO> {}
+public interface ShopMapper extends BaseMapper<ShopDO> {
+}

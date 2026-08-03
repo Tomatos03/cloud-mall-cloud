@@ -19,5 +19,8 @@ public interface AddressClient {
      * @return 处理结果
      */
     @GetMapping
-    Result<List<AddressResp>> listAddresses(@RequestParam("userId") Long userId);
+    Result<List<AddressResp>> listAddresses(
+            @RequestParam("userId")
+            Long userId
+    );
 }

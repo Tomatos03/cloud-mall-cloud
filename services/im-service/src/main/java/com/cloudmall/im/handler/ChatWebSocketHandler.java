@@ -54,7 +54,10 @@ public class ChatWebSocketHandler extends TextWebSocketHandler {
             return;
         }
 
-        boolean targetUserOnline = webSocketSessionManager.isOnline(messageDTO.getReceiverId(), session);
+        boolean targetUserOnline = webSocketSessionManager.isOnline(
+                messageDTO.getReceiverId(),
+                session
+        );
         ChatSession chatSession = chatSessionService.getById(sessionId);
         if (chatSession == null) {
             chatSessionService.save(
@@ -68,14 +71,13 @@ public class ChatWebSocketHandler extends TextWebSocketHandler {
         if (targetUserOnline) {
             WebSocketSession userSession = webSocketSessionManager.getSession(receiverId);
             if (userSession != null && userSession.isOpen()) {
-                MessageVO messageVO = MessageVO
-                        .builder()
-                        .content(messageDTO.getContent())
-                        .time(LocalDateTime.now().toString())
-                        .type(messageDTO.getType())
-                        .userId(senderId)
-                        .sessionId(sessionId)
-                        .build();
+                MessageVO messageVO = MessageVO.builder()
+                                               .content(messageDTO.getContent())
+                                               .time(LocalDateTime.now().toString())
+                                               .type(messageDTO.getType())
+                                               .userId(senderId)
+                                               .sessionId(sessionId)
+                                               .build();
 
                 userSession.sendMessage(new TextMessage(JSONUtil.toJsonStr(messageVO)));
                 log.info("消息已发送给在线用户 {}", receiverId);
@@ -96,8 +98,7 @@ public class ChatWebSocketHandler extends TextWebSocketHandler {
 
     @Override
     public void afterConnectionClosed(WebSocketSession session, CloseStatus status) {
-        Long userId = (Long) session.getAttributes()
-                                    .get("userId");
+        Long userId = (Long) session.getAttributes().get("userId");
         if (userId != null) {
             webSocketSessionManager.removeSession(userId);
             log.info("用户 {} 已断开 WebSocket，状态码: {}", userId, status.getCode());

@@ -47,8 +47,7 @@ public class ChatAppService implements IChatAppService {
                .eq(ChatSession::getBuyerId, userId)
                .orderByDesc(ChatSession::getCreateTime);
 
-        return chatSessionService.page(page, wrapper)
-                                 .convert(this::conversationVO);
+        return chatSessionService.page(page, wrapper).convert(this::conversationVO);
     }
 
     private ChatSessionVO conversationVO(ChatSession chatSession) {
@@ -61,13 +60,9 @@ public class ChatAppService implements IChatAppService {
                 .builder()
                 .id(chatSession.getId())
                 .userId(receiverId)
-                .name(
-                                                                           receiverUser != null ? receiverUser.getNickname() : null
-                                                                   )
-                                                                   .avatar(
-                                                                           receiverUser != null ? receiverUser.getAvatarUrl() : null
-                                                                   )
-                                                                   .unreadCount(unReadCount);
+                .name(receiverUser != null ? receiverUser.getNickname() : null)
+                .avatar(receiverUser != null ? receiverUser.getAvatarUrl() : null)
+                .unreadCount(unReadCount);
 
         if (lastMessage != null) {
             builder.lastMessageContent(lastMessage.getContent())
@@ -115,12 +110,11 @@ public class ChatAppService implements IChatAppService {
                                                     .eq(ChatSession::getAgentId, merchantId)
                                                     .one();
         if (chatSession == null) {
-            chatSession = ChatSession
-                    .builder()
-                    .buyerId(userId)
-                    .agentId(merchantId)
-                    .createTime(LocalDateTime.now())
-                    .build();
+            chatSession = ChatSession.builder()
+                                     .buyerId(userId)
+                                     .agentId(merchantId)
+                                     .createTime(LocalDateTime.now())
+                                     .build();
             chatSessionService.save(chatSession);
         }
 

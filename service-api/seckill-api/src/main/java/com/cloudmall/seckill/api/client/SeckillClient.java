@@ -17,7 +17,10 @@ public interface SeckillClient {
      * @return 处理结果
      */
     @GetMapping("/activities/{id}")
-    Result<ActivityResp> getActivity(@PathVariable("id") Long id);
+    Result<ActivityResp> getActivity(
+            @PathVariable("id")
+            Long id
+    );
 
     /**
      * 校验相关数据。
@@ -28,7 +31,9 @@ public interface SeckillClient {
      */
     @GetMapping("/activities/{activityId}/products/{productId}/verification")
     Result<Boolean> verifyProduct(
-            @PathVariable("activityId") Long activityId,
-            @PathVariable("productId") Long productId
+            @PathVariable("activityId")
+            Long activityId,
+            @PathVariable("productId")
+            Long productId
     );
 }

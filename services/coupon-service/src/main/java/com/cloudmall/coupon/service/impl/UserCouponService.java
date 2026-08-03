@@ -64,7 +64,7 @@ public class UserCouponService implements IUserCouponService {
      * 公开领取优惠券。
      *
      * @param couponId 模板 ID
-     * @param userId   用户 ID
+     * @param userId 用户 ID
      * @return 用户券
      */
     @Override
@@ -98,7 +98,7 @@ public class UserCouponService implements IUserCouponService {
     /**
      * 注册自动发放新人券。
      *
-     * @param userId  用户 ID
+     * @param userId 用户 ID
      * @param eventId 注册事件 ID
      * @return 新发放的用户券列表
      */
@@ -130,15 +130,17 @@ public class UserCouponService implements IUserCouponService {
             if (exist != null) {
                 continue;
             }
-            result.add(issueOne(
-                    template,
-                    userId,
-                    IssuedSourceEnum.REGISTER_AUTO,
-                    eventId,
-                    null,
-                    UserCouponLogSourceEnum.SYSTEM,
-                    "注册自动发放新人券"
-            ));
+            result.add(
+                    issueOne(
+                            template,
+                            userId,
+                            IssuedSourceEnum.REGISTER_AUTO,
+                            eventId,
+                            null,
+                            UserCouponLogSourceEnum.SYSTEM,
+                            "注册自动发放新人券"
+                    )
+            );
         }
         return result;
     }
@@ -146,25 +148,34 @@ public class UserCouponService implements IUserCouponService {
     /**
      * 分页查询我的优惠券。
      *
-     * @param userId  用户 ID
-     * @param status  状态过滤
+     * @param userId 用户 ID
+     * @param status 状态过滤
      * @param current 页码
-     * @param size    每页条数
+     * @param size 每页条数
      * @return 分页结果
      */
     @Override
     @Transactional
-    public Page<UserCouponResp> pageMine(Long userId, UserCouponStatusEnum status, long current, long size) {
+    public Page<UserCouponResp> pageMine(
+            Long userId,
+            UserCouponStatusEnum status,
+            long current,
+            long size
+    ) {
         expireOverdueByUser(userId);
         LambdaQueryWrapper<UserCouponDO> wrapper = Wrappers.<UserCouponDO>lambdaQuery()
-                .eq(UserCouponDO::getUserId, userId)
-                .orderByDesc(UserCouponDO::getCreateTime);
+                                                           .eq(UserCouponDO::getUserId, userId)
+                                                           .orderByDesc(UserCouponDO::getCreateTime);
         if (status != null) {
             wrapper.eq(UserCouponDO::getStatus, status);
         }
         Page<UserCouponDO> page = new Page<>(current, size);
         userCouponMapper.selectPage(page, wrapper);
-        Page<UserCouponResp> respPage = new Page<>(page.getCurrent(), page.getSize(), page.getTotal());
+        Page<UserCouponResp> respPage = new Page<>(
+                page.getCurrent(),
+                page.getSize(),
+                page.getTotal()
+        );
         respPage.setRecords(userCouponConverter.toRespList(page.getRecords()));
         return respPage;
     }
@@ -172,7 +183,7 @@ public class UserCouponService implements IUserCouponService {
     /**
      * 查询我的单张用户券。
      *
-     * @param userId       用户 ID
+     * @param userId 用户 ID
      * @param userCouponId 用户券 ID
      * @return 用户券
      */
@@ -204,7 +215,7 @@ public class UserCouponService implements IUserCouponService {
      * 查询公开模板详情。
      *
      * @param couponId 模板 ID
-     * @param userId   用户 ID（匿名为 null）
+     * @param userId 用户 ID（匿名为 null）
      * @return 模板详情
      */
     @Override
@@ -222,7 +233,7 @@ public class UserCouponService implements IUserCouponService {
     /**
      * 查询用户已领取的模板 ID 集合。
      *
-     * @param userId    用户 ID
+     * @param userId 用户 ID
      * @param couponIds 模板 ID 列表
      * @return 已领取的模板 ID 集合
      */
@@ -244,9 +255,9 @@ public class UserCouponService implements IUserCouponService {
     /**
      * 锁定用户券。
      *
-     * @param orderNo        锁定订单号
-     * @param userId         用户 ID
-     * @param userCouponId   用户券 ID
+     * @param orderNo 锁定订单号
+     * @param userId 用户 ID
+     * @param userCouponId 用户券 ID
      * @param lockExpireTime 锁定过期时间
      */
     @Override
@@ -261,8 +272,16 @@ public class UserCouponService implements IUserCouponService {
         }
         UserCouponDO uc = requireOwned(userId, userCouponId);
         expireIfOverdue(uc);
-        AssertUtils.isFalse(uc.getStatus() == UserCouponStatusEnum.EXPIRED, BizErrorCode.USER_COUPON_EXPIRED);
-        int affected = userCouponMapper.lockIfAvailable(userCouponId, userId, orderNo, lockExpireTime);
+        AssertUtils.isFalse(
+                uc.getStatus() == UserCouponStatusEnum.EXPIRED,
+                BizErrorCode.USER_COUPON_EXPIRED
+        );
+        int affected = userCouponMapper.lockIfAvailable(
+                userCouponId,
+                userId,
+                orderNo,
+                lockExpireTime
+        );
         if (affected == 0) {
             UserCouponDO fresh = userCouponMapper.selectById(userCouponId);
             if (fresh != null && fresh.getStatus() == UserCouponStatusEnum.LOCKED) {
@@ -286,8 +305,8 @@ public class UserCouponService implements IUserCouponService {
     /**
      * 提交核销。
      *
-     * @param orderNo      订单号
-     * @param userId       用户 ID
+     * @param orderNo 订单号
+     * @param userId 用户 ID
      * @param userCouponId 用户券 ID
      */
     @Override
@@ -325,10 +344,10 @@ public class UserCouponService implements IUserCouponService {
     /**
      * 释放锁定。
      *
-     * @param orderNo      订单号
-     * @param userId       用户 ID
+     * @param orderNo 订单号
+     * @param userId 用户 ID
      * @param userCouponId 用户券 ID
-     * @param reason       释放原因
+     * @param reason 释放原因
      */
     @Override
     @Transactional
@@ -370,15 +389,21 @@ public class UserCouponService implements IUserCouponService {
     /**
      * 全额退款回退。
      *
-     * @param orderNo      父订单号
-     * @param userId       用户 ID
+     * @param orderNo 父订单号
+     * @param userId 用户 ID
      * @param userCouponId 用户券 ID
-     * @param refundId     退款单 ID
-     * @param reason       回退原因
+     * @param refundId 退款单 ID
+     * @param reason 回退原因
      */
     @Override
     @Transactional
-    public void revert(String orderNo, Long userId, Long userCouponId, String refundId, String reason) {
+    public void revert(
+            String orderNo,
+            Long userId,
+            Long userCouponId,
+            String refundId,
+            String reason
+    ) {
         AssertUtils.assertNotBlank(orderNo, BizErrorCode.INVALID_PARAM);
         AssertUtils.assertNotBlank(refundId, BizErrorCode.INVALID_PARAM);
         AssertUtils.notNull(userId, BizErrorCode.INVALID_PARAM);
@@ -414,9 +439,9 @@ public class UserCouponService implements IUserCouponService {
     /**
      * 运营撤销模板下全部可用用户券。
      *
-     * @param couponId   模板 ID
+     * @param couponId 模板 ID
      * @param operatorId 操作人 ID
-     * @param reason     撤销原因
+     * @param reason 撤销原因
      * @return 撤销数量
      */
     @Override
@@ -499,13 +524,13 @@ public class UserCouponService implements IUserCouponService {
     /**
      * 发放单张用户券（原子递增发行数量 + 插入用户券 + 插入流水，同一事务）。
      *
-     * @param template   模板
-     * @param userId     用户 ID
-     * @param source     发放来源
-     * @param eventId    自动发放事件 ID（公开领取为 null）
+     * @param template 模板
+     * @param userId 用户 ID
+     * @param source 发放来源
+     * @param eventId 自动发放事件 ID（公开领取为 null）
      * @param operatorId 操作人 ID
-     * @param logSource  流水来源
-     * @param reason     发放原因
+     * @param logSource 流水来源
+     * @param reason 发放原因
      * @return 用户券
      */
     private UserCouponResp issueOne(
@@ -555,20 +580,25 @@ public class UserCouponService implements IUserCouponService {
                 .build();
         userCouponMapper.insert(uc);
         userCouponLogMapper.insert(
-                UserCouponLogDO.builder()
-                               .userCouponId(uc.getId())
-                               .couponId(template.getId())
-                               .userId(userId)
-                               .orderNo(null)
-                               .eventId(source == IssuedSourceEnum.REGISTER_AUTO ? eventId + ":" + template.getId() : null)
-                               .operationType(UserCouponOperationTypeEnum.ISSUE)
-                               .fromStatus(null)
-                               .toStatus(UserCouponStatusEnum.AVAILABLE)
-                               .source(logSource)
-                               .operatorId(operatorId)
-                               .reason(reason)
-                               .createTime(now)
-                               .build()
+                UserCouponLogDO
+                        .builder()
+                        .userCouponId(uc.getId())
+                        .couponId(template.getId())
+                        .userId(userId)
+                        .orderNo(null)
+                        .eventId(
+                                source == IssuedSourceEnum.REGISTER_AUTO
+                                        ? eventId + ":" + template.getId()
+                                        : null
+                        )
+                        .operationType(UserCouponOperationTypeEnum.ISSUE)
+                        .fromStatus(null)
+                        .toStatus(UserCouponStatusEnum.AVAILABLE)
+                        .source(logSource)
+                        .operatorId(operatorId)
+                        .reason(reason)
+                        .createTime(now)
+                        .build()
         );
         return userCouponConverter.toResp(uc);
     }
@@ -576,7 +606,7 @@ public class UserCouponService implements IUserCouponService {
     /**
      * 查询用户已领取的指定模板用户券。
      *
-     * @param userId   用户 ID
+     * @param userId 用户 ID
      * @param couponId 模板 ID
      * @return 用户券（未领取为 null）
      */
@@ -674,7 +704,7 @@ public class UserCouponService implements IUserCouponService {
     /**
      * 校验用户券归属并返回实体。
      *
-     * @param userId       用户 ID
+     * @param userId 用户 ID
      * @param userCouponId 用户券 ID
      * @return 用户券
      */
@@ -689,7 +719,7 @@ public class UserCouponService implements IUserCouponService {
      * 判断事件是否已处理（流水幂等）。
      *
      * @param eventId 事件 ID
-     * @param op      操作类型
+     * @param op 操作类型
      * @return true 为已处理
      */
     private boolean logExists(String eventId, UserCouponOperationTypeEnum op) {
@@ -704,15 +734,15 @@ public class UserCouponService implements IUserCouponService {
     /**
      * 追加用户券状态流水。
      *
-     * @param uc          用户券
-     * @param op          操作类型
-     * @param from        原状态
-     * @param to          新状态
-     * @param source      来源
-     * @param orderNo     订单号
-     * @param eventId     事件 ID
-     * @param operatorId  操作人 ID
-     * @param reason      原因
+     * @param uc 用户券
+     * @param op 操作类型
+     * @param from 原状态
+     * @param to 新状态
+     * @param source 来源
+     * @param orderNo 订单号
+     * @param eventId 事件 ID
+     * @param operatorId 操作人 ID
+     * @param reason 原因
      */
     private void appendLog(
             UserCouponDO uc,
@@ -747,18 +777,16 @@ public class UserCouponService implements IUserCouponService {
      * 模板列表转换为公开响应（计算 claimed/claimable/stock_remaining）。
      *
      * @param templates 模板列表
-     * @param userId    用户 ID（匿名为 null）
+     * @param userId 用户 ID（匿名为 null）
      * @return 响应列表
      */
     private List<CouponResp> toPublicResps(List<CouponDO> templates, Long userId) {
         List<CouponResp> resps = couponConverter.toRespList(templates);
-        Set<Long> claimedIds = userId == null ? Collections.emptySet()
-                : listClaimedCouponIds(
-                        userId,
-                        templates.stream()
-                                 .map(CouponDO::getId)
-                                 .toList()
-                );
+        Set<Long> claimedIds = userId == null
+                ? Collections.emptySet()
+                : listClaimedCouponIds(userId, templates.stream()
+                                                        .map(CouponDO::getId)
+                                                        .toList());
         LocalDateTime now = LocalDateTime.now();
         for (CouponResp resp : resps) {
             boolean claimed = claimedIds.contains(resp.getId());
@@ -786,8 +814,8 @@ public class UserCouponService implements IUserCouponService {
     /**
      * 计算当前是否可领取。
      *
-     * @param resp    模板响应
-     * @param now     当前时间
+     * @param resp 模板响应
+     * @param now 当前时间
      * @param claimed 是否已领取
      * @return true 为可领取
      */

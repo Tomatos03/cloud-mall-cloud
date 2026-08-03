@@ -14,9 +14,9 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Data
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
 @TableName("chat_message")
 public class ChatMessage {
     @TableId(type = IdType.AUTO)

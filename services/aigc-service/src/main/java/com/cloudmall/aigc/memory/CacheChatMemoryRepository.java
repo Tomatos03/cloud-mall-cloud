@@ -33,16 +33,13 @@ public class CacheChatMemoryRepository implements ChatMemoryRepository {
     @Override
     public List<String> findConversationIds() {
         Set<String> keys;
-        try (
-                Cursor<String> cursor = stringRedisTemplate.scan(
-                        ScanOptions.scanOptions()
-                                   .match(KEY_PREFIX + "*")
-                                   .count(200)
-                                   .build()
-                )
-        ) {
-            keys = cursor.stream()
-                         .collect(Collectors.toSet());
+        try (Cursor<String> cursor = stringRedisTemplate.scan(
+                ScanOptions.scanOptions()
+                           .match(KEY_PREFIX + "*")
+                           .count(200)
+                           .build()
+        )) {
+            keys = cursor.stream().collect(Collectors.toSet());
         }
         return keys.stream()
                    .map(key -> key.replace(KEY_PREFIX, ""))
@@ -57,9 +54,8 @@ public class CacheChatMemoryRepository implements ChatMemoryRepository {
      */
     @Override
     public List<Message> findByConversationId(String conversationId) {
-        List<String> messageJsons = stringRedisTemplate
-                .boundListOps(buildKey(conversationId))
-                .range(0, -1);
+        List<String> messageJsons = stringRedisTemplate.boundListOps(buildKey(conversationId))
+                                                       .range(0, -1);
         if (CollectionUtil.isEmpty(messageJsons)) {
             return Collections.emptyList();
         }

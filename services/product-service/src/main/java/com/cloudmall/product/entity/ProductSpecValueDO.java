@@ -11,10 +11,10 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+@Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Data
 @TableName("cm_product_spec_value")
 public class ProductSpecValueDO {
     private Long id;

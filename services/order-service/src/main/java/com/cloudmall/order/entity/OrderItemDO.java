@@ -12,10 +12,10 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+@Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Data
 @TableName("cm_order_item")
 public class OrderItemDO {
     private Long id;

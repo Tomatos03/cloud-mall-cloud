@@ -15,8 +15,8 @@ import com.cloudmall.product.model.req.BannerReq;
 import com.cloudmall.product.service.IBannerService;
 
 @RestController
-@RequestMapping("/banners")
 @RequiredArgsConstructor
+@RequestMapping("/banners")
 public class BannerController {
 
     private final IBannerService bannerService;

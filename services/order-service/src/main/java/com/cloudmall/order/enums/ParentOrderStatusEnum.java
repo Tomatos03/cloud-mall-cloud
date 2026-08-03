@@ -17,7 +17,6 @@ import lombok.Getter;
 @Getter
 @AllArgsConstructor
 public enum ParentOrderStatusEnum {
-
     /** 创建中 — 订单骨架已建，等待库存预占、锁券和金额写入 */
     CREATING("CREATING", "创建中"),
 
@@ -38,14 +37,11 @@ public enum ParentOrderStatusEnum {
 
     /** 已全额退款 — 全部子订单均完成全额退款，终态 */
     REFUNDED("REFUNDED", "已全额退款");
-
     /** 数据库存储值 */
     @EnumValue
     private final String code;
-
     /** 状态描述 */
     private final String desc;
-
     /**
      * 根据编码查找父订单状态。
      *
@@ -54,12 +50,15 @@ public enum ParentOrderStatusEnum {
      * @throws IllegalArgumentException 编码非法或为 null 时抛出
      */
     public static ParentOrderStatusEnum fromCode(String code) {
-        return Arrays.stream(values())
-                     .filter(t -> t.code.equals(code))
-                     .findFirst()
-                     .orElseThrow(() -> new IllegalArgumentException(
-                             "Invalid parent order status: '" + code + "', valid values: "
-                                     + Arrays.toString(values())
-                     ));
+        return Arrays
+                .stream(values())
+                .filter(t -> t.code.equals(code))
+                .findFirst()
+                .orElseThrow(
+                        () -> new IllegalArgumentException(
+                                "Invalid parent order status: '" + code + "', valid values: "
+                                        + Arrays.toString(values())
+                        )
+                );
     }
 }

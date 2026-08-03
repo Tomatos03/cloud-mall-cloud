@@ -13,8 +13,7 @@ import com.cloudmall.im.security.ParsedToken;
  */
 public final class AuthUserContext {
 
-    private AuthUserContext() {
-    }
+    private AuthUserContext() {}
 
     public static Authentication getAuthentication() {
         return SecurityContextHolder.getContext().getAuthentication();

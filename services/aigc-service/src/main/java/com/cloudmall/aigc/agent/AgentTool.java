@@ -28,20 +28,22 @@ import org.springframework.stereotype.Component;
  *
  * @see AgentType
  */
+@Component
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
-@Component
 public @interface AgentTool {
 
     /**
      * 指定哪些智能体可以使用该工具。
      * 为空时表示所有智能体都可以使用（配合 exclude 排除）。
      */
-    AgentType[] agents() default {};
+    AgentType[] agents() default {
+    };
 
     /**
      * 排除哪些智能体不能使用该工具。
      * 优先级高于 agents：exclude 中指定的智能体即使出现在 agents 中也不会获得该工具。
      */
-    AgentType[] exclude() default {};
+    AgentType[] exclude() default {
+    };
 }

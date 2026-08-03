@@ -52,7 +52,7 @@ public interface ISessionService {
      * 更新会话标题。
      *
      * @param sessionId 会话 ID
-     * @param title     新标题
+     * @param title 新标题
      */
     void updateSessionTitle(String sessionId, String title);
 
@@ -74,7 +74,8 @@ public interface ISessionService {
      * 校验会话是否存在且属于当前用户
      *
      * @param sessionId 会话 ID
-     * @throws BizException 会话不存在或不属于当前用户时抛出 SESSION_NOT_FOUND
+     * @throws BizException 会话不存在或不属于当前用户时抛出
+     *                      SESSION_NOT_FOUND
      */
     void validateSession(String sessionId);
 

@@ -63,12 +63,14 @@ public class JwtAuthenticationWebFilter implements WebFilter {
      * 执行 JWT 认证过滤
      *
      * @param exchange 当前请求交换
-     * @param chain    过滤器链
+     * @param chain 过滤器链
      * @return 处理完成的 Mono
      */
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, WebFilterChain chain) {
-        String header = exchange.getRequest().getHeaders().getFirst("Authorization");
+        String header = exchange.getRequest()
+                                .getHeaders()
+                                .getFirst("Authorization");
         if (!hasValidAuthHeader(header)) {
             // 无 Token 头 → 匿名请求，交给授权管理器判断
             return chain.filter(exchange);
@@ -85,18 +87,24 @@ public class JwtAuthenticationWebFilter implements WebFilter {
     /**
      * 处理认证成功的情况：构建 Authentication 并设置 SecurityContext
      *
-     * @param exchange    请求交换
-     * @param chain       过滤器链
+     * @param exchange 请求交换
+     * @param chain 过滤器链
      * @param userContext 解析出的用户上下文
      * @return 处理完成的 Mono
      */
     private Mono<Void> handleAuthenticated(
-            ServerWebExchange exchange, WebFilterChain chain, UserContext userContext) {
+            ServerWebExchange exchange,
+            WebFilterChain chain,
+            UserContext userContext
+    ) {
 
         List<SimpleGrantedAuthority> authorities = buildAuthorities(userContext);
 
-        UsernamePasswordAuthenticationToken authentication =
-                new UsernamePasswordAuthenticationToken(userContext, null, authorities);
+        UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
+                userContext,
+                null,
+                authorities
+        );
 
         // 写入 X-Auth-User 头（下游服务透传）
         try {
@@ -110,10 +118,12 @@ public class JwtAuthenticationWebFilter implements WebFilter {
                                                         .build();
 
             return chain.filter(mutatedExchange)
-                        .contextWrite(ctx -> ctx.put(
-                                SecurityContext.class,
-                                new SecurityContextImpl(authentication)
-                        ));
+                        .contextWrite(
+                                ctx -> ctx.put(
+                                        SecurityContext.class,
+                                        new SecurityContextImpl(authentication)
+                                )
+                        );
         } catch (JsonProcessingException e) {
             log.error("序列化 UserContext 失败", e);
             return Mono.error(e);
@@ -124,18 +134,22 @@ public class JwtAuthenticationWebFilter implements WebFilter {
      * 处理认证失败：返回 401 Unauthorized
      *
      * @param exchange 请求交换
-     * @param e        认证异常
+     * @param e 认证异常
      * @return 处理完成的 Mono
      */
     private Mono<Void> handleAuthError(ServerWebExchange exchange, AuthTokenException e) {
         log.warn("JWT 认证失败: {}", e.getMessage());
         exchange.getResponse().setStatusCode(HttpStatus.UNAUTHORIZED);
-        exchange.getResponse().getHeaders().setContentType(MediaType.APPLICATION_JSON);
+        exchange.getResponse()
+                .getHeaders()
+                .setContentType(MediaType.APPLICATION_JSON);
 
         Result<Void> result = Result.error("Token 无效或已过期", 401);
         try {
             byte[] bytes = objectMapper.writeValueAsBytes(result);
-            DataBuffer buffer = exchange.getResponse().bufferFactory().wrap(bytes);
+            DataBuffer buffer = exchange.getResponse()
+                                        .bufferFactory()
+                                        .wrap(bytes);
             return exchange.getResponse().writeWith(Mono.just(buffer));
         } catch (JsonProcessingException ex) {
             return exchange.getResponse().setComplete();

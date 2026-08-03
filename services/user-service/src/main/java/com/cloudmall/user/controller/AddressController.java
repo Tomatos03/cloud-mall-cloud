@@ -21,15 +21,14 @@ import com.cloudmall.user.api.response.AddressResp;
 import com.cloudmall.user.service.IAddressService;
 
 @RestController
-@RequestMapping("/addresses")
 @RequiredArgsConstructor
+@RequestMapping("/addresses")
 public class AddressController {
 
     private final IAddressService addressService;
 
     /**
-     * 获取当前用户所有收货地址。
-     * <p>
+     * 获取当前用户所有收货地址。 <p>
      * 地址数量上限 10 条，无需分页。
      *
      * @return 处理结果
@@ -47,7 +46,10 @@ public class AddressController {
      * @return 处理结果
      */
     @GetMapping("/{id}")
-    public Result<AddressResp> getById(@PathVariable Long id) {
+    public Result<AddressResp> getById(
+            @PathVariable
+            Long id
+    ) {
         return Result.success(addressService.getById(id));
     }
 
@@ -58,7 +60,11 @@ public class AddressController {
      * @return 处理结果
      */
     @PostMapping
-    public Result<Long> create(@RequestBody @Valid CreateReq request) {
+    public Result<Long> create(
+            @RequestBody
+            @Valid
+            CreateReq request
+    ) {
         return Result.success(addressService.create(request, UserContextHolder.getUserId()));
     }
 
@@ -71,8 +77,11 @@ public class AddressController {
      */
     @PutMapping("/{id}")
     public Result<Void> update(
-            @PathVariable Long id,
-            @RequestBody @Valid AddressUpdateReq request
+            @PathVariable
+            Long id,
+            @RequestBody
+            @Valid
+            AddressUpdateReq request
     ) {
         request.setId(id);
         addressService.update(request);
@@ -86,7 +95,10 @@ public class AddressController {
      * @return 处理结果
      */
     @DeleteMapping
-    public Result<Void> delete(@RequestBody List<Long> ids) {
+    public Result<Void> delete(
+            @RequestBody
+            List<Long> ids
+    ) {
         addressService.delete(ids);
         return Result.success(null);
     }

@@ -4,7 +4,6 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 
 import com.cloudmall.mybatisplus.annotation.Operator;
 import com.cloudmall.mybatisplus.annotation.QueryCondition;
-import com.cloudmall.mybatisplus.enums.StatusEnum;
 import com.cloudmall.mybatisplus.query.ConditionBuilder;
 
 /**
@@ -37,7 +36,9 @@ import com.cloudmall.mybatisplus.query.ConditionBuilder;
  */
 public class PageReq<T> extends Page<T> implements ConditionBuilder<T> {
 
-    /** 使用指定参数构造对象。 */
+    /**
+     * 使用指定参数构造对象。
+     */
     public PageReq() {
         this(1, 10);
     }
@@ -46,7 +47,7 @@ public class PageReq<T> extends Page<T> implements ConditionBuilder<T> {
      * 构建分页请求
      *
      * @param current 页码，从 1 开始
-     * @param size    每页条数
+     * @param size 每页条数
      */
     public PageReq(long current, long size) {
         super(current, size);

@@ -19,25 +19,31 @@ import com.cloudmall.product.api.response.SkuResp;
 public interface SkuClient {
 
     /**
-     * 更新商品 SKU 库存。
-     * <p>
+     * 更新商品 SKU 库存。 <p>
      * quantity 为正数时增加库存，为负数时扣减库存。
      *
      * @param skuId SKU ID
-     * @param req   库存变更请求
+     * @param req 库存变更请求
      * @return 操作是否成功
      */
     @PutMapping("/{skuId}/stock")
-    Result<Boolean> updateStock(@PathVariable("skuId") Long skuId, @RequestBody StockReq req);
+    Result<Boolean> updateStock(
+            @PathVariable("skuId")
+            Long skuId,
+            @RequestBody
+            StockReq req
+    );
 
     /**
-     * 批量查询 SKU 信息（含实时价格、库存、上下架状态、规格描述、所属店铺）。
-     * <p>
+     * 批量查询 SKU 信息（含实时价格、库存、上下架状态、规格描述、所属店铺）。 <p>
      * 供购物车、订单等场景一次取齐，避免逐条调用。
      *
      * @param skuIds SKU ID 列表
      * @return SKU 信息列表
      */
     @PostMapping("/batch-query")
-    Result<List<SkuResp>> listSkusByIds(@RequestBody List<Long> skuIds);
+    Result<List<SkuResp>> listSkusByIds(
+            @RequestBody
+            List<Long> skuIds
+    );
 }

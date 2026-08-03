@@ -15,7 +15,6 @@ import lombok.Getter;
  */
 @Getter
 public enum TtsVoice {
-
     ALLOY("alloy", "Alloy（中性）"),
     ECHO("echo", "Echo（沉稳男声）"),
     FABLE("fable", "Fable（叙事）"),
@@ -26,35 +25,32 @@ public enum TtsVoice {
     CORAL("coral", "Coral（活力）"),
     ASH("ash", "Ash（柔和）"),
     BALLAD("ballad", "Ballad（抒情）"),
-    VERSE("verse", "Verse（诗意）"),
-    ;
-
+    VERSE("verse", "Verse（诗意）");
     /** API 请求参数值 */
     @JsonValue
     private final String code;
-
     /** 中文描述 */
     private final String desc;
-
     TtsVoice(String code, String desc) {
         this.code = code;
         this.desc = desc;
     }
-
     /**
      * 根据 code 解析枚举
      *
      * @param code 语音风格的 code（如 "alloy"）
      * @return 匹配的枚举
-     * @throws IllegalArgumentException code 为 null 或无法匹配时抛出
+     * @throws IllegalArgumentException code 为 null 或无法匹配
+     *                                  时抛出
      */
     public static TtsVoice fromCode(String code) {
         if (code == null) {
             throw new IllegalArgumentException("code must not be null");
         }
-        return Arrays.stream(values())
-                     .filter(voice -> voice.code.equals(code))
-                     .findFirst()
-                     .orElseThrow(() -> new IllegalArgumentException("Unknown TtsVoice code: " + code));
+        return Arrays
+                .stream(values())
+                .filter(voice -> voice.code.equals(code))
+                .findFirst()
+                .orElseThrow(() -> new IllegalArgumentException("Unknown TtsVoice code: " + code));
     }
 }

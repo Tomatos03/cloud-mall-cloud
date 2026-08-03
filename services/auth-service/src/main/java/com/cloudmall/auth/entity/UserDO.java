@@ -22,10 +22,10 @@ import com.cloudmall.auth.enums.UserTypeEnum;
  * @author : Tomatos
  * @date : 2026/7/29
  */
+@Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Data
 @TableName("cm_user")
 public class UserDO {
 

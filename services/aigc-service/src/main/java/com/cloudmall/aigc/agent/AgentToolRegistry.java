@@ -23,8 +23,8 @@ public class AgentToolRegistry {
     private final Map<AgentType, Object[]> toolMap;
 
     /**
-     * 构造工具注册器，扫描 Spring 容器中所有带 {@link AgentTool} 注解的 Bean，
-     * 并按 {@link AgentType} 归类缓存。
+     * 构造工具注册器，扫描 Spring 容器中所有带 {@link AgentTool} 注解的
+     * Bean， 并按 {@link AgentType} 归类缓存。
      *
      * @param context Spring 应用上下文，用于获取带注解的 Bean
      */
@@ -43,8 +43,8 @@ public class AgentToolRegistry {
     }
 
     /**
-     * 构建智能体可用工具映射：扫描容器中所有 {@link AgentTool} 注解的 Bean，
-     * 根据 {@code agents} / {@code exclude} 属性分配到对应智能体类型。
+     * 构建智能体可用工具映射：扫描容器中所有 {@link AgentTool} 注解的 Bean， 根据
+     * {@code agents} / {@code exclude} 属性分配到对应智能体类型。
      *
      * @param context Spring 应用上下文
      * @return 智能体类型到可用工具数组的映射
@@ -52,17 +52,20 @@ public class AgentToolRegistry {
     private static Map<AgentType, Object[]> buildAgentAvailableToolsMap(ApplicationContext context) {
         Map<String, Object> toolBeans = context.getBeansWithAnnotation(AgentTool.class);
 
-        Map<AgentType, ArrayList<Object>> result = Arrays
-                .stream(AgentType.values())
-                .collect(Collectors.toMap(
-                        Function.identity(),
-                        type -> new ArrayList<>()
-                ));
+        Map<AgentType, ArrayList<Object>> result = Arrays.stream(AgentType.values())
+                                                         .collect(
+                                                                 Collectors.toMap(
+                                                                         Function.identity(),
+                                                                         type -> new ArrayList<>()
+                                                                 )
+                                                         );
 
         for (Object tool : toolBeans.values()) {
             AgentTool ann = tool.getClass().getAnnotation(AgentTool.class);
 
-            List<AgentType> list = List.of(ann.agents().length == 0 ? AgentType.values() : ann.agents());
+            List<AgentType> list = List.of(
+                    ann.agents().length == 0 ? AgentType.values() : ann.agents()
+            );
             Set<AgentType> allowed = new HashSet<>(list);
             List.of(ann.exclude()).forEach(allowed::remove);
 
@@ -71,11 +74,9 @@ public class AgentToolRegistry {
             }
         }
 
-        return result.entrySet()
-                     .stream()
-                     .collect(Collectors.toMap(
-                             Map.Entry::getKey,
-                             entry -> entry.getValue().toArray()
-                     ));
+        return result
+                .entrySet()
+                .stream()
+                .collect(Collectors.toMap(Map.Entry::getKey, entry -> entry.getValue().toArray()));
     }
 }

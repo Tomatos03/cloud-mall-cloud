@@ -51,7 +51,7 @@ public interface IBrandService {
     /**
      * 更新品牌。
      *
-     * @param id  品牌 ID
+     * @param id 品牌 ID
      * @param req 更新请求
      */
     void update(Long id, BrandUpdateReq req);

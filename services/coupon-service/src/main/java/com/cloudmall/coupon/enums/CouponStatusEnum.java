@@ -17,7 +17,6 @@ import lombok.Getter;
 @Getter
 @AllArgsConstructor
 public enum CouponStatusEnum {
-
     /** 草稿 — 可编辑，未发放草稿允许软删除 */
     DRAFT("DRAFT", "草稿"),
 
@@ -29,14 +28,11 @@ public enum CouponStatusEnum {
 
     /** 已结束 — 停止新发放，不可恢复 */
     ENDED("ENDED", "已结束");
-
     /** 数据库存储值 */
     @EnumValue
     private final String code;
-
     /** 状态描述 */
     private final String desc;
-
     /**
      * 根据编码查找模板状态。
      *
@@ -45,12 +41,15 @@ public enum CouponStatusEnum {
      * @throws IllegalArgumentException 编码非法或为 null 时抛出
      */
     public static CouponStatusEnum fromCode(String code) {
-        return Arrays.stream(values())
-                     .filter(t -> t.code.equals(code))
-                     .findFirst()
-                     .orElseThrow(() -> new IllegalArgumentException(
-                             "Invalid coupon status: '" + code + "', valid values: "
-                                     + Arrays.toString(values())
-                     ));
+        return Arrays
+                .stream(values())
+                .filter(t -> t.code.equals(code))
+                .findFirst()
+                .orElseThrow(
+                        () -> new IllegalArgumentException(
+                                "Invalid coupon status: '" + code + "', valid values: "
+                                        + Arrays.toString(values())
+                        )
+                );
     }
 }

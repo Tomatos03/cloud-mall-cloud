@@ -46,7 +46,14 @@ public class CategoryService implements ICategoryService {
 
         List<TreeNode<Long>> nodeList = categoryList
                 .stream()
-                .map(cat -> new TreeNode<>(cat.getId(), cat.getParentId(), cat.getName(), cat.getSortOrder()))
+                .map(
+                        cat -> new TreeNode<>(
+                                cat.getId(),
+                                cat.getParentId(),
+                                cat.getName(),
+                                cat.getSortOrder()
+                        )
+                )
                 .toList();
 
         return TreeUtil.build(nodeList, 0L)
@@ -115,11 +122,10 @@ public class CategoryService implements ICategoryService {
                 .parentId(tree.getParentId())
                 .sortOrder(tree.getWeight() != null ? ((Number) tree.getWeight()).intValue() : null)
                 .build();
-        List<CategoryNodeResp> children = CollectionUtil
-                .emptyIfNull(tree.getChildren())
-                .stream()
-                .map(this::treeToResp)
-                .toList();
+        List<CategoryNodeResp> children = CollectionUtil.emptyIfNull(tree.getChildren())
+                                                        .stream()
+                                                        .map(this::treeToResp)
+                                                        .toList();
         return CategoryNodeResp.builder()
                                .category(category)
                                .children(children)

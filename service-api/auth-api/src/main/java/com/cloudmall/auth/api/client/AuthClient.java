@@ -18,5 +18,8 @@ public interface AuthClient {
      * @return 处理结果
      */
     @PostMapping("/login")
-    Result<LoginResp> login(@RequestBody LoginReq request);
+    Result<LoginResp> login(
+            @RequestBody
+            LoginReq request
+    );
 }

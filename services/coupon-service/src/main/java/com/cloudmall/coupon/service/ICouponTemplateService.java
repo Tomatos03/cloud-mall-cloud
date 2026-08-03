@@ -16,8 +16,7 @@ import com.cloudmall.coupon.entity.CouponDO;
 public interface ICouponTemplateService {
 
     /**
-     * 创建模板草稿。
-     * <p>
+     * 创建模板草稿。 <p>
      * ownerType=SHOP 时从当前用户上下文解析唯一店铺；平台券 shopId 恒为空。
      *
      * @param req 创建请求
@@ -28,7 +27,7 @@ public interface ICouponTemplateService {
     /**
      * 编辑模板草稿，仅 DRAFT 状态可编辑。
      *
-     * @param id  模板 ID
+     * @param id 模板 ID
      * @param req 编辑请求
      */
     void updateDraft(Long id, CouponUpdateReq req);

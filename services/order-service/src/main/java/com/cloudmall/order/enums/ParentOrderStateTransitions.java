@@ -16,35 +16,33 @@ import java.util.Set;
 public final class ParentOrderStateTransitions {
 
     private static final Map<ParentOrderStatusEnum, Set<ParentOrderStatusEnum>> TRANSITIONS = Map.of(
-            ParentOrderStatusEnum.CREATING, Set.of(
-                    ParentOrderStatusEnum.PENDING_PAYMENT,
-                    ParentOrderStatusEnum.CANCELLED
-            ),
-            ParentOrderStatusEnum.PENDING_PAYMENT, Set.of(
+            ParentOrderStatusEnum.CREATING,
+            Set.of(ParentOrderStatusEnum.PENDING_PAYMENT, ParentOrderStatusEnum.CANCELLED),
+            ParentOrderStatusEnum.PENDING_PAYMENT,
+            Set.of(
                     ParentOrderStatusEnum.PAID,
                     ParentOrderStatusEnum.TIMEOUT,
                     ParentOrderStatusEnum.CANCELLED
             ),
-            ParentOrderStatusEnum.PAID, Set.of(
-                    ParentOrderStatusEnum.PARTIAL_REFUNDED,
-                    ParentOrderStatusEnum.REFUNDED
-            ),
-            ParentOrderStatusEnum.PARTIAL_REFUNDED, Set.of(
-                    ParentOrderStatusEnum.REFUNDED
-            ),
-            ParentOrderStatusEnum.TIMEOUT, Collections.emptySet(),
-            ParentOrderStatusEnum.CANCELLED, Collections.emptySet(),
-            ParentOrderStatusEnum.REFUNDED, Collections.emptySet()
+            ParentOrderStatusEnum.PAID,
+            Set.of(ParentOrderStatusEnum.PARTIAL_REFUNDED, ParentOrderStatusEnum.REFUNDED),
+            ParentOrderStatusEnum.PARTIAL_REFUNDED,
+            Set.of(ParentOrderStatusEnum.REFUNDED),
+            ParentOrderStatusEnum.TIMEOUT,
+            Collections.emptySet(),
+            ParentOrderStatusEnum.CANCELLED,
+            Collections.emptySet(),
+            ParentOrderStatusEnum.REFUNDED,
+            Collections.emptySet()
     );
 
-    private ParentOrderStateTransitions() {
-    }
+    private ParentOrderStateTransitions() {}
 
     /**
      * 判断父订单状态迁移是否合法。
      *
      * @param from 迁移前状态
-     * @param to   迁移后状态
+     * @param to 迁移后状态
      * @return true 为合法迁移
      */
     public static boolean canTransition(ParentOrderStatusEnum from, ParentOrderStatusEnum to) {

@@ -20,7 +20,7 @@ public interface IKnowledgeService {
     /**
      * 上传纯文本文档到知识库
      *
-     * @param content  文档内容
+     * @param content 文档内容
      * @param metadata 文档元数据
      * @return 文档 ID
      */
@@ -29,7 +29,7 @@ public interface IKnowledgeService {
     /**
      * 批量上传文件到知识库（支持 TXT、PDF、Markdown、Word 等格式）
      *
-     * @param files    上传的文件列表
+     * @param files 上传的文件列表
      * @param category 文档分类（可选）
      * @return 文档 ID 列表
      * @throws IOException 文件读取或解析异常
@@ -47,7 +47,7 @@ public interface IKnowledgeService {
      * 根据查询搜索相似文档
      *
      * @param query 查询文本
-     * @param topK  返回文档数量
+     * @param topK 返回文档数量
      * @return 相似文档列表
      */
     List<Document> searchDocuments(String query, int topK);

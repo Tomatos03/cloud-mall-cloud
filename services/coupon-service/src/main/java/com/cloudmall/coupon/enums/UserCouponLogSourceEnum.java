@@ -16,7 +16,6 @@ import lombok.Getter;
 @Getter
 @AllArgsConstructor
 public enum UserCouponLogSourceEnum {
-
     /** 用户 — 公开领取 */
     USER("USER", "用户"),
 
@@ -31,14 +30,11 @@ public enum UserCouponLogSourceEnum {
 
     /** 运营 — 紧急撤销 */
     OPERATOR("OPERATOR", "运营");
-
     /** 数据库存储值 */
     @EnumValue
     private final String code;
-
     /** 来源描述 */
     private final String desc;
-
     /**
      * 根据编码查找流水来源。
      *
@@ -47,12 +43,15 @@ public enum UserCouponLogSourceEnum {
      * @throws IllegalArgumentException 编码非法或为 null 时抛出
      */
     public static UserCouponLogSourceEnum fromCode(String code) {
-        return Arrays.stream(values())
-                     .filter(t -> t.code.equals(code))
-                     .findFirst()
-                     .orElseThrow(() -> new IllegalArgumentException(
-                             "Invalid user coupon log source: '" + code + "', valid values: "
-                                     + Arrays.toString(values())
-                     ));
+        return Arrays
+                .stream(values())
+                .filter(t -> t.code.equals(code))
+                .findFirst()
+                .orElseThrow(
+                        () -> new IllegalArgumentException(
+                                "Invalid user coupon log source: '" + code + "', valid values: "
+                                        + Arrays.toString(values())
+                        )
+                );
     }
 }

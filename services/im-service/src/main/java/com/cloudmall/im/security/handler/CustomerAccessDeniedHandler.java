@@ -17,8 +17,8 @@ import com.cloudmall.im.security.filter.ResponseWriteUtil;
  * @author : Tomatos
  * @date : 2026/2/2
  */
-@Component
 @Slf4j
+@Component
 public class CustomerAccessDeniedHandler implements AccessDeniedHandler {
     private static final String UNAUTHORIZED = "未授权";
 

@@ -21,10 +21,10 @@ import com.cloudmall.coupon.enums.UserCouponStatusEnum;
  *
  * @author : Tomatos
  */
+@Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Data
 @TableName("cm_user_coupon_log")
 public class UserCouponLogDO {
 

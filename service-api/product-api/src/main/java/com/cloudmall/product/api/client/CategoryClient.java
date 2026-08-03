@@ -22,5 +22,8 @@ public interface CategoryClient {
      * @return 分类信息
      */
     @GetMapping("/{id}")
-    Result<CategoryResp> getById(@PathVariable("id") Long id);
+    Result<CategoryResp> getById(
+            @PathVariable("id")
+            Long id
+    );
 }

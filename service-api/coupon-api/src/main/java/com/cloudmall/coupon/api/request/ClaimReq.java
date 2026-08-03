@@ -13,10 +13,10 @@ import lombok.NoArgsConstructor;
  *
  * @author : Tomatos
  */
+@Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Data
 public class ClaimReq {
 
     /** 优惠券模板 ID */

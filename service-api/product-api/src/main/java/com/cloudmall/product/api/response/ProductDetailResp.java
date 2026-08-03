@@ -7,8 +7,6 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import com.cloudmall.mybatisplus.enums.StatusEnum;
-
 /**
  * 商品详情响应对象
  * <p>

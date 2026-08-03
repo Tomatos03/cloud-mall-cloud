@@ -17,8 +17,8 @@ import com.cloudmall.product.api.response.CategoryResp;
 import com.cloudmall.product.service.ICategoryService;
 
 @RestController
-@RequestMapping("/categories")
 @RequiredArgsConstructor
+@RequestMapping("/categories")
 public class CategoryController {
 
     private final ICategoryService categoryService;
@@ -40,7 +40,10 @@ public class CategoryController {
      * @return 处理结果
      */
     @GetMapping("/{id}")
-    public Result<CategoryResp> getById(@PathVariable Long id) {
+    public Result<CategoryResp> getById(
+            @PathVariable
+            Long id
+    ) {
         return Result.success(categoryService.getById(id));
     }
 
@@ -51,7 +54,10 @@ public class CategoryController {
      * @return 处理结果
      */
     @PostMapping
-    public Result<Void> create(@RequestBody CategoryCreateReq req) {
+    public Result<Void> create(
+            @RequestBody
+            CategoryCreateReq req
+    ) {
         categoryService.create(req);
         return Result.success();
     }

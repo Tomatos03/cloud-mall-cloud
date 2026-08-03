@@ -4,9 +4,9 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import cn.hutool.core.util.BooleanUtil;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
-import cn.hutool.core.util.BooleanUtil;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -88,8 +88,7 @@ public abstract class CouponBaseReq {
      * @return true 表示两个渠道都开启
      */
     public boolean isBothIssueChannelsEnabled() {
-        return BooleanUtil.isTrue(this.claimEnabled)
-                && BooleanUtil.isTrue(this.autoIssueOnRegister);
+        return BooleanUtil.isTrue(this.claimEnabled) && BooleanUtil.isTrue(this.autoIssueOnRegister);
     }
 
     /**
@@ -99,9 +98,8 @@ public abstract class CouponBaseReq {
      * @return true 表示金额有效
      */
     public boolean isDiscountAmountValid(BigDecimal threshold) {
-        return this.discountAmount != null
-                && this.discountAmount.compareTo(BigDecimal.ZERO) > 0
-                && this.discountAmount.compareTo(threshold) < 0;
+        return this.discountAmount != null && this.discountAmount.compareTo(BigDecimal.ZERO) > 0
+                       && this.discountAmount.compareTo(threshold) < 0;
     }
 
     /**
@@ -110,8 +108,7 @@ public abstract class CouponBaseReq {
      * @return true 表示金额有效
      */
     public boolean isDiscountAmountPositive() {
-        return this.discountAmount != null
-                && this.discountAmount.compareTo(BigDecimal.ZERO) > 0;
+        return this.discountAmount != null && this.discountAmount.compareTo(BigDecimal.ZERO) > 0;
     }
 
     /**
@@ -120,9 +117,8 @@ public abstract class CouponBaseReq {
      * @return true 表示折扣率有效
      */
     public boolean isDiscountRateValid() {
-        return this.discountRate != null
-                && this.discountRate.compareTo(BigDecimal.ZERO) > 0
-                && this.discountRate.compareTo(BigDecimal.ONE) < 0;
+        return this.discountRate != null && this.discountRate.compareTo(BigDecimal.ZERO) > 0
+                       && this.discountRate.compareTo(BigDecimal.ONE) < 0;
     }
 
     /**
@@ -131,9 +127,8 @@ public abstract class CouponBaseReq {
      * @return true 表示时间区间有效
      */
     public boolean isIssueTimeValid() {
-        return this.issueStartTime != null
-                && this.issueEndTime != null
-                && this.issueStartTime.isBefore(this.issueEndTime);
+        return this.issueStartTime != null && this.issueEndTime != null
+                       && this.issueStartTime.isBefore(this.issueEndTime);
     }
 
     /**
@@ -142,9 +137,8 @@ public abstract class CouponBaseReq {
      * @return true 表示时间区间有效
      */
     public boolean isFixedTimeValid() {
-        return this.fixedStartTime != null
-                && this.fixedExpireTime != null
-                && this.fixedStartTime.isBefore(this.fixedExpireTime);
+        return this.fixedStartTime != null && this.fixedExpireTime != null
+                       && this.fixedStartTime.isBefore(this.fixedExpireTime);
     }
 
     /**

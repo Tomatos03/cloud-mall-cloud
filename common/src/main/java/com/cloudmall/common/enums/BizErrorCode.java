@@ -12,7 +12,6 @@ import org.springframework.http.HttpStatus;
  */
 @Getter
 public enum BizErrorCode {
-    
     // 通用错误码 (1xxx)
     INVALID_PARAM(1000, "请求参数无效"),
     INVALID_AUDIT_STATUS(1001, "无效的审核状态"),
@@ -52,9 +51,9 @@ public enum BizErrorCode {
     SPECIFICATIONS_CANNOT_BE_EMPTY(20014, "规格不能为空"),
     SKUS_CANNOT_BE_EMPTY(20015, "SKU不能为空"),
     SPECIFICATIONS_EXCEED_MAX_LIMIT(20016, "规格数量超出最大限制"),
-     SKU_SPECS_CANNOT_BE_EMPTY(20017, "SKU规格不能为空"),
-     SKU_SPEC_NOT_MATCH(20018, "SKU中包含无效的规格"),
-     GOODS_UNIT_NOT_EXIST(20019, "商品单位不存在"),
+    SKU_SPECS_CANNOT_BE_EMPTY(20017, "SKU规格不能为空"),
+    SKU_SPEC_NOT_MATCH(20018, "SKU中包含无效的规格"),
+    GOODS_UNIT_NOT_EXIST(20019, "商品单位不存在"),
     BRAND_NOT_EXIST(20020, "品牌不存在"),
 
     // 地址相关错误码 (30xxx)
@@ -80,7 +79,7 @@ public enum BizErrorCode {
     GOODS_OFF_SHELF(50006, "商品已下架"),
     GOODS_STOCK_INSUFFICIENT(50007, "商品库存不足"),
     ORDER_CREATE_FAILED(50012, "订单创建失败"),
-    
+
     // 订单状态相关
     INVALID_ORDER_STATUS(50008, "无效的订单状态"),
     ORDER_NOT_EXIST(50009, "订单不存在"),
@@ -89,11 +88,11 @@ public enum BizErrorCode {
     ORDER_STATUS_NOT_PAID(50014, "订单状态不是待发货，无法发货"),
     ORDER_STATUS_NOT_CREATED(50015, "订单状态不是待支付，无法取消"),
     ORDER_STATUS_NOT_FINISHED(50017, "订单未完成，无法进行此操作"),
-    
+
     // 订单评价相关
     ORDER_NO_COMMENT(50016, "订单无买家评价，无法回复"),
     ORDER_ITEM_NOT_EXIST(50018, "订单明细不存在"),
-    
+
     // 已废弃或很少使用
     USER_ID_IS_NULL(50011, "用户ID不能为空"),  // 拦截器保证非空，不再使用
     GOODS_INVENTORY_NOT_ENOUGH(50019, "SKU库存不足"),
@@ -119,14 +118,14 @@ public enum BizErrorCode {
     COMMENT_RATING_INVALID(70000, "评分必须在1-5之间"),
     COMMENT_CONTENT_EMPTY(70001, "评论内容不能为空"),
     COMMENT_GOODS_NAME_EMPTY(70002, "商品名称不能为空"),
-    
+
     // 评论数据相关
     COMMENT_NOT_FOUND(70003, "评论不存在"),
     COMMENT_ALREADY_EXISTS(70004, "评论已存在，无法重复评价"),
-    
+
     // 评论权限相关
     COMMENT_PERMISSION_DENIED(70005, "无权删除他人的评论"),
-    
+
     // 评论关联数据相关
     COMMENT_ORDER_ITEM_NOT_EXIST(70006, "订单明细不存在，无法评论"),
     COMMENT_GOODS_NOT_EXIST(70007, "商品不存在，无法评论"),
@@ -138,11 +137,11 @@ public enum BizErrorCode {
     FILE_SIZE_EXCEEDS_LIMIT(80001, "文件大小不能超过5MB"),
     FILE_EXTENSION_NOT_ALLOWED(80002, "只允许jpg和png格式"),
     FILE_MIME_TYPE_INVALID(80003, "文件类型不合法"),
-    
+
     // 文件操作相关
     FILE_SAVE_FAILED(80004, "文件保存失败"),
     UPLOAD_DIR_CREATE_FAILED(80005, "无法创建上传目录"),
-    
+
     // 权限和店铺相关错误码 (500xx)
     NO_PERMISSION(500014, "无权访问"),
     STORE_NOT_EXIST(500015, "店铺不存在"),
@@ -250,17 +249,13 @@ public enum BizErrorCode {
     COUPON_RULE_INVALID(93116, "优惠券规则配置无效"),
 
     // AI Agent 相关错误码 (91xxx)
-    SESSION_NOT_FOUND(91004, "会话不存在或已经过期")
-    ;
-
+    SESSION_NOT_FOUND(91004, "会话不存在或已经过期");
     final int code;
     final String errorMessage;
     final HttpStatus httpStatus;
-
     BizErrorCode(int code, String errorMessage) {
         this(code, errorMessage, HttpStatus.OK);
     }
-
     BizErrorCode(int code, String errorMessage, HttpStatus httpStatus) {
         this.code = code;
         this.errorMessage = errorMessage;

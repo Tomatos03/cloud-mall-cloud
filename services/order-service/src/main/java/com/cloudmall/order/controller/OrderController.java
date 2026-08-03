@@ -16,8 +16,8 @@ import com.cloudmall.order.model.req.OrderPageReq;
 import com.cloudmall.order.service.IOrderService;
 
 @RestController
-@RequestMapping("/orders")
 @RequiredArgsConstructor
+@RequestMapping("/orders")
 public class OrderController {
 
     private final IOrderService orderService;
@@ -29,7 +29,10 @@ public class OrderController {
      * @return 处理结果
      */
     @PostMapping
-    public Result<OrderResp> create(@RequestBody CreateReq request) {
+    public Result<OrderResp> create(
+            @RequestBody
+            CreateReq request
+    ) {
         return Result.success(orderService.createOrder(request));
     }
 
@@ -40,7 +43,10 @@ public class OrderController {
      * @return 处理结果
      */
     @GetMapping("/{id}")
-    public Result<OrderResp> getById(@PathVariable Long id) {
+    public Result<OrderResp> getById(
+            @PathVariable
+            Long id
+    ) {
         return Result.success(orderService.getById(id));
     }
 

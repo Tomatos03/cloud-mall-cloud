@@ -16,3 +16,5 @@ opencode.json
 # jarp cli skill cache
 .jarp-index.json
 .jarp-temp
+
+jstyle.toml

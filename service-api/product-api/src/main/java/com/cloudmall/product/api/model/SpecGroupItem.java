@@ -29,7 +29,7 @@ public class SpecGroupItem {
     @NotBlank(message = "规格组名称不能为空")
     private String name;
 
-    @NotEmpty(message = "规格组下至少需要一个规格值")
     @Valid
+    @NotEmpty(message = "规格组下至少需要一个规格值")
     private List<SpecValueItem> values;
 }

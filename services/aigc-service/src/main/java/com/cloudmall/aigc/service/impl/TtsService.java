@@ -5,14 +5,12 @@ import java.util.Base64;
 import lombok.RequiredArgsConstructor;
 import org.springframework.ai.audio.tts.TextToSpeechModel;
 import org.springframework.ai.audio.tts.TextToSpeechPrompt;
-import org.springframework.ai.audio.tts.TextToSpeechResponse;
 import org.springframework.ai.openai.OpenAiAudioSpeechOptions;
 import org.springframework.ai.openai.api.OpenAiAudioApi.SpeechRequest.AudioResponseFormat;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 
 import com.cloudmall.aigc.model.enums.TtsAudioFormat;
-import com.cloudmall.aigc.model.enums.TtsVoice;
 import com.cloudmall.aigc.model.req.TtsReq;
 import com.cloudmall.aigc.model.resp.TtsResp;
 import com.cloudmall.aigc.service.ITtsService;
@@ -33,10 +31,9 @@ public class TtsService implements ITtsService {
     private final TextToSpeechModel textToSpeechModel;
 
     /**
-     * 文本转语音 — 同步调用，返回原始音频字节数组
-     * <p>
-     * 根据请求参数构建 TTS Prompt，调用 OpenAI TTS API 合成音频，
-     * 等待完整响应后一次性返回全部音频数据。
+     * 文本转语音 — 同步调用，返回原始音频字节数组 <p>
+     * 根据请求参数构建 TTS Prompt，调用 OpenAI TTS API 合成音频， 等待完整响应
+     * 后一次性返回全部音频数据。
      *
      * @param req 合成请求（含文本、语音风格、语速等参数）
      * @return 完整的音频字节数组
@@ -50,10 +47,9 @@ public class TtsService implements ITtsService {
     }
 
     /**
-     * 文本转语音 — 同步调用，返回 Base64 编码的音频数据和元数据
-     * <p>
-     * 内部委托 {@link #synthesize(TtsReq)} 获取原始音频字节，
-     * 再编码为 Base64 字符串，适用于 JSON 交互场景。
+     * 文本转语音 — 同步调用，返回 Base64 编码的音频数据和元数据 <p>
+     * 内部委托 {@link #synthesize(TtsReq)} 获取原始音频字节， 再编码为
+     * Base64 字符串，适用于 JSON 交互场景。
      *
      * @param req 合成请求
      * @return 包含 Base64 音频、格式和大小的响应对象
@@ -72,10 +68,9 @@ public class TtsService implements ITtsService {
     }
 
     /**
-     * 文本转语音 — 流式调用，返回音频字节流
-     * <p>
-     * 实时将 TTS 模型的流式响应逐 chunk 映射为字节数组，
-     * 客户端可在数据到达时立即开始播放，降低首包延迟。
+     * 文本转语音 — 流式调用，返回音频字节流 <p>
+     * 实时将 TTS 模型的流式响应逐 chunk 映射为字节数组， 客户端可在数据到达时立即开始播放，降
+     * 低首包延迟。
      *
      * @param req 合成请求
      * @return 音频字节的响应式流
@@ -83,8 +78,7 @@ public class TtsService implements ITtsService {
     @Override
     public Flux<byte[]> stream(TtsReq req) {
         TextToSpeechPrompt prompt = buildPrompt(req);
-        return textToSpeechModel.stream(prompt)
-                                .map(response -> response.getResult().getOutput());
+        return textToSpeechModel.stream(prompt).map(response -> response.getResult().getOutput());
     }
 
     /**

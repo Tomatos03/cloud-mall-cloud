@@ -16,10 +16,10 @@ import lombok.NoArgsConstructor;
  *
  * @author : Tomatos
  */
+@Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Data
 @TableName("cm_coupon_category")
 public class CouponCategoryDO {
 

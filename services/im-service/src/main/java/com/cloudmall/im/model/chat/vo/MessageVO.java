@@ -12,9 +12,9 @@ import lombok.NoArgsConstructor;
  * @date : 2026/02/02
  */
 @Data
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
 public class MessageVO {
     private Long sessionId;
     private Long userId;

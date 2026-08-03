@@ -29,18 +29,17 @@ import com.cloudmall.common.model.Result;
  * @date : 2026/7/25
  */
 @RestController
-@RequestMapping("/resources")
 @RequiredArgsConstructor
+@RequestMapping("/resources")
 public class ResourceController {
 
     private final IResourceService resourceService;
 
     /**
-     * 获取完整资源树（不进行权限过滤）
-     * <p>
-     * 返回按 parentId 构建的层级菜单结构，包含全部 UI 资源节点，
-     * 不根据当前用户权限进行裁剪。用于资源管理后台的全量展示。
-     * 仅包含 menu / catalog / layout 类型的 UI 节点。
+     * 获取完整资源树（不进行权限过滤） <p>
+     * 返回按 parentId 构建的层级菜单结构，包含全部 UI 资源节点， 不根据当前用户权限进行裁剪
+     * 。用于资源管理后台的全量展示。 仅包含 menu / catalog / layout 类型的 UI
+     * 节点。
      *
      * @return 完整资源树根节点列表
      */
@@ -52,11 +51,15 @@ public class ResourceController {
     /**
      * 查询所有资源列表
      *
-     * @param type 按类型过滤（可选，menu / catalog / layout / button）
+     * @param type 按类型过滤（可选，menu / catalog / layout /
+     *             button）
      * @return 资源列表
      */
     @GetMapping
-    public Result<List<ResourceResp>> listResources(@RequestParam(required = false) String type) {
+    public Result<List<ResourceResp>> listResources(
+            @RequestParam(required = false)
+            String type
+    ) {
         return Result.success(resourceService.listResources(type));
     }
 
@@ -67,7 +70,10 @@ public class ResourceController {
      * @return 资源信息
      */
     @GetMapping("/{id}")
-    public Result<ResourceResp> getResource(@PathVariable Long id) {
+    public Result<ResourceResp> getResource(
+            @PathVariable
+            Long id
+    ) {
         return Result.success(resourceService.getResource(id));
     }
 
@@ -78,21 +84,26 @@ public class ResourceController {
      * @return 新资源 ID
      */
     @PostMapping
-    public Result<Long> createResource(@RequestBody ResourceReq req) {
+    public Result<Long> createResource(
+            @RequestBody
+            ResourceReq req
+    ) {
         return Result.success(resourceService.createResource(req));
     }
 
     /**
      * 更新资源。
      *
-     * @param id  资源 ID
+     * @param id 资源 ID
      * @param req 待更新的资源字段
      * @return 处理结果
      */
     @PutMapping("/{id}")
     public Result<Void> updateResource(
-            @PathVariable Long id,
-            @RequestBody ResourceReq req
+            @PathVariable
+            Long id,
+            @RequestBody
+            ResourceReq req
     ) {
         resourceService.updateResource(id, req);
         return Result.success();
@@ -105,7 +116,10 @@ public class ResourceController {
      * @return 处理结果
      */
     @DeleteMapping("/{id}")
-    public Result<Void> deleteResource(@PathVariable Long id) {
+    public Result<Void> deleteResource(
+            @PathVariable
+            Long id
+    ) {
         resourceService.deleteResource(id);
         return Result.success();
     }

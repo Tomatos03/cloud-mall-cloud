@@ -12,7 +12,6 @@ import lombok.Getter;
 @Getter
 @AllArgsConstructor
 public enum LimitEnum {
-
     ONE("LIMIT 1"),
     TEN("LIMIT 10"),
     TWENTY("LIMIT 20"),
@@ -21,9 +20,7 @@ public enum LimitEnum {
     HUNDRED("LIMIT 100"),
     TWO_HUNDRED("LIMIT 200"),
     THOUSAND("LIMIT 1000");
-
     private final String sql;
-
     /**
      * 动态创建 LIMIT 子句
      *

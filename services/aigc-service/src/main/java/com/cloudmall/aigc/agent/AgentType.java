@@ -20,6 +20,5 @@ public enum AgentType {
     USER("负责账户信息、地址管理、登录注册等用户服务"),
     GENERAL("负责闲聊、问候及其他非业务问题的处理"),
     ROUTE("分析用户意图并路由到合适的业务智能体");
-
     private final String description;
 }

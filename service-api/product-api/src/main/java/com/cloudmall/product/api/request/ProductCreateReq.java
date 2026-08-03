@@ -50,17 +50,17 @@ public class ProductCreateReq {
     @NotNull(message = "品牌 ID 不能为空")
     private Long brandId;
 
+    @Valid
     @NotEmpty(message = "规格分组不能为空")
     @Size(max = 3, message = "规格分组最多 3 组")
-    @Valid
     private List<SpecGroupItem> specGroups;
 
-    @NotEmpty(message = "SKU 列表不能为空")
     @Valid
+    @NotEmpty(message = "SKU 列表不能为空")
     private List<SkuItem> skus;
 
     /** 商品图片，首张为主图 */
-    @NotEmpty(message = "图片列表不能为空")
     @Valid
+    @NotEmpty(message = "图片列表不能为空")
     private List<ImageItem> images;
 }

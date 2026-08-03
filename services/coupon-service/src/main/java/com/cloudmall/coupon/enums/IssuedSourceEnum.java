@@ -16,20 +16,16 @@ import lombok.Getter;
 @Getter
 @AllArgsConstructor
 public enum IssuedSourceEnum {
-
     /** 公开领取 — 用户从券中心主动领取 */
     PUBLIC_CLAIM("PUBLIC_CLAIM", "公开领取"),
 
     /** 注册自动发放 — 注册事件触发的平台新人券 */
     REGISTER_AUTO("REGISTER_AUTO", "注册自动发放");
-
     /** 数据库存储值 */
     @EnumValue
     private final String code;
-
     /** 来源描述 */
     private final String desc;
-
     /**
      * 根据编码查找发放来源。
      *
@@ -38,12 +34,15 @@ public enum IssuedSourceEnum {
      * @throws IllegalArgumentException 编码非法或为 null 时抛出
      */
     public static IssuedSourceEnum fromCode(String code) {
-        return Arrays.stream(values())
-                     .filter(t -> t.code.equals(code))
-                     .findFirst()
-                     .orElseThrow(() -> new IllegalArgumentException(
-                             "Invalid issued source: '" + code + "', valid values: "
-                                     + Arrays.toString(values())
-                     ));
+        return Arrays
+                .stream(values())
+                .filter(t -> t.code.equals(code))
+                .findFirst()
+                .orElseThrow(
+                        () -> new IllegalArgumentException(
+                                "Invalid issued source: '" + code + "', valid values: "
+                                        + Arrays.toString(values())
+                        )
+                );
     }
 }

@@ -37,11 +37,11 @@ public class AgentPromptLoader {
     /**
      * 使用 Nacos 配置管理器和 Agent 配置构造加载器。
      *
-     * @param nacosConfigManager Nacos 配置管理器，用于获取 ConfigService
-     * @param properties         Agent 配置属性，包含提示词 dataId 等配置
+     * @param nacosConfigManager Nacos 配置管理器，用于获取
+     *                           ConfigService
+     * @param properties Agent 配置属性，包含提示词 dataId 等配置
      */
-    public AgentPromptLoader(NacosConfigManager nacosConfigManager,
-                             AgentProperties properties) {
+    public AgentPromptLoader(NacosConfigManager nacosConfigManager, AgentProperties properties) {
         this.configService = nacosConfigManager.getConfigService();
         this.defaultGroup = properties.getPromptGroup();
         this.defaultTimeout = properties.getReadTimeout();
@@ -49,26 +49,30 @@ public class AgentPromptLoader {
 
         Map<String, AgentProperties.PromptConfig> raw = properties.getPrompts();
         if (raw != null) {
-            this.promptConfigs = raw.entrySet().stream()
-                    .collect(Collectors.toMap(
-                            e -> AgentType.valueOf(e.getKey().toUpperCase()),
-                            e -> {
-                                AgentProperties.PromptConfig cfg = e.getValue();
-                                PromptConfig pc = new PromptConfig();
-                                pc.setDataId(cfg.getDataId());
-                                pc.setGroup(cfg.getGroup());
-                                pc.setReadTimeout(cfg.getReadTimeout());
-                                return pc;
-                            }
-                    ));
+            this.promptConfigs = raw
+                    .entrySet()
+                    .stream()
+                    .collect(
+                            Collectors.toMap(
+                                    e -> AgentType.valueOf(e.getKey().toUpperCase()),
+                                    e -> {
+                                        AgentProperties.PromptConfig cfg = e.getValue();
+                                        PromptConfig pc = new PromptConfig();
+                                        pc.setDataId(cfg.getDataId());
+                                        pc.setGroup(cfg.getGroup());
+                                        pc.setReadTimeout(cfg.getReadTimeout());
+                                        return pc;
+                                    }
+                            )
+                    );
         } else {
             this.promptConfigs = Map.of();
         }
     }
 
     /**
-     * 懒加载：首次加载从 Nacos 读取，之后走缓存。
-     * 返回的提示词已包含 globalPrompt + 专属 prompt。
+     * 懒加载：首次加载从 Nacos 读取，之后走缓存。 返回的提示词已包含 globalPrompt +
+     * 专属 prompt。
      *
      * @param type 类型
      * @return 字符串结果
@@ -82,8 +86,7 @@ public class AgentPromptLoader {
     }
 
     /**
-     * 从 Nacos 读取指定智能体的提示词。
-     * 读取成功返回内容并缓存，失败返回默认提示词。
+     * 从 Nacos 读取指定智能体的提示词。 读取成功返回内容并缓存，失败返回默认提示词。
      *
      * @param type 智能体类型
      * @return 提示词内容，读取失败时返回 {@link #DEFAULT_PROMPT}
@@ -119,7 +122,7 @@ public class AgentPromptLoader {
     /**
      * 为指定智能体注册 Nacos 配置变更监听，支持热更新。
      *
-     * @param type     智能体类型
+     * @param type 智能体类型
      * @param onUpdate 配置变更后的回调
      */
     public void registerListener(AgentType type, Runnable onUpdate) {
@@ -133,37 +136,41 @@ public class AgentPromptLoader {
         String group = ObjectUtil.defaultIfNull(cfg.getGroup(), defaultGroup);
 
         try {
-            configService.addListener(dataId, group, new Listener() {
-                /**
+            configService.addListener(
+                    dataId,
+                    group,
+                    new Listener() {
+                        /**
                  * 接收配置变更。
                  *
                  * @param config 配置内容
                  */
-                @Override
-                public void receiveConfigInfo(String config) {
-                    cache.put(type, config);
-                    log.info("提示词热更新: type={}, dataId={}", type, dataId);
-                    onUpdate.run();
-                }
+                        @Override
+                        public void receiveConfigInfo(String config) {
+                            cache.put(type, config);
+                            log.info("提示词热更新: type={}, dataId={}", type, dataId);
+                            onUpdate.run();
+                        }
 
-                /**
+                        /**
                  * 获取相关数据。
                  *
                  * @return 处理结果
                  */
-                @Override
-                public Executor getExecutor() {
-                    return Executors.newSingleThreadExecutor();
-                }
-            });
+                        @Override
+                        public Executor getExecutor() {
+                            return Executors.newSingleThreadExecutor();
+                        }
+                    }
+            );
         } catch (NacosException e) {
             log.error("注册 Nacos 监听失败: dataId={}", dataId, e);
         }
     }
 
     /**
-     * 合并 global prompt 和 Agent 专属 prompt。
-     * globalPrompt 为空时只返回 agentPrompt。
+     * 合并 global prompt 和 Agent 专属 prompt。 globalPrompt 为
+     * 空时只返回 agentPrompt。
      *
      * @param agentPrompt 智能体专属 prompt
      * @return 合并后的完整 prompt
@@ -190,23 +197,35 @@ public class AgentPromptLoader {
          *
          * @return 字符串结果
          */
-        public String getDataId() { return dataId; }
-        public void setDataId(String dataId) { this.dataId = dataId; }
+        public String getDataId() {
+            return dataId;
+        }
+        public void setDataId(String dataId) {
+            this.dataId = dataId;
+        }
 
         /**
          * 获取相关数据。
          *
          * @return 字符串结果
          */
-        public String getGroup() { return group; }
-        public void setGroup(String group) { this.group = group; }
+        public String getGroup() {
+            return group;
+        }
+        public void setGroup(String group) {
+            this.group = group;
+        }
 
         /**
          * 获取相关数据。
          *
          * @return 结果标识或数值
          */
-        public Integer getReadTimeout() { return readTimeout; }
-        public void setReadTimeout(Integer readTimeout) { this.readTimeout = readTimeout; }
+        public Integer getReadTimeout() {
+            return readTimeout;
+        }
+        public void setReadTimeout(Integer readTimeout) {
+            this.readTimeout = readTimeout;
+        }
     }
 }

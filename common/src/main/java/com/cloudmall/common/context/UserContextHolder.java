@@ -67,8 +67,7 @@ public final class UserContextHolder {
     }
 
     /**
-     * 清除当前请求的用户上下文。
-     * <p>
+     * 清除当前请求的用户上下文。 <p>
      * 务必在请求结束后调用，防止 ThreadLocal 内存泄漏。
      */
     public static void clear() {

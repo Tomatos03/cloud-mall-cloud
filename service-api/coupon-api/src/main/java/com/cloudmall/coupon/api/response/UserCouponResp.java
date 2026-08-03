@@ -15,10 +15,10 @@ import lombok.NoArgsConstructor;
  *
  * @author : Tomatos
  */
+@Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Data
 public class UserCouponResp {
 
     /** 用户券 ID */

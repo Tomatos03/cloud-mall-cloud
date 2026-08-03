@@ -17,7 +17,6 @@ import lombok.Getter;
 @Getter
 @AllArgsConstructor
 public enum UserCouponOperationTypeEnum {
-
     /** 发放 — 公开领取或注册自动发放 */
     ISSUE("ISSUE", "发放"),
 
@@ -38,14 +37,11 @@ public enum UserCouponOperationTypeEnum {
 
     /** 撤销 — 运营紧急撤销 */
     REVOKE("REVOKE", "撤销");
-
     /** 数据库存储值 */
     @EnumValue
     private final String code;
-
     /** 操作描述 */
     private final String desc;
-
     /**
      * 根据编码查找操作类型。
      *
@@ -54,12 +50,15 @@ public enum UserCouponOperationTypeEnum {
      * @throws IllegalArgumentException 编码非法或为 null 时抛出
      */
     public static UserCouponOperationTypeEnum fromCode(String code) {
-        return Arrays.stream(values())
-                     .filter(t -> t.code.equals(code))
-                     .findFirst()
-                     .orElseThrow(() -> new IllegalArgumentException(
-                             "Invalid user coupon operation type: '" + code + "', valid values: "
-                                     + Arrays.toString(values())
-                     ));
+        return Arrays
+                .stream(values())
+                .filter(t -> t.code.equals(code))
+                .findFirst()
+                .orElseThrow(
+                        () -> new IllegalArgumentException(
+                                "Invalid user coupon operation type: '" + code + "', valid values: "
+                                        + Arrays.toString(values())
+                        )
+                );
     }
 }

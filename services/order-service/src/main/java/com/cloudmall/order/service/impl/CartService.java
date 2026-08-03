@@ -19,7 +19,6 @@ import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import com.cloudmall.common.enums.BizErrorCode;
 import com.cloudmall.common.model.Result;
@@ -200,17 +199,14 @@ public class CartService implements ICartService {
      */
     @Override
     public void clear(Long userId) {
-        cartMapper.delete(
-                Wrappers.<CartDO>lambdaQuery()
-                        .eq(CartDO::getUserId, userId)
-        );
+        cartMapper.delete(Wrappers.<CartDO>lambdaQuery().eq(CartDO::getUserId, userId));
     }
 
     /**
      * 查询购物车中指定 SKU 的记录。
      *
      * @param userId 用户 ID
-     * @param skuId  SKU ID
+     * @param skuId SKU ID
      * @return 购物车记录，不存在时返回 null
      */
     private CartDO findCartItem(Long userId, Long skuId) {
@@ -225,7 +221,7 @@ public class CartService implements ICartService {
      * 已存在记录：数量累加并刷新价格，返回记录 ID。
      *
      * @param existing 已有购物车记录
-     * @param sku      SKU 实时信息
+     * @param sku SKU 实时信息
      * @param quantity 新增数量
      * @return 购物车记录 ID
      * @throws BizException 处理过程中可能抛出该异常
@@ -251,8 +247,7 @@ public class CartService implements ICartService {
      */
     private void checkCartCapacity(Long userId) {
         Long count = cartMapper.selectCount(
-                Wrappers.<CartDO>lambdaQuery()
-                        .eq(CartDO::getUserId, userId)
+                Wrappers.<CartDO>lambdaQuery().eq(CartDO::getUserId, userId)
         );
         AssertUtils.isTrue(count < MAX_ITEMS, BizErrorCode.CART_LIMIT_EXCEEDED);
     }
@@ -260,8 +255,8 @@ public class CartService implements ICartService {
     /**
      * 新增购物车记录，返回记录 ID。
      *
-     * @param userId   用户 ID
-     * @param sku      SKU 实时信息
+     * @param userId 用户 ID
+     * @param sku SKU 实时信息
      * @param quantity 加入数量
      * @return 购物车记录 ID
      */
@@ -320,8 +315,7 @@ public class CartService implements ICartService {
         if (CollUtil.isEmpty(shops)) {
             return Collections.emptyMap();
         }
-        return shops.stream()
-                    .collect(Collectors.toMap(ShopResp::getId, Function.identity()));
+        return shops.stream().collect(Collectors.toMap(ShopResp::getId, Function.identity()));
     }
 
     /**
@@ -349,10 +343,7 @@ public class CartService implements ICartService {
                                  .map(CartDO::getSkuId)
                                  .toList();
         return fetchSkus(skuIds).stream()
-                                .collect(Collectors.toMap(
-                                        SkuResp::getSkuId,
-                                        Function.identity()
-                                ));
+                                .collect(Collectors.toMap(SkuResp::getSkuId, Function.identity()));
     }
 
     /**
@@ -373,20 +364,22 @@ public class CartService implements ICartService {
     /**
      * 按店铺分组，保持购物车加入顺序。
      *
-     * @param items   购物车条目列表
+     * @param items 购物车条目列表
      * @param shopMap 店铺 ID -> 店铺信息
      * @return 店铺分组列表
      */
     private List<CartShopGroup> groupByShop(List<CartItem> items, Map<Long, ShopResp> shopMap) {
         Map<Long, List<CartItem>> grouped = items.stream()
-                                                 .collect(Collectors.groupingBy(
-                                                         item -> ObjectUtil.defaultIfNull(
-                                                                 item.getShopId(),
-                                                                 UNKNOWN_SHOP_ID
-                                                         ),
-                                                         LinkedHashMap::new,
-                                                         Collectors.toList()
-                                                 ));
+                                                 .collect(
+                                                         Collectors.groupingBy(
+                                                                 item -> ObjectUtil.defaultIfNull(
+                                                                         item.getShopId(),
+                                                                         UNKNOWN_SHOP_ID
+                                                                 ),
+                                                                 LinkedHashMap::new,
+                                                                 Collectors.toList()
+                                                         )
+                                                 );
         List<CartShopGroup> groups = new ArrayList<>(grouped.size());
         for (Map.Entry<Long, List<CartItem>> entry : grouped.entrySet()) {
             groups.add(buildGroup(entry.getKey(), entry.getValue(), shopMap));
@@ -397,16 +390,12 @@ public class CartService implements ICartService {
     /**
      * 构建店铺分组：字段映射走 converter，统计项在此填充。
      *
-     * @param shopId  店铺 ID
-     * @param items   该店铺下的购物车条目
+     * @param shopId 店铺 ID
+     * @param items 该店铺下的购物车条目
      * @param shopMap 店铺 ID -> 店铺信息
      * @return 店铺分组
      */
-    private CartShopGroup buildGroup(
-            Long shopId,
-            List<CartItem> items,
-            Map<Long, ShopResp> shopMap
-    ) {
+    private CartShopGroup buildGroup(Long shopId, List<CartItem> items, Map<Long, ShopResp> shopMap) {
         CartShopGroup group = cartConverter.toShopGroup(shopId, items, shopMap.get(shopId));
         int selectedCount = countSelected(items);
         group.setItemCount(items.size());
@@ -420,16 +409,15 @@ public class CartService implements ICartService {
      * 构建全车摘要：字段映射走 converter，汇总项在此填充。
      *
      * @param groups 按店铺分组的商品列表
-     * @param items  全车条目
+     * @param items 全车条目
      * @return 购物车摘要
      */
     private CartDetailResp buildDetail(List<CartShopGroup> groups, List<CartItem> items) {
         CartDetailResp resp = cartConverter.toDetailResp(groups, items);
         resp.setTotalItems(items.size());
-        int totalQuantity = items
-                .stream()
-                .mapToInt(item -> ObjectUtil.defaultIfNull(item.getQuantity(), 0))
-                .sum();
+        int totalQuantity = items.stream()
+                                 .mapToInt(item -> ObjectUtil.defaultIfNull(item.getQuantity(), 0))
+                                 .sum();
         resp.setTotalQuantity(totalQuantity);
         resp.setSelectedCount(countSelected(items));
         resp.setTotalAmount(sumAmount(items, item -> true));
@@ -456,7 +444,7 @@ public class CartService implements ICartService {
     /**
      * 按条件汇总小计金额。
      *
-     * @param items  购物车条目列表
+     * @param items 购物车条目列表
      * @param filter 筛选条件
      * @return 小计金额合计
      */

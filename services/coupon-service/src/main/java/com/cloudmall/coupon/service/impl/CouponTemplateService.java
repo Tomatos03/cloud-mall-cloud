@@ -124,25 +124,21 @@ public class CouponTemplateService implements ICouponTemplateService {
     /**
      * 编辑模板草稿。
      *
-     * @param id  模板 ID
+     * @param id 模板 ID
      * @param req 编辑请求
      */
     @Override
     @Transactional
     public void updateDraft(Long id, CouponUpdateReq req) {
         CouponDO coupon = getTemplate(id);
-        AssertUtils.isTrue(coupon.getStatus() == CouponStatusEnum.DRAFT, BizErrorCode.COUPON_RULE_FROZEN);
+        AssertUtils.isTrue(
+                coupon.getStatus() == CouponStatusEnum.DRAFT,
+                BizErrorCode.COUPON_RULE_FROZEN
+        );
         CouponTypeEnum type = CouponTypeEnum.fromCode(req.getType());
         CouponScopeTypeEnum scopeType = CouponScopeTypeEnum.fromCode(req.getScopeType());
         ValidityModeEnum validityMode = ValidityModeEnum.fromCode(req.getValidityMode());
-        validateRule(
-                req,
-                coupon.getOwnerType(),
-                type,
-                scopeType,
-                validityMode,
-                coupon.getShopId()
-        );
+        validateRule(req, coupon.getOwnerType(), type, scopeType, validityMode, coupon.getShopId());
         validateScope(
                 scopeType,
                 req.getProductIds(),
@@ -273,7 +269,14 @@ public class CouponTemplateService implements ICouponTemplateService {
         coupon.setStatus(CouponStatusEnum.ENDED);
         coupon.setUpdateTime(LocalDateTime.now());
         couponMapper.updateById(coupon);
-        appendOperationLog(coupon, from, CouponStatusEnum.ENDED, CouponOperationActionEnum.END, "结束发放", null);
+        appendOperationLog(
+                coupon,
+                from,
+                CouponStatusEnum.ENDED,
+                CouponOperationActionEnum.END,
+                "结束发放",
+                null
+        );
     }
 
     /**
@@ -285,7 +288,10 @@ public class CouponTemplateService implements ICouponTemplateService {
     @Transactional
     public void deleteDraft(Long id) {
         CouponDO coupon = getTemplate(id);
-        AssertUtils.isTrue(coupon.getStatus() == CouponStatusEnum.DRAFT, BizErrorCode.COUPON_RULE_FROZEN);
+        AssertUtils.isTrue(
+                coupon.getStatus() == CouponStatusEnum.DRAFT,
+                BizErrorCode.COUPON_RULE_FROZEN
+        );
         Long claimed = ObjectUtil.defaultIfNull(coupon.getClaimedCount(), 0L);
         AssertUtils.isZero(claimed, BizErrorCode.COUPON_OPERATION_NOT_ALLOWED);
         couponMapper.deleteById(id);
@@ -352,12 +358,12 @@ public class CouponTemplateService implements ICouponTemplateService {
     /**
      * 校验模板核心规则（创建与编辑共用）。
      *
-     * @param req          请求参数
-     * @param ownerType    券归属
-     * @param type         券类型
-     * @param scopeType    适用范围
+     * @param req 请求参数
+     * @param ownerType 券归属
+     * @param type 券类型
+     * @param scopeType 适用范围
      * @param validityMode 有效期模式
-     * @param shopId       店铺 ID
+     * @param shopId 店铺 ID
      */
     private void validateRule(
             CouponBaseReq req,
@@ -369,8 +375,14 @@ public class CouponTemplateService implements ICouponTemplateService {
     ) {
         AssertUtils.isFalse(req.isBothIssueChannelsEnabled(), BizErrorCode.COUPON_RULE_INVALID);
         if (BooleanUtil.isTrue(req.getAutoIssueOnRegister())) {
-            AssertUtils.isTrue(ownerType == CouponOwnerTypeEnum.PLATFORM, BizErrorCode.COUPON_OWNER_INVALID);
-            AssertUtils.isFalse(BooleanUtil.isTrue(req.getClaimEnabled()), BizErrorCode.COUPON_RULE_INVALID);
+            AssertUtils.isTrue(
+                    ownerType == CouponOwnerTypeEnum.PLATFORM,
+                    BizErrorCode.COUPON_OWNER_INVALID
+            );
+            AssertUtils.isFalse(
+                    BooleanUtil.isTrue(req.getClaimEnabled()),
+                    BizErrorCode.COUPON_RULE_INVALID
+            );
         }
         if (ownerType == CouponOwnerTypeEnum.SHOP) {
             AssertUtils.notNull(shopId, BizErrorCode.COUPON_OWNER_INVALID);
@@ -382,7 +394,10 @@ public class CouponTemplateService implements ICouponTemplateService {
                         threshold.compareTo(BigDecimal.ZERO) > 0,
                         BizErrorCode.COUPON_RULE_INVALID
                 );
-                AssertUtils.isTrue(req.isDiscountAmountValid(threshold), BizErrorCode.COUPON_RULE_INVALID);
+                AssertUtils.isTrue(
+                        req.isDiscountAmountValid(threshold),
+                        BizErrorCode.COUPON_RULE_INVALID
+                );
             }
             case CASH -> {
                 AssertUtils.isTrue(
@@ -400,9 +415,15 @@ public class CouponTemplateService implements ICouponTemplateService {
             }
         }
         if (scopeType == CouponScopeTypeEnum.PRODUCT) {
-            AssertUtils.isTrue(CollUtil.isNotEmpty(req.getProductIds()), BizErrorCode.COUPON_SCOPE_INVALID);
+            AssertUtils.isTrue(
+                    CollUtil.isNotEmpty(req.getProductIds()),
+                    BizErrorCode.COUPON_SCOPE_INVALID
+            );
         } else if (scopeType == CouponScopeTypeEnum.CATEGORY) {
-            AssertUtils.isTrue(CollUtil.isNotEmpty(req.getCategoryIds()), BizErrorCode.COUPON_SCOPE_INVALID);
+            AssertUtils.isTrue(
+                    CollUtil.isNotEmpty(req.getCategoryIds()),
+                    BizErrorCode.COUPON_SCOPE_INVALID
+            );
         }
         AssertUtils.isTrue(req.isIssueTimeValid(), BizErrorCode.COUPON_RULE_INVALID);
         if (validityMode == ValidityModeEnum.FIXED) {
@@ -415,11 +436,11 @@ public class CouponTemplateService implements ICouponTemplateService {
     /**
      * 校验适用范围配置（商品/分类存在性，店铺券目标商品必须属于当前店铺）。
      *
-     * @param scopeType    适用范围
-     * @param productIds   商品 ID 列表
-     * @param categoryIds  分类 ID 列表
-     * @param ownerType    券归属
-     * @param shopId       店铺 ID
+     * @param scopeType 适用范围
+     * @param productIds 商品 ID 列表
+     * @param categoryIds 分类 ID 列表
+     * @param ownerType 券归属
+     * @param shopId 店铺 ID
      */
     private void validateScope(
             CouponScopeTypeEnum scopeType,
@@ -435,13 +456,16 @@ public class CouponTemplateService implements ICouponTemplateService {
             for (Long productId : distinct) {
                 ProductResp product = callProduct(productId);
                 if (ownerType == CouponOwnerTypeEnum.SHOP) {
-                    AssertUtils.isTrue(shopId.equals(product.getShopId()), BizErrorCode.COUPON_SCOPE_INVALID);
+                    AssertUtils.isTrue(
+                            shopId.equals(product.getShopId()),
+                            BizErrorCode.COUPON_SCOPE_INVALID
+                    );
                 }
             }
         } else if (scopeType == CouponScopeTypeEnum.CATEGORY) {
             List<Long> distinct = categoryIds.stream()
-                                            .distinct()
-                                            .toList();
+                                             .distinct()
+                                             .toList();
             for (Long categoryId : distinct) {
                 callCategory(categoryId);
             }
@@ -473,11 +497,11 @@ public class CouponTemplateService implements ICouponTemplateService {
     /**
      * 保存范围关联（先删后插，ALL 范围清空关联）。
      *
-     * @param couponId    模板 ID
-     * @param scopeType   适用范围
-     * @param productIds  商品 ID 列表
+     * @param couponId 模板 ID
+     * @param scopeType 适用范围
+     * @param productIds 商品 ID 列表
      * @param categoryIds 分类 ID 列表
-     * @param now         当前时间
+     * @param now 当前时间
      */
     private void saveScope(
             Long couponId,
@@ -509,8 +533,8 @@ public class CouponTemplateService implements ICouponTemplateService {
                             .eq(CouponCategoryDO::getCouponId, couponId)
             );
             List<Long> distinct = categoryIds.stream()
-                                            .distinct()
-                                            .toList();
+                                             .distinct()
+                                             .toList();
             for (Long categoryId : distinct) {
                 couponCategoryMapper.insert(
                         CouponCategoryDO.builder()
@@ -532,12 +556,10 @@ public class CouponTemplateService implements ICouponTemplateService {
      */
     private void deleteScope(Long couponId) {
         couponProductMapper.delete(
-                Wrappers.<CouponProductDO>lambdaQuery()
-                        .eq(CouponProductDO::getCouponId, couponId)
+                Wrappers.<CouponProductDO>lambdaQuery().eq(CouponProductDO::getCouponId, couponId)
         );
         couponCategoryMapper.delete(
-                Wrappers.<CouponCategoryDO>lambdaQuery()
-                        .eq(CouponCategoryDO::getCouponId, couponId)
+                Wrappers.<CouponCategoryDO>lambdaQuery().eq(CouponCategoryDO::getCouponId, couponId)
         );
     }
 
@@ -549,8 +571,7 @@ public class CouponTemplateService implements ICouponTemplateService {
      */
     private List<Long> selectProductIds(Long couponId) {
         List<CouponProductDO> list = couponProductMapper.selectList(
-                Wrappers.<CouponProductDO>lambdaQuery()
-                        .eq(CouponProductDO::getCouponId, couponId)
+                Wrappers.<CouponProductDO>lambdaQuery().eq(CouponProductDO::getCouponId, couponId)
         );
         return list.stream()
                    .map(CouponProductDO::getProductId)
@@ -565,8 +586,7 @@ public class CouponTemplateService implements ICouponTemplateService {
      */
     private List<Long> selectCategoryIds(Long couponId) {
         List<CouponCategoryDO> list = couponCategoryMapper.selectList(
-                Wrappers.<CouponCategoryDO>lambdaQuery()
-                        .eq(CouponCategoryDO::getCouponId, couponId)
+                Wrappers.<CouponCategoryDO>lambdaQuery().eq(CouponCategoryDO::getCouponId, couponId)
         );
         return list.stream()
                    .map(CouponCategoryDO::getCategoryId)
@@ -576,12 +596,12 @@ public class CouponTemplateService implements ICouponTemplateService {
     /**
      * 追加模板操作流水。
      *
-     * @param coupon  模板
-     * @param from    操作前状态
-     * @param to      操作后状态
-     * @param action  操作类型
+     * @param coupon 模板
+     * @param from 操作前状态
+     * @param to 操作后状态
+     * @param action 操作类型
      * @param summary 变更摘要
-     * @param reason  原因
+     * @param reason 原因
      */
     private void appendOperationLog(
             CouponDO coupon,

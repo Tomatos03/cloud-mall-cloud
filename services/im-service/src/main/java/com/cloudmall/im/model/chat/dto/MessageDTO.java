@@ -14,9 +14,9 @@ import lombok.NoArgsConstructor;
  * @date : 2026/02/02
  */
 @Data
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
 public class MessageDTO {
     /**
      * 会话ID

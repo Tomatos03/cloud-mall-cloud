@@ -34,7 +34,10 @@ public class ChatController {
     private final IChatAppService chatAppService;
 
     @PostMapping("/session/create")
-    public Result<CreateSessionResult> createChatSession(@RequestParam Long storeId) {
+    public Result<CreateSessionResult> createChatSession(
+            @RequestParam
+            Long storeId
+    ) {
         return Result.success(chatAppService.createChatSession(storeId));
     }
 
@@ -42,7 +45,10 @@ public class ChatController {
      * 获取当前用户的所有会话列表
      */
     @GetMapping("/sessions")
-    public Result<IPage<ChatSessionVO>> queryChatSession(@Valid PageParamsDTO pageParams) {
+    public Result<IPage<ChatSessionVO>> queryChatSession(
+            @Valid
+            PageParamsDTO pageParams
+    ) {
         return Result.success(chatAppService.pageChatSession(pageParams));
     }
 
@@ -50,7 +56,10 @@ public class ChatController {
      * 获取指定会话的消息历史
      */
     @GetMapping("/history")
-    public Result<IPage<MessageVO>> getMessageHistory(@Valid IMPageParamsDTO params) {
+    public Result<IPage<MessageVO>> getMessageHistory(
+            @Valid
+            IMPageParamsDTO params
+    ) {
         return Result.success(chatMessageService.pageMessageHistory(params));
     }
 
@@ -58,7 +67,10 @@ public class ChatController {
      * 标记会话为已读
      */
     @PutMapping("/read/{sessionId}")
-    public Result<Void> markAsRead(@PathVariable Long sessionId) {
+    public Result<Void> markAsRead(
+            @PathVariable
+            Long sessionId
+    ) {
         chatAppService.markReadForChatSession(sessionId);
         return Result.success(null);
     }

@@ -28,8 +28,8 @@ import com.cloudmall.product.service.IUnitService;
  * @author : Tomatos
  */
 @RestController
-@RequestMapping("/units")
 @RequiredArgsConstructor
+@RequestMapping("/units")
 public class UnitController {
 
     private final IUnitService unitService;
@@ -41,7 +41,10 @@ public class UnitController {
      * @return 单位信息
      */
     @GetMapping("/{id}")
-    public Result<UnitResp> getById(@PathVariable Long id) {
+    public Result<UnitResp> getById(
+            @PathVariable
+            Long id
+    ) {
         return Result.success(unitService.getById(id));
     }
 
@@ -63,19 +66,27 @@ public class UnitController {
      * @return 新建单位 ID
      */
     @PostMapping
-    public Result<Long> create(@RequestBody UnitCreateReq req) {
+    public Result<Long> create(
+            @RequestBody
+            UnitCreateReq req
+    ) {
         return Result.success(unitService.create(req));
     }
 
     /**
      * 更新单位。
      *
-     * @param id  单位 ID
+     * @param id 单位 ID
      * @param req 更新请求
      * @return 操作结果
      */
     @PutMapping("/{id}")
-    public Result<Void> update(@PathVariable Long id, @RequestBody UnitUpdateReq req) {
+    public Result<Void> update(
+            @PathVariable
+            Long id,
+            @RequestBody
+            UnitUpdateReq req
+    ) {
         unitService.update(id, req);
         return Result.success();
     }
@@ -87,7 +98,10 @@ public class UnitController {
      * @return 操作结果
      */
     @DeleteMapping
-    public Result<Void> delete(@RequestBody List<Long> ids) {
+    public Result<Void> delete(
+            @RequestBody
+            List<Long> ids
+    ) {
         unitService.delete(ids);
         return Result.success();
     }

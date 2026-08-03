@@ -21,26 +21,24 @@ public interface IRoleService {
     /**
      * 创建角色
      *
-     * @param name        角色名称
+     * @param name 角色名称
      * @param description 角色描述
-     * @param enabled     是否启用
+     * @param enabled 是否启用
      * @return 新角色 ID
      */
     Long createRole(String name, String description, boolean enabled);
 
     /**
-     * 更新角色信息
-     * <p>
+     * 更新角色信息 <p>
      * 仅传入需要更新的字段即可，未传的字段保持不变。
      *
      * @param roleId 角色 ID
-     * @param req    更新请求（为 null 的字段不更新）
+     * @param req 更新请求（为 null 的字段不更新）
      */
     void updateRole(Long roleId, RoleReq req);
 
     /**
-     * 删除角色
-     * <p>
+     * 删除角色 <p>
      * 删除角色后自动清理关联的 user-role 和 role-resource 关系。
      *
      * @param roleId 角色 ID
@@ -64,11 +62,10 @@ public interface IRoleService {
     IPage<RoleResp> pageRoles(RolePageReq req);
 
     /**
-     * 为角色分配资源（权限）
-     * <p>
+     * 为角色分配资源（权限） <p>
      * 覆盖式分配：先清除旧关联，再插入新关联。
      *
-     * @param roleId      角色 ID
+     * @param roleId 角色 ID
      * @param resourceIds 资源 ID 列表
      */
     void assignResources(Long roleId, List<Long> resourceIds);
@@ -82,21 +79,19 @@ public interface IRoleService {
     List<Long> getRoleResourceIds(Long roleId);
 
     /**
-     * 为用户分配角色
-     * <p>
+     * 为用户分配角色 <p>
      * 覆盖式分配：先清除旧关联，再插入新关联。
      *
-     * @param userId  用户 ID
+     * @param userId 用户 ID
      * @param roleIds 角色 ID 列表
      */
     void assignRoles(Long userId, List<Long> roleIds);
 
     /**
-     * 分配用户到角色
-     * <p>
+     * 分配用户到角色 <p>
      * 覆盖式分配：先清除该角色的所有用户关联，再插入新关联。
      *
-     * @param roleId  角色 ID
+     * @param roleId 角色 ID
      * @param userIds 用户 ID 列表
      */
     void assignRoleUsers(Long roleId, List<Long> userIds);

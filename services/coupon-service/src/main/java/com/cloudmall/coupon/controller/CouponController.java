@@ -2,6 +2,7 @@ package com.cloudmall.coupon.controller;
 
 import java.util.List;
 
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -9,8 +10,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-
-import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 
 import com.cloudmall.common.context.UserContextHolder;
 import com.cloudmall.common.model.Result;
@@ -28,8 +27,8 @@ import com.cloudmall.coupon.service.IUserCouponService;
  * @author : Tomatos
  */
 @RestController
-@RequestMapping("/coupons")
 @RequiredArgsConstructor
+@RequestMapping("/coupons")
 public class CouponController {
 
     private final IUserCouponService userCouponService;
@@ -51,7 +50,10 @@ public class CouponController {
      * @return 模板详情
      */
     @GetMapping("/{id}")
-    public Result<CouponResp> getById(@PathVariable Long id) {
+    public Result<CouponResp> getById(
+            @PathVariable
+            Long id
+    ) {
         return Result.success(userCouponService.getPublicCoupon(id, UserContextHolder.getUserId()));
     }
 
@@ -62,7 +64,10 @@ public class CouponController {
      * @return 用户券
      */
     @PostMapping("/{id}/claim")
-    public Result<UserCouponResp> claim(@PathVariable Long id) {
+    public Result<UserCouponResp> claim(
+            @PathVariable
+            Long id
+    ) {
         return Result.success(userCouponService.claimPublic(id, UserContextHolder.getUserId()));
     }
 
@@ -70,18 +75,26 @@ public class CouponController {
      * 分页查询我的优惠券。
      *
      * @param current 页码
-     * @param size    每页条数
-     * @param status  状态过滤（AVAILABLE/LOCKED/USED/EXPIRED/REVOKED，默认查询全部）
+     * @param size 每页条数
+     * @param status 状态过滤（
+     * AVAILABLE/LOCKED/USED/EXPIRED/REVOKED
+     *               ，默认查询全部）
      * @return 分页结果
      */
     @GetMapping("/me")
     public Result<Page<UserCouponResp>> pageMine(
-            @RequestParam(defaultValue = "1") long current,
-            @RequestParam(defaultValue = "10") long size,
-            @RequestParam(required = false) UserCouponStatusEnum status
+            @RequestParam(defaultValue = "1")
+            long current,
+            @RequestParam(defaultValue = "10")
+            long size,
+            @RequestParam(required = false)
+            UserCouponStatusEnum status
     ) {
         Page<UserCouponResp> page = userCouponService.pageMine(
-                UserContextHolder.getUserId(), status, current, size
+                UserContextHolder.getUserId(),
+                status,
+                current,
+                size
         );
         return Result.success(page);
     }
@@ -93,7 +106,10 @@ public class CouponController {
      * @return 用户券
      */
     @GetMapping("/me/{id}")
-    public Result<UserCouponResp> getMineById(@PathVariable Long id) {
+    public Result<UserCouponResp> getMineById(
+            @PathVariable
+            Long id
+    ) {
         return Result.success(userCouponService.getMine(UserContextHolder.getUserId(), id));
     }
 }

@@ -28,13 +28,12 @@ public class GatewaySecurityConfig {
     private final AuthProperties authProperties;
 
     /**
-     * 构建 Spring Security 过滤器链
-     * <p>
+     * 构建 Spring Security 过滤器链 <p>
      * 配置白名单路径免认证、RBAC 授权管理器和 JWT 认证过滤器。
      *
-     * @param http                       ServerHttpSecurity 构建器
+     * @param http ServerHttpSecurity 构建器
      * @param jwtAuthenticationWebFilter JWT 认证过滤器
-     * @param rbacAuthorizationManager   RBAC 授权管理器
+     * @param rbacAuthorizationManager RBAC 授权管理器
      * @return 构建完成的 SecurityWebFilterChain
      */
     @Bean
@@ -46,11 +45,12 @@ public class GatewaySecurityConfig {
 
         return http
                 .csrf(ServerHttpSecurity.CsrfSpec::disable)
-                .authorizeExchange(exchanges -> exchanges
-                        .pathMatchers(authProperties.getWhitelist().toArray(new String[0]))
-                            .permitAll()
-                        .anyExchange()
-                            .access(rbacAuthorizationManager)
+                .authorizeExchange(
+                        exchanges -> exchanges
+                                .pathMatchers(authProperties.getWhitelist().toArray(new String[0]))
+                                .permitAll()
+                                .anyExchange()
+                                .access(rbacAuthorizationManager)
                 )
                 .httpBasic(ServerHttpSecurity.HttpBasicSpec::disable)
                 .formLogin(ServerHttpSecurity.FormLoginSpec::disable)

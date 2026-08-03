@@ -15,8 +15,8 @@ import com.cloudmall.user.api.request.FavoriteToggleReq;
 import com.cloudmall.user.service.IFavoriteService;
 
 @RestController
-@RequestMapping("/favorites")
 @RequiredArgsConstructor
+@RequestMapping("/favorites")
 public class FavoriteController {
 
     private final IFavoriteService favoriteService;
@@ -28,7 +28,10 @@ public class FavoriteController {
      * @return true=已收藏 false=已取消
      */
     @PutMapping
-    public Result<Boolean> toggle(@RequestBody FavoriteToggleReq req) {
+    public Result<Boolean> toggle(
+            @RequestBody
+            FavoriteToggleReq req
+    ) {
         return Result.success(
                 favoriteService.toggle(UserContextHolder.getUserId(), req.getProductId())
         );

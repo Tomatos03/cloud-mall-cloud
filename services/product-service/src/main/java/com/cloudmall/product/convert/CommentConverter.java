@@ -29,21 +29,23 @@ public interface CommentConverter {
     CommentResp toResp(CommentDO comment);
 
     /**
-     * CommentCreateReq → CommentDO。
-     * <p>
-     * userId 由服务层从当前登录用户上下文传入，审计字段由 MyBatis-Plus 自动填充，
-     * 图片列表序列化为 JSON 数组字符串。
+     * CommentCreateReq → CommentDO。 <p>
+     * userId 由服务层从当前登录用户上下文传入，审计字段由 MyBatis-Plus 自动填充， 图
+     * 片列表序列化为 JSON 数组字符串。
      *
-     * @param req    创建请求
+     * @param req 创建请求
      * @param userId 当前登录用户 ID
      * @return 评论实体
      */
     @Mapping(target = "id", ignore = true)
+    @Mapping(target = "deleted", ignore = true)
     @Mapping(target = "orderId", ignore = true)
-    @Mapping(target = "status", expression = "java(com.cloudmall.mybatisplus.enums.StatusEnum.ENABLED)")
     @Mapping(target = "createTime", ignore = true)
     @Mapping(target = "updateTime", ignore = true)
-    @Mapping(target = "deleted", ignore = true)
+    @Mapping(
+            target = "status",
+            expression = "java(com.cloudmall.mybatisplus.enums.StatusEnum.ENABLED)"
+    )
     CommentDO toDO(CommentCreateReq req, Long userId);
 
     /**

@@ -45,29 +45,38 @@ public class SecurityChainConfig {
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity httpSecurity) throws Exception {
-        return httpSecurity.authorizeHttpRequests((authorize) -> {
-                               authorize.requestMatchers(HttpMethod.OPTIONS, "/**")
-                                        .permitAll()
-                                        .requestMatchers("/chat/ws")
-                                        .permitAll()
-                                        .anyRequest()
-                                        .authenticated();
-                           })
-                           .exceptionHandling(exceptionHand -> {
-                               exceptionHand.accessDeniedHandler(accessDeniedHandler);
-                               exceptionHand.authenticationEntryPoint(authenticationEntryPoint);
-                           })
-                           .sessionManagement(session -> {
-                               session.sessionCreationPolicy(SessionCreationPolicy.STATELESS);
-                           })
-                           .cors(cors -> {
-                               cors.configurationSource(corsConfigurationSource());
-                           })
-                           .addFilterAfter(
-                                   tokenAuthenticationFilter,
-                                   UsernamePasswordAuthenticationFilter.class
-                           )
-                           .csrf(AbstractHttpConfigurer::disable)
-                           .build();
+        return httpSecurity
+                .authorizeHttpRequests(
+                        (authorize) -> {
+                            authorize.requestMatchers(HttpMethod.OPTIONS, "/**")
+                                     .permitAll()
+                                     .requestMatchers("/chat/ws")
+                                     .permitAll()
+                                     .anyRequest()
+                                     .authenticated();
+                        }
+                )
+                .exceptionHandling(
+                        exceptionHand -> {
+                            exceptionHand.accessDeniedHandler(accessDeniedHandler);
+                            exceptionHand.authenticationEntryPoint(authenticationEntryPoint);
+                        }
+                )
+                .sessionManagement(
+                        session -> {
+                            session.sessionCreationPolicy(SessionCreationPolicy.STATELESS);
+                        }
+                )
+                .cors(
+                        cors -> {
+                            cors.configurationSource(corsConfigurationSource());
+                        }
+                )
+                .addFilterAfter(
+                        tokenAuthenticationFilter,
+                        UsernamePasswordAuthenticationFilter.class
+                )
+                .csrf(AbstractHttpConfigurer::disable)
+                .build();
     }
 }

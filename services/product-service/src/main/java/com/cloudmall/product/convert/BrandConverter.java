@@ -45,23 +45,33 @@ public interface BrandConverter {
      * @return 品牌实体
      */
     @Mapping(target = "id", ignore = true)
-    @Mapping(target = "status", expression = "java(com.cloudmall.mybatisplus.enums.StatusEnum.ENABLED)")
-    @Mapping(target = "sortOrder", expression = "java(java.util.Optional.ofNullable(req.getSortOrder()).orElse(0))")
+    @Mapping(target = "deleted", ignore = true)
     @Mapping(target = "createTime", ignore = true)
     @Mapping(target = "updateTime", ignore = true)
-    @Mapping(target = "deleted", ignore = true)
+    @Mapping(
+            target = "status",
+            expression = "java(com.cloudmall.mybatisplus.enums.StatusEnum.ENABLED)"
+    )
+    @Mapping(
+            target = "sortOrder",
+            expression = "java(java.util.Optional.ofNullable(req.getSortOrder()).orElse(0))"
+    )
     BrandDO toDO(BrandCreateReq req);
 
     /**
      * 将 {@code req} 中的非 null 字段合并到已有 {@code brand}。
      *
      * @param brand 目标实体
-     * @param req   更新请求
+     * @param req 更新请求
      */
-    @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
     @Mapping(target = "id", ignore = true)
+    @Mapping(target = "deleted", ignore = true)
     @Mapping(target = "createTime", ignore = true)
     @Mapping(target = "updateTime", ignore = true)
-    @Mapping(target = "deleted", ignore = true)
-    void merge(@MappingTarget BrandDO brand, BrandUpdateReq req);
+    @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
+    void merge(
+            @MappingTarget
+            BrandDO brand,
+            BrandUpdateReq req
+    );
 }

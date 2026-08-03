@@ -16,15 +16,12 @@ import lombok.Getter;
 @Getter
 @AllArgsConstructor
 public enum DocumentType {
-
     TEXT("txt,csv,json,xml,yaml,yml,properties", "纯文本"),
     MARKDOWN("md", "Markdown"),
     PDF("pdf", "PDF 文档"),
     Tika("docx,xlsx,pptx,html,htm,doc,xls,ppt", "通用格式");
-
     private final String extensions;
     private final String description;
-
     /**
      * 根据文件名获取文档类型
      *

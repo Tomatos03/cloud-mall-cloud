@@ -10,10 +10,10 @@ import lombok.NoArgsConstructor;
  *
  * @author : Tomatos
  */
+@Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Data
 public class UnitCreateReq {
 
     private String name;

@@ -16,9 +16,15 @@ import org.springframework.stereotype.Component;
 
 @Component
 @Profile({"dev", "test"})
-@Intercepts({
-        @Signature(type = StatementHandler.class, method = "prepare", args = {Connection.class, Integer.class})
-})
+@Intercepts(
+        {
+            @Signature(
+                    type = StatementHandler.class,
+                    method = "prepare",
+                    args = {Connection.class, Integer.class}
+            )
+        }
+)
 public class SqlLoggingInterceptor implements Interceptor {
 
     private static final Logger log = LoggerFactory.getLogger(SqlLoggingInterceptor.class);
@@ -61,6 +67,5 @@ public class SqlLoggingInterceptor implements Interceptor {
      * @param properties 配置属性
      */
     @Override
-    public void setProperties(Properties properties) {
-    }
+    public void setProperties(Properties properties) {}
 }

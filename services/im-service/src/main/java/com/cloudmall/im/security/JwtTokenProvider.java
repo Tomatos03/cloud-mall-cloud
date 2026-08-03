@@ -40,10 +40,10 @@ public class JwtTokenProvider {
     public ParsedToken parse(String token) {
         try {
             Claims claims = Jwts.parser()
-                    .verifyWith(key)
-                    .build()
-                    .parseSignedClaims(token)
-                    .getPayload();
+                                .verifyWith(key)
+                                .build()
+                                .parseSignedClaims(token)
+                                .getPayload();
 
             Long userId = claims.get("userId", Long.class);
             String username = claims.get("username", String.class);

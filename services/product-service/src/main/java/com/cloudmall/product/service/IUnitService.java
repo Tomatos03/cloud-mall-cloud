@@ -43,7 +43,7 @@ public interface IUnitService {
     /**
      * 更新单位。
      *
-     * @param id  单位 ID
+     * @param id 单位 ID
      * @param req 更新请求
      */
     void update(Long id, UnitUpdateReq req);

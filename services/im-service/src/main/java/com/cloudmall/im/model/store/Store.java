@@ -13,8 +13,8 @@ import lombok.Builder;
 import lombok.Data;
 
 @Data
-@TableName("store")
 @Builder
+@TableName("store")
 public class Store implements Serializable {
     @TableId(type = IdType.AUTO)
     private Long id;

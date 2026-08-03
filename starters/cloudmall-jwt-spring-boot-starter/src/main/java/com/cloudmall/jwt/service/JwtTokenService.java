@@ -41,9 +41,9 @@ public class JwtTokenService implements ITokenService {
     }
 
     /**
-     * 创建 JWT Token
-     * <p>
-     * 将用户上下文编码为 JWT 字符串，包含 userId、username、userType、permissionCodes 和扩展字段。
+     * 创建 JWT Token <p>
+     * 将用户上下文编码为 JWT 字符串，包含 userId、username、userType、
+     * permissionCodes 和扩展字段。
      *
      * @param userContext 用户上下文
      * @return JWT token 字符串
@@ -74,8 +74,7 @@ public class JwtTokenService implements ITokenService {
     }
 
     /**
-     * 校验 Token 是否合法
-     * <p>
+     * 校验 Token 是否合法 <p>
      * 仅验证签名和有效期，不还原用户上下文。
      *
      * @param token JWT token 字符串
@@ -95,8 +94,7 @@ public class JwtTokenService implements ITokenService {
     }
 
     /**
-     * 解析 Token
-     * <p>
+     * 解析 Token <p>
      * 从 JWT 字符串中还原用户上下文，包含 permissionCodes。
      *
      * @param token JWT token 字符串

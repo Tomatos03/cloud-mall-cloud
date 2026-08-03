@@ -42,14 +42,13 @@ public class IMTokenAuthenticationFilter extends OncePerRequestFilter {
             ParsedToken parsedToken;
             if (
                     (token = getTokenFromRequest(request)) != null
-                            && (parsedToken = jwtTokenProvider.parse(token)) != null
+                        && (parsedToken = jwtTokenProvider.parse(token)) != null
             ) {
-                UsernamePasswordAuthenticationToken authenticatedToken =
-                        new UsernamePasswordAuthenticationToken(
-                                parsedToken,
-                                "",
-                                Collections.emptyList()
-                        );
+                UsernamePasswordAuthenticationToken authenticatedToken = new UsernamePasswordAuthenticationToken(
+                        parsedToken,
+                        "",
+                        Collections.emptyList()
+                );
                 AuthUserContext.setAuthentication(authenticatedToken);
             }
         } catch (Exception e) {

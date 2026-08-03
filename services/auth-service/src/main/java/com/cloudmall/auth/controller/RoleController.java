@@ -29,8 +29,8 @@ import com.cloudmall.common.model.Result;
  * @date : 2026/7/29
  */
 @RestController
-@RequestMapping("/roles")
 @RequiredArgsConstructor
+@RequestMapping("/roles")
 public class RoleController {
 
     private final IRoleService roleService;
@@ -42,19 +42,23 @@ public class RoleController {
      * @return 处理结果
      */
     @PostMapping
-    public Result<Long> createRole(@RequestBody RoleReq req) {
-        return Result.success(roleService.createRole(
-                req.getName(),
-                req.getDescription(),
-                BooleanUtil.isTrue(req.getEnabled())
-        ));
+    public Result<Long> createRole(
+            @RequestBody
+            RoleReq req
+    ) {
+        return Result.success(
+                roleService.createRole(
+                        req.getName(),
+                        req.getDescription(),
+                        BooleanUtil.isTrue(req.getEnabled())
+                )
+        );
     }
 
     /**
-     * 更新角色。
-     * <p>
-     * 仅传入需要更新的字段即可，未传的字段保持不变。
-     * 支持字段：name、description、enabled（布尔值）。
+     * 更新角色。 <p>
+     * 仅传入需要更新的字段即可，未传的字段保持不变。 支持字段：name、description、
+     * enabled（布尔值）。
      *
      * @param id 对象标识
      * @param req 请求参数
@@ -62,8 +66,10 @@ public class RoleController {
      */
     @PutMapping("/{id}")
     public Result<Void> updateRole(
-            @PathVariable Long id,
-            @RequestBody RoleReq req
+            @PathVariable
+            Long id,
+            @RequestBody
+            RoleReq req
     ) {
         roleService.updateRole(id, req);
         return Result.success();
@@ -76,7 +82,10 @@ public class RoleController {
      * @return 处理结果
      */
     @DeleteMapping("/{id}")
-    public Result<Void> deleteRole(@PathVariable Long id) {
+    public Result<Void> deleteRole(
+            @PathVariable
+            Long id
+    ) {
         roleService.deleteRole(id);
         return Result.success();
     }
@@ -88,7 +97,10 @@ public class RoleController {
      * @return 处理结果
      */
     @GetMapping("/{id}")
-    public Result<RoleResp> getRole(@PathVariable Long id) {
+    public Result<RoleResp> getRole(
+            @PathVariable
+            Long id
+    ) {
         return Result.success(roleService.getRole(id));
     }
 
@@ -112,8 +124,10 @@ public class RoleController {
      */
     @PutMapping("/{id}/resources")
     public Result<Void> assignResources(
-            @PathVariable Long id,
-            @RequestBody List<Long> resourceIds
+            @PathVariable
+            Long id,
+            @RequestBody
+            List<Long> resourceIds
     ) {
         roleService.assignResources(id, resourceIds);
         return Result.success();
@@ -126,7 +140,10 @@ public class RoleController {
      * @return 处理结果
      */
     @GetMapping("/{id}/resources")
-    public Result<List<Long>> getRoleResourceIds(@PathVariable Long id) {
+    public Result<List<Long>> getRoleResourceIds(
+            @PathVariable
+            Long id
+    ) {
         return Result.success(roleService.getRoleResourceIds(id));
     }
 
@@ -139,8 +156,10 @@ public class RoleController {
      */
     @PutMapping("/{id}/users")
     public Result<Void> assignUsers(
-            @PathVariable Long id,
-            @RequestBody List<Long> userIds
+            @PathVariable
+            Long id,
+            @RequestBody
+            List<Long> userIds
     ) {
         roleService.assignRoleUsers(id, userIds);
         return Result.success();
@@ -153,7 +172,10 @@ public class RoleController {
      * @return 处理结果
      */
     @GetMapping("/{id}/users")
-    public Result<List<Long>> getRoleUserIds(@PathVariable Long id) {
+    public Result<List<Long>> getRoleUserIds(
+            @PathVariable
+            Long id
+    ) {
         return Result.success(roleService.getRoleUserIds(id));
     }
 }

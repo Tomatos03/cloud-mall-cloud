@@ -16,8 +16,8 @@ import com.cloudmall.order.api.response.OrderResp;
 /**
  * 订单工具，提供订单查询能力。
  */
-@AgentTool(agents = AgentType.ORDER)
 @RequiredArgsConstructor
+@AgentTool(agents = AgentType.ORDER)
 public class OrderTool {
 
     private final OrderClient orderClient;
@@ -25,13 +25,14 @@ public class OrderTool {
     /**
      * 根据订单 ID 查询订单详情
      *
-     * @param id          订单 ID
+     * @param id 订单 ID
      * @param toolContext 工具上下文，用于存储查询结果
      * @return 订单详情，未找到时为 null
      */
     @Tool(description = "根据订单ID查询订单详情，返回订单编号、状态、金额、商品列表、收货地址等完整信息")
     public OrderResp getOrderById(
-            @ToolParam(description = "订单ID") Long id,
+            @ToolParam(description = "订单ID")
+            Long id,
             ToolContext toolContext
     ) {
         var result = orderClient.getById(id);
@@ -53,9 +54,7 @@ public class OrderTool {
      * @return 当前用户的订单列表
      */
     @Tool(description = "查询当前用户的订单列表，返回所有订单的概要信息（订单号、状态、金额、下单时间）")
-    public List<OrderResp> listMyOrders(
-            ToolContext toolContext
-    ) {
+    public List<OrderResp> listMyOrders(ToolContext toolContext) {
         Long userId = UserContextHolder.getUserId();
         var result = orderClient.page(userId, 1, 100);
         if (result == null || result.getData() == null) {

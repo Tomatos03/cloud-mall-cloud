@@ -14,10 +14,8 @@ import lombok.Getter;
 @Getter
 @AllArgsConstructor
 public enum StatusEnum {
-
     DISABLED(0, "关闭"),
     ENABLED(1, "开启");
-
     @EnumValue
     private final int value;
     private final String desc;

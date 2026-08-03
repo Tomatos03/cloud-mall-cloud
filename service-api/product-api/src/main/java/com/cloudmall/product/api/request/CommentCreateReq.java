@@ -19,10 +19,10 @@ import lombok.NoArgsConstructor;
  *
  * @author : Tomatos
  */
+@Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Data
 public class CommentCreateReq {
 
     /** 商品 ID */
@@ -35,8 +35,8 @@ public class CommentCreateReq {
 
     /** 评分（1-5） */
     @NotNull(message = "评分不能为空")
-    @Min(value = 1, message = "评分必须在1-5之间")
     @Max(value = 5, message = "评分必须在1-5之间")
+    @Min(value = 1, message = "评分必须在1-5之间")
     private Integer rating;
 
     /** 评论图片 URL 列表，可选，最多 5 张 */

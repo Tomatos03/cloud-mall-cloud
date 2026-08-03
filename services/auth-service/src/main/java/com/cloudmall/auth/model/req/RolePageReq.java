@@ -25,9 +25,10 @@ public class RolePageReq extends PageReq<RoleDO> {
     /** 是否启用 */
     private Boolean enabled;
 
-    /** 使用指定参数构造对象。 */
-    public RolePageReq() {
-    }
+    /**
+     * 使用指定参数构造对象。
+     */
+    public RolePageReq() {}
 
     /**
      * 兼容 URL 参数 ?page=&size=

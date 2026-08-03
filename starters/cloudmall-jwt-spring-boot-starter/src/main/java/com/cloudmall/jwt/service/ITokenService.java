@@ -15,18 +15,17 @@ import com.cloudmall.jwt.exception.AuthTokenException;
 public interface ITokenService {
 
     /**
-     * 创建令牌
-     * <p>
+     * 创建令牌 <p>
      * 登录成功后，将用户上下文编码为 token 字符串返回给客户端。
      *
-     * @param userContext 用户上下文（含 userId、username、userType 等）
+     * @param userContext 用户上下文（含 userId、username、
+     *                    userType 等）
      * @return token 字符串
      */
     String createToken(UserContext userContext);
 
     /**
-     * 解析令牌
-     * <p>
+     * 解析令牌 <p>
      * 从 token 字符串中还原用户上下文。解析失败应抛出异常，而非返回 null。
      *
      * @param token token 字符串
@@ -36,8 +35,7 @@ public interface ITokenService {
     UserContext parseToken(String token);
 
     /**
-     * 校验令牌是否合法
-     * <p>
+     * 校验令牌是否合法 <p>
      * 仅验证签名和有效期，不还原用户上下文。
      *
      * @param token token 字符串

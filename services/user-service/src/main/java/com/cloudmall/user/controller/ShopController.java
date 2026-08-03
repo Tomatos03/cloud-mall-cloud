@@ -18,8 +18,8 @@ import com.cloudmall.user.model.req.ShopGetReq;
 import com.cloudmall.user.service.IShopService;
 
 @RestController
-@RequestMapping("/shops")
 @RequiredArgsConstructor
+@RequestMapping("/shops")
 public class ShopController {
 
     private final IShopService shopService;
@@ -31,11 +31,13 @@ public class ShopController {
      * @return 处理结果
      */
     @GetMapping
-    public Result<ShopResp> getByUserId(@RequestParam Long userId) {
-        ShopGetReq req = ShopGetReq
-                .builder()
-                .userId(userId)
-                .build();
+    public Result<ShopResp> getByUserId(
+            @RequestParam
+            Long userId
+    ) {
+        ShopGetReq req = ShopGetReq.builder()
+                                   .userId(userId)
+                                   .build();
         return Result.success(shopService.get(req));
     }
 
@@ -46,11 +48,13 @@ public class ShopController {
      * @return 处理结果
      */
     @GetMapping("/{id}")
-    public Result<ShopResp> getById(@PathVariable Long id) {
-        ShopGetReq req = ShopGetReq
-                .builder()
-                .id(id)
-                .build();
+    public Result<ShopResp> getById(
+            @PathVariable
+            Long id
+    ) {
+        ShopGetReq req = ShopGetReq.builder()
+                                   .id(id)
+                                   .build();
         return Result.success(shopService.get(req));
     }
 
@@ -61,10 +65,9 @@ public class ShopController {
      */
     @GetMapping("/current")
     public Result<ShopResp> getCurrent() {
-        ShopGetReq req = ShopGetReq
-                .builder()
-                .userId(UserContextHolder.getUserId())
-                .build();
+        ShopGetReq req = ShopGetReq.builder()
+                                   .userId(UserContextHolder.getUserId())
+                                   .build();
         return Result.success(shopService.get(req));
     }
 
@@ -75,7 +78,10 @@ public class ShopController {
      * @return 店铺信息列表
      */
     @PostMapping("/batch-query")
-    public Result<List<ShopResp>> listByIds(@RequestBody List<Long> shopIds) {
+    public Result<List<ShopResp>> listByIds(
+            @RequestBody
+            List<Long> shopIds
+    ) {
         return Result.success(shopService.listByIds(shopIds));
     }
 }

@@ -30,9 +30,10 @@ public class ProductPageReq extends PageReq<ProductDO> {
     @QueryCondition(operator = Operator.EQ)
     private StatusEnum status = StatusEnum.ENABLED;
 
-    /** 使用指定参数构造对象。 */
-    public ProductPageReq() {
-    }
+    /**
+     * 使用指定参数构造对象。
+     */
+    public ProductPageReq() {}
 
     /**
      * 兼容 URL 参数 ?page=&size=

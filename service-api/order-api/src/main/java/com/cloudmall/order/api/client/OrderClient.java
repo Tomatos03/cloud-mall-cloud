@@ -19,7 +19,10 @@ public interface OrderClient {
      * @return 处理结果
      */
     @GetMapping("/{id}")
-    Result<OrderResp> getById(@PathVariable("id") Long id);
+    Result<OrderResp> getById(
+            @PathVariable("id")
+            Long id
+    );
 
     /**
      * 分页查询数据。
@@ -30,7 +33,12 @@ public interface OrderClient {
      * @return 分页数据
      */
     @GetMapping
-    Result<Page<OrderResp>> page(@RequestParam("userId") Long userId,
-                                 @RequestParam(value = "current", defaultValue = "1") long current,
-                                 @RequestParam(value = "size", defaultValue = "20") long size);
+    Result<Page<OrderResp>> page(
+            @RequestParam("userId")
+            Long userId,
+            @RequestParam(value = "current", defaultValue = "1")
+            long current,
+            @RequestParam(value = "size", defaultValue = "20")
+            long size
+    );
 }

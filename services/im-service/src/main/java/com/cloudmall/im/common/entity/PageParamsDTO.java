@@ -11,8 +11,8 @@ import lombok.experimental.SuperBuilder;
  * @author : Tomatos
  * @date : 2026/1/24
  */
-@SuperBuilder
 @Data
+@SuperBuilder
 @NoArgsConstructor
 @AllArgsConstructor
 public class PageParamsDTO {

@@ -25,10 +25,10 @@ import com.cloudmall.coupon.enums.UserCouponStatusEnum;
  *
  * @author : Tomatos
  */
+@Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Data
 @TableName("cm_user_coupon")
 public class UserCouponDO {
 
@@ -105,9 +105,8 @@ public class UserCouponDO {
      * @return true 表示已过期
      */
     public boolean isOverdue() {
-        return UserCouponStatusEnum.AVAILABLE.equals(this.status)
-                && this.expireTime != null
-                && this.expireTime.isBefore(LocalDateTime.now());
+        return UserCouponStatusEnum.AVAILABLE.equals(this.status) && this.expireTime != null
+                       && this.expireTime.isBefore(LocalDateTime.now());
     }
 
     /**
@@ -116,7 +115,6 @@ public class UserCouponDO {
      * @return true 表示可用或已过期
      */
     public boolean isAvailableOrExpired() {
-        return UserCouponStatusEnum.AVAILABLE.equals(this.status)
-                || UserCouponStatusEnum.EXPIRED.equals(this.status);
+        return UserCouponStatusEnum.AVAILABLE.equals(this.status) || UserCouponStatusEnum.EXPIRED.equals(this.status);
     }
 }

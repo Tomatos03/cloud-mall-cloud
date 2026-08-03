@@ -60,21 +60,24 @@ public class AgentConfig {
      */
     @Bean
     public MessageChatMemoryAdvisor messageChatMemoryAdvisor(ChatMemory chatMemory) {
-        return MessageChatMemoryAdvisor
-                .builder(chatMemory)
-                .build();
+        return MessageChatMemoryAdvisor.builder(chatMemory).build();
     }
 
     /**
      * 问答 Advisor — 基于向量检索实现 RAG
      *
-     * @param vectorStore      向量存储
-     * @param agentProperties  配置属性
+     * @param vectorStore 向量存储
+     * @param agentProperties 配置属性
      * @return QuestionAnswerAdvisor 实例
      */
     @Bean
     @ConditionalOnBean(VectorStore.class)
-    @ConditionalOnProperty(prefix = "agent.rag", name = "enabled", havingValue = "true", matchIfMissing = true)
+    @ConditionalOnProperty(
+            prefix = "agent.rag",
+            name = "enabled",
+            havingValue = "true",
+            matchIfMissing = true
+    )
     public Advisor questionAnswerAdvisor(VectorStore vectorStore, AgentProperties agentProperties) {
         AgentProperties.Rag rag = agentProperties.getRag();
         SearchRequest searchRequest = SearchRequest

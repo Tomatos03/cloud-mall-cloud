@@ -16,9 +16,9 @@ public interface Agent {
     AgentType getType();
 
     /**
-     * 智能体职责描述（用于路由 LLM 判断）。
-     * 默认委托给 {@link AgentType#getDescription()}，
-     * 子类可覆写以提供更具体的描述。
+     * 智能体职责描述（用于路由 LLM 判断）。 默认委托给
+     * {@link AgentType#getDescription()}， 子类可覆写以提供更具体的描述
+     * 。
      *
      * @return 智能体职责描述
      */

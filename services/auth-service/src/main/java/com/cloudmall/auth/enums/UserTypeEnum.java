@@ -22,7 +22,6 @@ import lombok.Getter;
 @Getter
 @AllArgsConstructor
 public enum UserTypeEnum {
-
     /** 普通用户 */
     NORMAL("NORMAL", "普通用户"),
 
@@ -31,14 +30,11 @@ public enum UserTypeEnum {
 
     /** 店铺商家 */
     MERCHANT("MERCHANT", "店铺商家");
-
     /** 数据库存储值 */
     @EnumValue
     private final String code;
-
     /** 类型描述 */
     private final String desc;
-
     /**
      * 根据编码查找用户类型。
      *
@@ -47,20 +43,23 @@ public enum UserTypeEnum {
      * @throws IllegalArgumentException 编码非法或为 null 时抛出
      */
     public static UserTypeEnum fromCode(String code) {
-        return Arrays.stream(values())
-                     .filter(t -> t.code.equals(code))
-                     .findFirst()
-                     .orElseThrow(() -> new IllegalArgumentException(
-                             "Invalid user type: '" + code + "', valid values: " + allCodes()
-                     ));
+        return Arrays
+                .stream(values())
+                .filter(t -> t.code.equals(code))
+                .findFirst()
+                .orElseThrow(
+                        () -> new IllegalArgumentException(
+                                "Invalid user type: '" + code + "', valid values: " + allCodes()
+                        )
+                );
     }
-
     /**
-     * 解析逗号分隔的编码串为用户类型集合。
-     * <p>
-     * cm_user.types 为 MySQL SET 类型，一个用户可拥有多个类型，如 "NORMAL,MERCHANT"。
+     * 解析逗号分隔的编码串为用户类型集合。 <p>
+     * cm_user.types 为 MySQL SET 类型，一个用户可拥有多个类型，如
+     * "NORMAL,MERCHANT"。
      *
-     * @param codes 逗号分隔的类型编码，如 "NORMAL,MERCHANT"；空白入参返回空集合
+     * @param codes 逗号分隔的类型编码，如 "NORMAL,MERCHANT"；空白入参返回空
+     *              集合
      * @return 用户类型集合（不保证顺序）
      */
     public static Set<UserTypeEnum> fromCodes(String codes) {
@@ -72,7 +71,6 @@ public enum UserTypeEnum {
                       .map(UserTypeEnum::fromCode)
                       .collect(Collectors.toSet());
     }
-
     /**
      * 获取全部合法类型编码。
      *

@@ -17,7 +17,6 @@ import lombok.Getter;
 @Getter
 @AllArgsConstructor
 public enum SubOrderStatusEnum {
-
     /** 待发货 — 已支付或随父订单创建，等待商家发货 */
     PENDING_SHIPMENT("PENDING_SHIPMENT", "待发货"),
 
@@ -35,14 +34,11 @@ public enum SubOrderStatusEnum {
 
     /** 已退款 — 子订单全额退款，终态 */
     REFUNDED("REFUNDED", "已退款");
-
     /** 数据库存储值 */
     @EnumValue
     private final String code;
-
     /** 状态描述 */
     private final String desc;
-
     /**
      * 根据编码查找子订单状态。
      *
@@ -51,12 +47,15 @@ public enum SubOrderStatusEnum {
      * @throws IllegalArgumentException 编码非法或为 null 时抛出
      */
     public static SubOrderStatusEnum fromCode(String code) {
-        return Arrays.stream(values())
-                     .filter(t -> t.code.equals(code))
-                     .findFirst()
-                     .orElseThrow(() -> new IllegalArgumentException(
-                             "Invalid sub order status: '" + code + "', valid values: "
-                                     + Arrays.toString(values())
-                     ));
+        return Arrays
+                .stream(values())
+                .filter(t -> t.code.equals(code))
+                .findFirst()
+                .orElseThrow(
+                        () -> new IllegalArgumentException(
+                                "Invalid sub order status: '" + code + "', valid values: "
+                                        + Arrays.toString(values())
+                        )
+                );
     }
 }

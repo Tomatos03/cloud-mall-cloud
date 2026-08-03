@@ -58,8 +58,7 @@ public class BrandService implements IBrandService {
             return List.of();
         }
         List<BrandDO> brands = brandMapper.selectList(
-                Wrappers.<BrandDO>lambdaQuery()
-                        .in(BrandDO::getId, ids)
+                Wrappers.<BrandDO>lambdaQuery().in(BrandDO::getId, ids)
         );
         return brandConverter.toRespList(brands);
     }

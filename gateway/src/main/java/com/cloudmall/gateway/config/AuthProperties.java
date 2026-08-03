@@ -7,7 +7,6 @@ import lombok.Data;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.util.AntPathMatcher;
 
-
 /**
  * 认证与权限配置属性
  * <p>
@@ -61,12 +60,11 @@ public class AuthProperties {
     }
 
     /**
-     * 匹配当前请求的 URL 权限规则
-     * <p>
+     * 匹配当前请求的 URL 权限规则 <p>
      * 按列表顺序匹配，返回第一个匹配的规则。未匹配返回 null。
      *
      * @param method HTTP 方法
-     * @param path   请求路径
+     * @param path 请求路径
      * @return 匹配的权限规则，无匹配返回 null
      */
     public UrlPermission match(String method, String path) {
@@ -80,8 +78,8 @@ public class AuthProperties {
      * 判断请求是否匹配给定的 pattern
      *
      * @param pattern 模式串，格式 "METHOD:path"
-     * @param method  HTTP 方法
-     * @param path    请求路径
+     * @param method HTTP 方法
+     * @param path 请求路径
      * @return true 匹配
      */
     private boolean matchPattern(String pattern, String method, String path) {

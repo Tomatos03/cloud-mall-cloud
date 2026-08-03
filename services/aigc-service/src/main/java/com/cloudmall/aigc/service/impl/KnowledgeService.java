@@ -35,29 +35,27 @@ public class KnowledgeService implements IKnowledgeService {
     /**
      * 上传纯文本文档到知识库
      *
-     * @param content  文档内容
+     * @param content 文档内容
      * @param metadata 文档元数据
      * @return 文档 ID
      */
     @Override
     public String uploadDocument(String content, Map<String, Object> metadata) {
         String documentId = UUID.randomUUID().toString();
-        Document document = Document
-                .builder()
-                .id(documentId)
-                .text(content)
-                .metadata(metadata)
-                .build();
+        Document document = Document.builder()
+                                    .id(documentId)
+                                    .text(content)
+                                    .metadata(metadata)
+                                    .build();
         vectorStore.add(List.of(document));
         return documentId;
     }
 
     /**
-     * 批量上传文件到知识库
-     * <p>
+     * 批量上传文件到知识库 <p>
      * 根据文件扩展名自动选择解析器，支持 TXT、PDF、Markdown、Word 等格式
      *
-     * @param files    上传的文件列表
+     * @param files 上传的文件列表
      * @param category 文档分类（可选）
      * @return 文档 ID 列表
      * @throws IOException 文件读取或解析异常
@@ -86,8 +84,8 @@ public class KnowledgeService implements IKnowledgeService {
      * 设置文档元数据信息
      *
      * @param category 文档分类（可选）
-     * @param file     上传的文件
-     * @param doc      文档对象
+     * @param file 上传的文件
+     * @param doc 文档对象
      */
     private static void setDocumentMetaInfo(String category, MultipartFile file, Document doc) {
         doc.getMetadata().put("filename", file.getOriginalFilename());
@@ -111,16 +109,15 @@ public class KnowledgeService implements IKnowledgeService {
      * 根据查询搜索相似文档
      *
      * @param query 查询文本
-     * @param topK  返回文档数量
+     * @param topK 返回文档数量
      * @return 相似文档列表
      */
     @Override
     public List<Document> searchDocuments(String query, int topK) {
-        SearchRequest searchRequest = SearchRequest
-                .builder()
-                .query(query)
-                .topK(topK)
-                .build();
+        SearchRequest searchRequest = SearchRequest.builder()
+                                                   .query(query)
+                                                   .topK(topK)
+                                                   .build();
         return vectorStore.similaritySearch(searchRequest);
     }
 }

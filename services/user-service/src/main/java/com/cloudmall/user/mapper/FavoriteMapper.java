@@ -6,4 +6,5 @@ import org.apache.ibatis.annotations.Mapper;
 import com.cloudmall.user.entity.FavoriteDO;
 
 @Mapper
-public interface FavoriteMapper extends BaseMapper<FavoriteDO> {}
+public interface FavoriteMapper extends BaseMapper<FavoriteDO> {
+}

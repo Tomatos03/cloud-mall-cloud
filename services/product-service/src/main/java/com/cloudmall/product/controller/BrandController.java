@@ -28,8 +28,8 @@ import com.cloudmall.product.service.IBrandService;
  * @author : Tomatos
  */
 @RestController
-@RequestMapping("/brands")
 @RequiredArgsConstructor
+@RequestMapping("/brands")
 public class BrandController {
 
     private final IBrandService brandService;
@@ -41,7 +41,10 @@ public class BrandController {
      * @return 品牌信息
      */
     @GetMapping("/{id}")
-    public Result<BrandResp> getById(@PathVariable Long id) {
+    public Result<BrandResp> getById(
+            @PathVariable
+            Long id
+    ) {
         return Result.success(brandService.getById(id));
     }
 
@@ -63,19 +66,27 @@ public class BrandController {
      * @return 新建品牌 ID
      */
     @PostMapping
-    public Result<Long> create(@RequestBody BrandCreateReq req) {
+    public Result<Long> create(
+            @RequestBody
+            BrandCreateReq req
+    ) {
         return Result.success(brandService.create(req));
     }
 
     /**
      * 更新品牌。
      *
-     * @param id  品牌 ID
+     * @param id 品牌 ID
      * @param req 更新请求
      * @return 操作结果
      */
     @PutMapping("/{id}")
-    public Result<Void> update(@PathVariable Long id, @RequestBody BrandUpdateReq req) {
+    public Result<Void> update(
+            @PathVariable
+            Long id,
+            @RequestBody
+            BrandUpdateReq req
+    ) {
         brandService.update(id, req);
         return Result.success();
     }
@@ -87,7 +98,10 @@ public class BrandController {
      * @return 操作结果
      */
     @DeleteMapping
-    public Result<Void> delete(@RequestBody List<Long> ids) {
+    public Result<Void> delete(
+            @RequestBody
+            List<Long> ids
+    ) {
         brandService.delete(ids);
         return Result.success();
     }

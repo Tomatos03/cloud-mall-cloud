@@ -29,54 +29,53 @@ import com.cloudmall.user.api.response.ShopResp;
 public interface CartConverter {
 
     /**
-     * SKU 实时信息 + 用户 → 购物车记录。
-     * <p>
+     * SKU 实时信息 + 用户 → 购物车记录。 <p>
      * 新加入的购物车记录默认选中，价格/名称/图片/店铺取 SKU 实时快照。
      *
-     * @param sku      SKU 实时信息
-     * @param userId   用户 ID
+     * @param sku SKU 实时信息
+     * @param userId 用户 ID
      * @param quantity 加入数量
      * @return 购物车记录
      */
     @Mapping(target = "id", ignore = true)
-    @Mapping(target = "userId", source = "userId")
-    @Mapping(target = "shopId", source = "sku.shopId")
-    @Mapping(target = "productId", source = "sku.productId")
-    @Mapping(target = "skuId", source = "sku.skuId")
-    @Mapping(target = "productName", source = "sku.productName")
-    @Mapping(target = "productImage", source = "sku.image")
-    @Mapping(target = "price", source = "sku.price")
-    @Mapping(target = "quantity", source = "quantity")
-    @Mapping(target = "selected", expression = "java(Boolean.TRUE)")
     @Mapping(target = "createTime", ignore = true)
     @Mapping(target = "updateTime", ignore = true)
+    @Mapping(target = "userId", source = "userId")
+    @Mapping(target = "price", source = "sku.price")
+    @Mapping(target = "skuId", source = "sku.skuId")
+    @Mapping(target = "quantity", source = "quantity")
+    @Mapping(target = "shopId", source = "sku.shopId")
+    @Mapping(target = "productImage", source = "sku.image")
+    @Mapping(target = "productId", source = "sku.productId")
+    @Mapping(target = "productName", source = "sku.productName")
+    @Mapping(target = "selected", expression = "java(Boolean.TRUE)")
     CartDO toDO(SkuResp sku, Long userId, Integer quantity);
 
     /**
-     * CartDO + SKU 实时信息 → CartItem
-     * <p>
-     * available、unavailableReason、subtotal 由 {@link #fillSkuState} 计算。
+     * CartDO + SKU 实时信息 → CartItem <p>
+     * available、unavailableReason、subtotal 由
+     * {@link #fillSkuState} 计算。
      *
      * @param cart 购物车记录
-     * @param sku  SKU 实时信息，可为 null（商品已下架或不存在）
+     * @param sku SKU 实时信息，可为 null（商品已下架或不存在）
      * @return 购物车条目
      */
-    @Mapping(target = "productId", source = "cart.productId")
-    @Mapping(target = "skuId", source = "cart.skuId")
-    @Mapping(target = "productName", source = "sku.productName")
-    @Mapping(target = "productImage", source = "sku.image")
-    @Mapping(target = "price", source = "sku.price")
-    @Mapping(target = "shopId", source = "sku.shopId")
-    @Mapping(target = "specDesc", source = "sku.specDesc")
-    @Mapping(target = "available", ignore = true)
-    @Mapping(target = "unavailableReason", ignore = true)
     @Mapping(target = "subtotal", ignore = true)
+    @Mapping(target = "available", ignore = true)
+    @Mapping(target = "price", source = "sku.price")
+    @Mapping(target = "skuId", source = "cart.skuId")
+    @Mapping(target = "shopId", source = "sku.shopId")
+    @Mapping(target = "unavailableReason", ignore = true)
+    @Mapping(target = "specDesc", source = "sku.specDesc")
+    @Mapping(target = "productImage", source = "sku.image")
+    @Mapping(target = "productId", source = "cart.productId")
+    @Mapping(target = "productName", source = "sku.productName")
     CartItem toItemResp(CartDO cart, SkuResp sku);
 
     /**
      * 批量转换购物车记录，并按 SKU 实时信息富化。
      *
-     * @param carts  购物车记录列表
+     * @param carts 购物车记录列表
      * @param skuMap SKU ID -> SKU 实时信息
      * @return 购物车条目列表
      */
@@ -87,45 +86,48 @@ public interface CartConverter {
     }
 
     /**
-     * 构建店铺分组（仅做字段映射，统计项由调用方填充）。
-     * <p>
+     * 构建店铺分组（仅做字段映射，统计项由调用方填充）。 <p>
      * 店铺信息缺失时名称与 Logo 留空。
      *
      * @param shopId 店铺 ID
-     * @param items  该店铺下的购物车条目
-     * @param shop   店铺信息，可为 null
+     * @param items 该店铺下的购物车条目
+     * @param shop 店铺信息，可为 null
      * @return 店铺分组
      */
-    @Mapping(target = "shopName", source = "shop.name")
     @Mapping(target = "shopLogo", source = "shop.logo")
+    @Mapping(target = "shopName", source = "shop.name")
     CartShopGroup toShopGroup(Long shopId, List<CartItem> items, ShopResp shop);
 
     /**
      * 构建全车摘要（仅做字段映射，汇总项由调用方填充）。
      *
      * @param groups 按店铺分组的商品列表
-     * @param items  全车条目
+     * @param items 全车条目
      * @return 购物车摘要
      */
     @Mapping(target = "totalItems", ignore = true)
-    @Mapping(target = "totalQuantity", ignore = true)
-    @Mapping(target = "selectedCount", ignore = true)
     @Mapping(target = "totalAmount", ignore = true)
+    @Mapping(target = "selectedCount", ignore = true)
+    @Mapping(target = "totalQuantity", ignore = true)
     @Mapping(target = "selectedAmount", ignore = true)
     CartDetailResp toDetailResp(List<CartShopGroup> groups, List<CartItem> items);
 
     /**
-     * 计算条目可用性与小计。
-     * <p>
-     * SKU 查询不到（已下架/已删除）时视为不可售，小计记 0；
-     * 否则按实时价 × 数量计算小计，库存不足时标记不可售。
+     * 计算条目可用性与小计。 <p>
+     * SKU 查询不到（已下架/已删除）时视为不可售，小计记 0； 否则按实时价 × 数量计算小计，库存不
+     * 足时标记不可售。
      *
      * @param item 购物车条目（映射目标）
      * @param cart 购物车记录
-     * @param sku  SKU 实时信息，可为 null
+     * @param sku SKU 实时信息，可为 null
      */
     @AfterMapping
-    default void fillSkuState(@MappingTarget CartItem item, CartDO cart, SkuResp sku) {
+    default void fillSkuState(
+            @MappingTarget
+            CartItem item,
+            CartDO cart,
+            SkuResp sku
+    ) {
         if (sku == null) {
             item.setAvailable(false);
             item.setUnavailableReason("商品已下架或不存在");

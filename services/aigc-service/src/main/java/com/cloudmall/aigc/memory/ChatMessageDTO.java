@@ -40,20 +40,18 @@ public class ChatMessageDTO {
         Map<String, Object> meta = metadata != null ? metadata : Collections.emptyMap();
         return switch (type) {
             case USER -> {
-                UserMessage.Builder builder = UserMessage
-                        .builder()
-                        .text(content)
-                        .metadata(meta);
+                UserMessage.Builder builder = UserMessage.builder()
+                                                         .text(content)
+                                                         .metadata(meta);
                 if (media != null) {
                     builder.media(media);
                 }
                 yield builder.build();
             }
             case ASSISTANT -> {
-                var builder = AssistantMessage
-                        .builder()
-                        .content(content)
-                        .properties(meta);
+                var builder = AssistantMessage.builder()
+                                              .content(content)
+                                              .properties(meta);
                 if (toolCalls != null) {
                     builder.toolCalls(toolCalls);
                 }
@@ -87,7 +85,9 @@ public class ChatMessageDTO {
                 .builder()
                 .type(message.getMessageType())
                 .content(message.getText())
-                .metadata(message.getMetadata() != null ? new HashMap<>(message.getMetadata()) : null);
+                .metadata(
+                        message.getMetadata() != null ? new HashMap<>(message.getMetadata()) : null
+                );
 
         if (message instanceof MediaContent mediaContent && !mediaContent.getMedia().isEmpty()) {
             builder.media(mediaContent.getMedia());

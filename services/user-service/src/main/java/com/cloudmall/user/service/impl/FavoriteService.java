@@ -35,12 +35,11 @@ public class FavoriteService implements IFavoriteService {
             favoriteMapper.deleteById(existing.getId());
             return false;
         } else {
-            FavoriteDO favorite = FavoriteDO
-                    .builder()
-                    .userId(userId)
-                    .productId(productId)
-                    .createTime(LocalDateTime.now())
-                    .build();
+            FavoriteDO favorite = FavoriteDO.builder()
+                                            .userId(userId)
+                                            .productId(productId)
+                                            .createTime(LocalDateTime.now())
+                                            .build();
             favoriteMapper.insert(favorite);
             return true;
         }

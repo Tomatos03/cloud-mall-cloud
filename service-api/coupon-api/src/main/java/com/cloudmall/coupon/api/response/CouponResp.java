@@ -17,10 +17,10 @@ import lombok.NoArgsConstructor;
  *
  * @author : Tomatos
  */
+@Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Data
 public class CouponResp {
 
     /** 模板 ID */
@@ -107,8 +107,7 @@ public class CouponResp {
      * @return true 表示已领完
      */
     public boolean isClaimedOut() {
-        return this.totalCount != null
-                && this.claimedCount != null
-                && this.claimedCount >= this.totalCount;
+        return this.totalCount != null && this.claimedCount != null
+                       && this.claimedCount >= this.totalCount;
     }
 }

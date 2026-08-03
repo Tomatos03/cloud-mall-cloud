@@ -29,13 +29,17 @@ public interface RoleConverter {
     /**
      * 将请求中的非 null 字段合并到已有实体上。
      *
-     * @param req      请求（仅非 null 字段参与合并）
+     * @param req 请求（仅非 null 字段参与合并）
      * @param existing 已有实体，原地更新
      */
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "builtIn", ignore = true)
+    @Mapping(target = "deleted", ignore = true)
     @Mapping(target = "createTime", ignore = true)
     @Mapping(target = "updateTime", ignore = true)
-    @Mapping(target = "deleted", ignore = true)
-    void updateEntity(RoleReq req, @MappingTarget RoleDO existing);
+    void updateEntity(
+            RoleReq req,
+            @MappingTarget
+            RoleDO existing
+    );
 }

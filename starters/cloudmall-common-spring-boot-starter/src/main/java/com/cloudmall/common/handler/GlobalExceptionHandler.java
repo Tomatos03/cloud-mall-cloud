@@ -37,8 +37,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(BizException.class)
     public ResponseEntity<Result<Void>> handleBizException(BizException e) {
         BizErrorCode errorCode = e.getBizErrorCode();
-        return ResponseEntity.status(errorCode.getHttpStatus())
-                .body(Result.error(errorCode));
+        return ResponseEntity.status(errorCode.getHttpStatus()).body(Result.error(errorCode));
     }
 
     /**
@@ -50,13 +49,13 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<Result<Void>> handleValidation(MethodArgumentNotValidException e) {
         String message = e.getBindingResult()
-                .getFieldErrors()
-                .stream()
-                .findFirst()
-                .map(f -> f.getDefaultMessage())
-                .orElse("请求参数校验失败");
+                          .getFieldErrors()
+                          .stream()
+                          .findFirst()
+                          .map(f -> f.getDefaultMessage())
+                          .orElse("请求参数校验失败");
         return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                .body(Result.error(message, BizErrorCode.INVALID_PARAM.getCode()));
+                             .body(Result.error(message, BizErrorCode.INVALID_PARAM.getCode()));
     }
 
     /**
@@ -66,9 +65,16 @@ public class GlobalExceptionHandler {
      * @return 处理结果
      */
     @ExceptionHandler(MissingServletRequestParameterException.class)
-    public ResponseEntity<Result<Void>> handleMissingParam(MissingServletRequestParameterException e) {
+    public ResponseEntity<Result<Void>> handleMissingParam(
+            MissingServletRequestParameterException e
+    ) {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                .body(Result.error("缺少必要参数: " + e.getParameterName(), BizErrorCode.INVALID_PARAM.getCode()));
+                             .body(
+                                     Result.error(
+                                             "缺少必要参数: " + e.getParameterName(),
+                                             BizErrorCode.INVALID_PARAM.getCode()
+                                     )
+                             );
     }
 
     /**
@@ -81,7 +87,7 @@ public class GlobalExceptionHandler {
     public ResponseEntity<Result<Void>> handleMsgNotReadable(HttpMessageNotReadableException e) {
         log.warn("请求参数格式错误", e);
         return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                .body(Result.error("请求参数格式错误", BizErrorCode.INVALID_PARAM.getCode()));
+                             .body(Result.error("请求参数格式错误", BizErrorCode.INVALID_PARAM.getCode()));
     }
 
     /**
@@ -93,7 +99,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(NoHandlerFoundException.class)
     public ResponseEntity<Result<Void>> handleNotFound(NoHandlerFoundException e) {
         return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                .body(Result.error("接口不存在", BizErrorCode.DATA_NOT_FOUND.getCode()));
+                             .body(Result.error("接口不存在", BizErrorCode.DATA_NOT_FOUND.getCode()));
     }
 
     /**
@@ -103,9 +109,11 @@ public class GlobalExceptionHandler {
      * @return 处理结果
      */
     @ExceptionHandler(HttpRequestMethodNotSupportedException.class)
-    public ResponseEntity<Result<Void>> handleMethodNotSupported(HttpRequestMethodNotSupportedException e) {
+    public ResponseEntity<Result<Void>> handleMethodNotSupported(
+            HttpRequestMethodNotSupportedException e
+    ) {
         return ResponseEntity.status(HttpStatus.METHOD_NOT_ALLOWED)
-                .body(Result.error("请求方法不支持", BizErrorCode.INVALID_PARAM.getCode()));
+                             .body(Result.error("请求方法不支持", BizErrorCode.INVALID_PARAM.getCode()));
     }
 
     /**
@@ -118,6 +126,6 @@ public class GlobalExceptionHandler {
     public ResponseEntity<Result<Void>> handleUnknown(Exception e) {
         log.error("未捕获的服务器内部异常", e);
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body(Result.error("服务器内部错误", Result.INTERNAL_ERROR_CODE));
+                             .body(Result.error("服务器内部错误", Result.INTERNAL_ERROR_CODE));
     }
 }

@@ -9,7 +9,6 @@ package com.cloudmall.mybatisplus.annotation;
  * @author : Tomatos
  */
 public enum Operator {
-
     /** 等值查询 {@code column = ?} */
     EQ,
     /** 不等查询 {@code column <> ?} */

@@ -13,10 +13,10 @@ import lombok.NoArgsConstructor;
 
 import com.cloudmall.mybatisplus.enums.StatusEnum;
 
+@Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Data
 @TableName("cm_shop")
 public class ShopDO {
     private Long id;

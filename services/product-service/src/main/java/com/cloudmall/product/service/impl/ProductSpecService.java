@@ -66,14 +66,18 @@ public class ProductSpecService implements IProductSpecService {
             return Map.of();
         }
         List<ProductSkuSpecDO> specs = productSkuSpecMapper.selectList(
-                Wrappers.<ProductSkuSpecDO>lambdaQuery()
-                        .in(ProductSkuSpecDO::getSkuId, skuIds)
+                Wrappers.<ProductSkuSpecDO>lambdaQuery().in(ProductSkuSpecDO::getSkuId, skuIds)
         );
         return specs.stream()
-                    .collect(Collectors.groupingBy(
-                            ProductSkuSpecDO::getSkuId,
-                            Collectors.mapping(ProductSkuSpecDO::getSpecValueId, Collectors.toList())
-                    ));
+                    .collect(
+                            Collectors.groupingBy(
+                                    ProductSkuSpecDO::getSkuId,
+                                    Collectors.mapping(
+                                            ProductSkuSpecDO::getSpecValueId,
+                                            Collectors.toList()
+                                    )
+                            )
+                    );
     }
 
     /**
@@ -94,14 +98,20 @@ public class ProductSpecService implements IProductSpecService {
                         .in(ProductSkuSpecDO::getSpecValueId, specValueIds)
                         .inSql(ProductSkuSpecDO::getSkuId, skuIdInSql)
         );
-        return specs.stream()
-                    .collect(Collectors.groupingBy(
-                            ProductSkuSpecDO::getSkuId,
-                            Collectors.mapping(ProductSkuSpecDO::getSpecValueId, Collectors.toList())
-                    ))
-                    .entrySet()
-                    .stream()
-                    .filter(entry -> entry.getValue().size() == specValueIds.size())
-                    .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+        return specs
+                .stream()
+                .collect(
+                        Collectors.groupingBy(
+                                ProductSkuSpecDO::getSkuId,
+                                Collectors.mapping(
+                                        ProductSkuSpecDO::getSpecValueId,
+                                        Collectors.toList()
+                                )
+                        )
+                )
+                .entrySet()
+                .stream()
+                .filter(entry -> entry.getValue().size() == specValueIds.size())
+                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
     }
 }

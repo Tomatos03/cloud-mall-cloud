@@ -26,8 +26,8 @@ import com.cloudmall.product.service.IProductService;
  * @author : Tomatos
  */
 @RestController
-@RequestMapping("/product")
 @RequiredArgsConstructor
+@RequestMapping("/product")
 public class ProductController {
 
     private final IProductService productService;
@@ -39,7 +39,11 @@ public class ProductController {
      * @return 新建 SPU ID
      */
     @PostMapping
-    public Result<Long> create(@Valid @RequestBody ProductCreateReq req) {
+    public Result<Long> create(
+            @Valid
+            @RequestBody
+            ProductCreateReq req
+    ) {
         return Result.success(productService.create(req));
     }
 
@@ -50,7 +54,10 @@ public class ProductController {
      * @return 商品完整详情
      */
     @GetMapping("/{id}/detail")
-    public Result<ProductDetailResp> detail(@PathVariable Long id) {
+    public Result<ProductDetailResp> detail(
+            @PathVariable
+            Long id
+    ) {
         return Result.success(productService.detail(id));
     }
 
@@ -61,11 +68,13 @@ public class ProductController {
      * @return 商品信息
      */
     @GetMapping("/{id}")
-    public Result<ProductResp> getById(@PathVariable Long id) {
-        ProductGetReq req = ProductGetReq
-                .builder()
-                .id(id)
-                .build();
+    public Result<ProductResp> getById(
+            @PathVariable
+            Long id
+    ) {
+        ProductGetReq req = ProductGetReq.builder()
+                                         .id(id)
+                                         .build();
         return Result.success(productService.get(req));
     }
 
@@ -76,18 +85,20 @@ public class ProductController {
      * @return 商品信息
      */
     @GetMapping("/spu/{spu}")
-    public Result<ProductResp> getBySpu(@PathVariable String spu) {
-        ProductGetReq req = ProductGetReq
-                .builder()
-                .spuCode(spu)
-                .build();
+    public Result<ProductResp> getBySpu(
+            @PathVariable
+            String spu
+    ) {
+        ProductGetReq req = ProductGetReq.builder()
+                                         .spuCode(spu)
+                                         .build();
         return Result.success(productService.get(req));
     }
 
     /**
-     * 通用商品列表查询。
-     * <p>
-     * 筛选条件通过 {@link ProductPageReq} 的 {@code @QueryCondition} 注解声明。
+     * 通用商品列表查询。 <p>
+     * 筛选条件通过 {@link ProductPageReq} 的
+     * {@code @QueryCondition} 注解声明。
      *
      * @param req 查询条件
      * @return 商品列表

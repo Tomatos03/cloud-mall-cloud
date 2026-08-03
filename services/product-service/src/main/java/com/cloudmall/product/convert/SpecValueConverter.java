@@ -18,16 +18,16 @@ public interface SpecValueConverter {
     /**
      * 将规格值请求模型转换为实体。
      *
-     * @param item    规格值请求模型
+     * @param item 规格值请求模型
      * @param groupId 所属规格组 ID
      * @return 规格值实体
      */
     @Mapping(target = "id", ignore = true)
-    @Mapping(target = "groupId", source = "groupId")
+    @Mapping(target = "deleted", ignore = true)
     @Mapping(target = "sortOrder", ignore = true)
     @Mapping(target = "createTime", ignore = true)
     @Mapping(target = "updateTime", ignore = true)
-    @Mapping(target = "deleted", ignore = true)
+    @Mapping(target = "groupId", source = "groupId")
     ProductSpecValueDO toDO(SpecValueItem item, Long groupId);
 
     /**

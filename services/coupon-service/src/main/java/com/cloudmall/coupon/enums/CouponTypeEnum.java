@@ -16,7 +16,6 @@ import lombok.Getter;
 @Getter
 @AllArgsConstructor
 public enum CouponTypeEnum {
-
     /** 满减券 — 满足门槛后按固定金额减免 */
     FULL_REDUCTION("FULL_REDUCTION", "满减"),
 
@@ -25,14 +24,11 @@ public enum CouponTypeEnum {
 
     /** 立减券 — 无门槛或满足门槛后按固定金额直接立减 */
     CASH("CASH", "立减");
-
     /** 数据库存储值 */
     @EnumValue
     private final String code;
-
     /** 类型描述 */
     private final String desc;
-
     /**
      * 根据编码查找优惠券类型。
      *
@@ -41,12 +37,15 @@ public enum CouponTypeEnum {
      * @throws IllegalArgumentException 编码非法或为 null 时抛出
      */
     public static CouponTypeEnum fromCode(String code) {
-        return Arrays.stream(values())
-                     .filter(t -> t.code.equals(code))
-                     .findFirst()
-                     .orElseThrow(() -> new IllegalArgumentException(
-                             "Invalid coupon type: '" + code + "', valid values: "
-                                     + Arrays.toString(values())
-                     ));
+        return Arrays
+                .stream(values())
+                .filter(t -> t.code.equals(code))
+                .findFirst()
+                .orElseThrow(
+                        () -> new IllegalArgumentException(
+                                "Invalid coupon type: '" + code + "', valid values: "
+                                        + Arrays.toString(values())
+                        )
+                );
     }
 }

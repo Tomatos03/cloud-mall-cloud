@@ -23,7 +23,10 @@ public interface FavoriteClient {
      * @return true=已收藏 false=已取消
      */
     @PutMapping
-    Result<Boolean> toggle(@RequestBody FavoriteToggleReq req);
+    Result<Boolean> toggle(
+            @RequestBody
+            FavoriteToggleReq req
+    );
 
     /**
      * 查询当前用户收藏的商品 ID 列表。

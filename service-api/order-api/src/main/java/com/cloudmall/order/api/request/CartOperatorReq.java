@@ -14,10 +14,10 @@ import lombok.experimental.Accessors;
  *
  * @author : Tomatos
  */
+@Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Data
 @Accessors(chain = true, fluent = true)
 public class CartOperatorReq {
 

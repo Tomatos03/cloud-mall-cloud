@@ -19,12 +19,10 @@ public class ToolResultContext {
     private final Map<String, Object> results = new ConcurrentHashMap<>();
 
     /**
-     * 将工具结果放入上下文
-     * <p>
-     * key 为结果对象的简单类名，value 为整个对象
-     * </p>
+     * 将工具结果放入上下文 <p>
+     * key 为结果对象的简单类名，value 为整个对象 </p>
      *
-     * @param key   结果对象的简单类名
+     * @param key 结果对象的简单类名
      * @param value 结果对象
      */
     public void put(String key, Object value) {

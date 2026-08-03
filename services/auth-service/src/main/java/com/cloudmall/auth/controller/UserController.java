@@ -34,8 +34,8 @@ import com.cloudmall.common.model.Result;
  * @date : 2026/7/29
  */
 @RestController
-@RequestMapping("/users")
 @RequiredArgsConstructor
+@RequestMapping("/users")
 public class UserController {
 
     private final IUserService userService;
@@ -48,7 +48,11 @@ public class UserController {
      * @return 处理结果
      */
     @PostMapping("/login")
-    public Result<LoginResp> login(@RequestBody @Valid LoginReq request) {
+    public Result<LoginResp> login(
+            @RequestBody
+            @Valid
+            LoginReq request
+    ) {
         return Result.success(userService.login(request));
     }
 
@@ -59,7 +63,11 @@ public class UserController {
      * @return 处理结果
      */
     @PostMapping("/register")
-    public Result<Long> register(@RequestBody @Valid RegisterReq request) {
+    public Result<Long> register(
+            @RequestBody
+            @Valid
+            RegisterReq request
+    ) {
         return Result.success(userService.register(request));
     }
 
@@ -81,15 +89,17 @@ public class UserController {
      * @return 处理结果
      */
     @GetMapping("/{id}")
-    public Result<UserInfoResp> getUser(@PathVariable Long id) {
+    public Result<UserInfoResp> getUser(
+            @PathVariable
+            Long id
+    ) {
         return Result.success(userService.getUserInfo(id));
     }
 
     /**
-     * 获取当前用户有权限访问的菜单树
-     * <p>
-     * 返回按 parentId 构建的层级菜单结构，已按当前用户的权限编码过滤。
-     * 仅包含 menu / catalog / layout 类型的 UI 节点。
+     * 获取当前用户有权限访问的菜单树 <p>
+     * 返回按 parentId 构建的层级菜单结构，已按当前用户的权限编码过滤。 仅包含 menu /
+     * catalog / layout 类型的 UI 节点。
      *
      * @return 菜单树根节点列表
      */
@@ -105,7 +115,10 @@ public class UserController {
      * @return 处理结果
      */
     @PutMapping("/roles")
-    public Result<Void> assignRoles(@RequestBody List<Long> roleIds) {
+    public Result<Void> assignRoles(
+            @RequestBody
+            List<Long> roleIds
+    ) {
         roleService.assignRoles(UserContextHolder.getUserId(), roleIds);
         return Result.success();
     }
@@ -117,7 +130,10 @@ public class UserController {
      * @return 处理结果
      */
     @GetMapping("/{id}/roles")
-    public Result<List<Long>> getUserRoleIds(@PathVariable Long id) {
+    public Result<List<Long>> getUserRoleIds(
+            @PathVariable
+            Long id
+    ) {
         return Result.success(userService.getUserRoleIds(id));
     }
 }

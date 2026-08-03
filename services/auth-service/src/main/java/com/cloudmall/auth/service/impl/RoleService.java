@@ -4,7 +4,6 @@ import java.util.List;
 
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.BooleanUtil;
-import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import lombok.RequiredArgsConstructor;
@@ -50,12 +49,11 @@ public class RoleService implements IRoleService {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public Long createRole(String name, String description, boolean enabled) {
-        RoleDO roleDo = RoleDO
-                .builder()
-                .name(name)
-                .description(description)
-                .enabled(enabled)
-                .build();
+        RoleDO roleDo = RoleDO.builder()
+                              .name(name)
+                              .description(description)
+                              .enabled(enabled)
+                              .build();
         roleMapper.insert(roleDo);
         return roleDo.getId();
     }
@@ -83,13 +81,9 @@ public class RoleService implements IRoleService {
         AssertUtils.notNull(existing, BizErrorCode.DATA_NOT_FOUND);
         AssertUtils.isTrue(!BooleanUtil.isTrue(existing.getBuiltIn()), BizErrorCode.INVALID_PARAM);
 
-        userRoleMapper.delete(
-                Wrappers.<UserRoleDO>lambdaQuery()
-                        .eq(UserRoleDO::getRoleId, roleId)
-        );
+        userRoleMapper.delete(Wrappers.<UserRoleDO>lambdaQuery().eq(UserRoleDO::getRoleId, roleId));
         roleResourceMapper.delete(
-                Wrappers.<RoleResourceDO>lambdaQuery()
-                        .eq(RoleResourceDO::getRoleId, roleId)
+                Wrappers.<RoleResourceDO>lambdaQuery().eq(RoleResourceDO::getRoleId, roleId)
         );
         roleMapper.deleteById(roleId);
     }
@@ -122,16 +116,16 @@ public class RoleService implements IRoleService {
         AssertUtils.notNull(roleMapper.selectById(roleId), BizErrorCode.DATA_NOT_FOUND);
 
         roleResourceMapper.delete(
-                Wrappers.<RoleResourceDO>lambdaQuery()
-                        .eq(RoleResourceDO::getRoleId, roleId)
+                Wrappers.<RoleResourceDO>lambdaQuery().eq(RoleResourceDO::getRoleId, roleId)
         );
         if (CollUtil.isNotEmpty(resourceIds)) {
             List<RoleResourceDO> list = resourceIds
                     .stream()
-                    .map(resourceId -> RoleResourceDO.builder()
-                                                     .roleId(roleId)
-                                                     .resourceId(resourceId)
-                                                     .build()
+                    .map(
+                            resourceId -> RoleResourceDO.builder()
+                                                        .roleId(roleId)
+                                                        .resourceId(resourceId)
+                                                        .build()
                     )
                     .toList();
             list.forEach(roleResourceMapper::insert);
@@ -144,8 +138,7 @@ public class RoleService implements IRoleService {
     @Override
     public List<Long> getRoleResourceIds(Long roleId) {
         List<RoleResourceDO> roleResources = roleResourceMapper.selectList(
-                Wrappers.<RoleResourceDO>lambdaQuery()
-                        .eq(RoleResourceDO::getRoleId, roleId)
+                Wrappers.<RoleResourceDO>lambdaQuery().eq(RoleResourceDO::getRoleId, roleId)
         );
         return roleResources.stream()
                             .map(RoleResourceDO::getResourceId)
@@ -158,18 +151,14 @@ public class RoleService implements IRoleService {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public void assignRoles(Long userId, List<Long> roleIds) {
-        userRoleMapper.delete(
-                Wrappers.<UserRoleDO>lambdaQuery()
-                        .eq(UserRoleDO::getUserId, userId)
-        );
+        userRoleMapper.delete(Wrappers.<UserRoleDO>lambdaQuery().eq(UserRoleDO::getUserId, userId));
         if (CollUtil.isNotEmpty(roleIds)) {
             List<UserRoleDO> list = roleIds
                     .stream()
                     .map(roleId -> UserRoleDO.builder()
                                              .userId(userId)
                                              .roleId(roleId)
-                                             .build()
-                    )
+                                             .build())
                     .toList();
             list.forEach(userRoleMapper::insert);
         }
@@ -181,18 +170,14 @@ public class RoleService implements IRoleService {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public void assignRoleUsers(Long roleId, List<Long> userIds) {
-        userRoleMapper.delete(
-                Wrappers.<UserRoleDO>lambdaQuery()
-                        .eq(UserRoleDO::getRoleId, roleId)
-        );
+        userRoleMapper.delete(Wrappers.<UserRoleDO>lambdaQuery().eq(UserRoleDO::getRoleId, roleId));
         if (CollUtil.isNotEmpty(userIds)) {
             List<UserRoleDO> list = userIds
                     .stream()
                     .map(userId -> UserRoleDO.builder()
                                              .roleId(roleId)
                                              .userId(userId)
-                                             .build()
-                    )
+                                             .build())
                     .toList();
             list.forEach(userRoleMapper::insert);
         }
@@ -204,8 +189,7 @@ public class RoleService implements IRoleService {
     @Override
     public List<Long> getRoleUserIds(Long roleId) {
         List<UserRoleDO> userRoles = userRoleMapper.selectList(
-                Wrappers.<UserRoleDO>lambdaQuery()
-                        .eq(UserRoleDO::getRoleId, roleId)
+                Wrappers.<UserRoleDO>lambdaQuery().eq(UserRoleDO::getRoleId, roleId)
         );
         return userRoles.stream()
                         .map(UserRoleDO::getUserId)

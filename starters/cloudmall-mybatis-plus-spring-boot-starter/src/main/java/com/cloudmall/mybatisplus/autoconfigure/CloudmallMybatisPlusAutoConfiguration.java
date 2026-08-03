@@ -11,8 +11,8 @@ import org.springframework.context.annotation.Import;
 import com.cloudmall.mybatisplus.config.MyMetaObjectHandler;
 
 @AutoConfiguration
-@ConditionalOnClass(MybatisPlusInterceptor.class)
 @Import(MyMetaObjectHandler.class)
+@ConditionalOnClass(MybatisPlusInterceptor.class)
 public class CloudmallMybatisPlusAutoConfiguration {
 
     /**

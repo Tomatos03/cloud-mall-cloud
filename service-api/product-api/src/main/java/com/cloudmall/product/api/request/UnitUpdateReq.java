@@ -12,10 +12,10 @@ import com.cloudmall.mybatisplus.enums.StatusEnum;
  *
  * @author : Tomatos
  */
+@Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Data
 public class UnitUpdateReq {
 
     private String name;

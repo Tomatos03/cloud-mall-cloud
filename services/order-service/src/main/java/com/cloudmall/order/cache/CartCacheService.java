@@ -1,6 +1,5 @@
 package com.cloudmall.order.cache;
 
-
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.StringRedisTemplate;
@@ -29,6 +28,6 @@ public class CartCacheService {
      * @return 字符串结果
      */
     private String buildKey(String userId) {
-        return  CART_KEY_PREFIX + userId;
+        return CART_KEY_PREFIX + userId;
     }
 }

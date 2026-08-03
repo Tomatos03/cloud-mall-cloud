@@ -31,12 +31,10 @@ public class TextDocumentParser implements DocumentParser {
     public List<Document> parse(MultipartFile file) throws IOException {
         String content = new String(file.getBytes(), StandardCharsets.UTF_8);
         String documentId = UUID.randomUUID().toString();
-        return List.of(
-                Document.builder()
-                        .id(documentId)
-                        .text(content)
-                        .build()
-        );
+        return List.of(Document.builder()
+                               .id(documentId)
+                               .text(content)
+                               .build());
     }
 
     /**

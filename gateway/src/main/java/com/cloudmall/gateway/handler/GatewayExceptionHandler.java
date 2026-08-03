@@ -69,8 +69,7 @@ public class GatewayExceptionHandler implements ErrorWebExceptionHandler {
             if (StrUtil.isBlank(message)) {
                 message = "服务器内部错误";
             }
-        } else if (ex instanceof TimeoutException
-                || ex instanceof ConnectException) {
+        } else if (ex instanceof TimeoutException || ex instanceof ConnectException) {
             // 超时或连接异常
             businessCode = BizErrorCode.GATEWAY_TIMEOUT.getCode();
             httpStatus = HttpStatus.GATEWAY_TIMEOUT;
@@ -111,7 +110,9 @@ public class GatewayExceptionHandler implements ErrorWebExceptionHandler {
             bytes = objectMapper.writeValueAsString(result).getBytes(StandardCharsets.UTF_8);
         } catch (JsonProcessingException e) {
             log.error("序列化异常响应失败", e);
-            bytes = ("{\"code\":500,\"message\":\"服务器内部错误\",\"data\":null}").getBytes(StandardCharsets.UTF_8);
+            bytes = ("{\"code\":500,\"message\":\"服务器内部错误\",\"data\":null}").getBytes(
+                    StandardCharsets.UTF_8
+            );
         }
 
         DataBuffer buffer = response.bufferFactory().wrap(bytes);

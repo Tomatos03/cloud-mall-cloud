@@ -12,8 +12,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.cloudmall.common.enums.BizErrorCode;
-import com.cloudmall.common.utils.AssertUtils;
 import com.cloudmall.order.api.request.CreateReq;
 import com.cloudmall.order.api.response.OrderResp;
 import com.cloudmall.order.convert.OrderConverter;
@@ -25,9 +23,9 @@ import com.cloudmall.order.mapper.OrderMapper;
 import com.cloudmall.order.model.req.OrderPageReq;
 import com.cloudmall.order.service.IOrderService;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
-@Slf4j
 public class OrderService implements IOrderService {
 
     private final OrderMapper orderMapper;
@@ -54,15 +52,14 @@ public class OrderService implements IOrderService {
             total = total.add(item.getPrice().multiply(BigDecimal.valueOf(item.getQuantity())));
         }
 
-        OrderDO order = OrderDO
-                .builder()
-                .orderNo(orderNo)
-                .userId(request.getUserId())
-                .totalAmount(total)
-                .status("PENDING")
-                .remark(request.getRemark())
-                .createTime(LocalDateTime.now())
-                .build();
+        OrderDO order = OrderDO.builder()
+                               .orderNo(orderNo)
+                               .userId(request.getUserId())
+                               .totalAmount(total)
+                               .status("PENDING")
+                               .remark(request.getRemark())
+                               .createTime(LocalDateTime.now())
+                               .build();
         orderMapper.insert(order);
 
         for (CreateReq.OrderItemRequest item : request.getItems()) {
@@ -116,8 +113,7 @@ public class OrderService implements IOrderService {
     private OrderResp toResponse(OrderDO order) {
         OrderResp resp = orderConverter.toResp(order);
         List<OrderItemDO> items = orderItemMapper.selectList(
-                Wrappers.<OrderItemDO>lambdaQuery()
-                        .eq(OrderItemDO::getOrderId, order.getId())
+                Wrappers.<OrderItemDO>lambdaQuery().eq(OrderItemDO::getOrderId, order.getId())
         );
         resp.setItems(orderItemConverter.toItemRespList(items));
         return resp;

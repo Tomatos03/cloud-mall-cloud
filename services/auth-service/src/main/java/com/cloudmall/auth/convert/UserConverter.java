@@ -36,8 +36,8 @@ public interface UserConverter {
      * @return 处理结果
      */
     @Mapping(source = "id", target = "userId")
-    @Mapping(source = "avatarUrl", target = "avatar")
     @Mapping(source = "types", target = "userType")
+    @Mapping(source = "avatarUrl", target = "avatar")
     UserInfoResp toResp(UserDO user);
 
     /**
@@ -47,10 +47,10 @@ public interface UserConverter {
      * @return 处理结果
      */
     @Mapping(target = "id", ignore = true)
-    @Mapping(target = "avatarUrl", ignore = true)
     @Mapping(target = "bio", ignore = true)
+    @Mapping(target = "deleted", ignore = true)
+    @Mapping(target = "avatarUrl", ignore = true)
     @Mapping(target = "createTime", ignore = true)
     @Mapping(target = "updateTime", ignore = true)
-    @Mapping(target = "deleted", ignore = true)
     UserDO toDO(RegisterReq req);
 }

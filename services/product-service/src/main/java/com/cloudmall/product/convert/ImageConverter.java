@@ -18,19 +18,18 @@ import com.cloudmall.product.entity.ProductImageDO;
 public interface ImageConverter {
 
     /**
-     * 将图片请求模型转换为实体。
-     * <p>
+     * 将图片请求模型转换为实体。 <p>
      * isMain 与 sortOrder 由 Service 层按图片在列表中的下标赋值。
      *
-     * @param item      图片请求模型
+     * @param item 图片请求模型
      * @param productId 所属商品 ID
      * @return 图片实体
      */
     @Mapping(target = "id", ignore = true)
-    @Mapping(target = "productId", source = "productId")
     @Mapping(target = "isMain", ignore = true)
     @Mapping(target = "sortOrder", ignore = true)
     @Mapping(target = "createTime", ignore = true)
+    @Mapping(target = "productId", source = "productId")
     ProductImageDO toDO(ImageItem item, Long productId);
 
     /**

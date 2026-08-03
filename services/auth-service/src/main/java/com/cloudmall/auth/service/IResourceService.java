@@ -29,14 +29,15 @@ public interface IResourceService {
      * 获取用户的权限编码列表
      *
      * @param userId 用户 ID
-     * @return 权限编码列表（如 ["goods:create", "order:view"]），不会 null
+     * @return 权限编码列表（如 ["goods:create", "order:view"]），不
+     *         会 null
      */
     List<String> getPermissionCodes(Long userId);
 
     /**
      * 判断用户是否拥有指定角色
      *
-     * @param userId   用户 ID
+     * @param userId 用户 ID
      * @param roleCode 角色编码
      * @return true 拥有该角色
      */
@@ -45,7 +46,7 @@ public interface IResourceService {
     /**
      * 判断用户是否拥有指定权限
      *
-     * @param userId         用户 ID
+     * @param userId 用户 ID
      * @param permissionCode 权限编码（如 "goods:create"）
      * @return true 拥有该权限
      */
@@ -60,11 +61,10 @@ public interface IResourceService {
     Long createResource(ResourceReq req);
 
     /**
-     * 更新资源
-     * <p>
+     * 更新资源 <p>
      * 根据 id 定位资源，其余非 null 字段将被更新，null 字段保持不变。
      *
-     * @param id  资源 ID
+     * @param id 资源 ID
      * @param req 待更新的资源字段
      */
     void updateResource(Long id, ResourceReq req);
@@ -87,17 +87,17 @@ public interface IResourceService {
     /**
      * 查询资源列表
      *
-     * @param type 资源类型（menu / catalog / layout / button，null 返回全部）
+     * @param type 资源类型（menu / catalog / layout / button，
+     *             null 返回全部）
      * @return 资源列表
      */
     List<ResourceResp> listResources(String type);
 
     /**
-     * 获取完整资源树（按 parentId 构建层级，不进行权限过滤）
-     * <p>
-     * 仅返回类型为 menu / catalog / layout 的 UI 资源，排除按钮类型。
-     * 与 {@link IUserService#getMenuResourceTree()} 不同，此方法返回全部 UI 资源，
-     * 不根据当前用户权限进行裁剪。用于资源管理后台的全量展示。
+     * 获取完整资源树（按 parentId 构建层级，不进行权限过滤） <p>
+     * 仅返回类型为 menu / catalog / layout 的 UI 资源，排除按钮类型。 与
+     * {@link IUserService#getMenuResourceTree()} 不同，此方法返
+     * 回全部 UI 资源， 不根据当前用户权限进行裁剪。用于资源管理后台的全量展示。
      *
      * @return 完整资源树的根节点列表（children 引用子节点）
      */

@@ -31,9 +31,9 @@ import java.lang.annotation.Target;
  *
  * @author : Tomatos
  */
+@Documented
 @Target(ElementType.FIELD)
 @Retention(RetentionPolicy.RUNTIME)
-@Documented
 public @interface QueryCondition {
 
     /**

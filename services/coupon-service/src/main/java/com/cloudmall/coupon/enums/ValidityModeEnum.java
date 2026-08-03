@@ -17,20 +17,16 @@ import lombok.Getter;
 @Getter
 @AllArgsConstructor
 public enum ValidityModeEnum {
-
     /** 固定有效期 — 使用 fixed_start_time / fixed_expire_time */
     FIXED("FIXED", "固定有效期"),
 
     /** 发放后相对有效期 — 使用 valid_days */
     RELATIVE("RELATIVE", "发放后相对有效期");
-
     /** 数据库存储值 */
     @EnumValue
     private final String code;
-
     /** 模式描述 */
     private final String desc;
-
     /**
      * 根据编码查找有效期模式。
      *
@@ -39,12 +35,15 @@ public enum ValidityModeEnum {
      * @throws IllegalArgumentException 编码非法或为 null 时抛出
      */
     public static ValidityModeEnum fromCode(String code) {
-        return Arrays.stream(values())
-                     .filter(t -> t.code.equals(code))
-                     .findFirst()
-                     .orElseThrow(() -> new IllegalArgumentException(
-                             "Invalid validity mode: '" + code + "', valid values: "
-                                     + Arrays.toString(values())
-                     ));
+        return Arrays
+                .stream(values())
+                .filter(t -> t.code.equals(code))
+                .findFirst()
+                .orElseThrow(
+                        () -> new IllegalArgumentException(
+                                "Invalid validity mode: '" + code + "', valid values: "
+                                        + Arrays.toString(values())
+                        )
+                );
     }
 }

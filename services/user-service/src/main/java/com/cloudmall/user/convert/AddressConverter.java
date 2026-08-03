@@ -38,9 +38,9 @@ public interface AddressConverter {
      * @return 处理结果
      */
     @Mapping(target = "id", ignore = true)
+    @Mapping(target = "deleted", ignore = true)
     @Mapping(target = "createTime", ignore = true)
     @Mapping(target = "updateTime", ignore = true)
-    @Mapping(target = "deleted", ignore = true)
     AddressDO toDO(CreateReq req, Long userId);
 
     /**
@@ -50,5 +50,9 @@ public interface AddressConverter {
      * @param address 地址实体
      */
     @Mapping(target = "id", ignore = true)
-    void updateEntity(AddressUpdateReq req, @MappingTarget AddressDO address);
+    void updateEntity(
+            AddressUpdateReq req,
+            @MappingTarget
+            AddressDO address
+    );
 }

@@ -15,11 +15,11 @@ import com.cloudmall.im.common.entity.PageParamsDTO;
  * @author : Tomatos
  * @date : 2026/02/02
  */
-@EqualsAndHashCode(callSuper = true)
-@SuperBuilder
 @Data
+@SuperBuilder
 @NoArgsConstructor
 @AllArgsConstructor
+@EqualsAndHashCode(callSuper = true)
 public class IMPageParamsDTO extends PageParamsDTO {
     /**
      * 会话ID

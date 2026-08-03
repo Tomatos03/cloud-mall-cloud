@@ -28,9 +28,10 @@ public class UserPageReq extends PageReq<UserDO> {
     @QueryCondition
     private Boolean enabled;
 
-    /** 使用指定参数构造对象。 */
-    public UserPageReq() {
-    }
+    /**
+     * 使用指定参数构造对象。
+     */
+    public UserPageReq() {}
 
     /**
      * 兼容 URL 参数 ?page=&size=

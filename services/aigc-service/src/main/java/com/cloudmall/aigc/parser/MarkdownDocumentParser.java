@@ -40,11 +40,9 @@ public class MarkdownDocumentParser implements DocumentParser {
         MarkdownDocumentReader reader = new MarkdownDocumentReader(content, config);
         List<Document> documents = reader.get();
         documents = documents.stream()
-                             .map(doc -> doc
-                                     .mutate()
-                                     .id(UUID.randomUUID().toString())
-                                     .build()
-                             )
+                             .map(doc -> doc.mutate()
+                                            .id(UUID.randomUUID().toString())
+                                            .build())
                              .toList();
         return documents;
     }

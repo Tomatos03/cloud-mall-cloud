@@ -8,10 +8,10 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+@Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Data
 public class CreateReq {
 
     private Long userId;
@@ -21,10 +21,10 @@ public class CreateReq {
     private Long seckillId;
     private String remark;
 
+    @Data
     @Builder
     @NoArgsConstructor
     @AllArgsConstructor
-    @Data
     public static class OrderItemRequest {
         private Long goodsId;
         private Long skuId;

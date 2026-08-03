@@ -16,34 +16,31 @@ import java.util.Set;
 public final class SubOrderStateTransitions {
 
     private static final Map<SubOrderStatusEnum, Set<SubOrderStatusEnum>> TRANSITIONS = Map.of(
-            SubOrderStatusEnum.PENDING_SHIPMENT, Set.of(
+            SubOrderStatusEnum.PENDING_SHIPMENT,
+            Set.of(
                     SubOrderStatusEnum.SHIPPED,
                     SubOrderStatusEnum.CANCELLED,
                     SubOrderStatusEnum.REFUNDED
             ),
-            SubOrderStatusEnum.SHIPPED, Set.of(
-                    SubOrderStatusEnum.DELIVERED,
-                    SubOrderStatusEnum.REFUNDED
-            ),
-            SubOrderStatusEnum.DELIVERED, Set.of(
-                    SubOrderStatusEnum.COMPLETED,
-                    SubOrderStatusEnum.REFUNDED
-            ),
-            SubOrderStatusEnum.COMPLETED, Set.of(
-                    SubOrderStatusEnum.REFUNDED
-            ),
-            SubOrderStatusEnum.CANCELLED, Collections.emptySet(),
-            SubOrderStatusEnum.REFUNDED, Collections.emptySet()
+            SubOrderStatusEnum.SHIPPED,
+            Set.of(SubOrderStatusEnum.DELIVERED, SubOrderStatusEnum.REFUNDED),
+            SubOrderStatusEnum.DELIVERED,
+            Set.of(SubOrderStatusEnum.COMPLETED, SubOrderStatusEnum.REFUNDED),
+            SubOrderStatusEnum.COMPLETED,
+            Set.of(SubOrderStatusEnum.REFUNDED),
+            SubOrderStatusEnum.CANCELLED,
+            Collections.emptySet(),
+            SubOrderStatusEnum.REFUNDED,
+            Collections.emptySet()
     );
 
-    private SubOrderStateTransitions() {
-    }
+    private SubOrderStateTransitions() {}
 
     /**
      * 判断子订单状态迁移是否合法。
      *
      * @param from 迁移前状态
-     * @param to   迁移后状态
+     * @param to 迁移后状态
      * @return true 为合法迁移
      */
     public static boolean canTransition(SubOrderStatusEnum from, SubOrderStatusEnum to) {

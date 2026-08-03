@@ -11,8 +11,8 @@ import lombok.NoArgsConstructor;
  * @date : 2026/2/17
  */
 @Data
-@AllArgsConstructor
 @NoArgsConstructor
+@AllArgsConstructor
 public class CreateSessionResult {
     private Long sessionId;
 }

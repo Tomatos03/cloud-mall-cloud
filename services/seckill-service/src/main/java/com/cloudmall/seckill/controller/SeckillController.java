@@ -18,8 +18,8 @@ import com.cloudmall.seckill.entity.SeckillActivityDO;
 import com.cloudmall.seckill.service.ISeckillService;
 
 @RestController
-@RequestMapping("/seckill")
 @RequiredArgsConstructor
+@RequestMapping("/seckill")
 public class SeckillController {
 
     private final ISeckillService seckillService;
@@ -31,14 +31,16 @@ public class SeckillController {
      * @return 处理结果
      */
     @PostMapping("/activities")
-    public Result<Long> createActivity(@RequestBody ActivityCreateReq req) {
-        SeckillActivityDO activity = SeckillActivityDO
-                .builder()
-                .name(req.getName())
-                .startTime(req.getStartTime())
-                .endTime(req.getEndTime())
-                .createUser(req.getCreateUser())
-                .build();
+    public Result<Long> createActivity(
+            @RequestBody
+            ActivityCreateReq req
+    ) {
+        SeckillActivityDO activity = SeckillActivityDO.builder()
+                                                      .name(req.getName())
+                                                      .startTime(req.getStartTime())
+                                                      .endTime(req.getEndTime())
+                                                      .createUser(req.getCreateUser())
+                                                      .build();
         return Result.success(seckillService.createActivity(activity));
     }
 
@@ -49,7 +51,10 @@ public class SeckillController {
      * @return 处理结果
      */
     @GetMapping("/activities/{id}")
-    public Result<ActivityResp> getActivity(@PathVariable Long id) {
+    public Result<ActivityResp> getActivity(
+            @PathVariable
+            Long id
+    ) {
         return Result.success(seckillService.getActivity(id));
     }
 
@@ -62,10 +67,17 @@ public class SeckillController {
      */
     @PostMapping("/activities/{activityId}/products")
     public Result<Void> submitProduct(
-            @PathVariable Long activityId,
-            @RequestBody ActivityProductSubmitReq req
+            @PathVariable
+            Long activityId,
+            @RequestBody
+            ActivityProductSubmitReq req
     ) {
-        seckillService.submitProduct(activityId, req.getProductId(), req.getSeckillPrice(), req.getStock());
+        seckillService.submitProduct(
+                activityId,
+                req.getProductId(),
+                req.getSeckillPrice(),
+                req.getStock()
+        );
         return Result.success(null);
     }
 
@@ -79,9 +91,12 @@ public class SeckillController {
      */
     @PatchMapping("/activities/{activityId}/products/{productId}")
     public Result<Void> auditProduct(
-            @PathVariable Long activityId,
-            @PathVariable Long productId,
-            @RequestBody ActivityProductAuditReq req
+            @PathVariable
+            Long activityId,
+            @PathVariable
+            Long productId,
+            @RequestBody
+            ActivityProductAuditReq req
     ) {
         seckillService.auditProduct(productId, req.isApproved());
         return Result.success(null);
@@ -95,7 +110,12 @@ public class SeckillController {
      * @return 处理结果
      */
     @GetMapping("/activities/{activityId}/products/{productId}/verification")
-    public Result<Boolean> verifyProduct(@PathVariable Long activityId, @PathVariable Long productId) {
+    public Result<Boolean> verifyProduct(
+            @PathVariable
+            Long activityId,
+            @PathVariable
+            Long productId
+    ) {
         return Result.success(seckillService.verifyProduct(activityId, productId));
     }
 }

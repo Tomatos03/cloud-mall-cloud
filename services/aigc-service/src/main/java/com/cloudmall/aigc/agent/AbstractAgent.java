@@ -66,14 +66,15 @@ public abstract class AbstractAgent implements Agent {
                                            .build();
     }
 
-    /** Nacos 提示词热更新回调 — 子类覆写，重建自己持有的 ChatClient。 */
+    /**
+     * Nacos 提示词热更新回调 — 子类覆写，重建自己持有的 ChatClient。
+     */
     protected abstract void rebuildChatClient();
 
     /**
-     * 处理聊天请求，返回流式响应。
-     * <p>
-     * 首次聊天时自动设置会话标题，生成过程中将内容追加到 StringBuilder，
-     * 完成后保存到记忆仓库。支持工具结果上下文的追加输出。
+     * 处理聊天请求，返回流式响应。 <p>
+     * 首次聊天时自动设置会话标题，生成过程中将内容追加到 StringBuilder， 完成后保存到记忆仓
+     * 库。支持工具结果上下文的追加输出。
      *
      * @param req 聊天请求，包含会话ID和用户提示词
      * @return 流式聊天响应，包含内容块和可选的工具结果
@@ -90,48 +91,66 @@ public abstract class AbstractAgent implements Agent {
         String conversationId = buildConversationId(sessionId);
         ToolResultContext resultContext = new ToolResultContext();
 
-        log.debug("{} 处理 chat 请求: sessionId={}, prompt={}", getType().name(), sessionId, req.getPrompt());
+        log.debug(
+                "{} 处理 chat 请求: sessionId={}, prompt={}",
+                getType().name(),
+                sessionId,
+                req.getPrompt()
+        );
 
         return getChatClient()
                 .prompt(req.getPrompt())
-                .advisors(advisorSpec -> advisorSpec
-                        .param(ChatMemory.CONVERSATION_ID, conversationId)
+                .advisors(
+                        advisorSpec -> advisorSpec.param(ChatMemory.CONVERSATION_ID, conversationId)
                 )
                 .toolContext(Map.of("toolResultContext", resultContext))
                 .stream()
                 .content()
                 .doFirst(() -> generatingSessionManager.start(sessionId))
-                .doOnComplete(() -> {
-                    saveGeneratedMessage(conversationId, generatedContent.toString());
-                    generatingSessionManager.finish(sessionId);
-                })
-                .doOnError(e -> {
-                    log.error("生成异常: sessionId={}", sessionId, e);
-                    generatingSessionManager.finish(sessionId);
-                })
-                .doOnCancel(() -> {
-                    saveGeneratedMessage(conversationId, generatedContent.toString());
-                    generatingSessionManager.finish(sessionId);
-                })
+                .doOnComplete(
+                        () -> {
+                            saveGeneratedMessage(conversationId, generatedContent.toString());
+                            generatingSessionManager.finish(sessionId);
+                        }
+                )
+                .doOnError(
+                        e -> {
+                            log.error("生成异常: sessionId={}", sessionId, e);
+                            generatingSessionManager.finish(sessionId);
+                        }
+                )
+                .doOnCancel(
+                        () -> {
+                            saveGeneratedMessage(conversationId, generatedContent.toString());
+                            generatingSessionManager.finish(sessionId);
+                        }
+                )
                 .takeWhile(content -> generatingSessionManager.isGenerating(sessionId))
-                .map(content -> {
-                    generatedContent.append(content);
-                    return ChatResp.builder()
-                                   .data(content)
-                                   .eventType(ChatEventType.MESSAGE)
-                                   .build();
-                })
-                .concatWith(Flux.defer(() -> resultContext.hasResults()
-                        ? Flux.just(ChatResp.param(resultContext.getResults()), ChatResp.end())
-                        : Flux.just(ChatResp.end())
-                ));
+                .map(
+                        content -> {
+                            generatedContent.append(content);
+                            return ChatResp.builder()
+                                           .data(content)
+                                           .eventType(ChatEventType.MESSAGE)
+                                           .build();
+                        }
+                )
+                .concatWith(
+                        Flux.defer(
+                                () -> resultContext.hasResults()
+                                        ? Flux.just(
+                                                ChatResp.param(resultContext.getResults()),
+                                                ChatResp.end()
+                                        )
+                                        : Flux.just(ChatResp.end())
+                        )
+                );
     }
 
     /**
-     * 纯文本非流式聊天 — 等待完整响应后一次性返回 AI 回复内容。
-     * <p>
-     * 通过 {@link MessageChatMemoryAdvisor} 传递会话 ID 以维护聊天上下文，
-     * 由 Advisor 自动处理消息记忆，无需手动保存。
+     * 纯文本非流式聊天 — 等待完整响应后一次性返回 AI 回复内容。 <p>
+     * 通过 {@link MessageChatMemoryAdvisor} 传递会话 ID 以维护聊天上
+     * 下文， 由 Advisor 自动处理消息记忆，无需手动保存。
      *
      * @param req 聊天请求（含 sessionId 和 prompt）
      * @return AI 回复的完整文本内容
@@ -140,12 +159,17 @@ public abstract class AbstractAgent implements Agent {
         String sessionId = req.getSessionId();
         String conversationId = buildConversationId(sessionId);
 
-        log.debug("{} 处理 chatText 请求: sessionId={}, prompt={}", getType().name(), sessionId, req.getPrompt());
+        log.debug(
+                "{} 处理 chatText 请求: sessionId={}, prompt={}",
+                getType().name(),
+                sessionId,
+                req.getPrompt()
+        );
 
         return getChatClient()
                 .prompt(req.getPrompt())
-                .advisors(advisorSpec -> advisorSpec
-                        .param(ChatMemory.CONVERSATION_ID, conversationId)
+                .advisors(
+                        advisorSpec -> advisorSpec.param(ChatMemory.CONVERSATION_ID, conversationId)
                 )
                 .call()
                 .content();
@@ -165,16 +189,15 @@ public abstract class AbstractAgent implements Agent {
      * 保存 LLM 生成的回复消息到记忆仓库。
      *
      * @param conversationId 会话唯一标识
-     * @param content        生成的回复内容
+     * @param content 生成的回复内容
      */
     private void saveGeneratedMessage(String conversationId, String content) {
         if (StrUtil.isBlank(content)) {
             return;
         }
-        AssistantMessage message = AssistantMessage
-                .builder()
-                .content(content)
-                .build();
+        AssistantMessage message = AssistantMessage.builder()
+                                                   .content(content)
+                                                   .build();
         chatMemoryRepository.saveAll(conversationId, Collections.singletonList(message));
     }
 }

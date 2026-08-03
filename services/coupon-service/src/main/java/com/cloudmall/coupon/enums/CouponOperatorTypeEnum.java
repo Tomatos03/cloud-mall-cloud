@@ -17,20 +17,16 @@ import lombok.Getter;
 @Getter
 @AllArgsConstructor
 public enum CouponOperatorTypeEnum {
-
     /** 运营 */
     OPERATOR("OPERATOR", "运营"),
 
     /** 商家 */
     MERCHANT("MERCHANT", "商家");
-
     /** 数据库存储值 */
     @EnumValue
     private final String code;
-
     /** 类型描述 */
     private final String desc;
-
     /**
      * 根据编码查找操作人类型。
      *
@@ -39,12 +35,15 @@ public enum CouponOperatorTypeEnum {
      * @throws IllegalArgumentException 编码非法或为 null 时抛出
      */
     public static CouponOperatorTypeEnum fromCode(String code) {
-        return Arrays.stream(values())
-                     .filter(t -> t.code.equals(code))
-                     .findFirst()
-                     .orElseThrow(() -> new IllegalArgumentException(
-                             "Invalid coupon operator type: '" + code + "', valid values: "
-                                     + Arrays.toString(values())
-                     ));
+        return Arrays
+                .stream(values())
+                .filter(t -> t.code.equals(code))
+                .findFirst()
+                .orElseThrow(
+                        () -> new IllegalArgumentException(
+                                "Invalid coupon operator type: '" + code + "', valid values: "
+                                        + Arrays.toString(values())
+                        )
+                );
     }
 }

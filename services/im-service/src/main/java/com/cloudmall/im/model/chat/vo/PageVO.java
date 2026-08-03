@@ -15,9 +15,9 @@ import lombok.NoArgsConstructor;
  * @date : 2026/02/02
  */
 @Data
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
 public class PageVO<T> {
     /**
      * 数据记录列表

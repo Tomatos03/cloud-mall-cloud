@@ -95,18 +95,22 @@ public class SessionService implements ISessionService {
     @Override
     public List<ChatMessageResp> getSessionMessages(String sessionId) {
         validateSession(sessionId);
-        List<Message> messages = chatMemoryRepository.findByConversationId(getConversationId(sessionId));
-        return messages.stream()
-                       .filter(m ->
-                               m.getMessageType() == MessageType.USER
-                               || m.getMessageType() == MessageType.ASSISTANT
-                       )
-                       .map(m -> ChatMessageResp.builder()
-                                                .role(m.getMessageType().name())
-                                                .content(m.getText())
-                                                .build()
-                       )
-                       .toList();
+        List<Message> messages = chatMemoryRepository.findByConversationId(
+                getConversationId(sessionId)
+        );
+        return messages
+                .stream()
+                .filter(
+                        m -> m.getMessageType() == MessageType.USER
+                                     || m.getMessageType() == MessageType.ASSISTANT
+                )
+                .map(
+                        m -> ChatMessageResp.builder()
+                                            .role(m.getMessageType().name())
+                                            .content(m.getText())
+                                            .build()
+                )
+                .toList();
     }
 
     /**
@@ -148,11 +152,12 @@ public class SessionService implements ISessionService {
                 if (bucket.matches(session.getUpdateTime(), now)) {
                     result.computeIfAbsent(bucket.getDisplayName(), k -> new ArrayList<>())
                           .add(
-                                  SessionHistoryItemResp.builder()
-                                                        .sessionId(session.getSessionId())
-                                                        .title(session.getTitle())
-                                                        .updateTime(session.getUpdateTime().format(formatter))
-                                                        .build()
+                                  SessionHistoryItemResp
+                                          .builder()
+                                          .sessionId(session.getSessionId())
+                                          .title(session.getTitle())
+                                          .updateTime(session.getUpdateTime().format(formatter))
+                                          .build()
                           );
                     break;
                 }
@@ -193,7 +198,8 @@ public class SessionService implements ISessionService {
      *
      * @param sessionId 会话 ID
      * @return 会话实体
-     * @throws BizException 会话不存在或不属于当前用户时抛出 SESSION_NOT_FOUND
+     * @throws BizException 会话不存在或不属于当前用户时抛出
+     *                      SESSION_NOT_FOUND
      */
     private ChatSessionDO getValidatedSession(String sessionId) {
         ChatSessionDO chatSession = chatSessionMapper.selectOne(
@@ -209,7 +215,8 @@ public class SessionService implements ISessionService {
      * 校验会话是否存在且属于当前用户
      *
      * @param sessionId 会话 ID
-     * @throws BizException 会话不存在或不属于当前用户时抛出 SESSION_NOT_FOUND
+     * @throws BizException 会话不存在或不属于当前用户时抛出
+     *                      SESSION_NOT_FOUND
      */
     @Override
     public void validateSession(String sessionId) {
@@ -236,12 +243,11 @@ public class SessionService implements ISessionService {
         Long userId = UserContextHolder.getUserId();
         String sessionId = IdWorker.getIdStr();
 
-        ChatSessionDO session = ChatSessionDO
-                .builder()
-                .sessionId(sessionId)
-                .userId(userId)
-                .title("New Session")
-                .build();
+        ChatSessionDO session = ChatSessionDO.builder()
+                                             .sessionId(sessionId)
+                                             .userId(userId)
+                                             .title("New Session")
+                                             .build();
         chatSessionMapper.insert(session);
         return sessionId;
     }

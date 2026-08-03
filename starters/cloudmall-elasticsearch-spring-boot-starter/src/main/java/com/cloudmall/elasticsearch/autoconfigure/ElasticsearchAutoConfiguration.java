@@ -29,8 +29,13 @@ import com.cloudmall.elasticsearch.properties.ElasticsearchProperties;
  */
 @AutoConfiguration
 @ConditionalOnClass(ElasticsearchClient.class)
-@ConditionalOnProperty(prefix = "cloudmall.elasticsearch", name = "enabled", havingValue = "true", matchIfMissing = true)
 @EnableConfigurationProperties(ElasticsearchProperties.class)
+@ConditionalOnProperty(
+        prefix = "cloudmall.elasticsearch",
+        name = "enabled",
+        havingValue = "true",
+        matchIfMissing = true
+)
 public class ElasticsearchAutoConfiguration {
 
     /**
@@ -44,24 +49,39 @@ public class ElasticsearchAutoConfiguration {
     public ElasticsearchClient elasticsearchClient(ElasticsearchProperties properties) {
         BasicCredentialsProvider credentialsProvider = new BasicCredentialsProvider();
         if (StrUtil.isNotBlank(properties.getUsername())) {
-            credentialsProvider.setCredentials(AuthScope.ANY,
-                    new UsernamePasswordCredentials(properties.getUsername(), properties.getPassword()));
+            credentialsProvider.setCredentials(
+                    AuthScope.ANY,
+                    new UsernamePasswordCredentials(
+                            properties.getUsername(),
+                            properties.getPassword()
+                    )
+            );
         }
 
         HttpHost[] hosts = parseHosts(properties.getUris());
         RestClientBuilder restClientBuilder = RestClient.builder(hosts)
-                .setHttpClientConfigCallback(httpClientBuilder -> {
-                    httpClientBuilder.setDefaultCredentialsProvider(credentialsProvider);
-                    return httpClientBuilder;
-                });
-        restClientBuilder.setRequestConfigCallback(requestConfigBuilder ->
-                requestConfigBuilder
-                        .setConnectTimeout(properties.getConnectTimeout())
-                        .setSocketTimeout(properties.getSocketTimeout())
+                                                        .setHttpClientConfigCallback(
+                                                                httpClientBuilder -> {
+                                                                    httpClientBuilder.setDefaultCredentialsProvider(
+                                                                            credentialsProvider
+                                                                    );
+                                                                    return httpClientBuilder;
+                                                                }
+                                                        );
+        restClientBuilder.setRequestConfigCallback(
+                requestConfigBuilder -> requestConfigBuilder.setConnectTimeout(
+                                                                    properties.getConnectTimeout()
+                                                            )
+                                                            .setSocketTimeout(
+                                                                    properties.getSocketTimeout()
+                                                            )
         );
 
         RestClient restClient = restClientBuilder.build();
-        RestClientTransport transport = new RestClientTransport(restClient, new JacksonJsonpMapper());
+        RestClientTransport transport = new RestClientTransport(
+                restClient,
+                new JacksonJsonpMapper()
+        );
         return new ElasticsearchClient(transport);
     }
 
@@ -73,8 +93,8 @@ public class ElasticsearchAutoConfiguration {
      */
     private HttpHost[] parseHosts(String uris) {
         return java.util.Arrays.stream(uris.split(","))
-                .map(String::trim)
-                .map(HttpHost::create)
-                .toArray(HttpHost[]::new);
+                               .map(String::trim)
+                               .map(HttpHost::create)
+                               .toArray(HttpHost[]::new);
     }
 }

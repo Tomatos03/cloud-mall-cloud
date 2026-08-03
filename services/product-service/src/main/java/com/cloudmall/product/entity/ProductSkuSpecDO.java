@@ -10,10 +10,10 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+@Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Data
 @TableName("cm_product_sku_spec")
 public class ProductSkuSpecDO {
     private Long skuId;

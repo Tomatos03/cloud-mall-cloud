@@ -6,4 +6,5 @@ import org.apache.ibatis.annotations.Mapper;
 import com.cloudmall.user.entity.AddressDO;
 
 @Mapper
-public interface AddressMapper extends BaseMapper<AddressDO> {}
+public interface AddressMapper extends BaseMapper<AddressDO> {
+}

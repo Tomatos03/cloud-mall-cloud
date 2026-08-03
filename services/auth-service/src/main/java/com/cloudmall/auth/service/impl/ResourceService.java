@@ -56,8 +56,7 @@ public class ResourceService implements IResourceService {
     @Override
     public List<String> getRoleCodes(Long userId) {
         List<UserRoleDO> userRoles = userRoleMapper.selectList(
-                Wrappers.<UserRoleDO>lambdaQuery()
-                        .eq(UserRoleDO::getUserId, userId)
+                Wrappers.<UserRoleDO>lambdaQuery().eq(UserRoleDO::getUserId, userId)
         );
         if (CollUtil.isEmpty(userRoles)) {
             return Collections.emptyList();
@@ -73,8 +72,7 @@ public class ResourceService implements IResourceService {
     @Override
     public List<String> getPermissionCodes(Long userId) {
         List<UserRoleDO> userRoles = userRoleMapper.selectList(
-                Wrappers.<UserRoleDO>lambdaQuery()
-                        .eq(UserRoleDO::getUserId, userId)
+                Wrappers.<UserRoleDO>lambdaQuery().eq(UserRoleDO::getUserId, userId)
         );
         List<Long> roleIds = userRoles.stream()
                                       .map(UserRoleDO::getRoleId)
@@ -85,8 +83,7 @@ public class ResourceService implements IResourceService {
         }
 
         List<RoleResourceDO> roleResources = roleResourceMapper.selectList(
-                Wrappers.<RoleResourceDO>lambdaQuery()
-                        .in(RoleResourceDO::getRoleId, roleIds)
+                Wrappers.<RoleResourceDO>lambdaQuery().in(RoleResourceDO::getRoleId, roleIds)
         );
         List<Long> resourceIds = roleResources.stream()
                                               .map(RoleResourceDO::getResourceId)
@@ -157,21 +154,26 @@ public class ResourceService implements IResourceService {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public Long createResource(ResourceReq req) {
-        AssertUtils.isTrue(ResourceTypeEnum.isValid(req.getType()), BizErrorCode.INVALID_RESOURCE_TYPE);
+        AssertUtils.isTrue(
+                ResourceTypeEnum.isValid(req.getType()),
+                BizErrorCode.INVALID_RESOURCE_TYPE
+        );
 
         if (req.getParentId() != null) {
-            AssertUtils.notNull(resourceMapper.selectById(req.getParentId()), BizErrorCode.DATA_NOT_FOUND);
+            AssertUtils.notNull(
+                    resourceMapper.selectById(req.getParentId()),
+                    BizErrorCode.DATA_NOT_FOUND
+            );
         }
 
-        ResourceDO resourceDo = ResourceDO
-                .builder()
-                .type(req.getType())
-                .code(req.getCode())
-                .name(req.getName())
-                .parentId(req.getParentId())
-                .sort(ObjectUtil.defaultIfNull(req.getSort(), 0))
-                .enabled(BooleanUtil.isTrue(req.getEnabled()))
-                .build();
+        ResourceDO resourceDo = ResourceDO.builder()
+                                          .type(req.getType())
+                                          .code(req.getCode())
+                                          .name(req.getName())
+                                          .parentId(req.getParentId())
+                                          .sort(ObjectUtil.defaultIfNull(req.getSort(), 0))
+                                          .enabled(BooleanUtil.isTrue(req.getEnabled()))
+                                          .build();
 
         resourceMapper.insert(resourceDo);
         return resourceDo.getId();
@@ -187,10 +189,16 @@ public class ResourceService implements IResourceService {
         AssertUtils.notNull(existing, BizErrorCode.DATA_NOT_FOUND);
 
         if (req.getType() != null) {
-            AssertUtils.isTrue(ResourceTypeEnum.isValid(req.getType()), BizErrorCode.INVALID_RESOURCE_TYPE);
+            AssertUtils.isTrue(
+                    ResourceTypeEnum.isValid(req.getType()),
+                    BizErrorCode.INVALID_RESOURCE_TYPE
+            );
         }
         if (req.getParentId() != null) {
-            AssertUtils.notNull(resourceMapper.selectById(req.getParentId()), BizErrorCode.DATA_NOT_FOUND);
+            AssertUtils.notNull(
+                    resourceMapper.selectById(req.getParentId()),
+                    BizErrorCode.DATA_NOT_FOUND
+            );
         }
 
         resourceConverter.updateEntity(req, existing);
@@ -208,8 +216,7 @@ public class ResourceService implements IResourceService {
         AssertUtils.notNull(existing, BizErrorCode.DATA_NOT_FOUND);
 
         Long childCount = resourceMapper.selectCount(
-                Wrappers.<ResourceDO>lambdaQuery()
-                        .eq(ResourceDO::getParentId, resourceId)
+                Wrappers.<ResourceDO>lambdaQuery().eq(ResourceDO::getParentId, resourceId)
         );
         AssertUtils.isZero(ObjectUtil.defaultIfNull(childCount, 0L), BizErrorCode.INVALID_PARAM);
 
@@ -241,7 +248,11 @@ public class ResourceService implements IResourceService {
             return Collections.emptyList();
         }
 
-        List<Tree<Long>> hutoolTree = TreeUtil.build(resources, null, ResourceService::resourceToTree);
+        List<Tree<Long>> hutoolTree = TreeUtil.build(
+                resources,
+                null,
+                ResourceService::resourceToTree
+        );
         if (CollUtil.isEmpty(hutoolTree)) {
             return Collections.emptyList();
         }

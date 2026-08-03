@@ -26,7 +26,7 @@ public interface IProductSpecService {
     /**
      * 查询商品中同时包含所有指定规格值的 SKU 映射
      *
-     * @param productId    商品 ID
+     * @param productId 商品 ID
      * @param specValueIds 规格值 ID 列表
      * @return SKU ID -> 规格值 ID 列表的映射
      */

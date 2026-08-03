@@ -38,13 +38,12 @@ public class RouterAgent implements Agent {
     private ChatClient routerChatClient;
 
     /**
-     * 构造路由智能体，初始化子智能体映射并构建路由 ChatClient。
-     * <p>
+     * 构造路由智能体，初始化子智能体映射并构建路由 ChatClient。 <p>
      * 自动注册 Nacos 热更新监听，提示词变更时重建路由 ChatClient。
      *
      * @param clientBuilder ChatClient 构建器
-     * @param agents        所有业务智能体列表（不含路由自身）
-     * @param promptLoader  提示词加载器，用于加载路由 system prompt
+     * @param agents 所有业务智能体列表（不含路由自身）
+     * @param promptLoader 提示词加载器，用于加载路由 system prompt
      */
     public RouterAgent(
             ChatClient.Builder clientBuilder,
@@ -60,10 +59,13 @@ public class RouterAgent implements Agent {
         this.routerChatClient = buildRouterChatClient();
 
         // 注册 Nacos 热更新监听
-        promptLoader.registerListener(AgentType.ROUTE, () -> {
-            this.routerChatClient = buildRouterChatClient();
-            log.info("RouterAgent ChatClient 已重建（热更新）");
-        });
+        promptLoader.registerListener(
+                AgentType.ROUTE,
+                () -> {
+                    this.routerChatClient = buildRouterChatClient();
+                    log.info("RouterAgent ChatClient 已重建（热更新）");
+                }
+        );
     }
 
     /**
@@ -82,9 +84,12 @@ public class RouterAgent implements Agent {
             log.debug("路由 system prompt:\n{}", systemPrompt);
         }
 
-        return chatClientBuilder.defaultSystem(promptSystemSpec -> promptSystemSpec
-                                        .text(systemPrompt)
-                                        .param(AGENT_DESCRIPTIONS, agentDescriptions)
+        return chatClientBuilder.defaultSystem(
+                                        promptSystemSpec -> promptSystemSpec.text(systemPrompt)
+                                                                            .param(
+                                                                                    AGENT_DESCRIPTIONS,
+                                                                                    agentDescriptions
+                                                                            )
                                 )
                                 .build();
     }
@@ -130,31 +135,38 @@ public class RouterAgent implements Agent {
         log.debug("路由请求: sessionId={}, prompt={}", req.getSessionId(), req.getPrompt());
 
         return Mono.fromCallable(() -> classifyIntent(req.getPrompt()))
-                   .flatMapMany(decision -> {
-                       Agent agent = agentMap.getOrDefault(
-                           decision.agentType(),
-                           agentMap.get(AgentType.GENERAL)
-                       );
-                       log.debug("路由决策: sessionId={}, agent={}, confidence={}, reason={}",
-                                req.getSessionId(), decision.agentType(),
-                                decision.confidence(), decision.reason()
-                       );
-                       return agent.chat(req);
-                   });
+                   .flatMapMany(
+                           decision -> {
+                               Agent agent = agentMap.getOrDefault(
+                                       decision.agentType(),
+                                       agentMap.get(AgentType.GENERAL)
+                               );
+                               log.debug(
+                                       "路由决策: sessionId={}, agent={}, confidence={}, reason={}",
+                                       req.getSessionId(),
+                                       decision.agentType(),
+                                       decision.confidence(),
+                                       decision.reason()
+                               );
+                               return agent.chat(req);
+                           }
+                   );
     }
 
     /**
-     * 纯文本非流式聊天 — 路由智能体不支持非流式调用。
-     * <p>
+     * 纯文本非流式聊天 — 路由智能体不支持非流式调用。 <p>
      * 非流式聊天应直接调用业务智能体（如 {@link GeneralAgent}），无需经过意图路由。
      *
      * @param req 聊天请求
      * @return 字符串结果
-     * @throws UnsupportedOperationException 始终抛出，路由智能体不支持此操作
+     * @throws UnsupportedOperationException 始终抛出，路由智能体不支
+     *                                       持此操作
      */
     @Override
     public String chatText(ChatReq req) {
-        throw new UnsupportedOperationException("RouterAgent 不支持非流式聊天，请直接调用 GeneralAgent.chatText()");
+        throw new UnsupportedOperationException(
+                "RouterAgent 不支持非流式聊天，请直接调用 GeneralAgent.chatText()"
+        );
     }
 
     /**
@@ -164,7 +176,9 @@ public class RouterAgent implements Agent {
      * @return 格式化后的描述行，如 {@code - goods: 负责商品搜索...}
      */
     private String formatAgentDescription(Agent agent) {
-        String agentTypeName = agent.getType().name().toLowerCase();
+        String agentTypeName = agent.getType()
+                                    .name()
+                                    .toLowerCase();
         return "- " + agentTypeName + ": " + agent.getDescription();
     }
 
@@ -184,5 +198,6 @@ public class RouterAgent implements Agent {
     /**
      * 路由决策的结构化输出载体。
      */
-    public record RouteDecision(AgentType agentType, String confidence, String reason) {}
+    public record RouteDecision(AgentType agentType, String confidence, String reason) {
+    }
 }

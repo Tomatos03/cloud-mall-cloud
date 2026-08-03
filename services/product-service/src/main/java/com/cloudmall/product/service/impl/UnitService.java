@@ -2,7 +2,6 @@ package com.cloudmall.product.service.impl;
 
 import java.util.List;
 
-import cn.hutool.core.collection.CollUtil;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;

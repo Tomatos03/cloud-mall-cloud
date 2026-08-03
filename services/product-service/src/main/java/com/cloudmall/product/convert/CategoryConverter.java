@@ -24,8 +24,8 @@ public interface CategoryConverter {
      * @param req 请求参数
      * @return 处理结果
      */
-    @Mapping(target = "parentId", defaultExpression = "java(0L)")
-    @Mapping(target = "level", ignore = true)
     @Mapping(target = "id", ignore = true)
+    @Mapping(target = "level", ignore = true)
+    @Mapping(target = "parentId", defaultExpression = "java(0L)")
     CategoryDO toDO(CategoryCreateReq req);
 }

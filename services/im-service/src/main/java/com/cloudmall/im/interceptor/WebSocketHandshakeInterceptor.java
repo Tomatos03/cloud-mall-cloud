@@ -37,8 +37,7 @@ public class WebSocketHandshakeInterceptor implements HandshakeInterceptor {
             Map<String, Object> attributes
     ) {
         try {
-            String query = request.getURI()
-                                  .getQuery();
+            String query = request.getURI().getQuery();
             if (query == null || !query.contains("token=")) {
                 log.warn("WebSocket连接请求中未找到token参数");
                 return false;
@@ -58,8 +57,10 @@ public class WebSocketHandshakeInterceptor implements HandshakeInterceptor {
                 return false;
             }
 
-            log.info("WebSocket握手：token解析成功，userId: {}, username: {}", parsedToken.getUserId(),
-                     parsedToken.getUsername()
+            log.info(
+                    "WebSocket握手：token解析成功，userId: {}, username: {}",
+                    parsedToken.getUserId(),
+                    parsedToken.getUsername()
             );
 
             attributes.put("userId", parsedToken.getUserId());
@@ -76,9 +77,9 @@ public class WebSocketHandshakeInterceptor implements HandshakeInterceptor {
             ServerHttpRequest request,
             ServerHttpResponse response,
             WebSocketHandler wsHandler,
-            @Nullable Exception exception
-    ) {
-    }
+            @Nullable
+            Exception exception
+    ) {}
 
     /**
      * 从查询字符串中提取token值

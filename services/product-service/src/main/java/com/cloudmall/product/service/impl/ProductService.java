@@ -116,7 +116,7 @@ public class ProductService implements IProductService {
     /**
      * 填充品牌名，品牌不存在时留空。
      *
-     * @param resp    商品响应
+     * @param resp 商品响应
      * @param brandId 品牌 ID
      */
     private void fillBrand(ProductResp resp, Long brandId) {
@@ -129,7 +129,7 @@ public class ProductService implements IProductService {
     /**
      * 填充主图 URL，主图不存在时留空。
      *
-     * @param resp    商品响应
+     * @param resp 商品响应
      * @param imageId 主图 ID
      */
     private void fillImage(ProductResp resp, Long imageId) {
@@ -142,7 +142,7 @@ public class ProductService implements IProductService {
     /**
      * 填充分类信息，分类不存在时留空。
      *
-     * @param resp       商品响应
+     * @param resp 商品响应
      * @param categoryId 分类 ID
      */
     private void fillCategory(ProductResp resp, Long categoryId) {
@@ -186,7 +186,8 @@ public class ProductService implements IProductService {
         Map<Long, BrandDO> brandMap = new HashMap<>();
         if (CollUtil.isNotEmpty(brandIds)) {
             List<BrandDO> brands = brandMapper.selectByIds(brandIds);
-            brandMap = brands.stream().collect(Collectors.toMap(BrandDO::getId, Function.identity()));
+            brandMap = brands.stream()
+                             .collect(Collectors.toMap(BrandDO::getId, Function.identity()));
         }
 
         // 批量查询主图
@@ -194,10 +195,7 @@ public class ProductService implements IProductService {
         if (CollUtil.isNotEmpty(imageIds)) {
             List<ProductImageDO> images = productImageMapper.selectByIds(imageIds);
             imageMap = images.stream()
-                             .collect(Collectors.toMap(
-                                     ProductImageDO::getId,
-                                     Function.identity()
-                             ));
+                             .collect(Collectors.toMap(ProductImageDO::getId, Function.identity()));
         }
 
         // 批量查询每个 SPU 的最低 SKU 价格
@@ -206,12 +204,14 @@ public class ProductService implements IProductService {
         // 组装响应
         Map<Long, BrandDO> finalBrandMap = brandMap;
         Map<Long, ProductImageDO> finalImageMap = imageMap;
-        return page.convert(product -> productConverter.toCompositeResp(
-                product,
-                finalBrandMap,
-                finalImageMap,
-                lowestPriceMap
-        ));
+        return page.convert(
+                product -> productConverter.toCompositeResp(
+                        product,
+                        finalBrandMap,
+                        finalImageMap,
+                        lowestPriceMap
+                )
+        );
     }
 
     /**
@@ -247,11 +247,10 @@ public class ProductService implements IProductService {
     }
 
     /**
-     * 落商品图片，返回主图 ID。
-     * <p>
+     * 落商品图片，返回主图 ID。 <p>
      * 主图与排序均按下标推导：首张为主图，sortOrder 取下标。
      *
-     * @param req       创建请求
+     * @param req 创建请求
      * @param productId SPU ID
      * @return 主图（首张图片）的 ID
      */
@@ -269,15 +268,13 @@ public class ProductService implements IProductService {
     }
 
     /**
-     * 落规格组与规格值，同时返回 [组下标][值下标] -> 规格值主键 的二维映射。
-     * <p>
-     * 这张映射是把请求里的 {@code specValues} 翻译成外键的唯一依据，方法返回后即丢弃，不落库。
-     * 规格组与规格值的 sortOrder 取各自的数组下标。
-     * <p>
+     * 落规格组与规格值，同时返回 [组下标][值下标] -> 规格值主键 的二维映射。 <p>
+     * 这张映射是把请求里的 {@code specValues} 翻译成外键的唯一依据，方法返回后即丢弃，
+     * 不落库。 规格组与规格值的 sortOrder 取各自的数组下标。 <p>
      * 逐条插入而非批量：规格值不会太多
      *
      * @param productId SPU ID
-     * @param groups    规格组请求模型列表
+     * @param groups 规格组请求模型列表
      * @return 二维映射，外层下标为规格组序号，内层下标为组内规格值序号
      */
     private List<List<Long>> saveSpecs(Long productId, List<SpecGroupItem> groups) {
@@ -294,10 +291,7 @@ public class ProductService implements IProductService {
             List<SpecValueItem> values = groupItem.getValues();
             List<Long> idsOfThisGroup = new ArrayList<>(values.size());
             for (int v = 0; v < values.size(); v++) {
-                ProductSpecValueDO specValue = specValueConverter.toDO(
-                        values.get(v),
-                        group.getId()
-                );
+                ProductSpecValueDO specValue = specValueConverter.toDO(values.get(v), group.getId());
                 specValue.setValue(normalize(values.get(v).getValue()));
                 specValue.setSortOrder(v);
                 productSpecValueMapper.insert(specValue);
@@ -311,13 +305,13 @@ public class ProductService implements IProductService {
     }
 
     /**
-     * 落 SKU 及 SKU-规格值关联表。
-     * <p>
-     * 用 {@link #saveSpecs} 返回的映射把每个 SKU 的 {@code specValues} 翻译成规格值主键：
-     * 第 g 位的值只在第 g 个规格组的候选里查找，跨组引用已在 {@link #validateSkuTopology} 拦下。
+     * 落 SKU 及 SKU-规格值关联表。 <p>
+     * 用 {@link #saveSpecs} 返回的映射把每个 SKU 的
+     * {@code specValues} 翻译成规格值主键： 第 g 位的值只在第 g 个规格组的候选里
+     * 查找，跨组引用已在 {@link #validateSkuTopology} 拦下。
      *
-     * @param productId    SPU ID
-     * @param req          创建请求
+     * @param productId SPU ID
+     * @param req 创建请求
      * @param specValueIds 规格值主键的二维映射
      */
     private void saveSkus(Long productId, ProductCreateReq req, List<List<Long>> specValueIds) {
@@ -334,18 +328,19 @@ public class ProductService implements IProductService {
             }
 
             ProductSkuDO sku = skuConverter.toDO(
-                    skuItem, productId, String.format("SKU%s", IdUtil.getSnowflakeNextIdStr())
+                    skuItem,
+                    productId,
+                    String.format("SKU%s", IdUtil.getSnowflakeNextIdStr())
             );
             sku.setSpecHash(specHash(realIds));
             // 逐条插入以回填自增 ID
             productSkuMapper.insert(sku);
 
             for (Long specValueId : realIds) {
-                ProductSkuSpecDO skuSpec = ProductSkuSpecDO
-                        .builder()
-                        .skuId(sku.getId())
-                        .specValueId(specValueId)
-                        .build();
+                ProductSkuSpecDO skuSpec = ProductSkuSpecDO.builder()
+                                                           .skuId(sku.getId())
+                                                           .specValueId(specValueId)
+                                                           .build();
                 relations.add(skuSpec);
             }
         }
@@ -369,8 +364,7 @@ public class ProductService implements IProductService {
         List<ImageResp> images = productImageService.listByProductId(id);
         List<SpecGroupResp> specGroups = productSpecService.getSpecGroups(id);
         List<ProductSkuDO> skus = productSkuMapper.selectList(
-                Wrappers.<ProductSkuDO>lambdaQuery()
-                        .eq(ProductSkuDO::getProductId, id)
+                Wrappers.<ProductSkuDO>lambdaQuery().eq(ProductSkuDO::getProductId, id)
         );
 
         return productConverter.toDetailResp(product, brand, images, skus, specGroups);
@@ -399,13 +393,11 @@ public class ProductService implements IProductService {
     }
 
     /**
-     * 校验规格组与 SKU 的拓扑结构。
-     * <p>
-     * 逐项校验：组名不重复、组内规格值不重复、每个 SKU 为每个规格组恰好指定一个值、
-     * 第 g 位的值确实存在于第 g 个规格组、SKU 之间规格组合不重复。
-     * <p>
-     * 按组隔离查找是这里的关键：{@code ["M", "L"]} 这种请求里，"M" 虽是合法规格值但属于尺码组，
-     * 第 0 位只在颜色组的候选里查，因此查不到而被拒绝。
+     * 校验规格组与 SKU 的拓扑结构。 <p>
+     * 逐项校验：组名不重复、组内规格值不重复、每个 SKU 为每个规格组恰好指定一个值、 第 g 位的值确
+     * 实存在于第 g 个规格组、SKU 之间规格组合不重复。 <p>
+     * 按组隔离查找是这里的关键：{@code ["M", "L"]} 这种请求里，"M" 虽是合法规格值但
+     * 属于尺码组， 第 0 位只在颜色组的候选里查，因此查不到而被拒绝。
      *
      * @param req 创建请求
      * @throws BizException 处理过程中可能抛出该异常
@@ -471,10 +463,9 @@ public class ProductService implements IProductService {
     }
 
     /**
-     * 归一化文本，用于规格组名与规格值的匹配和落库。
-     * <p>
-     * 全角转半角（NFKC）+ 去首尾空白 + 折叠内部连续空白，
-     * 避免 "红 色" / "Ｓ" 这类写法绕过匹配后产生重复规格值。
+     * 归一化文本，用于规格组名与规格值的匹配和落库。 <p>
+     * 全角转半角（NFKC）+ 去首尾空白 + 折叠内部连续空白， 避免 "红 色" / "Ｓ" 这类写法
+     * 绕过匹配后产生重复规格值。
      *
      * @param text 原始文本
      * @return 归一化后的文本，入参为 null 时返回空串
@@ -490,7 +481,7 @@ public class ProductService implements IProductService {
      * 在单个规格组的候选规格值中查找目标值的下标。
      *
      * @param candidates 该规格组下的所有规格值
-     * @param target     已归一化的目标值
+     * @param target 已归一化的目标值
      * @return 命中下标，未命中返回 -1
      */
     private static int indexOfValue(List<SpecValueItem> candidates, String target) {
@@ -503,9 +494,9 @@ public class ProductService implements IProductService {
     }
 
     /**
-     * 将规格值 ID 升序拼接为组合指纹，使组合唯一性与传入顺序无关。
-     * <p>
-     * 落到 {@code cm_product_sku.spec_hash}，配合 {@code uk_product_spec} 挡住并发重复提交。
+     * 将规格值 ID 升序拼接为组合指纹，使组合唯一性与传入顺序无关。 <p>
+     * 落到 {@code cm_product_sku.spec_hash}，配合
+     * {@code uk_product_spec} 挡住并发重复提交。
      *
      * @param specValueIds 该 SKU 关联的规格值 ID
      * @return 形如 {@code "102_105"} 的指纹
@@ -550,8 +541,7 @@ public class ProductService implements IProductService {
     }
 
     /**
-     * 批量查询多个 SPU 下每个 SPU 的最低 SKU 价格。
-     * <p>
+     * 批量查询多个 SPU 下每个 SPU 的最低 SKU 价格。 <p>
      * 通过查询所有符合条件的 SKU 后在应用层按 product_id 分组归约。
      *
      * @param productIds SPU ID 集合
@@ -562,20 +552,13 @@ public class ProductService implements IProductService {
             return Collections.emptyMap();
         }
         List<ProductSkuDO> skus = productSkuMapper.selectList(
-                Wrappers.<ProductSkuDO>lambdaQuery()
-                        .in(ProductSkuDO::getProductId, productIds)
+                Wrappers.<ProductSkuDO>lambdaQuery().in(ProductSkuDO::getProductId, productIds)
         );
         Collector<ProductSkuDO, ?, BigDecimal> priceCollector = Collectors.collectingAndThen(
-                Collectors.mapping(
-                        ProductSkuDO::getPrice,
-                        Collectors.minBy(BigDecimal::compareTo)
-                ),
+                Collectors.mapping(ProductSkuDO::getPrice, Collectors.minBy(BigDecimal::compareTo)),
                 opt -> opt.orElse(null)
         );
         return skus.stream()
-                   .collect(Collectors.groupingBy(
-                           ProductSkuDO::getProductId,
-                           priceCollector
-                   ));
+                   .collect(Collectors.groupingBy(ProductSkuDO::getProductId, priceCollector));
     }
 }

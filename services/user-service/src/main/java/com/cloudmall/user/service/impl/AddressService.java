@@ -34,8 +34,7 @@ public class AddressService implements IAddressService {
     @Override
     public List<AddressResp> list(Long userId) {
         List<AddressDO> list = addressMapper.selectList(
-                Wrappers.<AddressDO>lambdaQuery()
-                        .eq(AddressDO::getUserId, userId)
+                Wrappers.<AddressDO>lambdaQuery().eq(AddressDO::getUserId, userId)
         );
         return addressConverter.toRespList(list);
     }
@@ -65,8 +64,7 @@ public class AddressService implements IAddressService {
     @Override
     public Long create(CreateReq request, Long userId) {
         long count = addressMapper.selectCount(
-                Wrappers.<AddressDO>lambdaQuery()
-                        .eq(AddressDO::getUserId, userId)
+                Wrappers.<AddressDO>lambdaQuery().eq(AddressDO::getUserId, userId)
         );
         AssertUtils.isFalse(count >= MAX_ADDRESS_COUNT, BizErrorCode.ADDRESS_LIMIT_EXCEEDED);
 
@@ -100,8 +98,7 @@ public class AddressService implements IAddressService {
         List<AddressDO> addresses = addressMapper.selectBatchIds(ids);
         AssertUtils.notEmpty(addresses, BizErrorCode.ADDRESS_NOT_EXIST);
 
-        boolean hasDefault = addresses.stream()
-                                      .anyMatch(AddressDO::getIsDefault);
+        boolean hasDefault = addresses.stream().anyMatch(AddressDO::getIsDefault);
         AssertUtils.isFalse(hasDefault, BizErrorCode.ADDRESS_DEFAULT_CANNOT_DELETE);
         addressMapper.deleteByIds(ids);
     }

@@ -17,8 +17,8 @@ import lombok.NoArgsConstructor;
 @Data
 @Builder
 @NoArgsConstructor
-@AllArgsConstructor
 @TableName("user")
+@AllArgsConstructor
 public class User implements Serializable {
     @TableId(type = IdType.AUTO)
     private Long id;

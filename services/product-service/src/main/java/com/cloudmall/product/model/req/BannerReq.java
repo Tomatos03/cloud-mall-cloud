@@ -29,8 +29,8 @@ import com.cloudmall.product.entity.BannerDO;
 public class BannerReq extends ConditionReq<BannerDO> {
 
     /** 状态（等值匹配） */
-    @QueryCondition(operator = Operator.EQ)
     @Builder.Default
+    @QueryCondition(operator = Operator.EQ)
     private StatusEnum status = StatusEnum.ENABLED;
 
     /** 标题（模糊匹配） */

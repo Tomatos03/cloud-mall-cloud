@@ -10,10 +10,10 @@ import lombok.NoArgsConstructor;
  *
  * @author : Tomatos
  */
+@Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Data
 public class BrandCreateReq {
     private String name;
     private String nameEn;

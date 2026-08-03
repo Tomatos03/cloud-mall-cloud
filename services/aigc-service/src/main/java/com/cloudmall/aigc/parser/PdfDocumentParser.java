@@ -42,11 +42,9 @@ public class PdfDocumentParser implements DocumentParser {
             );
             List<Document> documents = reader.get();
             documents = documents.stream()
-                                 .map(doc -> doc
-                                         .mutate()
-                                         .id(UUID.randomUUID().toString())
-                                         .build()
-                                 )
+                                 .map(doc -> doc.mutate()
+                                                .id(UUID.randomUUID().toString())
+                                                .build())
                                  .toList();
             return documents;
         } finally {

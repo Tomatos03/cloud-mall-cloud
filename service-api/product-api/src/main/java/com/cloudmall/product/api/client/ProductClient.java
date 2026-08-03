@@ -17,7 +17,10 @@ public interface ProductClient {
      * @return 处理结果
      */
     @GetMapping("/{id}")
-    Result<ProductResp> getById(@PathVariable("id") Long id);
+    Result<ProductResp> getById(
+            @PathVariable("id")
+            Long id
+    );
 
     /**
      * 获取相关数据。
@@ -26,5 +29,8 @@ public interface ProductClient {
      * @return 处理结果
      */
     @GetMapping("/spu/{spu}")
-    Result<ProductResp> getBySpu(@PathVariable("spu") String spu);
+    Result<ProductResp> getBySpu(
+            @PathVariable("spu")
+            String spu
+    );
 }
