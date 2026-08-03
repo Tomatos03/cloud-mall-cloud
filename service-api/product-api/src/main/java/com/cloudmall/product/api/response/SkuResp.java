@@ -32,6 +32,9 @@ public class SkuResp {
     /** 所属商品 ID */
     private Long productId;
 
+    /** 所属分类 ID */
+    private Long categoryId;
+
     /** 所属店铺 ID */
     private Long shopId;
 

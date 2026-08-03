@@ -126,6 +126,7 @@ public class SkuService implements ISkuService {
             SkuResp resp = skuConverter.toResp(sku);
             resp.setProductId(sku.getProductId());
             resp.setSpecDesc(specDescMap.get(sku.getId()));
+            resp.setCategoryId(product.getCategoryId());
             resp.setShopId(product.getShopId());
             resp.setStatus(product.getStatus());
             resp.setProductName(product.getName());
