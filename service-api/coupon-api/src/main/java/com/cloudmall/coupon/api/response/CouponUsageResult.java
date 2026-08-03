@@ -42,6 +42,15 @@ public class CouponUsageResult {
     /** 券类型 */
     private CouponTypeEnum type;
 
+    /** 门槛快照（0 表示无门槛） */
+    private BigDecimal thresholdSnapshot;
+
+    /** 金额优惠快照 */
+    private BigDecimal discountAmountSnapshot;
+
+    /** 比例优惠快照 */
+    private BigDecimal discountRateSnapshot;
+
     /** 适用金额 */
     private BigDecimal applicableAmount;
 

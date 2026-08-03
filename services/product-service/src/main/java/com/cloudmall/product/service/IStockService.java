@@ -15,6 +15,13 @@ import com.cloudmall.product.api.request.StockOpReq;
 public interface IStockService {
 
     /**
+     * 按订单释放全部预占库存（取消/超时/补偿场景）。
+     *
+     * @param orderNo 订单号
+     */
+    void releaseByOrder(String orderNo);
+
+    /**
      * 预占库存：扣减可售库存并记录预占流水（订单号 + SKU + RESERVE 幂等）。
      *
      * @param req 预占请求

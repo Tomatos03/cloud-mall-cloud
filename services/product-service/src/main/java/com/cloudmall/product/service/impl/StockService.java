@@ -159,6 +159,34 @@ public class StockService implements IStockService {
     }
 
     /**
+     * 按订单释放全部预占库存（取消/超时/补偿场景，幂等）。
+     *
+     * @param orderNo 订单号
+     */
+    @Override
+    @Transactional
+    public void releaseByOrder(String orderNo) {
+        List<StockOpLogDO> reserves = selectReserves(orderNo);
+        for (StockOpLogDO reserve : reserves) {
+            StockReserveItem item = StockReserveItem.builder()
+                                                    .skuId(reserve.getSkuId())
+                                                    .quantity(reserve.getQuantity())
+                                                    .build();
+            applyOp(
+                    StockOpReq.builder()
+                              .orderNo(orderNo)
+                              .items(List.of(item))
+                              .reason("订单取消/超时释放")
+                              .build(),
+                    item,
+                    StockOpTypeEnum.RELEASE,
+                    StockOpSourceEnum.ORDER,
+                    false
+            );
+        }
+    }
+
+    /**
      * 执行库存变更：扣减或回补，扣减失败（库存不足）抛异常。
      *
      * @param deduct true 表示扣减，false 表示回补

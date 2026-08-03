@@ -268,7 +268,7 @@ public class UserCouponService implements IUserCouponService {
         AssertUtils.assertNotBlank(orderNo, BizErrorCode.INVALID_PARAM);
         AssertUtils.notNull(userId, BizErrorCode.INVALID_PARAM);
         AssertUtils.notNull(userCouponId, BizErrorCode.INVALID_PARAM);
-        String eventId = orderNo + ":LOCK";
+        String eventId = orderNo + ":" + userCouponId + ":LOCK";
         if (logExists(eventId, UserCouponOperationTypeEnum.LOCK)) {
             return;
         }
@@ -317,7 +317,7 @@ public class UserCouponService implements IUserCouponService {
         AssertUtils.assertNotBlank(orderNo, BizErrorCode.INVALID_PARAM);
         AssertUtils.notNull(userId, BizErrorCode.INVALID_PARAM);
         AssertUtils.notNull(userCouponId, BizErrorCode.INVALID_PARAM);
-        String eventId = orderNo + ":COMMIT";
+        String eventId = orderNo + ":" + userCouponId + ":COMMIT";
         if (logExists(eventId, UserCouponOperationTypeEnum.COMMIT)) {
             return;
         }
@@ -357,7 +357,7 @@ public class UserCouponService implements IUserCouponService {
         AssertUtils.assertNotBlank(orderNo, BizErrorCode.INVALID_PARAM);
         AssertUtils.notNull(userId, BizErrorCode.INVALID_PARAM);
         AssertUtils.notNull(userCouponId, BizErrorCode.INVALID_PARAM);
-        String eventId = orderNo + ":RELEASE";
+        String eventId = orderNo + ":" + userCouponId + ":RELEASE";
         if (logExists(eventId, UserCouponOperationTypeEnum.RELEASE)) {
             return;
         }
@@ -410,7 +410,7 @@ public class UserCouponService implements IUserCouponService {
         AssertUtils.assertNotBlank(refundId, BizErrorCode.INVALID_PARAM);
         AssertUtils.notNull(userId, BizErrorCode.INVALID_PARAM);
         AssertUtils.notNull(userCouponId, BizErrorCode.INVALID_PARAM);
-        String eventId = orderNo + ":" + refundId + ":REVERT";
+        String eventId = orderNo + ":" + refundId + ":" + userCouponId + ":REVERT";
         if (logExists(eventId, UserCouponOperationTypeEnum.REVERT)) {
             return;
         }

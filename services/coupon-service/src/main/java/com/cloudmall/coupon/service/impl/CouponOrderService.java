@@ -22,6 +22,7 @@ import com.cloudmall.coupon.api.dto.CouponCalcItem;
 import com.cloudmall.coupon.api.request.CouponOrderCommitReq;
 import com.cloudmall.coupon.api.request.CouponOrderLockReq;
 import com.cloudmall.coupon.api.request.CouponOrderQuoteReq;
+import com.cloudmall.coupon.api.request.CouponOrderReleaseByOrderReq;
 import com.cloudmall.coupon.api.request.CouponOrderReleaseReq;
 import com.cloudmall.coupon.api.request.CouponOrderRevertReq;
 import com.cloudmall.coupon.api.response.CouponCandidateResp;
@@ -33,8 +34,6 @@ import com.cloudmall.coupon.calc.CouponScopeMatcher;
 import com.cloudmall.coupon.convert.CouponOrderConverter;
 import com.cloudmall.coupon.entity.CouponDO;
 import com.cloudmall.coupon.entity.UserCouponDO;
-import com.cloudmall.coupon.entity.UserCouponLogDO;
-import com.cloudmall.coupon.enums.UserCouponOperationTypeEnum;
 import com.cloudmall.coupon.enums.UserCouponStatusEnum;
 import com.cloudmall.coupon.mapper.CouponMapper;
 import com.cloudmall.coupon.mapper.UserCouponLogMapper;
@@ -122,6 +121,29 @@ public class CouponOrderService implements ICouponOrderService {
                 req.getUserCouponId(),
                 Objects.requireNonNullElse(req.getReason(), DEFAULT_RELEASE_REASON)
         );
+    }
+
+    /**
+     * 按订单释放全部已锁定用户券（取消/超时/补偿场景，幂等）。
+     *
+     * @param req 释放请求
+     */
+    @Override
+    @Transactional
+    public void releaseByOrder(CouponOrderReleaseByOrderReq req) {
+        List<UserCouponDO> locked = userCouponMapper.selectList(
+                Wrappers.<UserCouponDO>lambdaQuery()
+                        .eq(UserCouponDO::getLockedOrderNo, req.getOrderNo())
+                        .eq(UserCouponDO::getStatus, UserCouponStatusEnum.LOCKED)
+        );
+        for (UserCouponDO uc : locked) {
+            userCouponService.release(
+                    req.getOrderNo(),
+                    uc.getUserId(),
+                    uc.getId(),
+                    DEFAULT_RELEASE_REASON
+            );
+        }
     }
 
     /**
@@ -486,10 +508,10 @@ public class CouponOrderService implements ICouponOrderService {
      * @return true 表示已锁定
      */
     private boolean hasLocked(String orderNo) {
-        Long count = userCouponLogMapper.selectCount(
-                Wrappers.<UserCouponLogDO>lambdaQuery()
-                        .eq(UserCouponLogDO::getEventId, orderNo + ":LOCK")
-                        .eq(UserCouponLogDO::getOperationType, UserCouponOperationTypeEnum.LOCK)
+        Long count = userCouponMapper.selectCount(
+                Wrappers.<UserCouponDO>lambdaQuery()
+                        .eq(UserCouponDO::getLockedOrderNo, orderNo)
+                        .eq(UserCouponDO::getStatus, UserCouponStatusEnum.LOCKED)
         );
         return count != null && count > 0;
     }

@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.cloudmall.common.model.Result;
 import com.cloudmall.product.api.request.StockConfirmReq;
 import com.cloudmall.product.api.request.StockOpReq;
+import com.cloudmall.product.api.request.StockReleaseByOrderReq;
 import com.cloudmall.product.service.IStockService;
 
 /**
@@ -88,6 +89,22 @@ public class StockController {
             StockOpReq req
     ) {
         stockService.compensate(req);
+        return Result.success();
+    }
+
+    /**
+     * 按订单释放全部预占库存。
+     *
+     * @param req 释放请求
+     * @return 处理结果
+     */
+    @PostMapping("/release-by-order")
+    public Result<Void> releaseByOrder(
+            @RequestBody
+            @Valid
+            StockReleaseByOrderReq req
+    ) {
+        stockService.releaseByOrder(req.getOrderNo());
         return Result.success();
     }
 }

@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import com.cloudmall.common.model.Result;
 import com.cloudmall.product.api.request.StockConfirmReq;
 import com.cloudmall.product.api.request.StockOpReq;
+import com.cloudmall.product.api.request.StockReleaseByOrderReq;
 
 /**
  * 普通商品库存 Feign 客户端
@@ -64,5 +65,17 @@ public interface StockClient {
     Result<Void> compensate(
             @RequestBody
             StockOpReq req
+    );
+
+    /**
+     * 按订单释放全部预占库存。
+     *
+     * @param req 释放请求
+     * @return 处理结果
+     */
+    @PostMapping("/release-by-order")
+    Result<Void> releaseByOrder(
+            @RequestBody
+            StockReleaseByOrderReq req
     );
 }

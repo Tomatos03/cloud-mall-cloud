@@ -88,5 +88,8 @@ public interface CouponOrderConverter {
      */
     @Mapping(target = "discountAmount", source = "discount")
     @Mapping(target = "applicableAmount", source = "applicableAmount")
+    @Mapping(target = "thresholdSnapshot", source = "coupon.threshold")
+    @Mapping(target = "discountRateSnapshot", source = "coupon.discountRate")
+    @Mapping(target = "discountAmountSnapshot", source = "coupon.discountAmount")
     CouponUsageResult toUsage(CalcCoupon coupon, BigDecimal applicableAmount, BigDecimal discount);
 }

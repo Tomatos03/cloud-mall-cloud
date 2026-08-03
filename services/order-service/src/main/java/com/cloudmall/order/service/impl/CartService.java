@@ -324,6 +324,21 @@ public class CartService implements ICartService {
      * @param userId 用户 ID
      * @return 购物车记录列表
      */
+    /**
+     * 查询当前用户已选中的购物车项。
+     *
+     * @param userId 用户 ID
+     * @return 已选中购物车项列表
+     */
+    @Override
+    public List<CartDO> listSelectedItems(Long userId) {
+        return cartMapper.selectList(
+                Wrappers.<CartDO>lambdaQuery()
+                        .eq(CartDO::getUserId, userId)
+                        .eq(CartDO::getSelected, Boolean.TRUE)
+        );
+    }
+
     private List<CartDO> listCartItems(Long userId) {
         return cartMapper.selectList(
                 Wrappers.<CartDO>lambdaQuery()

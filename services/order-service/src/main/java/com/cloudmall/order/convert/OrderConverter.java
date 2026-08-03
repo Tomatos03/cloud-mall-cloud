@@ -2,20 +2,28 @@ package com.cloudmall.order.convert;
 
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
-import org.mapstruct.Mapping;
 
 import com.cloudmall.order.api.response.OrderResp;
 import com.cloudmall.order.entity.OrderDO;
 
+/**
+ * 父订单转换器
+ * <p>
+ * 枚举状态映射为 code 字符串；子订单与券快照由 Service 层补充。
+ *
+ * @author : Tomatos
+ */
 @Mapper(componentModel = "spring")
 public interface OrderConverter {
 
     /**
-     * 转换对象数据。
+     * 父订单实体转响应。
      *
-     * @param order 订单实体
-     * @return 处理结果
+     * @param order 父订单实体
+     * @return 父订单响应
      */
-    @Mapping(target = "items", ignore = true)
+    @Mapping(target = "subs", ignore = true)
+    @Mapping(target = "coupons", ignore = true)
+    @Mapping(target = "status", source = "status.code")
     OrderResp toResp(OrderDO order);
 }

@@ -11,6 +11,7 @@ import com.cloudmall.common.model.Result;
 import com.cloudmall.coupon.api.request.CouponOrderCommitReq;
 import com.cloudmall.coupon.api.request.CouponOrderLockReq;
 import com.cloudmall.coupon.api.request.CouponOrderQuoteReq;
+import com.cloudmall.coupon.api.request.CouponOrderReleaseByOrderReq;
 import com.cloudmall.coupon.api.request.CouponOrderReleaseReq;
 import com.cloudmall.coupon.api.request.CouponOrderRevertReq;
 import com.cloudmall.coupon.api.response.CouponOrderCalcResp;
@@ -105,6 +106,22 @@ public class CouponOrderController {
             CouponOrderRevertReq req
     ) {
         couponOrderService.revert(req);
+        return Result.success();
+    }
+
+    /**
+     * 按订单释放全部已锁定用户券。
+     *
+     * @param req 释放请求
+     * @return 处理结果
+     */
+    @PostMapping("/release-by-order")
+    public Result<Void> releaseByOrder(
+            @RequestBody
+            @Valid
+            CouponOrderReleaseByOrderReq req
+    ) {
+        couponOrderService.releaseByOrder(req);
         return Result.success();
     }
 }

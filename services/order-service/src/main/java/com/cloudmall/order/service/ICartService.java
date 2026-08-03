@@ -5,6 +5,7 @@ import java.util.List;
 import com.cloudmall.order.api.request.CartOperatorReq;
 import com.cloudmall.order.api.request.CartSelectReq;
 import com.cloudmall.order.api.response.CartDetailResp;
+import com.cloudmall.order.entity.CartDO;
 
 /**
  * 购物车服务接口
@@ -78,4 +79,12 @@ public interface ICartService {
      * @param userId 用户 ID
      */
     void clear(Long userId);
+
+    /**
+     * 查询当前用户已选中的购物车项。
+     *
+     * @param userId 用户 ID
+     * @return 已选中购物车项列表
+     */
+    List<CartDO> listSelectedItems(Long userId);
 }

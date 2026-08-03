@@ -3,6 +3,7 @@ package com.cloudmall.coupon.service;
 import com.cloudmall.coupon.api.request.CouponOrderCommitReq;
 import com.cloudmall.coupon.api.request.CouponOrderLockReq;
 import com.cloudmall.coupon.api.request.CouponOrderQuoteReq;
+import com.cloudmall.coupon.api.request.CouponOrderReleaseByOrderReq;
 import com.cloudmall.coupon.api.request.CouponOrderReleaseReq;
 import com.cloudmall.coupon.api.request.CouponOrderRevertReq;
 import com.cloudmall.coupon.api.response.CouponOrderCalcResp;
@@ -18,6 +19,13 @@ import com.cloudmall.coupon.api.response.CouponOrderCalcResp;
  * @author : Tomatos
  */
 public interface ICouponOrderService {
+
+    /**
+     * 按订单释放全部已锁定用户券（取消/超时/补偿场景，幂等）。
+     *
+     * @param req 释放请求
+     */
+    void releaseByOrder(CouponOrderReleaseByOrderReq req);
 
     /**
      * 无副作用试算：按用户选择计算优惠快照，并返回候选券与推荐组合。

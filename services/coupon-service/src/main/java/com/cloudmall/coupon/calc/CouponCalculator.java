@@ -295,6 +295,9 @@ public class CouponCalculator {
                                 .shopId(coupon.getShopId())
                                 .name(coupon.getName())
                                 .type(coupon.getType())
+                                .thresholdSnapshot(coupon.getThreshold())
+                                .discountAmountSnapshot(coupon.getDiscountAmount())
+                                .discountRateSnapshot(coupon.getDiscountRate())
                                 .applicableAmount(applicableAmount)
                                 .discountAmount(discount)
                                 .build();
