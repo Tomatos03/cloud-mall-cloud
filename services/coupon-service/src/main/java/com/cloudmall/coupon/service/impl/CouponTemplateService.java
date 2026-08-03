@@ -8,6 +8,7 @@ import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.BooleanUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
+import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -19,8 +20,11 @@ import com.cloudmall.common.model.Result;
 import com.cloudmall.common.utils.AssertUtils;
 import com.cloudmall.coupon.api.request.CouponBaseReq;
 import com.cloudmall.coupon.api.request.CouponUpdateReq;
+import com.cloudmall.coupon.api.response.CouponOperationLogResp;
 import com.cloudmall.coupon.api.response.CouponResp;
+import com.cloudmall.coupon.cache.CouponCacheService;
 import com.cloudmall.coupon.convert.CouponConverter;
+import com.cloudmall.coupon.convert.CouponOperationLogConverter;
 import com.cloudmall.coupon.entity.CouponCategoryDO;
 import com.cloudmall.coupon.entity.CouponDO;
 import com.cloudmall.coupon.entity.CouponOperationLogDO;
@@ -35,6 +39,8 @@ import com.cloudmall.coupon.mapper.CouponCategoryMapper;
 import com.cloudmall.coupon.mapper.CouponMapper;
 import com.cloudmall.coupon.mapper.CouponOperationLogMapper;
 import com.cloudmall.coupon.mapper.CouponProductMapper;
+import com.cloudmall.coupon.model.req.CouponOperationLogPageReq;
+import com.cloudmall.coupon.model.req.CouponPageReq;
 import com.cloudmall.coupon.service.ICouponTemplateService;
 import com.cloudmall.product.api.client.CategoryClient;
 import com.cloudmall.product.api.client.ProductClient;
@@ -55,6 +61,8 @@ public class CouponTemplateService implements ICouponTemplateService {
     private final CouponCategoryMapper couponCategoryMapper;
     private final CouponOperationLogMapper couponOperationLogMapper;
     private final CouponConverter couponConverter;
+    private final CouponOperationLogConverter couponOperationLogConverter;
+    private final CouponCacheService couponCacheService;
     private final ProductClient productClient;
     private final CategoryClient categoryClient;
 
@@ -67,7 +75,7 @@ public class CouponTemplateService implements ICouponTemplateService {
     @Override
     @Transactional
     public Long createDraft(CouponBaseReq req) {
-        Long shopId = UserContextHolder.getShopId();
+        Long shopId = resolveCreateShopId(req);
         validateRule(req, shopId);
         validateScope(req, shopId);
 
@@ -119,6 +127,7 @@ public class CouponTemplateService implements ICouponTemplateService {
                 "编辑模板草稿",
                 null
         );
+        couponCacheService.evictPublicTemplates();
     }
 
     /**
@@ -146,6 +155,7 @@ public class CouponTemplateService implements ICouponTemplateService {
                 "发布模板",
                 null
         );
+        couponCacheService.evictPublicTemplates();
     }
 
     /**
@@ -172,6 +182,7 @@ public class CouponTemplateService implements ICouponTemplateService {
                 "暂停发放",
                 null
         );
+        couponCacheService.evictPublicTemplates();
     }
 
     /**
@@ -198,6 +209,7 @@ public class CouponTemplateService implements ICouponTemplateService {
                 "恢复发放",
                 null
         );
+        couponCacheService.evictPublicTemplates();
     }
 
     /**
@@ -222,6 +234,7 @@ public class CouponTemplateService implements ICouponTemplateService {
                 "结束发放",
                 null
         );
+        couponCacheService.evictPublicTemplates();
     }
 
     /**
@@ -249,6 +262,97 @@ public class CouponTemplateService implements ICouponTemplateService {
                 "删除模板草稿",
                 null
         );
+        couponCacheService.evictPublicTemplates();
+    }
+
+    /**
+     * 校验当前商家拥有该模板（返回模板实体）。
+     *
+     * @param id 模板 ID
+     * @return 模板实体
+     */
+    @Override
+    public CouponDO requireShopOwned(Long id) {
+        CouponDO coupon = getTemplate(id);
+        Long shopId = UserContextHolder.getShopId();
+        AssertUtils.notNull(shopId, BizErrorCode.MERCHANT_NO_SHOP);
+        AssertUtils.isEqual(coupon.getShopId(), shopId, BizErrorCode.COUPON_OPERATION_NOT_ALLOWED);
+        return coupon;
+    }
+
+    /**
+     * 校验当前用户为运营角色。
+     */
+    @Override
+    public void requireOperator() {
+        AssertUtils.isTrue(isOperator(), BizErrorCode.COUPON_OPERATION_NOT_ALLOWED);
+    }
+
+    /**
+     * 商家分页查询自己店铺的模板。
+     *
+     * @param req 分页请求
+     * @return 模板分页
+     */
+    @Override
+    public IPage<CouponResp> pageShop(CouponPageReq req) {
+        Long shopId = UserContextHolder.getShopId();
+        AssertUtils.notNull(shopId, BizErrorCode.MERCHANT_NO_SHOP);
+        req.setShopId(shopId);
+        IPage<CouponDO> page = couponMapper.selectPage(req, req.buildLambdaWrapper());
+        return page.convert(couponConverter::toResp);
+    }
+
+    /**
+     * 运营分页查询全部模板。
+     *
+     * @param req 分页请求
+     * @return 模板分页
+     */
+    @Override
+    public IPage<CouponResp> pageAll(CouponPageReq req) {
+        IPage<CouponDO> page = couponMapper.selectPage(req, req.buildLambdaWrapper());
+        return page.convert(couponConverter::toResp);
+    }
+
+    /**
+     * 运营分页查询模板操作流水。
+     *
+     * @param req 分页请求
+     * @return 操作流水分页
+     */
+    @Override
+    public IPage<CouponOperationLogResp> pageOperationLogs(CouponOperationLogPageReq req) {
+        IPage<CouponOperationLogDO> page = couponOperationLogMapper.selectPage(
+                req,
+                req.buildLambdaWrapper()
+        );
+        return page.convert(couponOperationLogConverter::toResp);
+    }
+
+    /**
+     * 判断当前用户是否为运营角色。
+     *
+     * @return true 表示运营
+     */
+    private boolean isOperator() {
+        return "ADMIN".equals(UserContextHolder.getUserType());
+    }
+
+    /**
+     * 解析创建模板的店铺 ID：平台券为 null，商家强制当前店铺，运营按请求指定。
+     *
+     * @param req 创建请求
+     * @return 店铺 ID（平台券为 null）
+     */
+    private Long resolveCreateShopId(CouponBaseReq req) {
+        if (req.getOwnerType() == CouponOwnerTypeEnum.PLATFORM) {
+            return null;
+        }
+        if (isOperator()) {
+            return req.getShopId();
+        }
+        return UserContextHolder.getShopId();
     }
 
     /**

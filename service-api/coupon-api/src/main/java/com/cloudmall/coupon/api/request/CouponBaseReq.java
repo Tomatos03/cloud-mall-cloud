@@ -38,6 +38,9 @@ public class CouponBaseReq {
     @NotNull
     private CouponOwnerTypeEnum ownerType;
 
+    /** 店铺 ID（店铺券必填，商家创建时忽略并以当前店铺为准） */
+    private Long shopId;
+
     /** 券类型（FULL_REDUCTION / DISCOUNT / CASH） */
     @NotNull
     private CouponTypeEnum type;

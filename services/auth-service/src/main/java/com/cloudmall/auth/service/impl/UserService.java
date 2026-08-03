@@ -80,7 +80,10 @@ public class UserService implements IUserService {
                 BizErrorCode.PASSWORD_ERROR
         );
 
-        List<String> permissionCodes = resourceService.getPermissionCodes(user.getId());
+        List<String> permissionCodes = resolvePermissionCodes(
+                user,
+                resourceService.getPermissionCodes(user.getId())
+        );
 
         UserContext userCtx = UserContext
                 .builder()
@@ -95,6 +98,38 @@ public class UserService implements IUserService {
         LoginResp response = userConverter.toLoginResp(user);
         response.setToken(token);
         return response;
+    }
+
+    /** 商家默认权限码 */
+    private static final List<String> MERCHANT_PERMISSIONS = List.of(
+            "coupon:template:create",
+            "coupon:template:view",
+            "coupon:template:publish",
+            "coupon:template:pause",
+            "coupon:template:end",
+            "coupon:template:delete",
+            "coupon:stats:view"
+    );
+
+    /**
+     * 解析用户权限码：角色权限 + 按用户类型注入的默认权限。 商家注入店铺券管理权限，管理员注入超级权限
+     * 。
+     *
+     * @param user 用户实体
+     * @param roleCodes 角色关联权限码
+     * @return 权限码列表
+     */
+    private List<String> resolvePermissionCodes(UserDO user, List<String> roleCodes) {
+        Set<String> codes = new HashSet<>();
+        if (CollUtil.isNotEmpty(roleCodes)) {
+            codes.addAll(roleCodes);
+        }
+        if (user.getTypes() == UserTypeEnum.MERCHANT) {
+            codes.addAll(MERCHANT_PERMISSIONS);
+        } else if (user.getTypes() == UserTypeEnum.ADMIN) {
+            codes.add("*");
+        }
+        return new ArrayList<>(codes);
     }
 
     /**

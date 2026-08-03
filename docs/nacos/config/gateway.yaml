@@ -2,6 +2,27 @@ auth:
   whitelist:
     - /auth/sessions
     - /auth/users
+    - /coupons
+    - /coupons/*
+  url-permissions:
+    - pattern: "GET:/merchant/**"
+      permissions: [coupon:template:view, coupon:stats:view]
+    - pattern: "POST:/merchant/coupons"
+      permissions: [coupon:template:create]
+    - pattern: "PUT:/merchant/coupons/**"
+      permissions: [coupon:template:create]
+    - pattern: "POST:/merchant/coupons/*/publish"
+      permissions: [coupon:template:publish]
+    - pattern: "POST:/merchant/coupons/*/pause"
+      permissions: [coupon:template:pause]
+    - pattern: "POST:/merchant/coupons/*/end"
+      permissions: [coupon:template:end]
+    - pattern: "DELETE:/merchant/coupons/**"
+      permissions: [coupon:template:delete]
+    - pattern: "GET:/merchant/coupons/*/stats"
+      permissions: [coupon:stats:view]
+    - pattern: "/operator/**"
+      permissions: [coupon:user:view, coupon:user:revoke, coupon:manage]
 
 spring:
   cloud:
@@ -26,7 +47,7 @@ spring:
             - id: coupon-service
               uri: lb://coupon-service
               predicates:
-                - Path=/coupon/**
+                - Path=/coupons/**,/merchant/**,/operator/**
               filters:
                 - StripPrefix=0
 

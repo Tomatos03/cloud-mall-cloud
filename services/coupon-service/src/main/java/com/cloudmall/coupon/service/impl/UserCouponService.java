@@ -25,6 +25,8 @@ import com.cloudmall.common.exception.BizException;
 import com.cloudmall.common.utils.AssertUtils;
 import com.cloudmall.coupon.api.response.CouponResp;
 import com.cloudmall.coupon.api.response.UserCouponResp;
+import com.cloudmall.coupon.cache.CouponCacheService;
+import com.cloudmall.coupon.cache.CouponRateLimitService;
 import com.cloudmall.coupon.convert.CouponConverter;
 import com.cloudmall.coupon.convert.UserCouponConverter;
 import com.cloudmall.coupon.convert.UserCouponLogConverter;
@@ -57,6 +59,8 @@ public class UserCouponService implements IUserCouponService {
     private final UserCouponMapper userCouponMapper;
     private final UserCouponLogMapper userCouponLogMapper;
     private final CouponMapper couponMapper;
+    private final CouponCacheService couponCacheService;
+    private final CouponRateLimitService couponRateLimitService;
     private final CouponConverter couponConverter;
     private final UserCouponConverter userCouponConverter;
     private final UserCouponLogConverter userCouponLogConverter;
@@ -73,6 +77,7 @@ public class UserCouponService implements IUserCouponService {
     @Transactional
     public UserCouponResp claimPublic(Long couponId, Long userId) {
         AssertUtils.notNull(userId, BizErrorCode.USER_NOT_AUTHENTICATED);
+        couponRateLimitService.checkClaimRate(userId);
         CouponDO template = couponTemplateService.getTemplate(couponId);
         UserCouponDO exist = findClaimed(userId, couponId);
         if (exist != null) {
@@ -80,7 +85,7 @@ public class UserCouponService implements IUserCouponService {
         }
         validateClaimable(template);
         try {
-            return issueOne(
+            UserCouponResp resp = issueOne(
                     template,
                     userId,
                     IssuedSourceEnum.PUBLIC_CLAIM,
@@ -89,10 +94,13 @@ public class UserCouponService implements IUserCouponService {
                     UserCouponLogSourceEnum.USER,
                     "公开领取"
             );
+            couponCacheService.evictPublicTemplates();
+            return resp;
         } catch (DuplicateKeyException e) {
             TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
             UserCouponDO claimed = findClaimed(userId, couponId);
             AssertUtils.notNull(claimed, BizErrorCode.COUPON_CLAIM_FAILED);
+            couponCacheService.evictPublicTemplates();
             return userCouponConverter.toResp(claimed);
         }
     }
@@ -205,12 +213,44 @@ public class UserCouponService implements IUserCouponService {
      */
     @Override
     public List<CouponResp> listPublicCoupons(Long userId) {
-        List<CouponDO> templates = couponMapper.selectList(
-                Wrappers.<CouponDO>lambdaQuery()
-                        .eq(CouponDO::getClaimEnabled, StatusEnum.ENABLED)
-                        .orderByAsc(CouponDO::getId)
+        List<CouponResp> anonymous = couponCacheService.getPublicTemplates();
+        if (anonymous == null) {
+            List<CouponDO> templates = couponMapper.selectList(
+                    Wrappers.<CouponDO>lambdaQuery()
+                            .eq(CouponDO::getClaimEnabled, StatusEnum.ENABLED)
+                            .orderByAsc(CouponDO::getId)
+            );
+            anonymous = toPublicResps(templates, null);
+            couponCacheService.putPublicTemplates(anonymous);
+        }
+        if (userId == null) {
+            return anonymous;
+        }
+        return refreshClaimState(anonymous, userId);
+    }
+
+    /**
+     * 刷新用户视角的领取状态与可领状态（基于缓存匿名列表）。
+     *
+     * @param resps 匿名模板列表
+     * @param userId 用户 ID
+     * @return 用户视角模板列表
+     */
+    private List<CouponResp> refreshClaimState(List<CouponResp> resps, Long userId) {
+        Set<Long> claimedIds = listClaimedCouponIds(
+                userId,
+                resps.stream()
+                     .map(CouponResp::getId)
+                     .toList()
         );
-        return toPublicResps(templates, userId);
+        LocalDateTime now = LocalDateTime.now();
+        for (CouponResp resp : resps) {
+            boolean claimed = claimedIds.contains(resp.getId());
+            resp.setClaimed(claimed);
+            resp.setClaimable(resp.isClaimable(now, claimed));
+            resp.setStockRemaining(calcStockRemaining(resp));
+        }
+        return resps;
     }
 
     /**

@@ -695,7 +695,16 @@ INSERT INTO cm_resource (id, code, name, type) VALUES
     (33, 'user:delete',                     '用户删除',                          'api'),
     (40, 'shop:manage',                    '店铺管理',                          'api'),
     (50, 'seckill:manage',                  '秒杀管理',                          'api'),
-    (60, 'coupon:manage',                   '优惠券管理',                        'api');
+    (60, 'coupon:manage',                   '优惠券管理',                        'api'),
+    (61, 'coupon:template:create',          '优惠券模板创建',                    'api'),
+    (62, 'coupon:template:view',            '优惠券模板查询',                    'api'),
+    (63, 'coupon:template:publish',         '优惠券模板发布',                    'api'),
+    (64, 'coupon:template:pause',           '优惠券模板暂停',                    'api'),
+    (65, 'coupon:template:end',             '优惠券模板结束',                    'api'),
+    (66, 'coupon:template:delete',          '优惠券模板删除',                    'api'),
+    (67, 'coupon:user:view',                '用户券查询',                        'api'),
+    (68, 'coupon:user:revoke',              '用户券撤销',                        'api'),
+    (69, 'coupon:stats:view',               '优惠券统计',                        'api');
 
 -- admin 角色拥有所有资源权限
 INSERT INTO cm_role_resource (role_id, resource_id) VALUES
@@ -705,7 +714,9 @@ INSERT INTO cm_role_resource (role_id, resource_id) VALUES
     (1, 30), (1, 31), (1, 32), (1, 33),
     (1, 40),
     (1, 50),
-    (1, 60);
+    (1, 60),
+    (1, 61), (1, 62), (1, 63), (1, 64), (1, 65), (1, 66),
+    (1, 67), (1, 68), (1, 69);
 
 -- ============================================================
 -- AI Agent 模块 (agent)

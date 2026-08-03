@@ -221,6 +221,7 @@ public enum BizErrorCode {
     COUPON_NOT_MEET_MIN_AMOUNT(93004, "未满足最低消费金额"),
     COUPON_NOT_APPLICABLE(93005, "优惠券不适用于当前商品"),
     COUPON_REACH_LIMIT(93006, "已达到领取上限"),
+    COUPON_CLAIM_TOO_FREQUENT(93007, "领取过于频繁，请稍后再试"),
     COUPON_STOCK_NOT_ENOUGH(93007, "优惠券库存不足"),
     COUPON_TEMPLATE_NOT_ACTIVE(93008, "优惠券模板未生效"),
     COUPON_CLAIM_FAILED(93009, "领取优惠券失败"),
