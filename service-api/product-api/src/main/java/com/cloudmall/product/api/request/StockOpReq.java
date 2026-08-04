@@ -29,8 +29,9 @@ public class StockOpReq {
     private String orderNo;
 
     /** 库存操作明细 */
+    @Valid
     @NotEmpty
-    private List<@Valid StockReserveItem> items;
+    private List<StockReserveItem> items;
 
     /** 操作原因（可空） */
     private String reason;

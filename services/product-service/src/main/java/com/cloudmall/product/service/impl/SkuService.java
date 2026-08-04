@@ -62,7 +62,7 @@ public class SkuService implements ISkuService {
      * @throws BizException 处理过程中可能抛出该异常
      */
     @Override
-    @Transactional
+    @Transactional(rollbackFor = Exception.class)
     public Boolean updateStock(Long skuId, Integer quantity) {
         ProductSkuDO sku = productSkuMapper.selectById(skuId);
         AssertUtils.notNull(sku, BizErrorCode.DATA_NOT_FOUND);

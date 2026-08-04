@@ -1,7 +1,6 @@
 package com.cloudmall.order.api.request;
 
 import java.util.List;
-import java.util.Map;
 
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotEmpty;
@@ -27,14 +26,12 @@ import lombok.NoArgsConstructor;
 public class CreateOrderReq {
 
     /** 下单商品明细（购物车选中项） */
+    @Valid
     @NotEmpty
-    private List<@Valid CreateOrderItemReq> items;
+    private List<CreateOrderItemReq> items;
 
-    /** 平台券 userCouponId（可空，表示不使用平台券） */
-    private Long platformUserCouponId;
-
-    /** 店铺券选择：shopId → userCouponId（可空，表示对应店铺不使用店铺券） */
-    private Map<Long, Long> shopUserCouponIds;
+    /** 用户选择的优惠券 ID 列表（可空，不传时不使用优惠券） */
+    private List<Long> userCouponIds;
 
     /** 收货地址 ID */
     @NotNull

@@ -153,7 +153,7 @@ public class UserService implements IUserService {
      * {@inheritDoc}
      */
     @Override
-    @Transactional
+    @Transactional(rollbackFor = Exception.class)
     public Long register(RegisterReq request) {
         Long count = userMapper.selectCount(
                 Wrappers.<UserDO>lambdaQuery().eq(UserDO::getUsername, request.getUsername())

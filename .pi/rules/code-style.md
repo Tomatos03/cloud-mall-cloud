@@ -26,6 +26,23 @@ paths: "**/*.java"
 - 统一使用 builder 构建对象，禁止 `new Xxx()` 后逐字段 setter 赋值
 - 允许添加纯谓词方法（`is*` / `has*` / `can*`）：只读自身字段与入参、无副作用、不依赖 mapper 或上下文；落位与命名见「多行布尔条件」
 
+### 注解位置
+
+注解禁止写在泛型参数旁边，必须写在字段定义语句上方：
+
+| 禁止写法 | 必须使用 |
+|----------|----------|
+| `private List<@Valid Xxx> items;` | `@Valid private List<Xxx> items;` |
+
+```java
+// 禁止
+private List<@Valid QuoteOrderItemReq> items;
+
+// 必须
+@Valid
+private List<QuoteOrderItemReq> items;
+```
+
 ## 注释
 
 - 内容使用文字描述，禁止用数字序号（`1.`、`2.`、`3.` 等）标记步骤或条目

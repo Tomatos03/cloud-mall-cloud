@@ -76,7 +76,7 @@ public class UserCouponService implements IUserCouponService {
      * @return 用户券
      */
     @Override
-    @Transactional
+    @Transactional(rollbackFor = Exception.class)
     public UserCouponResp claimPublic(Long couponId, Long userId) {
         AssertUtils.notNull(userId, BizErrorCode.USER_NOT_AUTHENTICATED);
         couponRateLimitService.checkClaimRate(userId);
@@ -115,7 +115,7 @@ public class UserCouponService implements IUserCouponService {
      * @return 新发放的用户券列表
      */
     @Override
-    @Transactional
+    @Transactional(rollbackFor = Exception.class)
     public List<UserCouponResp> autoIssueForRegister(Long userId, String eventId) {
         AssertUtils.notNull(userId, BizErrorCode.INVALID_PARAM);
         AssertUtils.assertNotBlank(eventId, BizErrorCode.INVALID_PARAM);
@@ -165,7 +165,7 @@ public class UserCouponService implements IUserCouponService {
      * @return 分页结果
      */
     @Override
-    @Transactional
+    @Transactional(rollbackFor = Exception.class)
     public IPage<UserCouponResp> pageMine(Long userId, UserCouponPageReq req) {
         expireOverdueByUser(userId);
         IPage<UserCouponDO> result = userCouponMapper.selectPage(req, req.buildLambdaWrapper());
@@ -196,7 +196,7 @@ public class UserCouponService implements IUserCouponService {
      * @return 用户券
      */
     @Override
-    @Transactional
+    @Transactional(rollbackFor = Exception.class)
     public UserCouponResp getMine(Long userId, Long userCouponId) {
         UserCouponDO uc = requireOwned(userId, userCouponId);
         expireIfOverdue(uc);
@@ -301,7 +301,7 @@ public class UserCouponService implements IUserCouponService {
      * @param lockExpireTime 锁定过期时间
      */
     @Override
-    @Transactional
+    @Transactional(rollbackFor = Exception.class)
     public void lock(String orderNo, Long userId, Long userCouponId, LocalDateTime lockExpireTime) {
         AssertUtils.assertNotBlank(orderNo, BizErrorCode.INVALID_PARAM);
         AssertUtils.notNull(userId, BizErrorCode.INVALID_PARAM);
@@ -350,7 +350,7 @@ public class UserCouponService implements IUserCouponService {
      * @param userCouponId 用户券 ID
      */
     @Override
-    @Transactional
+    @Transactional(rollbackFor = Exception.class)
     public void commit(String orderNo, Long userId, Long userCouponId) {
         AssertUtils.assertNotBlank(orderNo, BizErrorCode.INVALID_PARAM);
         AssertUtils.notNull(userId, BizErrorCode.INVALID_PARAM);
@@ -390,7 +390,7 @@ public class UserCouponService implements IUserCouponService {
      * @param reason 释放原因
      */
     @Override
-    @Transactional
+    @Transactional(rollbackFor = Exception.class)
     public void release(String orderNo, Long userId, Long userCouponId, String reason) {
         AssertUtils.assertNotBlank(orderNo, BizErrorCode.INVALID_PARAM);
         AssertUtils.notNull(userId, BizErrorCode.INVALID_PARAM);
@@ -436,7 +436,7 @@ public class UserCouponService implements IUserCouponService {
      * @param reason 回退原因
      */
     @Override
-    @Transactional
+    @Transactional(rollbackFor = Exception.class)
     public void revert(
             String orderNo,
             Long userId,
@@ -485,7 +485,7 @@ public class UserCouponService implements IUserCouponService {
      * @return 撤销数量
      */
     @Override
-    @Transactional
+    @Transactional(rollbackFor = Exception.class)
     public int revokeByCoupon(Long couponId, Long operatorId, String reason) {
         AssertUtils.isTrue(UserContextHolder.isAdmin(), BizErrorCode.COUPON_OPERATION_NOT_ALLOWED);
         List<UserCouponDO> available = userCouponMapper.selectList(
@@ -509,7 +509,7 @@ public class UserCouponService implements IUserCouponService {
      * @return 过期数量
      */
     @Override
-    @Transactional
+    @Transactional(rollbackFor = Exception.class)
     public int expireOverdue() {
         List<UserCouponDO> overdue = userCouponMapper.selectList(
                 Wrappers.<UserCouponDO>lambdaQuery()

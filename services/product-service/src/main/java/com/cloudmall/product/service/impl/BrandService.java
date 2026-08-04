@@ -82,7 +82,7 @@ public class BrandService implements IBrandService {
      * @return 结果标识或数值
      */
     @Override
-    @Transactional
+    @Transactional(rollbackFor = Exception.class)
     public Long create(BrandCreateReq req) {
         BrandDO brand = brandConverter.toDO(req);
         brandMapper.insert(brand);
@@ -97,7 +97,7 @@ public class BrandService implements IBrandService {
      * @throws BizException 处理过程中可能抛出该异常
      */
     @Override
-    @Transactional
+    @Transactional(rollbackFor = Exception.class)
     public void update(Long id, BrandUpdateReq req) {
         BrandDO brand = brandMapper.selectById(id);
         AssertUtils.notNull(brand, BizErrorCode.DATA_NOT_FOUND);
@@ -112,7 +112,7 @@ public class BrandService implements IBrandService {
      * @throws BizException 处理过程中可能抛出该异常
      */
     @Override
-    @Transactional
+    @Transactional(rollbackFor = Exception.class)
     public void delete(List<Long> ids) {
         AssertUtils.notEmpty(ids, BizErrorCode.INVALID_PARAM);
         brandMapper.deleteBatchIds(ids);

@@ -1,6 +1,7 @@
 package com.cloudmall.coupon.service.impl;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -16,7 +17,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.cloudmall.common.enums.BizErrorCode;
-import com.cloudmall.common.exception.BizException;
 import com.cloudmall.common.utils.AssertUtils;
 import com.cloudmall.coupon.api.dto.CouponCalcItem;
 import com.cloudmall.coupon.api.request.CouponOrderCommitReq;
@@ -85,7 +85,7 @@ public class CouponOrderService implements ICouponOrderService {
      * @return 优惠快照
      */
     @Override
-    @Transactional
+    @Transactional(rollbackFor = Exception.class)
     public CouponOrderCalcResp lock(CouponOrderLockReq req) {
         AssertUtils.assertNotBlank(req.getOrderNo(), BizErrorCode.INVALID_PARAM);
         if (hasLocked(req.getOrderNo())) {
@@ -102,7 +102,7 @@ public class CouponOrderService implements ICouponOrderService {
      * @param req 核销请求
      */
     @Override
-    @Transactional
+    @Transactional(rollbackFor = Exception.class)
     public void commit(CouponOrderCommitReq req) {
         userCouponService.commit(req.getOrderNo(), req.getUserId(), req.getUserCouponId());
     }
@@ -113,7 +113,7 @@ public class CouponOrderService implements ICouponOrderService {
      * @param req 释放请求
      */
     @Override
-    @Transactional
+    @Transactional(rollbackFor = Exception.class)
     public void release(CouponOrderReleaseReq req) {
         userCouponService.release(
                 req.getOrderNo(),
@@ -129,7 +129,7 @@ public class CouponOrderService implements ICouponOrderService {
      * @param req 释放请求
      */
     @Override
-    @Transactional
+    @Transactional(rollbackFor = Exception.class)
     public void releaseByOrder(CouponOrderReleaseByOrderReq req) {
         List<UserCouponDO> locked = userCouponMapper.selectList(
                 Wrappers.<UserCouponDO>lambdaQuery()
@@ -152,7 +152,7 @@ public class CouponOrderService implements ICouponOrderService {
      * @param req 回退请求
      */
     @Override
-    @Transactional
+    @Transactional(rollbackFor = Exception.class)
     public void revert(CouponOrderRevertReq req) {
         userCouponService.revert(
                 req.getOrderNo(),
@@ -172,17 +172,49 @@ public class CouponOrderService implements ICouponOrderService {
     private CouponOrderCalcResp doCalculate(CouponOrderQuoteReq req) {
         List<CouponCalcItem> items = req.getItems();
         AssertUtils.notEmpty(items, BizErrorCode.INVALID_PARAM);
-        CalcCoupon platformCoupon = resolveSelectedPlatform(
-                req.getUserId(),
-                req.getPlatformUserCouponId(),
-                items
-        );
-        List<CalcCoupon> shopCoupons = resolveSelectedShops(
-                req.getUserId(),
-                req.getShopUserCouponIds(),
-                items
-        );
+        Long platformId = resolvePlatformCouponId(req);
+        Map<Long, Long> shopIds = resolveShopCouponIds(req);
+        CalcCoupon platformCoupon = resolveSelectedPlatform(req.getUserId(), platformId, items);
+        List<CalcCoupon> shopCoupons = resolveSelectedShops(req.getUserId(), shopIds, items);
         return calculator.calculate(items, platformCoupon, shopCoupons);
+    }
+
+    /**
+     * 从 userCouponIds 中解析平台券 userCouponId。
+     *
+     * @param req 试算请求
+     * @return 平台券 userCouponId（未选择为 null）
+     */
+    private Long resolvePlatformCouponId(CouponOrderQuoteReq req) {
+        if (CollUtil.isEmpty(req.getUserCouponIds())) {
+            return null;
+        }
+        List<UserCouponDO> userCoupons = userCouponMapper.selectByIds(req.getUserCouponIds());
+        return userCoupons.stream()
+                          .filter(UserCouponDO::isPlatform)
+                          .map(UserCouponDO::getId)
+                          .findFirst()
+                          .orElse(null);
+    }
+
+    /**
+     * 从 userCouponIds 中解析店铺券（shopId → userCouponId）。
+     *
+     * @param req 试算请求
+     * @return 店铺券 map（未选择为空 map）
+     */
+    private Map<Long, Long> resolveShopCouponIds(CouponOrderQuoteReq req) {
+        if (CollUtil.isEmpty(req.getUserCouponIds())) {
+            return Collections.emptyMap();
+        }
+        List<UserCouponDO> userCoupons = userCouponMapper.selectByIds(req.getUserCouponIds());
+        Map<Long, Long> result = new LinkedHashMap<>();
+        for (UserCouponDO uc : userCoupons) {
+            if (uc.isShopCoupon()) {
+                result.put(uc.getShopId(), uc.getId());
+            }
+        }
+        return result;
     }
 
     /**
@@ -201,7 +233,7 @@ public class CouponOrderService implements ICouponOrderService {
         if (userCouponId == null) {
             return null;
         }
-        UserCouponDO uc = requireUsable(userId, userCouponId);
+        UserCouponDO uc = requireOwnedAvailable(userId, userCouponId);
         AssertUtils.isTrue(uc.isPlatform(), BizErrorCode.COUPON_OWNER_INVALID);
         return toCalcCoupon(uc, items);
     }
@@ -229,8 +261,8 @@ public class CouponOrderService implements ICouponOrderService {
             if (ucId == null) {
                 continue;
             }
-            UserCouponDO uc = requireUsable(userId, ucId);
-            AssertUtils.isTrue(uc.isShop(), BizErrorCode.COUPON_OWNER_INVALID);
+            UserCouponDO uc = requireOwnedAvailable(userId, ucId);
+            AssertUtils.isTrue(uc.isShopCoupon(), BizErrorCode.COUPON_OWNER_INVALID);
             AssertUtils.isEqual(uc.getShopId(), entry.getKey(), BizErrorCode.COUPON_OWNER_INVALID);
             result.add(toCalcCoupon(uc, items));
         }
@@ -244,19 +276,13 @@ public class CouponOrderService implements ICouponOrderService {
      * @param userCouponId 用户券 ID
      * @return 用户券
      */
-    private UserCouponDO requireUsable(Long userId, Long userCouponId) {
+    private UserCouponDO requireOwnedAvailable(Long userId, Long userCouponId) {
         UserCouponDO uc = userCouponMapper.selectById(userCouponId);
         AssertUtils.notNull(uc, BizErrorCode.USER_COUPON_NOT_FOUND);
         AssertUtils.isEqual(uc.getUserId(), userId, BizErrorCode.USER_COUPON_NOT_BELONG_TO_USER);
-        if (uc.isOverdue()) {
-            throw new BizException(BizErrorCode.USER_COUPON_EXPIRED);
-        }
-        if (uc.isLocked()) {
-            throw new BizException(BizErrorCode.USER_COUPON_LOCKED);
-        }
-        if (uc.isUsed()) {
-            throw new BizException(BizErrorCode.USER_COUPON_USED);
-        }
+        AssertUtils.isFalse(uc.isOverdue(), BizErrorCode.USER_COUPON_EXPIRED);
+        AssertUtils.isFalse(uc.isLocked(), BizErrorCode.USER_COUPON_LOCKED);
+        AssertUtils.isFalse(uc.isUsed(), BizErrorCode.USER_COUPON_USED);
         AssertUtils.isTrue(uc.isAvailable(), BizErrorCode.USER_COUPON_STATE_CONFLICT);
         return uc;
     }
@@ -370,11 +396,7 @@ public class CouponOrderService implements ICouponOrderService {
             Map<Long, List<CalcCoupon>> validShopByShop,
             List<CouponCalcItem> items
     ) {
-        List<List<CalcCoupon>> layers = new ArrayList<>();
-        layers.add(withNullOption(validPlatform));
-        for (List<CalcCoupon> shopCandidates : validShopByShop.values()) {
-            layers.add(withNullOption(shopCandidates));
-        }
+        List<List<CalcCoupon>> layers = buildLayers(validPlatform, validShopByShop);
         BigDecimal bestPayable = sumLineAmount(items);
         List<Long> best = Collections.emptyList();
         LocalDateTime bestEarliestExpire = null;
@@ -382,13 +404,12 @@ public class CouponOrderService implements ICouponOrderService {
             CalcCoupon platform = combo.isEmpty() ? null : combo.get(0);
             List<CalcCoupon> shops = combo.size() > 1
                     ? combo.subList(1, combo.size())
+                           .stream()
+                           .filter(Objects::nonNull)
+                           .toList()
                     : Collections.emptyList();
             CouponOrderCalcResp candidateResp;
-            try {
-                candidateResp = calculator.calculate(items, platform, shops);
-            } catch (BizException e) {
-                continue;
-            }
+            candidateResp = calculator.calculate(items, platform, shops);
             BigDecimal payable = candidateResp.getGoodsPayableAmount();
             if (payable.compareTo(bestPayable) < 0) {
                 bestPayable = payable;
@@ -409,6 +430,29 @@ public class CouponOrderService implements ICouponOrderService {
     }
 
     /**
+     * 构造推荐组合层级：每一层代表一个决策点（第 0 层为平台券，之后每层为一家店铺的店铺券）， 层内首元
+     * 素为 null，表示"该层不使用优惠券"。 <p>
+     * 空选项是必要的：推荐必须枚举"不用券"的可能——例如某层没有合法券、 或组合了其他券后本层用券不再划
+     * 算时，应退回到不用券； 且全 null 组合（不使用任何券）恰是原价基准， 用于与所有用券组合比较得
+     * 出最低应付金额。
+     *
+     * @param validPlatform 合法平台券列表
+     * @param validShopByShop 各店铺合法店铺券映射
+     * @return 推荐组合层级，每层首元素为 null（表示该层不使用券）
+     */
+    private List<List<CalcCoupon>> buildLayers(
+            List<CalcCoupon> validPlatform,
+            Map<Long, List<CalcCoupon>> validShopByShop
+    ) {
+        List<List<CalcCoupon>> layers = new ArrayList<>();
+        layers.add(withNullOption(validPlatform));
+        for (List<CalcCoupon> shopCandidates : validShopByShop.values()) {
+            layers.add(withNullOption(shopCandidates));
+        }
+        return layers;
+    }
+
+    /**
      * 组合中加入空选项（表示不使用该层券）。
      *
      * @param coupons 候选券
@@ -422,7 +466,9 @@ public class CouponOrderService implements ICouponOrderService {
     }
 
     /**
-     * 笛卡尔积展开各层选项。
+     * 笛卡尔积展开各层选项。 <p>
+     * 使用逐层累积迭代法：从空组合出发，每加入一层，将已有组合与当前层 的每个选项逐一配对，生成更大的组合
+     * 集合；经过所有层后得到完整的 笛卡尔积。组合数 = ∏(各层选项数)。
      *
      * @param layers 各层选项
      * @return 组合列表
@@ -453,7 +499,7 @@ public class CouponOrderService implements ICouponOrderService {
     private LocalDateTime earliestExpire(List<CalcCoupon> combo) {
         LocalDateTime earliest = null;
         for (CalcCoupon coupon : combo) {
-            if (coupon == null || coupon.getExpireTime() == null) {
+            if (coupon == null || !coupon.hasExpireTime()) {
                 continue;
             }
             if (earliest == null || coupon.getExpireTime().isBefore(earliest)) {
@@ -566,11 +612,13 @@ public class CouponOrderService implements ICouponOrderService {
      * @return 优惠金额
      */
     private BigDecimal estimateDiscount(CalcCoupon coupon, BigDecimal applicableAmount) {
-        if (coupon.isDiscount()) {
-            return applicableAmount.multiply(coupon.getDiscountRate())
-                                   .setScale(2, java.math.RoundingMode.HALF_UP);
-        }
-        BigDecimal amount = coupon.getDiscountAmount();
-        return amount.compareTo(applicableAmount) > 0 ? applicableAmount : amount;
+        return coupon.getType()
+                     .calcDiscount(
+                             applicableAmount,
+                             coupon.getDiscountAmount(),
+                             coupon.getDiscountRate(),
+                             2,
+                             RoundingMode.HALF_UP
+                     );
     }
 }

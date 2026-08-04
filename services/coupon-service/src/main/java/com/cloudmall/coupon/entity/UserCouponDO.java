@@ -160,11 +160,11 @@ public class UserCouponDO {
     }
 
     /**
-     * 归属是否为店铺券。
+     * 是否为有效店铺券（归属为店铺且有店铺 ID）。
      *
-     * @return true 表示店铺券
+     * @return true 表示有效店铺券
      */
-    public boolean isShop() {
-        return CouponOwnerEnum.SHOP.equals(this.ownerType);
+    public boolean isShopCoupon() {
+        return CouponOwnerEnum.SHOP.equals(this.ownerType) && this.shopId != null;
     }
 }

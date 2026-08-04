@@ -2,7 +2,9 @@ package com.cloudmall.order.service;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
 
+import com.cloudmall.coupon.api.response.CouponOrderCalcResp;
 import com.cloudmall.order.api.request.CreateOrderReq;
+import com.cloudmall.order.api.request.QuoteOrderReq;
 import com.cloudmall.order.api.response.OrderResp;
 import com.cloudmall.order.api.response.OrderSubResp;
 import com.cloudmall.order.model.req.OrderPageReq;
@@ -25,6 +27,14 @@ public interface IOrderService {
      * @return 父订单详情
      */
     OrderResp createOrder(CreateOrderReq req);
+
+    /**
+     * 下单前价格预览（无副作用）。
+     *
+     * @param req 预览请求（只需商品 SKU 与数量）
+     * @return 三级价格明细 + 优惠券使用明细 + 推荐组合
+     */
+    CouponOrderCalcResp quote(QuoteOrderReq req);
 
     /**
      * 获取父订单详情（仅当前用户本人可查）。

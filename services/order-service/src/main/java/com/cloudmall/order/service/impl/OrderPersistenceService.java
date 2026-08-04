@@ -62,7 +62,7 @@ public class OrderPersistenceService {
      * @param shopIds 参与店铺（保序）
      * @return 骨架
      */
-    @Transactional
+    @Transactional(rollbackFor = Exception.class)
     public Skeleton createSkeleton(
             Long userId,
             String orderNo,
@@ -70,38 +70,56 @@ public class OrderPersistenceService {
             String addressSnapshot,
             List<Long> shopIds
     ) {
-        OrderDO order = OrderDO.builder()
-                               .orderNo(orderNo)
-                               .userId(userId)
-                               .status(ParentOrderStatusEnum.CREATING)
-                               .totalOriginalAmount(BigDecimal.ZERO)
-                               .totalShopDiscountAmount(BigDecimal.ZERO)
-                               .totalPlatformDiscountAmount(BigDecimal.ZERO)
-                               .goodsPayableAmount(BigDecimal.ZERO)
-                               .freightAmount(BigDecimal.ZERO)
-                               .payableAmount(BigDecimal.ZERO)
-                               .addressSnapshot(addressSnapshot)
-                               .remark(req.getRemark())
-                               .build();
+        OrderDO order = buildCreatingOrder(userId, orderNo, req, addressSnapshot);
         orderMapper.insert(order);
         Map<Long, OrderSubDO> subsByShop = new LinkedHashMap<>();
         for (int i = 0; i < shopIds.size(); i++) {
             Long shopId = shopIds.get(i);
-            OrderSubDO sub = OrderSubDO.builder()
-                                       .subOrderNo(orderNo + "-" + (i + 1))
-                                       .parentOrderId(order.getId())
-                                       .shopId(shopId)
-                                       .status(SubOrderStatusEnum.PENDING_SHIPMENT)
-                                       .originalAmount(BigDecimal.ZERO)
-                                       .shopDiscountAmount(BigDecimal.ZERO)
-                                       .platformDiscountAmount(BigDecimal.ZERO)
-                                       .payableAmount(BigDecimal.ZERO)
-                                       .merchantSettlementAmount(BigDecimal.ZERO)
-                                       .build();
+            OrderSubDO sub = buildPendingSubOrder(orderNo, i, order, shopId);
             orderSubMapper.insert(sub);
             subsByShop.put(shopId, sub);
         }
         return new Skeleton(order, subsByShop);
+    }
+
+    private static OrderSubDO buildPendingSubOrder(
+            String orderNo,
+            int i,
+            OrderDO order,
+            Long shopId
+    ) {
+        return OrderSubDO.builder()
+                         .subOrderNo(orderNo + "-" + (i + 1))
+                         .parentOrderId(order.getId())
+                         .shopId(shopId)
+                         .status(SubOrderStatusEnum.PENDING_SHIPMENT)
+                         .originalAmount(BigDecimal.ZERO)
+                         .shopDiscountAmount(BigDecimal.ZERO)
+                         .platformDiscountAmount(BigDecimal.ZERO)
+                         .payableAmount(BigDecimal.ZERO)
+                         .merchantSettlementAmount(BigDecimal.ZERO)
+                         .build();
+    }
+
+    private static OrderDO buildCreatingOrder(
+            Long userId,
+            String orderNo,
+            CreateOrderReq req,
+            String addressSnapshot
+    ) {
+        return OrderDO.builder()
+                      .orderNo(orderNo)
+                      .userId(userId)
+                      .status(ParentOrderStatusEnum.CREATING)
+                      .totalOriginalAmount(BigDecimal.ZERO)
+                      .totalShopDiscountAmount(BigDecimal.ZERO)
+                      .totalPlatformDiscountAmount(BigDecimal.ZERO)
+                      .goodsPayableAmount(BigDecimal.ZERO)
+                      .freightAmount(BigDecimal.ZERO)
+                      .payableAmount(BigDecimal.ZERO)
+                      .addressSnapshot(addressSnapshot)
+                      .remark(req.getRemark())
+                      .build();
     }
 
     /**
@@ -112,7 +130,7 @@ public class OrderPersistenceService {
      * @param skuMap SKU 可信快照
      * @param quantities skuId → 数量
      */
-    @Transactional
+    @Transactional(rollbackFor = Exception.class)
     public void finalizeOrder(
             Skeleton skeleton,
             CouponOrderCalcResp calc,
@@ -138,7 +156,7 @@ public class OrderPersistenceService {
      *
      * @param orderId 父订单 ID
      */
-    @Transactional
+    @Transactional(rollbackFor = Exception.class)
     public void markCancelled(Long orderId) {
         orderMapper.update(
                 Wrappers.<OrderDO>lambdaUpdate()

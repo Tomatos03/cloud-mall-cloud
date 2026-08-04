@@ -8,11 +8,11 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.UUID;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.util.IdUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.json.JSONUtil;
 import com.baomidou.mybatisplus.core.metadata.IPage;
@@ -29,11 +29,13 @@ import com.cloudmall.common.utils.AssertUtils;
 import com.cloudmall.coupon.api.client.CouponOrderClient;
 import com.cloudmall.coupon.api.dto.CouponCalcItem;
 import com.cloudmall.coupon.api.request.CouponOrderLockReq;
+import com.cloudmall.coupon.api.request.CouponOrderQuoteReq;
 import com.cloudmall.coupon.api.request.CouponOrderReleaseReq;
 import com.cloudmall.coupon.api.response.CouponOrderCalcResp;
 import com.cloudmall.coupon.api.response.CouponUsageResult;
 import com.cloudmall.mybatisplus.enums.StatusEnum;
 import com.cloudmall.order.api.request.CreateOrderReq;
+import com.cloudmall.order.api.request.QuoteOrderReq;
 import com.cloudmall.order.api.response.OrderResp;
 import com.cloudmall.order.api.response.OrderSubResp;
 import com.cloudmall.order.convert.OrderConverter;
@@ -111,8 +113,8 @@ public class OrderService implements IOrderService {
         AddressResp address = requireAddress(userId, req.getAddressId());
         String addressSnapshot = JSONUtil.toJsonStr(address);
         Map<Long, Integer> quantities = mergeQuantities(req.getItems());
-        Map<Long, CartDO> cartMap = requireCartSelection(userId, quantities);
-        Map<Long, SkuResp> skuMap = requireAvailableSkus(quantities, cartMap);
+        requireCartSelection(userId, quantities);
+        Map<Long, SkuResp> skuMap = requireAvailableSkus(quantities);
         List<CouponCalcItem> calcItems = buildCalcItems(quantities, skuMap);
         List<Long> shopIds = new ArrayList<>(groupByShop(calcItems).keySet());
 
@@ -140,6 +142,32 @@ public class OrderService implements IOrderService {
                                                   .stream()
                                                   .toList());
         return getById(skeleton.order().getId());
+    }
+
+    /**
+     * 下单前价格预览（无副作用）。
+     *
+     * @param req 预览请求（只需商品 SKU 与数量）
+     * @return 三级价格明细 + 优惠券使用明细 + 推荐组合
+     */
+    @Override
+    public CouponOrderCalcResp quote(QuoteOrderReq req) {
+        Long userId = UserContextHolder.getUserId();
+        AssertUtils.notNull(userId, BizErrorCode.USER_NOT_AUTHENTICATED);
+        Map<Long, Integer> quantities = mergeQuoteQuantities(req.getItems());
+        Map<Long, SkuResp> skuMap = requireAvailableSkus(quantities);
+        List<CouponCalcItem> calcItems = buildCalcItems(quantities, skuMap);
+        CouponOrderQuoteReq quoteReq = CouponOrderQuoteReq.builder()
+                                                          .userId(userId)
+                                                          .items(calcItems)
+                                                          .userCouponIds(req.getUserCouponIds())
+                                                          .build();
+        Result<CouponOrderCalcResp> result = couponOrderClient.quote(quoteReq);
+        AssertUtils.isTrue(
+                result != null && result.getCode() == Result.SUCCESS_CODE,
+                BizErrorCode.COUPON_LOCK_FAILED
+        );
+        return result.getData();
     }
 
     /**
@@ -320,6 +348,20 @@ public class OrderService implements IOrderService {
     }
 
     /**
+     * 合并报价明细为 skuId → 数量（同 SKU 累加）。
+     *
+     * @param items 报价明细
+     * @return skuId → 数量
+     */
+    private Map<Long, Integer> mergeQuoteQuantities(List<QuoteOrderReq.QuoteOrderItemReq> items) {
+        Map<Long, Integer> quantities = new LinkedHashMap<>();
+        for (QuoteOrderReq.QuoteOrderItemReq item : items) {
+            quantities.merge(item.getSkuId(), item.getQuantity(), Integer::sum);
+        }
+        return quantities;
+    }
+
+    /**
      * 校验下单 SKU 均为购物车选中项且数量未超购物车。
      *
      * @param userId 用户 ID
@@ -353,13 +395,9 @@ public class OrderService implements IOrderService {
      * 批量获取可信 SKU 快照并校验上下架与库存。
      *
      * @param quantities skuId → 数量
-     * @param cartMap 购物车选中项（已校验）
      * @return SKU 可信快照 map
      */
-    private Map<Long, SkuResp> requireAvailableSkus(
-            Map<Long, Integer> quantities,
-            Map<Long, CartDO> cartMap
-    ) {
+    private Map<Long, SkuResp> requireAvailableSkus(Map<Long, Integer> quantities) {
         Result<List<SkuResp>> result = skuClient.listSkusByIds(new ArrayList<>(quantities.keySet()));
         AssertUtils.isTrue(
                 result != null && result.getCode() == Result.SUCCESS_CODE,
@@ -472,8 +510,7 @@ public class OrderService implements IOrderService {
                 .lockExpireTime(LocalDateTime.now().plusMinutes(LOCK_EXPIRE_MINUTES))
                 .userId(userId)
                 .items(calcItems)
-                .platformUserCouponId(req.getPlatformUserCouponId())
-                .shopUserCouponIds(req.getShopUserCouponIds())
+                .userCouponIds(req.getUserCouponIds())
                 .build();
         Result<CouponOrderCalcResp> result = couponOrderClient.lock(lockReq);
         AssertUtils.isTrue(
@@ -595,8 +632,6 @@ public class OrderService implements IOrderService {
      * @return 订单号
      */
     private String genOrderNo() {
-        return StrUtil.sub(UUID.randomUUID()
-                               .toString()
-                               .replace("-", ""), 0, 20);
+        return StrUtil.sub(IdUtil.fastSimpleUUID(), 0, 20);
     }
 }

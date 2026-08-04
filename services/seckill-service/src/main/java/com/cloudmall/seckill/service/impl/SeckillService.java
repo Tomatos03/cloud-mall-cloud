@@ -61,7 +61,7 @@ public class SeckillService implements ISeckillService {
      * @throws BizException 处理过程中可能抛出该异常
      */
     @Override
-    @Transactional
+    @Transactional(rollbackFor = Exception.class)
     public void submitProduct(
             Long activityId,
             Long productId,
@@ -88,7 +88,7 @@ public class SeckillService implements ISeckillService {
      * @throws BizException 处理过程中可能抛出该异常
      */
     @Override
-    @Transactional
+    @Transactional(rollbackFor = Exception.class)
     public void auditProduct(Long productId, boolean approved) {
         SeckillProductDO product = productMapper.selectById(productId);
         AssertUtils.notNull(product, BizErrorCode.DATA_NOT_FOUND);

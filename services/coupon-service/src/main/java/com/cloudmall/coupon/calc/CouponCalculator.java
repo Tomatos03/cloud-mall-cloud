@@ -68,7 +68,7 @@ public class CouponCalculator {
             assertMeetsThreshold(coupon, applicableAmount);
             BigDecimal discount = applyFormula(coupon, applicableAmount);
             allocateAndAdd(discount, coupon.getApplicableItems(), skuIndex, shopDiscount);
-            usages.add(toUsage(coupon, applicableAmount, discount));
+            usages.add(couponOrderConverter.toUsage(coupon, applicableAmount, discount));
         }
 
         if (platformCoupon != null) {
@@ -77,7 +77,7 @@ public class CouponCalculator {
             assertMeetsThreshold(platformCoupon, platformBase);
             BigDecimal discount = applyFormula(platformCoupon, platformBase);
             allocatePlatformDiscount(discount, applicable, skuIndex, platformDiscount);
-            usages.add(toUsage(platformCoupon, platformBase, discount));
+            usages.add(couponOrderConverter.toUsage(platformCoupon, platformBase, discount));
         }
         return buildResp(allItems, skuIndex, shopDiscount, platformDiscount, usages);
     }
@@ -156,11 +156,14 @@ public class CouponCalculator {
      * @return 优惠金额
      */
     private BigDecimal applyFormula(CalcCoupon coupon, BigDecimal applicableAmount) {
-        if (coupon.isDiscount()) {
-            return applicableAmount.multiply(coupon.getDiscountRate()).setScale(SCALE, ROUNDING);
-        }
-        BigDecimal amount = coupon.getDiscountAmount();
-        return amount.compareTo(applicableAmount) > 0 ? applicableAmount : amount;
+        return coupon.getType()
+                     .calcDiscount(
+                             applicableAmount,
+                             coupon.getDiscountAmount(),
+                             coupon.getDiscountRate(),
+                             SCALE,
+                             ROUNDING
+                     );
     }
 
     /**
@@ -209,17 +212,7 @@ public class CouponCalculator {
                                                  .toList();
         List<BigDecimal> subParts = allocateByAmount(total, subBaseAmounts);
         for (int i = 0; i < shopIds.size(); i++) {
-            List<CouponCalcItem> items = byShop.get(shopIds.get(i));
-            List<BigDecimal> itemParts = allocateByAmount(
-                    subParts.get(i),
-                    items.stream()
-                         .map(CouponCalcItem::getLineAmount)
-                         .toList()
-            );
-            for (int j = 0; j < items.size(); j++) {
-                int idx = skuIndex.get(items.get(j).getSkuId());
-                target[idx] = target[idx].add(itemParts.get(j));
-            }
+            allocateAndAdd(subParts.get(i), byShop.get(shopIds.get(i)), skuIndex, target);
         }
     }
 
@@ -276,34 +269,6 @@ public class CouponCalculator {
     }
 
     /**
-     * 组装使用券快照。
-     *
-     * @param coupon 券
-     * @param applicableAmount 适用金额
-     * @param discount 优惠金额
-     * @return 使用快照
-     */
-    private CouponUsageResult toUsage(
-            CalcCoupon coupon,
-            BigDecimal applicableAmount,
-            BigDecimal discount
-    ) {
-        return CouponUsageResult.builder()
-                                .userCouponId(coupon.getUserCouponId())
-                                .couponId(coupon.getCouponId())
-                                .ownerType(coupon.getOwnerType())
-                                .shopId(coupon.getShopId())
-                                .name(coupon.getName())
-                                .type(coupon.getType())
-                                .thresholdSnapshot(coupon.getThreshold())
-                                .discountAmountSnapshot(coupon.getDiscountAmount())
-                                .discountRateSnapshot(coupon.getDiscountRate())
-                                .applicableAmount(applicableAmount)
-                                .discountAmount(discount)
-                                .build();
-    }
-
-    /**
      * 汇总三级金额并校验合计一致。
      *
      * @param allItems 全部明细
@@ -321,28 +286,14 @@ public class CouponCalculator {
             List<CouponUsageResult> usages
     ) {
         List<CouponItemResult> itemResults = new ArrayList<>();
-        BigDecimal totalShop = BigDecimal.ZERO;
-        BigDecimal totalPlatform = BigDecimal.ZERO;
         for (CouponCalcItem item : allItems) {
             int idx = skuIndex.get(item.getSkuId());
             BigDecimal itemShop = shopDiscount[idx];
             BigDecimal itemPlatform = platformDiscount[idx];
-            BigDecimal payable = item.getLineAmount()
-                                     .subtract(itemShop)
-                                     .subtract(itemPlatform);
-            assertNotNegative(payable);
-            itemResults.add(
-                    CouponItemResult.builder()
-                                    .skuId(item.getSkuId())
-                                    .productId(item.getProductId())
-                                    .originalAmount(item.getLineAmount())
-                                    .shopDiscountAmount(itemShop)
-                                    .platformDiscountAmount(itemPlatform)
-                                    .payableAmount(payable)
-                                    .build()
-            );
-            totalShop = totalShop.add(itemShop);
-            totalPlatform = totalPlatform.add(itemPlatform);
+            assertNotNegative(item.getLineAmount()
+                                  .subtract(itemShop)
+                                  .subtract(itemPlatform));
+            itemResults.add(couponOrderConverter.toItemResult(item, itemShop, itemPlatform));
         }
 
         List<CouponSubOrderResult> subOrders = new ArrayList<>();
@@ -358,42 +309,12 @@ public class CouponCalculator {
                                                                       )
                                                               );
         for (Map.Entry<Long, List<CouponItemResult>> entry : byShop.entrySet()) {
-            List<CouponItemResult> items = entry.getValue();
-            BigDecimal original = items.stream()
-                                       .map(CouponItemResult::getOriginalAmount)
-                                       .reduce(BigDecimal.ZERO, BigDecimal::add);
-            BigDecimal shop = items.stream()
-                                   .map(CouponItemResult::getShopDiscountAmount)
-                                   .reduce(BigDecimal.ZERO, BigDecimal::add);
-            BigDecimal platform = items.stream()
-                                       .map(CouponItemResult::getPlatformDiscountAmount)
-                                       .reduce(BigDecimal.ZERO, BigDecimal::add);
-            subOrders.add(
-                    CouponSubOrderResult.builder()
-                                        .shopId(entry.getKey())
-                                        .originalAmount(original)
-                                        .shopDiscountAmount(shop)
-                                        .platformDiscountAmount(platform)
-                                        .payableAmount(original.subtract(shop).subtract(platform))
-                                        .items(items)
-                                        .build()
-            );
+            subOrders.add(couponOrderConverter.toSubOrderResult(entry.getKey(), entry.getValue()));
         }
 
-        BigDecimal totalOriginal = itemResults.stream()
-                                              .map(CouponItemResult::getOriginalAmount)
-                                              .reduce(BigDecimal.ZERO, BigDecimal::add);
-        BigDecimal goodsPayable = totalOriginal.subtract(totalShop).subtract(totalPlatform);
-        assertNotNegative(goodsPayable);
-
-        return CouponOrderCalcResp.builder()
-                                  .totalOriginalAmount(totalOriginal)
-                                  .totalShopDiscountAmount(totalShop)
-                                  .totalPlatformDiscountAmount(totalPlatform)
-                                  .goodsPayableAmount(goodsPayable)
-                                  .subOrders(subOrders)
-                                  .usages(usages)
-                                  .build();
+        CouponOrderCalcResp resp = couponOrderConverter.toResp(itemResults, subOrders, usages);
+        assertNotNegative(resp.getGoodsPayableAmount());
+        return resp;
     }
 
     /**

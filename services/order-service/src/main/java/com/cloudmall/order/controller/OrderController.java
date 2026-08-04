@@ -11,7 +11,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.cloudmall.common.model.Result;
+import com.cloudmall.coupon.api.response.CouponOrderCalcResp;
 import com.cloudmall.order.api.request.CreateOrderReq;
+import com.cloudmall.order.api.request.QuoteOrderReq;
 import com.cloudmall.order.api.response.OrderResp;
 import com.cloudmall.order.api.response.OrderSubResp;
 import com.cloudmall.order.model.req.OrderPageReq;
@@ -46,6 +48,21 @@ public class OrderController {
             CreateOrderReq req
     ) {
         return Result.success(orderService.createOrder(req));
+    }
+
+    /**
+     * 下单前价格预览（无副作用）。
+     *
+     * @param req 预览请求（只需商品 SKU 与数量）
+     * @return 三级价格明细 + 优惠券使用明细 + 推荐组合
+     */
+    @PostMapping("/quote")
+    public Result<CouponOrderCalcResp> quote(
+            @RequestBody
+            @Valid
+            QuoteOrderReq req
+    ) {
+        return Result.success(orderService.quote(req));
     }
 
     /**

@@ -66,7 +66,7 @@ public class CouponTemplateService implements ICouponTemplateService {
      * @return 新模板 ID
      */
     @Override
-    @Transactional
+    @Transactional(rollbackFor = Exception.class)
     public Long createDraft(CouponReq req) {
         Long shopId = resolveCreateShopId(req);
         validateRule(req, shopId);
@@ -128,7 +128,7 @@ public class CouponTemplateService implements ICouponTemplateService {
      * @param id 模板 ID
      */
     @Override
-    @Transactional
+    @Transactional(rollbackFor = Exception.class)
     public void publish(Long id) {
         CouponDO coupon = getTemplate(id);
         requireManageable(coupon);
@@ -156,7 +156,7 @@ public class CouponTemplateService implements ICouponTemplateService {
      * @param id 模板 ID
      */
     @Override
-    @Transactional
+    @Transactional(rollbackFor = Exception.class)
     public void pause(Long id) {
         CouponDO coupon = getTemplate(id);
         requireManageable(coupon);
@@ -184,7 +184,7 @@ public class CouponTemplateService implements ICouponTemplateService {
      * @param id 模板 ID
      */
     @Override
-    @Transactional
+    @Transactional(rollbackFor = Exception.class)
     public void resume(Long id) {
         CouponDO coupon = getTemplate(id);
         requireManageable(coupon);
@@ -212,7 +212,7 @@ public class CouponTemplateService implements ICouponTemplateService {
      * @param id 模板 ID
      */
     @Override
-    @Transactional
+    @Transactional(rollbackFor = Exception.class)
     public void end(Long id) {
         CouponDO coupon = getTemplate(id);
         requireManageable(coupon);
@@ -238,7 +238,7 @@ public class CouponTemplateService implements ICouponTemplateService {
      * @param id 模板 ID
      */
     @Override
-    @Transactional
+    @Transactional(rollbackFor = Exception.class)
     public void deleteDraft(Long id) {
         CouponDO coupon = getTemplate(id);
         requireManageable(coupon);

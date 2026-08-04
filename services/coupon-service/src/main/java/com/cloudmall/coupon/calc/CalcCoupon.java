@@ -83,12 +83,12 @@ public class CalcCoupon {
     }
 
     /**
-     * 券类型是否为折扣券。
+     * 是否有有效过期时间。
      *
-     * @return true 表示折扣券
+     * @return true 表示已设置过期时间
      */
-    public boolean isDiscount() {
-        return CouponEnum.DISCOUNT.equals(this.type);
+    public boolean hasExpireTime() {
+        return this.expireTime != null;
     }
 
     /**

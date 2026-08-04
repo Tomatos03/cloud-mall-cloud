@@ -50,7 +50,7 @@ public class StockService implements IStockService {
      * @param req 预占请求
      */
     @Override
-    @Transactional
+    @Transactional(rollbackFor = Exception.class)
     public void reserve(StockOpReq req) {
         for (StockReserveItem item : req.getItems()) {
             applyOp(req, item, StockOpTypeEnum.RESERVE, StockOpSourceEnum.ORDER, true);
@@ -63,7 +63,7 @@ public class StockService implements IStockService {
      * @param req 确认请求
      */
     @Override
-    @Transactional
+    @Transactional(rollbackFor = Exception.class)
     public void confirm(StockConfirmReq req) {
         if (opExists(req.getOrderNo(), null, StockOpTypeEnum.CONFIRM)) {
             return;
@@ -95,7 +95,7 @@ public class StockService implements IStockService {
      * @param req 释放请求
      */
     @Override
-    @Transactional
+    @Transactional(rollbackFor = Exception.class)
     public void release(StockOpReq req) {
         for (StockReserveItem item : req.getItems()) {
             applyOp(req, item, StockOpTypeEnum.RELEASE, StockOpSourceEnum.ORDER, false);
@@ -108,7 +108,7 @@ public class StockService implements IStockService {
      * @param req 补偿请求
      */
     @Override
-    @Transactional
+    @Transactional(rollbackFor = Exception.class)
     public void compensate(StockOpReq req) {
         for (StockReserveItem item : req.getItems()) {
             applyOp(req, item, StockOpTypeEnum.COMPENSATE, StockOpSourceEnum.COMPENSATE, false);
@@ -164,7 +164,7 @@ public class StockService implements IStockService {
      * @param orderNo 订单号
      */
     @Override
-    @Transactional
+    @Transactional(rollbackFor = Exception.class)
     public void releaseByOrder(String orderNo) {
         List<StockOpLogDO> reserves = selectReserves(orderNo);
         for (StockOpLogDO reserve : reserves) {

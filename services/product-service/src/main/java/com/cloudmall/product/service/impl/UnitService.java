@@ -63,7 +63,7 @@ public class UnitService implements IUnitService {
      * @return 结果标识或数值
      */
     @Override
-    @Transactional
+    @Transactional(rollbackFor = Exception.class)
     public Long create(UnitCreateReq req) {
         UnitDO unit = unitConverter.toDO(req);
         unitMapper.insert(unit);
@@ -78,7 +78,7 @@ public class UnitService implements IUnitService {
      * @throws BizException 处理过程中可能抛出该异常
      */
     @Override
-    @Transactional
+    @Transactional(rollbackFor = Exception.class)
     public void update(Long id, UnitUpdateReq req) {
         UnitDO unit = unitMapper.selectById(id);
         AssertUtils.notNull(unit, BizErrorCode.DATA_NOT_FOUND);
@@ -93,7 +93,7 @@ public class UnitService implements IUnitService {
      * @throws BizException 处理过程中可能抛出该异常
      */
     @Override
-    @Transactional
+    @Transactional(rollbackFor = Exception.class)
     public void delete(List<Long> ids) {
         AssertUtils.notEmpty(ids, BizErrorCode.INVALID_PARAM);
         unitMapper.deleteBatchIds(ids);

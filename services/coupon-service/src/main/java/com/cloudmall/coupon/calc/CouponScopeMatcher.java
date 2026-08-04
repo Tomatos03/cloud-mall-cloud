@@ -2,6 +2,7 @@ package com.cloudmall.coupon.calc;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -169,17 +170,32 @@ public class CouponScopeMatcher {
      * @return 父子映射
      */
     private Map<Long, Long> loadParentMap(Set<Long> categoryIds) {
-        Result<List<CategoryResp>> result = categoryClient.getByIds(new ArrayList<>(categoryIds));
-        if (
-                result == null || result.getCode() != Result.SUCCESS_CODE
-                    || CollUtil.isEmpty(result.getData())
-        ) {
-            return Collections.emptyMap();
+        Map<Long, Long> parentMap = new HashMap<>();
+        Set<Long> pending = new HashSet<>(categoryIds);
+        Set<Long> queried = new HashSet<>();
+        while (CollUtil.isNotEmpty(pending)) {
+            List<Long> batch = new ArrayList<>(pending);
+            pending.clear();
+            Result<List<CategoryResp>> result = categoryClient.getByIds(batch);
+            if (
+                    result == null || result.getCode() != Result.SUCCESS_CODE
+                        || CollUtil.isEmpty(result.getData())
+            ) {
+                break;
+            }
+            for (CategoryResp cat : result.getData()) {
+                queried.add(cat.getId());
+                Long parentId = cat.getParentId();
+                if (parentId == null || parentId == 0) {
+                    continue;
+                }
+                parentMap.put(cat.getId(), parentId);
+                if (!queried.contains(parentId)) {
+                    pending.add(parentId);
+                }
+            }
         }
-        return result.getData()
-                     .stream()
-                     .filter(cat -> cat.getParentId() != null)
-                     .collect(Collectors.toMap(CategoryResp::getId, CategoryResp::getParentId));
+        return parentMap;
     }
 
     /**

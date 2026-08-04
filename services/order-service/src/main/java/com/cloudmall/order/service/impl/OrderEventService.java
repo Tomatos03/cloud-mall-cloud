@@ -37,7 +37,7 @@ public class OrderEventService implements IOrderEventService {
      * @param orderNo 父订单号
      */
     @Override
-    @Transactional
+    @Transactional(rollbackFor = Exception.class)
     public void handlePaid(String orderNo) {
         OrderDO order = requireOrder(orderNo);
         stateMachine.transitionParent(
@@ -54,7 +54,7 @@ public class OrderEventService implements IOrderEventService {
      * @param orderNo 父订单号
      */
     @Override
-    @Transactional
+    @Transactional(rollbackFor = Exception.class)
     public void handleTimeout(String orderNo) {
         OrderDO order = requireOrder(orderNo);
         stateMachine.transitionParent(
@@ -71,7 +71,7 @@ public class OrderEventService implements IOrderEventService {
      * @param orderNo 父订单号
      */
     @Override
-    @Transactional
+    @Transactional(rollbackFor = Exception.class)
     public void handleCancel(String orderNo) {
         OrderDO order = requireOrder(orderNo);
         int updated = orderMapper.update(
@@ -95,7 +95,7 @@ public class OrderEventService implements IOrderEventService {
      * @param refundId 退款单 ID
      */
     @Override
-    @Transactional
+    @Transactional(rollbackFor = Exception.class)
     public void handleFullyRefunded(String orderNo, String refundId) {
         AssertUtils.assertNotBlank(refundId, BizErrorCode.INVALID_PARAM);
         OrderDO order = requireOrder(orderNo);
