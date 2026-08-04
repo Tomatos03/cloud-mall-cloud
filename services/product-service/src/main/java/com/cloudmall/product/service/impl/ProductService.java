@@ -10,7 +10,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Function;
-import java.util.stream.Collector;
 import java.util.stream.Collectors;
 
 import cn.hutool.core.collection.CollUtil;
@@ -24,6 +23,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.cloudmall.common.context.UserContextHolder;
 import com.cloudmall.common.enums.BizErrorCode;
+import com.cloudmall.common.exception.BizException;
 import com.cloudmall.common.utils.AssertUtils;
 import com.cloudmall.product.api.model.ImageItem;
 import com.cloudmall.product.api.model.SkuItem;
@@ -222,8 +222,11 @@ public class ProductService implements IProductService {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public Long create(ProductCreateReq req) {
-        validateBrandExists(req.getBrandId());
-        validateCategoryExists(req.getCategoryId());
+        AssertUtils.notNull(brandMapper.selectById(req.getBrandId()), BizErrorCode.BRAND_NOT_EXIST);
+        AssertUtils.notNull(
+                categoryMapper.selectById(req.getCategoryId()),
+                BizErrorCode.CATEGORY_NOT_EXIST_OR_NO_ENABLE
+        );
         validateSkuTopology(req);
         validatePrices(req);
         Long shopId = validateAndReturnShopId();
@@ -356,8 +359,7 @@ public class ProductService implements IProductService {
      */
     @Override
     public ProductDetailResp detail(Long id) {
-        ProductDO product = productMapper.selectById(id);
-        AssertUtils.notNull(product, BizErrorCode.DATA_NOT_FOUND);
+        ProductDO product = AssertUtils.requireNonNull(productMapper.selectById(id));
 
         BrandDO brand = brandMapper.selectById(product.getBrandId());
         List<ImageResp> images = productImageService.listByProductId(id);
@@ -367,28 +369,6 @@ public class ProductService implements IProductService {
         );
 
         return productConverter.toDetailResp(product, brand, images, skus, specGroups);
-    }
-
-    /**
-     * 校验品牌是否存在。
-     *
-     * @param brandId 品牌 ID
-     * @throws BizException 处理过程中可能抛出该异常
-     */
-    private void validateBrandExists(Long brandId) {
-        BrandDO brand = brandMapper.selectById(brandId);
-        AssertUtils.notNull(brand, BizErrorCode.BRAND_NOT_EXIST);
-    }
-
-    /**
-     * 校验分类是否存在。
-     *
-     * @param categoryId 分类 ID
-     * @throws BizException 处理过程中可能抛出该异常
-     */
-    private void validateCategoryExists(Long categoryId) {
-        CategoryDO category = categoryMapper.selectById(categoryId);
-        AssertUtils.notNull(category, BizErrorCode.CATEGORY_NOT_EXIST_OR_NO_ENABLE);
     }
 
     /**
@@ -515,8 +495,10 @@ public class ProductService implements IProductService {
      */
     private Long validateAndReturnShopId() {
         Long userId = UserContextHolder.getUserId();
-        ShopResp shop = shopClient.getByUserId(userId);
-        AssertUtils.notNull(shop, BizErrorCode.MERCHANT_STORE_NOT_FOUND);
+        ShopResp shop = AssertUtils.requireNonNull(
+                shopClient.getByUserId(userId),
+                BizErrorCode.MERCHANT_STORE_NOT_FOUND
+        );
         return shop.getId();
     }
 
@@ -551,11 +533,18 @@ public class ProductService implements IProductService {
         List<ProductSkuDO> skus = productSkuMapper.selectList(
                 Wrappers.<ProductSkuDO>lambdaQuery().in(ProductSkuDO::getProductId, productIds)
         );
-        Collector<ProductSkuDO, ?, BigDecimal> priceCollector = Collectors.collectingAndThen(
-                Collectors.mapping(ProductSkuDO::getPrice, Collectors.minBy(BigDecimal::compareTo)),
-                opt -> opt.orElse(null)
-        );
         return skus.stream()
-                   .collect(Collectors.groupingBy(ProductSkuDO::getProductId, priceCollector));
+                   .collect(
+                           Collectors.groupingBy(
+                                   ProductSkuDO::getProductId,
+                                   Collectors.collectingAndThen(
+                                           Collectors.mapping(
+                                                   ProductSkuDO::getPrice,
+                                                   Collectors.minBy(BigDecimal::compareTo)
+                                           ),
+                                           opt -> opt.orElse(null)
+                                   )
+                           )
+                   );
     }
 }

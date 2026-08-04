@@ -64,8 +64,7 @@ public class RoleService implements IRoleService {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public void updateRole(Long roleId, RoleReq req) {
-        RoleDO existing = roleMapper.selectById(roleId);
-        AssertUtils.notNull(existing, BizErrorCode.DATA_NOT_FOUND);
+        RoleDO existing = AssertUtils.requireNonNull(roleMapper.selectById(roleId));
 
         roleConverter.updateEntity(req, existing);
         roleMapper.updateById(existing);
@@ -77,8 +76,7 @@ public class RoleService implements IRoleService {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public void deleteRole(Long roleId) {
-        RoleDO existing = roleMapper.selectById(roleId);
-        AssertUtils.notNull(existing, BizErrorCode.DATA_NOT_FOUND);
+        RoleDO existing = AssertUtils.requireNonNull(roleMapper.selectById(roleId));
         AssertUtils.isTrue(!BooleanUtil.isTrue(existing.getBuiltIn()), BizErrorCode.INVALID_PARAM);
 
         userRoleMapper.delete(Wrappers.<UserRoleDO>lambdaQuery().eq(UserRoleDO::getRoleId, roleId));
@@ -93,8 +91,7 @@ public class RoleService implements IRoleService {
      */
     @Override
     public RoleResp getRole(Long roleId) {
-        RoleDO roleDo = roleMapper.selectById(roleId);
-        AssertUtils.notNull(roleDo, BizErrorCode.DATA_NOT_FOUND);
+        RoleDO roleDo = AssertUtils.requireNonNull(roleMapper.selectById(roleId));
         return roleConverter.toRoleResp(roleDo);
     }
 
@@ -113,7 +110,7 @@ public class RoleService implements IRoleService {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public void assignResources(Long roleId, List<Long> resourceIds) {
-        AssertUtils.notNull(roleMapper.selectById(roleId), BizErrorCode.DATA_NOT_FOUND);
+        AssertUtils.notNull(roleMapper.selectById(roleId));
 
         roleResourceMapper.delete(
                 Wrappers.<RoleResourceDO>lambdaQuery().eq(RoleResourceDO::getRoleId, roleId)

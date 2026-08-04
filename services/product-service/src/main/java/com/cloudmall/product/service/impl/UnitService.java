@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.cloudmall.common.enums.BizErrorCode;
+import com.cloudmall.common.exception.BizException;
 import com.cloudmall.common.utils.AssertUtils;
 import com.cloudmall.product.api.request.UnitCreateReq;
 import com.cloudmall.product.api.request.UnitUpdateReq;
@@ -39,8 +40,7 @@ public class UnitService implements IUnitService {
      */
     @Override
     public UnitResp getById(Long id) {
-        UnitDO unit = unitMapper.selectById(id);
-        AssertUtils.notNull(unit, BizErrorCode.DATA_NOT_FOUND);
+        UnitDO unit = AssertUtils.requireNonNull(unitMapper.selectById(id));
         return unitConverter.toResp(unit);
     }
 
@@ -80,8 +80,7 @@ public class UnitService implements IUnitService {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public void update(Long id, UnitUpdateReq req) {
-        UnitDO unit = unitMapper.selectById(id);
-        AssertUtils.notNull(unit, BizErrorCode.DATA_NOT_FOUND);
+        UnitDO unit = AssertUtils.requireNonNull(unitMapper.selectById(id));
         unitConverter.merge(unit, req);
         unitMapper.updateById(unit);
     }

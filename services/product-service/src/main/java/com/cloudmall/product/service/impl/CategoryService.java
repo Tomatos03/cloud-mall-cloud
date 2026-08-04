@@ -14,6 +14,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import com.cloudmall.common.enums.BizErrorCode;
+import com.cloudmall.common.exception.BizException;
 import com.cloudmall.common.utils.AssertUtils;
 import com.cloudmall.mybatisplus.enums.StatusEnum;
 import com.cloudmall.product.api.request.CategoryCreateReq;
@@ -73,8 +74,7 @@ public class CategoryService implements ICategoryService {
      */
     @Override
     public CategoryResp getById(Long id) {
-        CategoryDO cat = categoryMapper.selectById(id);
-        AssertUtils.notNull(cat, BizErrorCode.DATA_NOT_FOUND);
+        CategoryDO cat = AssertUtils.requireNonNull(categoryMapper.selectById(id));
         return categoryConverter.toResp(cat);
     }
 
@@ -118,8 +118,7 @@ public class CategoryService implements ICategoryService {
         if (parentId == null || parentId == 0L) {
             return 1;
         }
-        CategoryDO parent = categoryMapper.selectById(parentId);
-        AssertUtils.notNull(parent, BizErrorCode.DATA_NOT_FOUND);
+        CategoryDO parent = AssertUtils.requireNonNull(categoryMapper.selectById(parentId));
         int level = ObjectUtil.defaultIfNull(parent.getLevel(), 1) + 1;
         AssertUtils.isTrue(level <= MAX_CATEGORY_LEVEL, BizErrorCode.CATEGORY_BEYOND_MAX_LEVEL);
         return level;

@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.cloudmall.common.enums.BizErrorCode;
+import com.cloudmall.common.exception.BizException;
 import com.cloudmall.common.utils.AssertUtils;
 import com.cloudmall.product.api.request.BrandCreateReq;
 import com.cloudmall.product.api.request.BrandUpdateReq;
@@ -41,8 +42,7 @@ public class BrandService implements IBrandService {
      */
     @Override
     public BrandResp getById(Long id) {
-        BrandDO brand = brandMapper.selectById(id);
-        AssertUtils.notNull(brand, BizErrorCode.DATA_NOT_FOUND);
+        BrandDO brand = AssertUtils.requireNonNull(brandMapper.selectById(id));
         return brandConverter.toResp(brand);
     }
 
@@ -99,8 +99,7 @@ public class BrandService implements IBrandService {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public void update(Long id, BrandUpdateReq req) {
-        BrandDO brand = brandMapper.selectById(id);
-        AssertUtils.notNull(brand, BizErrorCode.DATA_NOT_FOUND);
+        BrandDO brand = AssertUtils.requireNonNull(brandMapper.selectById(id));
         brandConverter.merge(brand, req);
         brandMapper.updateById(brand);
     }

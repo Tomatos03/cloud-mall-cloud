@@ -277,8 +277,10 @@ public class CouponOrderService implements ICouponOrderService {
      * @return 用户券
      */
     private UserCouponDO requireOwnedAvailable(Long userId, Long userCouponId) {
-        UserCouponDO uc = userCouponMapper.selectById(userCouponId);
-        AssertUtils.notNull(uc, BizErrorCode.USER_COUPON_NOT_FOUND);
+        UserCouponDO uc = AssertUtils.requireNonNull(
+                userCouponMapper.selectById(userCouponId),
+                BizErrorCode.USER_COUPON_NOT_FOUND
+        );
         AssertUtils.isEqual(uc.getUserId(), userId, BizErrorCode.USER_COUPON_NOT_BELONG_TO_USER);
         AssertUtils.isFalse(uc.isOverdue(), BizErrorCode.USER_COUPON_EXPIRED);
         AssertUtils.isFalse(uc.isLocked(), BizErrorCode.USER_COUPON_LOCKED);
@@ -295,8 +297,10 @@ public class CouponOrderService implements ICouponOrderService {
      * @return 计算券
      */
     private CalcCoupon toCalcCoupon(UserCouponDO uc, List<CouponCalcItem> items) {
-        CouponDO template = couponMapper.selectById(uc.getCouponId());
-        AssertUtils.notNull(template, BizErrorCode.COUPON_TEMPLATE_NOT_FOUND);
+        CouponDO template = AssertUtils.requireNonNull(
+                couponMapper.selectById(uc.getCouponId()),
+                BizErrorCode.COUPON_TEMPLATE_NOT_FOUND
+        );
         List<CouponCalcItem> applicable = scopeMatcher.matchItems(template, items);
         return couponOrderConverter.toCalcCoupon(uc, applicable);
     }

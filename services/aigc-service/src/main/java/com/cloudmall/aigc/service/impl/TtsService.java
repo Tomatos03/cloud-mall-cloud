@@ -2,6 +2,7 @@ package com.cloudmall.aigc.service.impl;
 
 import java.util.Base64;
 
+import cn.hutool.core.util.ObjectUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.ai.audio.tts.TextToSpeechModel;
 import org.springframework.ai.audio.tts.TextToSpeechPrompt;
@@ -58,7 +59,8 @@ public class TtsService implements ITtsService {
     public TtsResp synthesizeAsBase64(TtsReq req) {
         byte[] audioBytes = synthesize(req);
         String base64Audio = Base64.getEncoder().encodeToString(audioBytes);
-        String format = resolveFormat(req.getResponseFormat()).getCode();
+        String format = ObjectUtil.defaultIfNull(req.getResponseFormat(), TtsAudioFormat.MP3)
+                                  .getCode();
 
         return TtsResp.builder()
                       .base64Audio(base64Audio)
@@ -124,13 +126,4 @@ public class TtsService implements ITtsService {
         };
     }
 
-    /**
-     * 解析输出格式，为空时返回默认 MP3
-     *
-     * @param responseFormat 请求中的格式枚举
-     * @return 格式枚举（默认 MP3）
-     */
-    private TtsAudioFormat resolveFormat(TtsAudioFormat responseFormat) {
-        return responseFormat != null ? responseFormat : TtsAudioFormat.MP3;
-    }
 }

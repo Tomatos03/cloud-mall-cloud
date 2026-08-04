@@ -21,6 +21,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import com.cloudmall.common.enums.BizErrorCode;
+import com.cloudmall.common.exception.BizException;
 import com.cloudmall.common.utils.AssertUtils;
 import com.cloudmall.order.api.model.CartItem;
 import com.cloudmall.order.api.model.CartShopGroup;

@@ -100,8 +100,10 @@ public class UserCouponService implements IUserCouponService {
             return resp;
         } catch (DuplicateKeyException e) {
             TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
-            UserCouponDO claimed = findClaimed(userId, couponId);
-            AssertUtils.notNull(claimed, BizErrorCode.COUPON_CLAIM_FAILED);
+            UserCouponDO claimed = AssertUtils.requireNonNull(
+                    findClaimed(userId, couponId),
+                    BizErrorCode.COUPON_CLAIM_FAILED
+            );
             couponCacheService.evictPublicTemplates();
             return userCouponConverter.toResp(claimed);
         }
@@ -402,8 +404,10 @@ public class UserCouponService implements IUserCouponService {
         UserCouponDO uc = requireOwned(userId, userCouponId);
         int affected = userCouponMapper.releaseIfLockedByOrder(userCouponId, userId, orderNo);
         if (affected == 0) {
-            UserCouponDO fresh = userCouponMapper.selectById(userCouponId);
-            AssertUtils.notNull(fresh, BizErrorCode.USER_COUPON_NOT_FOUND);
+            UserCouponDO fresh = AssertUtils.requireNonNull(
+                    userCouponMapper.selectById(userCouponId),
+                    BizErrorCode.USER_COUPON_NOT_FOUND
+            );
             if (fresh.getStatus() == UserCouponStatusEnum.USED) {
                 return;
             }
@@ -455,8 +459,10 @@ public class UserCouponService implements IUserCouponService {
         UserCouponDO uc = requireOwned(userId, userCouponId);
         int affected = userCouponMapper.revertIfUsed(userCouponId, userId);
         if (affected == 0) {
-            UserCouponDO fresh = userCouponMapper.selectById(userCouponId);
-            AssertUtils.notNull(fresh, BizErrorCode.USER_COUPON_NOT_FOUND);
+            UserCouponDO fresh = AssertUtils.requireNonNull(
+                    userCouponMapper.selectById(userCouponId),
+                    BizErrorCode.USER_COUPON_NOT_FOUND
+            );
             if (fresh.isAvailableOrExpired()) {
                 return;
             }
@@ -677,8 +683,10 @@ public class UserCouponService implements IUserCouponService {
      * @return 用户券
      */
     private UserCouponDO requireOwned(Long userId, Long userCouponId) {
-        UserCouponDO uc = userCouponMapper.selectById(userCouponId);
-        AssertUtils.notNull(uc, BizErrorCode.USER_COUPON_NOT_FOUND);
+        UserCouponDO uc = AssertUtils.requireNonNull(
+                userCouponMapper.selectById(userCouponId),
+                BizErrorCode.USER_COUPON_NOT_FOUND
+        );
         AssertUtils.isEqual(uc.getUserId(), userId, BizErrorCode.USER_COUPON_NOT_BELONG_TO_USER);
         return uc;
     }

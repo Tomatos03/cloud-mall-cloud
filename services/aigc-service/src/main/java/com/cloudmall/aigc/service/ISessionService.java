@@ -7,6 +7,7 @@ import com.cloudmall.aigc.model.resp.ChatMessageResp;
 import com.cloudmall.aigc.model.resp.CreateSessionResp;
 import com.cloudmall.aigc.model.resp.HotTopicResp;
 import com.cloudmall.aigc.model.resp.SessionHistoryItemResp;
+import com.cloudmall.common.exception.BizException;
 
 /**
  * 会话管理服务接口

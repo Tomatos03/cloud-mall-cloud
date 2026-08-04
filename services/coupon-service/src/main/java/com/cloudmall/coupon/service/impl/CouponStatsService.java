@@ -47,8 +47,10 @@ public class CouponStatsService implements ICouponStatsService {
      */
     @Override
     public CouponStatsResp statsByCoupon(Long couponId) {
-        CouponDO coupon = couponMapper.selectById(couponId);
-        AssertUtils.notNull(coupon, BizErrorCode.COUPON_TEMPLATE_NOT_FOUND);
+        CouponDO coupon = AssertUtils.requireNonNull(
+                couponMapper.selectById(couponId),
+                BizErrorCode.COUPON_TEMPLATE_NOT_FOUND
+        );
         requireManageable(coupon);
         CouponStatsResp stats = aggregate(couponId);
         stats.setCouponId(coupon.getId());
@@ -132,8 +134,10 @@ public class CouponStatsService implements ICouponStatsService {
         if (UserContextHolder.isAdmin()) {
             return;
         }
-        Long shopId = UserContextHolder.getShopId();
-        AssertUtils.notNull(shopId, BizErrorCode.MERCHANT_NO_SHOP);
+        Long shopId = AssertUtils.requireNonNull(
+                UserContextHolder.getShopId(),
+                BizErrorCode.MERCHANT_NO_SHOP
+        );
         AssertUtils.isEqual(coupon.getShopId(), shopId, BizErrorCode.COUPON_OPERATION_NOT_ALLOWED);
     }
 }

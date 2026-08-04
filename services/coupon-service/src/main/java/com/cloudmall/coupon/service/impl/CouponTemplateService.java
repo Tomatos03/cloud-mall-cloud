@@ -268,8 +268,10 @@ public class CouponTemplateService implements ICouponTemplateService {
      */
     @Override
     public IPage<CouponResp> pageShop(CouponPageReq req) {
-        Long shopId = UserContextHolder.getShopId();
-        AssertUtils.notNull(shopId, BizErrorCode.MERCHANT_NO_SHOP);
+        Long shopId = AssertUtils.requireNonNull(
+                UserContextHolder.getShopId(),
+                BizErrorCode.MERCHANT_NO_SHOP
+        );
         req.setShopId(shopId);
         IPage<CouponDO> page = couponMapper.selectPage(req, req.buildLambdaWrapper());
         return page.convert(couponConverter::toResp);
@@ -346,9 +348,10 @@ public class CouponTemplateService implements ICouponTemplateService {
      */
     @Override
     public CouponDO getTemplate(Long id) {
-        CouponDO coupon = couponMapper.selectById(id);
-        AssertUtils.notNull(coupon, BizErrorCode.COUPON_TEMPLATE_NOT_FOUND);
-        return coupon;
+        return AssertUtils.requireNonNull(
+                couponMapper.selectById(id),
+                BizErrorCode.COUPON_TEMPLATE_NOT_FOUND
+        );
     }
 
     /**
@@ -576,9 +579,10 @@ public class CouponTemplateService implements ICouponTemplateService {
      * @return 商品信息
      */
     private ProductResp callProduct(Long productId) {
-        ProductResp product = productClient.getById(productId);
-        AssertUtils.notNull(product, BizErrorCode.GOODS_NOT_EXIST);
-        return product;
+        return AssertUtils.requireNonNull(
+                productClient.getById(productId),
+                BizErrorCode.GOODS_NOT_EXIST
+        );
     }
 
     /**
@@ -588,9 +592,10 @@ public class CouponTemplateService implements ICouponTemplateService {
      * @return 分类信息
      */
     private CategoryResp callCategory(Long categoryId) {
-        CategoryResp category = categoryClient.getById(categoryId);
-        AssertUtils.notNull(category, BizErrorCode.CATEGORY_NOT_EXIST_OR_NO_ENABLE);
-        return category;
+        return AssertUtils.requireNonNull(
+                categoryClient.getById(categoryId),
+                BizErrorCode.CATEGORY_NOT_EXIST_OR_NO_ENABLE
+        );
     }
 
     /**
@@ -602,8 +607,10 @@ public class CouponTemplateService implements ICouponTemplateService {
         if (UserContextHolder.isAdmin()) {
             return;
         }
-        Long shopId = UserContextHolder.getShopId();
-        AssertUtils.notNull(shopId, BizErrorCode.MERCHANT_NO_SHOP);
+        Long shopId = AssertUtils.requireNonNull(
+                UserContextHolder.getShopId(),
+                BizErrorCode.MERCHANT_NO_SHOP
+        );
         AssertUtils.isEqual(coupon.getShopId(), shopId, BizErrorCode.COUPON_OPERATION_NOT_ALLOWED);
     }
 }

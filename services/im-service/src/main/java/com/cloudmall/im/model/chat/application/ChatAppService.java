@@ -83,8 +83,10 @@ public class ChatAppService implements IChatAppService {
 
     @Override
     public void markReadForChatSession(Long sessionId) {
-        ChatSession chatSession = chatSessionService.getById(sessionId);
-        AssertUtils.notNull(chatSession, BizErrorCode.CONVERSATION_NOT_EXIST);
+        ChatSession chatSession = AssertUtils.requireNonNull(
+                chatSessionService.getById(sessionId),
+                BizErrorCode.CONVERSATION_NOT_EXIST
+        );
 
         Long currentUserId = AuthUserContext.getUserId();
         Long senderId = currentUserId != null && currentUserId.equals(chatSession.getBuyerId())
@@ -100,8 +102,10 @@ public class ChatAppService implements IChatAppService {
 
     @Override
     public CreateSessionResult createChatSession(Long storeId) {
-        Store store = storeService.getById(storeId);
-        AssertUtils.notNull(store, BizErrorCode.STORE_NOT_EXIST);
+        Store store = AssertUtils.requireNonNull(
+                storeService.getById(storeId),
+                BizErrorCode.STORE_NOT_EXIST
+        );
 
         Long merchantId = store.getUserId();
         Long userId = AuthUserContext.getUserId();

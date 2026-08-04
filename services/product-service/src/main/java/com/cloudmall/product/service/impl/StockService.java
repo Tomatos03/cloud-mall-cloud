@@ -134,8 +134,7 @@ public class StockService implements IStockService {
         if (opExists(req.getOrderNo(), item.getSkuId(), opType)) {
             return;
         }
-        ProductSkuDO sku = productSkuMapper.selectById(item.getSkuId());
-        AssertUtils.notNull(sku, BizErrorCode.DATA_NOT_FOUND);
+        ProductSkuDO sku = AssertUtils.requireNonNull(productSkuMapper.selectById(item.getSkuId()));
         int before = ObjectUtil.defaultIfNull(sku.getStock(), 0);
         StockOpLogDO log = insertLog(
                 req.getOrderNo(),

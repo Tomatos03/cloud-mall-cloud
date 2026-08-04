@@ -19,6 +19,7 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.jspecify.annotations.NonNull;
 import org.springframework.stereotype.Service;
 
 import com.cloudmall.common.context.UserContextHolder;
@@ -51,6 +52,7 @@ import com.cloudmall.order.mapper.OrderCouponMapper;
 import com.cloudmall.order.mapper.OrderItemMapper;
 import com.cloudmall.order.mapper.OrderMapper;
 import com.cloudmall.order.mapper.OrderSubMapper;
+import com.cloudmall.order.model.OrderContext;
 import com.cloudmall.order.model.OrderDraft;
 import com.cloudmall.order.model.req.OrderPageReq;
 import com.cloudmall.order.model.req.OrderSubPageReq;
@@ -109,40 +111,141 @@ public class OrderService implements IOrderService {
      * @return 父订单详情
      */
     @Override
-    public OrderResp createOrder(CreateOrderReq req) {
+    public OrderResp create(CreateOrderReq req) {
+        // 准备订单上下文：用户、地址、数量、SKU 快照与计价明细
+        OrderContext context = prepareOrderContext(req);
+
+        // 创建 CREATING 草稿单
+        OrderDraft draft = initializeDraft(context);
+
+        // 预占库存、锁定优惠券并最终落库，失败自动补偿
+        OrderDO finalizedOrder = executePlacement(draft, context);
+
+        // 清理购物车并组装响应
+        cleanupAfterPlacement(context, finalizedOrder);
+        return buildResponse(finalizedOrder);
+    }
+
+    /**
+     * 准备订单上下文：折叠用户、地址、数量合并、购物车校验、SKU 快照、计价明细与店铺拆分。
+     *
+     * @param req 下单请求
+     * @return 订单上下文
+     */
+    private OrderContext prepareOrderContext(CreateOrderReq req) {
         Long userId = requireUserId();
         AddressResp address = requireAddress(userId, req.getAddressId());
-        String addressSnapshot = JSONUtil.toJsonStr(address);
         Map<Long, Integer> quantities = mergeQuantities(req.getItems());
         requireCartSelection(userId, quantities);
         Map<Long, SkuResp> skuMap = requireAvailableSkus(quantities);
         List<CouponCalcItem> calcItems = buildCalcItems(quantities, skuMap);
-        List<Long> shopIds = new ArrayList<>(groupByShop(calcItems).keySet());
+        List<Long> shopIds = toShopIdList(skuMap);
+        return OrderContext.builder()
+                           .userId(userId)
+                           .req(req)
+                           .address(address)
+                           .quantities(quantities)
+                           .skuMap(skuMap)
+                           .calcItems(calcItems)
+                           .shopIds(shopIds)
+                           .build();
+    }
 
+    /**
+     * 创建草稿单：生成单号、序列化地址快照并持久化 CREATING 骨架。
+     *
+     * @param context 订单上下文
+     * @return 下单骨架
+     */
+    private OrderDraft initializeDraft(OrderContext context) {
         String orderNo = genOrderNo();
-        OrderDraft orderDraft = orderPersistence.createDraft(
-                userId,
+        String addressSnapshot = JSONUtil.toJsonStr(context.getAddress());
+        return orderPersistence.createDraft(
+                context.getUserId(),
                 orderNo,
-                req,
+                context.getReq(),
                 addressSnapshot,
-                shopIds
+                context.getShopIds()
         );
+    }
+
+    /**
+     * 执行下单核心：预占库存、锁定优惠券并最终落库，返回已迁移为待支付的父订单。 任一环节失败按逆序补偿并
+     * 上抛，主流程不感知中间状态。
+     *
+     * @param draft 下单骨架
+     * @param context 订单上下文
+     * @return 最终父订单
+     */
+    private OrderDO executePlacement(OrderDraft draft, OrderContext context) {
+        String orderNo = draft.order().getOrderNo();
         boolean stockReserved = false;
         List<CouponUsageResult> lockedUsages = Collections.emptyList();
         try {
-            reserveStock(orderNo, quantities);
+            stockClient.reserve(buildStockOpReq(orderNo, context.getQuantities(), RESERVE_REASON));
             stockReserved = true;
-            CouponOrderCalcResp calc = lockCoupons(userId, orderNo, req, calcItems);
+            CouponOrderCalcResp calc = lockCoupons(
+                    context.getUserId(),
+                    orderNo,
+                    context.getReq(),
+                    context.getCalcItems()
+            );
             lockedUsages = calc.getUsages();
-            orderPersistence.finalizeOrder(orderDraft, calc, skuMap, quantities);
+            orderPersistence.finalizeOrder(
+                    draft,
+                    calc,
+                    context.getSkuMap(),
+                    context.getQuantities()
+            );
         } catch (RuntimeException e) {
-            compensate(orderDraft, userId, orderNo, quantities, stockReserved, lockedUsages);
+            compensate(
+                    draft,
+                    context.getUserId(),
+                    orderNo,
+                    context.getQuantities(),
+                    stockReserved,
+                    lockedUsages
+            );
             throw e;
         }
-        cartService.removeItems(userId, quantities.keySet()
-                                                  .stream()
-                                                  .toList());
-        return getById(orderDraft.order().getId());
+        return orderMapper.selectById(draft.order().getId());
+    }
+
+    /**
+     * 清理购物车中已下单的商品并记录成功日志。
+     *
+     * @param context 订单上下文
+     * @param finalizedOrder 最终父订单
+     */
+    private void cleanupAfterPlacement(OrderContext context, OrderDO finalizedOrder) {
+        List<Long> skuIdList = context.getQuantities()
+                                      .keySet()
+                                      .stream()
+                                      .toList();
+        cartService.removeItems(context.getUserId(), skuIdList);
+        log.info("下单成功 orderNo={} orderId={}", finalizedOrder.getOrderNo(), finalizedOrder.getId());
+    }
+
+    /**
+     * 组装父订单响应。
+     *
+     * @param finalizedOrder 最终父订单
+     * @return 父订单详情
+     */
+    private OrderResp buildResponse(OrderDO finalizedOrder) {
+        return toResp(finalizedOrder);
+    }
+
+    @NonNull
+    private static List<Long> toShopIdList(Map<Long, SkuResp> skuMap) {
+        return skuMap.values()
+                     .stream()
+                     .map(SkuResp::getShopId)
+                     .toList();
+    }
+
+    private static String genOrderNo() {
+        return StrUtil.sub(IdUtil.fastSimpleUUID(), 0, 20);
     }
 
     /**
@@ -153,23 +256,14 @@ public class OrderService implements IOrderService {
      */
     @Override
     public CouponOrderCalcResp quote(QuoteOrderReq req) {
+        return couponOrderClient.quote(buildQuoteReq(req));
+    }
+
+    private CouponOrderQuoteReq buildQuoteReq(QuoteOrderReq req) {
         Long userId = requireUserId();
         Map<Long, Integer> quantities = mergeQuantities(req.getItems());
         Map<Long, SkuResp> skuMap = requireAvailableSkus(quantities);
         List<CouponCalcItem> calcItems = buildCalcItems(quantities, skuMap);
-        CouponOrderQuoteReq quoteReq = buildQuoteReq(req, userId, calcItems);
-        return requireCouponOrderCalcResp(quoteReq);
-    }
-
-    private CouponOrderCalcResp requireCouponOrderCalcResp(CouponOrderQuoteReq req) {
-        return couponOrderClient.quote(req);
-    }
-
-    private static CouponOrderQuoteReq buildQuoteReq(
-            QuoteOrderReq req,
-            Long userId,
-            List<CouponCalcItem> calcItems
-    ) {
         return CouponOrderQuoteReq.builder()
                                   .userId(userId)
                                   .items(calcItems)
@@ -185,8 +279,10 @@ public class OrderService implements IOrderService {
      */
     @Override
     public OrderResp getById(Long id) {
-        OrderDO order = orderMapper.selectById(id);
-        AssertUtils.notNull(order, BizErrorCode.ORDER_NOT_EXIST);
+        OrderDO order = AssertUtils.requireNonNull(
+                orderMapper.selectById(id),
+                BizErrorCode.ORDER_NOT_EXIST
+        );
         Long userId = UserContextHolder.getUserId();
         AssertUtils.isTrue(
                 Objects.equals(order.getUserId(), userId),
@@ -216,8 +312,10 @@ public class OrderService implements IOrderService {
      */
     @Override
     public IPage<OrderSubResp> pageMerchant(OrderSubPageReq req) {
-        Long shopId = UserContextHolder.getShopId();
-        AssertUtils.notNull(shopId, BizErrorCode.MERCHANT_NO_SHOP);
+        Long shopId = AssertUtils.requireNonNull(
+                UserContextHolder.getShopId(),
+                BizErrorCode.MERCHANT_NO_SHOP
+        );
         req.setShopId(shopId);
         IPage<OrderSubDO> page = orderSubMapper.selectPage(req, req.buildLambdaWrapper());
         return page.convert(this::toSubRespWithItems);
@@ -311,9 +409,10 @@ public class OrderService implements IOrderService {
      * @return 用户 ID
      */
     private Long requireUserId() {
-        Long userId = UserContextHolder.getUserId();
-        AssertUtils.notNull(userId, BizErrorCode.USER_NOT_AUTHENTICATED);
-        return userId;
+        return AssertUtils.requireNonNull(
+                UserContextHolder.getUserId(),
+                BizErrorCode.USER_NOT_AUTHENTICATED
+        );
     }
 
     /**
@@ -369,8 +468,10 @@ public class OrderService implements IOrderService {
                                                     )
                                             );
         for (Map.Entry<Long, Integer> entry : quantities.entrySet()) {
-            CartDO cart = cartMap.get(entry.getKey());
-            AssertUtils.notNull(cart, BizErrorCode.GOODS_NOT_IN_CART);
+            CartDO cart = AssertUtils.requireNonNull(
+                    cartMap.get(entry.getKey()),
+                    BizErrorCode.GOODS_NOT_IN_CART
+            );
             AssertUtils.isTrue(
                     cart.getQuantity() >= entry.getValue(),
                     BizErrorCode.ORDER_QUANTITY_INVALID
@@ -398,8 +499,10 @@ public class OrderService implements IOrderService {
                                                 )
                                         );
         for (Map.Entry<Long, Integer> entry : quantities.entrySet()) {
-            SkuResp sku = skuMap.get(entry.getKey());
-            AssertUtils.notNull(sku, BizErrorCode.ORDER_CREATE_SKU_NOT_AVAILABLE);
+            SkuResp sku = AssertUtils.requireNonNull(
+                    skuMap.get(entry.getKey()),
+                    BizErrorCode.ORDER_CREATE_SKU_NOT_AVAILABLE
+            );
             AssertUtils.isTrue(
                     sku.getStatus() == StatusEnum.ENABLED,
                     BizErrorCode.ORDER_CREATE_SKU_NOT_AVAILABLE
@@ -440,33 +543,6 @@ public class OrderService implements IOrderService {
             );
         }
         return items;
-    }
-
-    /**
-     * 按店铺聚合商品明细（保持购物车顺序）。
-     *
-     * @param calcItems 商品明细列表
-     * @return shopId → 商品明细列表
-     */
-    private Map<Long, List<CouponCalcItem>> groupByShop(List<CouponCalcItem> calcItems) {
-        return calcItems.stream()
-                        .collect(
-                                Collectors.groupingBy(
-                                        CouponCalcItem::getShopId,
-                                        LinkedHashMap::new,
-                                        Collectors.toList()
-                                )
-                        );
-    }
-
-    /**
-     * 预占普通商品库存。
-     *
-     * @param orderNo 订单号
-     * @param quantities skuId → 数量
-     */
-    private void reserveStock(String orderNo, Map<Long, Integer> quantities) {
-        stockClient.reserve(buildStockOpReq(orderNo, quantities, RESERVE_REASON));
     }
 
     /**
@@ -601,12 +677,4 @@ public class OrderService implements IOrderService {
                          .build();
     }
 
-    /**
-     * 生成订单号（无分隔符 UUID 前 20 位）。
-     *
-     * @return 订单号
-     */
-    private String genOrderNo() {
-        return StrUtil.sub(IdUtil.fastSimpleUUID(), 0, 20);
-    }
 }

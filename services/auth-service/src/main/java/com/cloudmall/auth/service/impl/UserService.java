@@ -70,10 +70,13 @@ public class UserService implements IUserService {
      */
     @Override
     public LoginResp login(LoginReq request) {
-        UserDO user = userMapper.selectOne(
-                Wrappers.<UserDO>lambdaQuery().eq(UserDO::getUsername, request.getUsername())
+        UserDO user = AssertUtils.requireNonNull(
+                userMapper.selectOne(
+                        Wrappers.<UserDO>lambdaQuery()
+                                .eq(UserDO::getUsername, request.getUsername())
+                ),
+                BizErrorCode.USER_NOT_EXISTS
         );
-        AssertUtils.notNull(user, BizErrorCode.USER_NOT_EXISTS);
         AssertUtils.isTrue(
                 passwordEncoder.matches(request.getPassword(), user.getPassword()),
                 BizErrorCode.PASSWORD_ERROR
@@ -170,8 +173,10 @@ public class UserService implements IUserService {
      */
     @Override
     public UserInfoResp getUserInfo(Long userId) {
-        UserDO user = userMapper.selectById(userId);
-        AssertUtils.notNull(user, BizErrorCode.USER_NOT_EXISTS);
+        UserDO user = AssertUtils.requireNonNull(
+                userMapper.selectById(userId),
+                BizErrorCode.USER_NOT_EXISTS
+        );
         return userConverter.toResp(user);
     }
 

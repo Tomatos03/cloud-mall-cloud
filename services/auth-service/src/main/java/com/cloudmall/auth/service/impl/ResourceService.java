@@ -125,8 +125,7 @@ public class ResourceService implements IResourceService {
      */
     @Override
     public ResourceResp getResource(Long resourceId) {
-        ResourceDO resourceDo = resourceMapper.selectById(resourceId);
-        AssertUtils.notNull(resourceDo, BizErrorCode.DATA_NOT_FOUND);
+        ResourceDO resourceDo = AssertUtils.requireNonNull(resourceMapper.selectById(resourceId));
         return resourceConverter.toResourceResp(resourceDo);
     }
 
@@ -160,10 +159,7 @@ public class ResourceService implements IResourceService {
         );
 
         if (req.getParentId() != null) {
-            AssertUtils.notNull(
-                    resourceMapper.selectById(req.getParentId()),
-                    BizErrorCode.DATA_NOT_FOUND
-            );
+            AssertUtils.notNull(resourceMapper.selectById(req.getParentId()));
         }
 
         ResourceDO resourceDo = ResourceDO.builder()
@@ -185,8 +181,7 @@ public class ResourceService implements IResourceService {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public void updateResource(Long id, ResourceReq req) {
-        ResourceDO existing = resourceMapper.selectById(id);
-        AssertUtils.notNull(existing, BizErrorCode.DATA_NOT_FOUND);
+        ResourceDO existing = AssertUtils.requireNonNull(resourceMapper.selectById(id));
 
         if (req.getType() != null) {
             AssertUtils.isTrue(
@@ -195,10 +190,7 @@ public class ResourceService implements IResourceService {
             );
         }
         if (req.getParentId() != null) {
-            AssertUtils.notNull(
-                    resourceMapper.selectById(req.getParentId()),
-                    BizErrorCode.DATA_NOT_FOUND
-            );
+            AssertUtils.notNull(resourceMapper.selectById(req.getParentId()));
         }
 
         resourceConverter.updateEntity(req, existing);
@@ -212,8 +204,7 @@ public class ResourceService implements IResourceService {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public void deleteResource(Long resourceId) {
-        ResourceDO existing = resourceMapper.selectById(resourceId);
-        AssertUtils.notNull(existing, BizErrorCode.DATA_NOT_FOUND);
+        ResourceDO existing = AssertUtils.requireNonNull(resourceMapper.selectById(resourceId));
 
         Long childCount = resourceMapper.selectCount(
                 Wrappers.<ResourceDO>lambdaQuery().eq(ResourceDO::getParentId, resourceId)

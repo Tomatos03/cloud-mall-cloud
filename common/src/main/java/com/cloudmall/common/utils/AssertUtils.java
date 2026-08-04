@@ -65,6 +65,47 @@ public class AssertUtils {
     }
 
     /**
+     * 断言对象不为空，如果为空则抛出默认业务异常（数据不存在）。
+     *
+     * @param obj 待验证的对象
+     * @throws BizException 当对象为空时抛出
+     */
+    public static void notNull(Object obj) {
+        notNull(obj, BizErrorCode.DATA_NOT_FOUND);
+    }
+
+    /**
+     * 断言对象不为空并返回原值，为空则抛出业务异常。 <p>
+     * 用于「查询结果 -> 非空校验 -> 直接使用」的常见链路，可把「声明变量 + 断言 + 使用/返回
+     * 」收敛成一行。
+     *
+     * @param obj 待校验对象
+     * @param errorCode 对象为空时抛出的错误码
+     * @param <T> 对象类型
+     * @return 非空的原对象
+     * @throws BizException 当对象为空时抛出
+     */
+    public static <T> T requireNonNull(T obj, BizErrorCode errorCode) {
+        if (obj == null) {
+            throw new BizException(errorCode);
+        }
+        return obj;
+    }
+
+    /**
+     * 断言对象不为空并返回原值，为空则抛出默认业务异常（数据不存在）。 <p>
+     * 查询类场景无需手动指定错误码时使用，可进一步省略错误码参数。
+     *
+     * @param obj 待校验对象
+     * @param <T> 对象类型
+     * @return 非空的原对象
+     * @throws BizException 当对象为空时抛出
+     */
+    public static <T> T requireNonNull(T obj) {
+        return requireNonNull(obj, BizErrorCode.DATA_NOT_FOUND);
+    }
+
+    /**
      * 断言对象不为空，否则抛出业务异常。
      *
      * @param obj 待校验对象

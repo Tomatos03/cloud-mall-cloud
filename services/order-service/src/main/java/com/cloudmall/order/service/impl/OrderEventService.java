@@ -125,10 +125,12 @@ public class OrderEventService implements IOrderEventService {
      * @return 父订单
      */
     private OrderDO requireOrder(String orderNo) {
-        OrderDO order = orderMapper.selectOne(
-                Wrappers.<OrderDO>lambdaQuery().eq(OrderDO::getOrderNo, orderNo)
+        OrderDO order = AssertUtils.requireNonNull(
+                orderMapper.selectOne(
+                        Wrappers.<OrderDO>lambdaQuery().eq(OrderDO::getOrderNo, orderNo)
+                ),
+                BizErrorCode.ORDER_NOT_EXIST
         );
-        AssertUtils.notNull(order, BizErrorCode.ORDER_NOT_EXIST);
         return order;
     }
 }

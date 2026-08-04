@@ -47,7 +47,7 @@ public class OrderController {
             @Valid
             CreateOrderReq req
     ) {
-        return Result.success(orderService.createOrder(req));
+        return Result.success(orderService.create(req));
     }
 
     /**

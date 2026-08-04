@@ -7,7 +7,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.cloudmall.common.enums.BizErrorCode;
+import com.cloudmall.common.exception.BizException;
 import com.cloudmall.common.utils.AssertUtils;
 import com.cloudmall.seckill.api.response.ActivityResp;
 import com.cloudmall.seckill.convert.SeckillConverter;
@@ -46,8 +46,7 @@ public class SeckillService implements ISeckillService {
      */
     @Override
     public ActivityResp getActivity(Long id) {
-        SeckillActivityDO act = activityMapper.selectById(id);
-        AssertUtils.notNull(act, BizErrorCode.DATA_NOT_FOUND);
+        SeckillActivityDO act = AssertUtils.requireNonNull(activityMapper.selectById(id));
         return seckillConverter.toResp(act);
     }
 
@@ -68,8 +67,7 @@ public class SeckillService implements ISeckillService {
             BigDecimal seckillPrice,
             Integer stock
     ) {
-        SeckillActivityDO act = activityMapper.selectById(activityId);
-        AssertUtils.notNull(act, BizErrorCode.DATA_NOT_FOUND);
+        SeckillActivityDO act = AssertUtils.requireNonNull(activityMapper.selectById(activityId));
         SeckillProductDO product = SeckillProductDO.builder()
                                                    .activityId(activityId)
                                                    .productId(productId)
@@ -90,8 +88,7 @@ public class SeckillService implements ISeckillService {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public void auditProduct(Long productId, boolean approved) {
-        SeckillProductDO product = productMapper.selectById(productId);
-        AssertUtils.notNull(product, BizErrorCode.DATA_NOT_FOUND);
+        SeckillProductDO product = AssertUtils.requireNonNull(productMapper.selectById(productId));
         product.setAuditStatus(approved ? "APPROVED" : "REJECTED");
         productMapper.updateById(product);
     }

@@ -7,6 +7,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import com.cloudmall.common.enums.BizErrorCode;
+import com.cloudmall.common.exception.BizException;
 import com.cloudmall.common.utils.AssertUtils;
 import com.cloudmall.user.api.request.AddressUpdateReq;
 import com.cloudmall.user.api.request.CreateReq;
@@ -48,8 +49,7 @@ public class AddressService implements IAddressService {
      */
     @Override
     public AddressResp getById(Long id) {
-        AddressDO address = addressMapper.selectById(id);
-        AssertUtils.notNull(address, BizErrorCode.DATA_NOT_FOUND);
+        AddressDO address = AssertUtils.requireNonNull(addressMapper.selectById(id));
         return addressConverter.toResp(address);
     }
 
@@ -81,8 +81,7 @@ public class AddressService implements IAddressService {
      */
     @Override
     public void update(AddressUpdateReq request) {
-        AddressDO address = addressMapper.selectById(request.getId());
-        AssertUtils.notNull(address, BizErrorCode.DATA_NOT_FOUND);
+        AddressDO address = AssertUtils.requireNonNull(addressMapper.selectById(request.getId()));
         addressConverter.updateEntity(request, address);
         addressMapper.updateById(address);
     }

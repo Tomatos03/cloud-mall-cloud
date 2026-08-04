@@ -19,6 +19,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.cloudmall.common.enums.BizErrorCode;
+import com.cloudmall.common.exception.BizException;
 import com.cloudmall.common.utils.AssertUtils;
 import com.cloudmall.mybatisplus.enums.StatusEnum;
 import com.cloudmall.product.api.response.SkuResp;
@@ -64,8 +65,7 @@ public class SkuService implements ISkuService {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public Boolean updateStock(Long skuId, Integer quantity) {
-        ProductSkuDO sku = productSkuMapper.selectById(skuId);
-        AssertUtils.notNull(sku, BizErrorCode.DATA_NOT_FOUND);
+        ProductSkuDO sku = AssertUtils.requireNonNull(productSkuMapper.selectById(skuId));
         if (quantity == 0) {
             return Boolean.TRUE;
         }

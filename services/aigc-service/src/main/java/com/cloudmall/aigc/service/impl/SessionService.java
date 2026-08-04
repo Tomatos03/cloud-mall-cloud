@@ -202,12 +202,14 @@ public class SessionService implements ISessionService {
      *                      SESSION_NOT_FOUND
      */
     private ChatSessionDO getValidatedSession(String sessionId) {
-        ChatSessionDO chatSession = chatSessionMapper.selectOne(
-                Wrappers.<ChatSessionDO>lambdaQuery()
-                        .eq(ChatSessionDO::getSessionId, sessionId)
-                        .eq(ChatSessionDO::getUserId, UserContextHolder.getUserId())
+        ChatSessionDO chatSession = AssertUtils.requireNonNull(
+                chatSessionMapper.selectOne(
+                        Wrappers.<ChatSessionDO>lambdaQuery()
+                                .eq(ChatSessionDO::getSessionId, sessionId)
+                                .eq(ChatSessionDO::getUserId, UserContextHolder.getUserId())
+                ),
+                BizErrorCode.SESSION_NOT_FOUND
         );
-        AssertUtils.notNull(chatSession, BizErrorCode.SESSION_NOT_FOUND);
         return chatSession;
     }
 

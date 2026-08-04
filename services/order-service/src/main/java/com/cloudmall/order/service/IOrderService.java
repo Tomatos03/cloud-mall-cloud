@@ -26,7 +26,7 @@ public interface IOrderService {
      * @param req 下单请求
      * @return 父订单详情
      */
-    OrderResp createOrder(CreateOrderReq req);
+    OrderResp create(CreateOrderReq req);
 
     /**
      * 下单前价格预览（无副作用）。
