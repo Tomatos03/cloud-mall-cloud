@@ -31,6 +31,7 @@ import com.cloudmall.order.mapper.OrderCouponMapper;
 import com.cloudmall.order.mapper.OrderItemMapper;
 import com.cloudmall.order.mapper.OrderMapper;
 import com.cloudmall.order.mapper.OrderSubMapper;
+import com.cloudmall.order.model.OrderDraft;
 import com.cloudmall.product.api.response.SkuResp;
 
 /**
@@ -63,7 +64,7 @@ public class OrderPersistenceService {
      * @return 骨架
      */
     @Transactional(rollbackFor = Exception.class)
-    public Skeleton createSkeleton(
+    public OrderDraft createDraft(
             Long userId,
             String orderNo,
             CreateOrderReq req,
@@ -79,7 +80,7 @@ public class OrderPersistenceService {
             orderSubMapper.insert(sub);
             subsByShop.put(shopId, sub);
         }
-        return new Skeleton(order, subsByShop);
+        return new OrderDraft(order, subsByShop);
     }
 
     private static OrderSubDO buildPendingSubOrder(
@@ -132,7 +133,7 @@ public class OrderPersistenceService {
      */
     @Transactional(rollbackFor = Exception.class)
     public void finalizeOrder(
-            Skeleton skeleton,
+            OrderDraft skeleton,
             CouponOrderCalcResp calc,
             Map<Long, SkuResp> skuMap,
             Map<Long, Integer> quantities
@@ -147,7 +148,7 @@ public class OrderPersistenceService {
             updateSubAmounts(sub.getId(), subResult);
             insertItems(sub, subResult, skuMap, quantities);
         }
-        insertCoupons(skeleton, calc.getUsages());
+        insertOrderCoupons(skeleton, calc.getUsages());
         transitionToPendingPayment(order.getId());
     }
 
@@ -262,7 +263,7 @@ public class OrderPersistenceService {
      * @param skeleton 骨架
      * @param usages 实际使用的券快照
      */
-    private void insertCoupons(Skeleton skeleton, List<CouponUsageResult> usages) {
+    private void insertOrderCoupons(OrderDraft skeleton, List<CouponUsageResult> usages) {
         if (CollUtil.isEmpty(usages)) {
             return;
         }
@@ -273,9 +274,12 @@ public class OrderPersistenceService {
                 OrderSubDO sub = skeleton.subsByShop().get(usage.getShopId());
                 subOrderId = sub == null ? null : sub.getId();
             }
-            couponDOs.add(
-                    orderCouponConverter.toCouponDO(usage, skeleton.order().getId(), subOrderId)
+            OrderCouponDO orderCouponDO = orderCouponConverter.toCouponDO(
+                    usage,
+                    skeleton.order().getId(),
+                    subOrderId
             );
+            couponDOs.add(orderCouponDO);
         }
         orderCouponMapper.insert(couponDOs);
     }
@@ -286,21 +290,12 @@ public class OrderPersistenceService {
      * @param orderId 父订单 ID
      */
     private void transitionToPendingPayment(Long orderId) {
-        int updated = orderMapper.update(
+        int result = orderMapper.update(
                 Wrappers.<OrderDO>lambdaUpdate()
                         .set(OrderDO::getStatus, ParentOrderStatusEnum.PENDING_PAYMENT)
                         .eq(OrderDO::getId, orderId)
                         .eq(OrderDO::getStatus, ParentOrderStatusEnum.CREATING)
         );
-        AssertUtils.isTrue(updated > 0, BizErrorCode.INVALID_ORDER_STATUS);
-    }
-
-    /**
-     * 下单骨架：父订单与店铺子订单。
-     *
-     * @param order 父订单
-     * @param subsByShop shopId → 子订单
-     */
-    public record Skeleton(OrderDO order, Map<Long, OrderSubDO> subsByShop) {
+        AssertUtils.isTrue(result > 0, BizErrorCode.INVALID_ORDER_STATUS);
     }
 }

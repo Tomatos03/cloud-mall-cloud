@@ -13,7 +13,6 @@ import org.springframework.stereotype.Service;
 
 import com.cloudmall.common.context.UserContextHolder;
 import com.cloudmall.common.enums.BizErrorCode;
-import com.cloudmall.common.model.Result;
 import com.cloudmall.common.utils.AssertUtils;
 import com.cloudmall.coupon.api.response.CouponStatsResp;
 import com.cloudmall.coupon.entity.CouponDO;
@@ -114,13 +113,9 @@ public class CouponStatsService implements ICouponStatsService {
      * 填充成本维度（使用订单数与补贴金额）。
      *
      * @param stats 统计响应
-     * @param result 订单统计结果
+     * @param usage 使用统计结果
      */
-    private void fillUsageStats(CouponStatsResp stats, Result<CouponUsageStatsResp> result) {
-        if (result == null || result.getCode() != Result.SUCCESS_CODE) {
-            return;
-        }
-        CouponUsageStatsResp usage = result.getData();
+    private void fillUsageStats(CouponStatsResp stats, CouponUsageStatsResp usage) {
         if (usage == null) {
             return;
         }

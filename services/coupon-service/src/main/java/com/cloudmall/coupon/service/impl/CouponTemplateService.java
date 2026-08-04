@@ -13,7 +13,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.cloudmall.common.context.UserContextHolder;
 import com.cloudmall.common.enums.BizErrorCode;
-import com.cloudmall.common.model.Result;
 import com.cloudmall.common.utils.AssertUtils;
 import com.cloudmall.coupon.api.request.CouponReq;
 import com.cloudmall.coupon.api.response.CouponOperationLogResp;
@@ -577,12 +576,9 @@ public class CouponTemplateService implements ICouponTemplateService {
      * @return 商品信息
      */
     private ProductResp callProduct(Long productId) {
-        Result<ProductResp> result = productClient.getById(productId);
-        AssertUtils.isTrue(
-                result.getCode() == Result.SUCCESS_CODE && result.getData() != null,
-                BizErrorCode.GOODS_NOT_EXIST
-        );
-        return result.getData();
+        ProductResp product = productClient.getById(productId);
+        AssertUtils.notNull(product, BizErrorCode.GOODS_NOT_EXIST);
+        return product;
     }
 
     /**
@@ -592,12 +588,9 @@ public class CouponTemplateService implements ICouponTemplateService {
      * @return 分类信息
      */
     private CategoryResp callCategory(Long categoryId) {
-        Result<CategoryResp> result = categoryClient.getById(categoryId);
-        AssertUtils.isTrue(
-                result.getCode() == Result.SUCCESS_CODE && result.getData() != null,
-                BizErrorCode.CATEGORY_NOT_EXIST_OR_NO_ENABLE
-        );
-        return result.getData();
+        CategoryResp category = categoryClient.getById(categoryId);
+        AssertUtils.notNull(category, BizErrorCode.CATEGORY_NOT_EXIST_OR_NO_ENABLE);
+        return category;
     }
 
     /**

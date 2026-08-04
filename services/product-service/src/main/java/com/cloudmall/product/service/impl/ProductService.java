@@ -24,7 +24,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.cloudmall.common.context.UserContextHolder;
 import com.cloudmall.common.enums.BizErrorCode;
-import com.cloudmall.common.model.Result;
 import com.cloudmall.common.utils.AssertUtils;
 import com.cloudmall.product.api.model.ImageItem;
 import com.cloudmall.product.api.model.SkuItem;
@@ -516,9 +515,7 @@ public class ProductService implements IProductService {
      */
     private Long validateAndReturnShopId() {
         Long userId = UserContextHolder.getUserId();
-        Result<ShopResp> result = shopClient.getByUserId(userId);
-        AssertUtils.notNull(result, BizErrorCode.MERCHANT_STORE_NOT_FOUND);
-        ShopResp shop = result.getData();
+        ShopResp shop = shopClient.getByUserId(userId);
         AssertUtils.notNull(shop, BizErrorCode.MERCHANT_STORE_NOT_FOUND);
         return shop.getId();
     }

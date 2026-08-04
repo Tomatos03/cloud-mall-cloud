@@ -4,7 +4,6 @@ import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
-import com.cloudmall.common.model.Result;
 import com.cloudmall.order.api.response.CouponUsageStatsResp;
 
 /**
@@ -24,7 +23,7 @@ public interface OrderStatsClient {
      * @return 使用订单数与补贴金额
      */
     @GetMapping("/coupon-usage")
-    Result<CouponUsageStatsResp> usageByCoupon(
+    CouponUsageStatsResp usageByCoupon(
             @RequestParam("couponId")
             Long couponId
     );
@@ -35,5 +34,5 @@ public interface OrderStatsClient {
      * @return 使用订单数与补贴金额
      */
     @GetMapping("/coupon-usage/overview")
-    Result<CouponUsageStatsResp> usageOverview();
+    CouponUsageStatsResp usageOverview();
 }

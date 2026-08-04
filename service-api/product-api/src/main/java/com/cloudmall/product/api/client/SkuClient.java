@@ -8,7 +8,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
-import com.cloudmall.common.model.Result;
 import com.cloudmall.product.api.request.StockReq;
 import com.cloudmall.product.api.response.SkuResp;
 
@@ -27,7 +26,7 @@ public interface SkuClient {
      * @return 操作是否成功
      */
     @PutMapping("/{skuId}/stock")
-    Result<Boolean> updateStock(
+    Boolean updateStock(
             @PathVariable("skuId")
             Long skuId,
             @RequestBody
@@ -42,7 +41,7 @@ public interface SkuClient {
      * @return SKU 信息列表
      */
     @PostMapping("/batch-query")
-    Result<List<SkuResp>> listSkusByIds(
+    List<SkuResp> listSkusByIds(
             @RequestBody
             List<Long> skuIds
     );

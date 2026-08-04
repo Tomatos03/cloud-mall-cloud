@@ -9,6 +9,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import com.cloudmall.order.api.model.OrderItemReq;
+
 /**
  * 下单前价格预览请求
  * <p>
@@ -27,24 +29,8 @@ public class QuoteOrderReq {
     /** 下单商品明细 */
     @Valid
     @NotEmpty
-    private List<QuoteOrderItemReq> items;
+    private List<OrderItemReq> items;
 
     /** 用户选择的优惠券 ID 列表（可空，不传时自动推荐最优组合） */
     private List<Long> userCouponIds;
-
-    /**
-     * 下单商品明细项
-     */
-    @Data
-    @Builder
-    @NoArgsConstructor
-    @AllArgsConstructor
-    public static class QuoteOrderItemReq {
-
-        /** SKU ID */
-        private Long skuId;
-
-        /** 购买数量 */
-        private Integer quantity;
-    }
 }

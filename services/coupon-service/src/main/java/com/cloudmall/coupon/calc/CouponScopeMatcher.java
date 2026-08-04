@@ -15,7 +15,6 @@ import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
-import com.cloudmall.common.model.Result;
 import com.cloudmall.coupon.api.dto.CouponCalcItem;
 import com.cloudmall.coupon.entity.CouponCategoryDO;
 import com.cloudmall.coupon.entity.CouponDO;
@@ -176,14 +175,8 @@ public class CouponScopeMatcher {
         while (CollUtil.isNotEmpty(pending)) {
             List<Long> batch = new ArrayList<>(pending);
             pending.clear();
-            Result<List<CategoryResp>> result = categoryClient.getByIds(batch);
-            if (
-                    result == null || result.getCode() != Result.SUCCESS_CODE
-                        || CollUtil.isEmpty(result.getData())
-            ) {
-                break;
-            }
-            for (CategoryResp cat : result.getData()) {
+            List<CategoryResp> categoryList = categoryClient.getByIds(batch);
+            for (CategoryResp cat : categoryList) {
                 queried.add(cat.getId());
                 Long parentId = cat.getParentId();
                 if (parentId == null || parentId == 0) {

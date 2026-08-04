@@ -4,7 +4,6 @@ import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
-import com.cloudmall.common.model.Result;
 import com.cloudmall.coupon.api.request.CouponOrderCommitReq;
 import com.cloudmall.coupon.api.request.CouponOrderLockReq;
 import com.cloudmall.coupon.api.request.CouponOrderQuoteReq;
@@ -35,7 +34,7 @@ public interface CouponOrderClient {
      * @return 优惠快照
      */
     @PostMapping("/quote")
-    Result<CouponOrderCalcResp> quote(
+    CouponOrderCalcResp quote(
             @RequestBody
             CouponOrderQuoteReq req
     );
@@ -47,7 +46,7 @@ public interface CouponOrderClient {
      * @return 优惠快照（含实际使用的券快照）
      */
     @PostMapping("/lock")
-    Result<CouponOrderCalcResp> lock(
+    CouponOrderCalcResp lock(
             @RequestBody
             CouponOrderLockReq req
     );
@@ -59,7 +58,7 @@ public interface CouponOrderClient {
      * @return 处理结果
      */
     @PostMapping("/commit")
-    Result<Void> commit(
+    void commit(
             @RequestBody
             CouponOrderCommitReq req
     );
@@ -71,7 +70,7 @@ public interface CouponOrderClient {
      * @return 处理结果
      */
     @PostMapping("/release")
-    Result<Void> release(
+    void release(
             @RequestBody
             CouponOrderReleaseReq req
     );
@@ -83,7 +82,7 @@ public interface CouponOrderClient {
      * @return 处理结果
      */
     @PostMapping("/revert")
-    Result<Void> revert(
+    void revert(
             @RequestBody
             CouponOrderRevertReq req
     );
@@ -95,7 +94,7 @@ public interface CouponOrderClient {
      * @return 处理结果
      */
     @PostMapping("/release-by-order")
-    Result<Void> releaseByOrder(
+    void releaseByOrder(
             @RequestBody
             CouponOrderReleaseByOrderReq req
     );

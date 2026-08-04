@@ -8,7 +8,6 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
-import com.cloudmall.common.model.Result;
 import com.cloudmall.product.api.response.CategoryResp;
 
 /**
@@ -26,7 +25,7 @@ public interface CategoryClient {
      * @return 分类信息
      */
     @GetMapping("/{id}")
-    Result<CategoryResp> getById(
+    CategoryResp getById(
             @PathVariable("id")
             Long id
     );
@@ -38,7 +37,7 @@ public interface CategoryClient {
      * @return 分类信息列表
      */
     @PostMapping("/batch")
-    Result<List<CategoryResp>> getByIds(
+    List<CategoryResp> getByIds(
             @RequestBody
             List<Long> ids
     );

@@ -9,7 +9,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 
-import com.cloudmall.common.model.Result;
 import com.cloudmall.user.api.response.ShopResp;
 
 @FeignClient(name = "user-service", contextId = "shopClient", path = "/shops")
@@ -22,7 +21,7 @@ public interface ShopClient {
      * @return 处理结果
      */
     @GetMapping
-    Result<ShopResp> getByUserId(
+    ShopResp getByUserId(
             @RequestParam("userId")
             Long userId
     );
@@ -34,7 +33,7 @@ public interface ShopClient {
      * @return 处理结果
      */
     @GetMapping("/{id}")
-    Result<ShopResp> getById(
+    ShopResp getById(
             @PathVariable("id")
             Long id
     );
@@ -45,7 +44,7 @@ public interface ShopClient {
      * @return 处理结果
      */
     @GetMapping("/current")
-    Result<ShopResp> getCurrent();
+    ShopResp getCurrent();
 
     /**
      * 批量查询店铺信息（名称、Logo 等）。 <p>
@@ -55,7 +54,7 @@ public interface ShopClient {
      * @return 店铺信息列表
      */
     @PostMapping("/batch-query")
-    Result<List<ShopResp>> listByIds(
+    List<ShopResp> listByIds(
             @RequestBody
             List<Long> shopIds
     );

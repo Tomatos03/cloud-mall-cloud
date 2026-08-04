@@ -38,7 +38,6 @@ import com.cloudmall.common.context.UserContext;
 import com.cloudmall.common.context.UserContextHolder;
 import com.cloudmall.common.enums.BizErrorCode;
 import com.cloudmall.common.enums.UserTypeEnum;
-import com.cloudmall.common.model.Result;
 import com.cloudmall.common.utils.AssertUtils;
 import com.cloudmall.jwt.service.ITokenService;
 import com.cloudmall.mybatisplus.enums.StatusEnum;
@@ -142,11 +141,8 @@ public class UserService implements IUserService {
         if (user.getTypes() != UserTypeEnum.MERCHANT) {
             return null;
         }
-        Result<ShopResp> result = shopClient.getByUserId(user.getId());
-        if (result.getCode() == Result.SUCCESS_CODE && result.getData() != null) {
-            return result.getData().getId();
-        }
-        return null;
+        ShopResp shop = shopClient.getByUserId(user.getId());
+        return shop != null ? shop.getId() : null;
     }
 
     /**

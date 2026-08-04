@@ -10,6 +10,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import com.cloudmall.order.api.model.OrderItemReq;
+
 /**
  * 创建订单请求
  * <p>
@@ -28,7 +30,7 @@ public class CreateOrderReq {
     /** 下单商品明细（购物车选中项） */
     @Valid
     @NotEmpty
-    private List<CreateOrderItemReq> items;
+    private List<OrderItemReq> items;
 
     /** 用户选择的优惠券 ID 列表（可空，不传时不使用优惠券） */
     private List<Long> userCouponIds;
@@ -39,24 +41,4 @@ public class CreateOrderReq {
 
     /** 订单备注 */
     private String remark;
-
-    /**
-     * 下单商品明细项
-     * <p>
-     * 只提交 SKU 与数量，价格等信息由服务端组装可信快照。
-     */
-    @Data
-    @Builder
-    @NoArgsConstructor
-    @AllArgsConstructor
-    public static class CreateOrderItemReq {
-
-        /** SKU ID */
-        @NotNull
-        private Long skuId;
-
-        /** 购买数量 */
-        @NotNull
-        private Integer quantity;
-    }
 }

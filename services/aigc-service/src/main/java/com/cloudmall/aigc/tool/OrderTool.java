@@ -2,6 +2,8 @@ package com.cloudmall.aigc.tool;
 
 import java.util.List;
 
+import cn.hutool.core.collection.CollUtil;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import lombok.RequiredArgsConstructor;
 import org.springframework.ai.chat.model.ToolContext;
 import org.springframework.ai.tool.annotation.Tool;
@@ -29,18 +31,15 @@ public class OrderTool {
      * @param toolContext 工具上下文，用于存储查询结果
      * @return 订单详情，未找到时为 null
      */
-    @Tool(description = "根据订单ID查询订单详情，返回订单编号、状态、金额、商品列表、收货地址等完整信息")
     public OrderResp getOrderById(
             @ToolParam(description = "订单ID")
             Long id,
             ToolContext toolContext
     ) {
-        var result = orderClient.getById(id);
-        if (result == null || result.getData() == null) {
+        OrderResp order = orderClient.getById(id);
+        if (order == null) {
             return null;
         }
-
-        OrderResp order = result.getData();
         if (toolContext.getContext().get("resultContext") instanceof ToolResultContext resultContext) {
             resultContext.put(OrderResp.class.getSimpleName(), order);
         }
@@ -56,12 +55,11 @@ public class OrderTool {
     @Tool(description = "查询当前用户的订单列表，返回所有订单的概要信息（订单号、状态、金额、下单时间）")
     public List<OrderResp> listMyOrders(ToolContext toolContext) {
         Long userId = UserContextHolder.getUserId();
-        var result = orderClient.page(userId, 1, 100);
-        if (result == null || result.getData() == null) {
+        Page<OrderResp> page = orderClient.page(userId, 1, 100);
+        if (page == null || CollUtil.isEmpty(page.getRecords())) {
             return List.of();
         }
-
-        List<OrderResp> orders = result.getData().getRecords();
+        List<OrderResp> orders = page.getRecords();
         if (toolContext.getContext().get("resultContext") instanceof ToolResultContext resultContext) {
             resultContext.put("OrderList", orders);
         }

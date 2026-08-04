@@ -21,7 +21,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import com.cloudmall.common.enums.BizErrorCode;
-import com.cloudmall.common.model.Result;
 import com.cloudmall.common.utils.AssertUtils;
 import com.cloudmall.order.api.model.CartItem;
 import com.cloudmall.order.api.model.CartShopGroup;
@@ -86,7 +85,6 @@ public class CartService implements ICartService {
      *
      * @param userId 用户标识
      * @param req 请求参数
-     * @throws BizException 处理过程中可能抛出该异常
      */
     @Override
     public void updateQuantity(Long userId, CartOperatorReq req) {
@@ -123,7 +121,6 @@ public class CartService implements ICartService {
      *
      * @param userId 用户标识
      * @param req 请求参数
-     * @throws BizException 处理过程中可能抛出该异常
      */
     @Override
     public void selectItems(Long userId, CartSelectReq req) {
@@ -141,7 +138,6 @@ public class CartService implements ICartService {
      *
      * @param userId 用户标识
      * @param selected 是否选中
-     * @throws BizException 处理过程中可能抛出该异常
      */
     @Override
     public void selectAll(Long userId, Boolean selected) {
@@ -271,7 +267,6 @@ public class CartService implements ICartService {
      *
      * @param skuId SKU ID
      * @return SKU 实时信息
-     * @throws BizException 处理过程中可能抛出该异常
      */
     private SkuResp fetchSku(Long skuId) {
         List<SkuResp> skus = fetchSkus(Collections.singletonList(skuId));
@@ -284,15 +279,10 @@ public class CartService implements ICartService {
      *
      * @param skuIds SKU ID 列表
      * @return SKU 信息列表，SKU 不存在或已删除时不包含对应项
-     * @throws BizException 处理过程中可能抛出该异常
      */
     private List<SkuResp> fetchSkus(List<Long> skuIds) {
-        Result<List<SkuResp>> result = skuClient.listSkusByIds(skuIds);
-        AssertUtils.isTrue(
-                result != null && result.getCode() == Result.SUCCESS_CODE,
-                BizErrorCode.SERVICE_UNAVAILABLE
-        );
-        return ObjectUtil.defaultIfNull(result.getData(), Collections.emptyList());
+        List<SkuResp> skus = skuClient.listSkusByIds(skuIds);
+        return ObjectUtil.defaultIfNull(skus, Collections.emptyList());
     }
 
     /**
@@ -300,18 +290,12 @@ public class CartService implements ICartService {
      *
      * @param shopIds 店铺 ID 集合
      * @return shopId -> 店铺信息
-     * @throws BizException 处理过程中可能抛出该异常
      */
     private Map<Long, ShopResp> fetchShops(Set<Long> shopIds) {
         if (CollUtil.isEmpty(shopIds)) {
             return Collections.emptyMap();
         }
-        Result<List<ShopResp>> result = shopClient.listByIds(new ArrayList<>(shopIds));
-        AssertUtils.isTrue(
-                result != null && result.getCode() == Result.SUCCESS_CODE,
-                BizErrorCode.SERVICE_UNAVAILABLE
-        );
-        List<ShopResp> shops = result.getData();
+        List<ShopResp> shops = shopClient.listByIds(new ArrayList<>(shopIds));
         if (CollUtil.isEmpty(shops)) {
             return Collections.emptyMap();
         }

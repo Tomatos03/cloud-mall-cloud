@@ -6,7 +6,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
 
-import com.cloudmall.common.model.Result;
 import com.cloudmall.order.api.response.OrderResp;
 
 @FeignClient(name = "order-service", contextId = "orderClient", path = "/orders")
@@ -19,7 +18,7 @@ public interface OrderClient {
      * @return 处理结果
      */
     @GetMapping("/{id}")
-    Result<OrderResp> getById(
+    OrderResp getById(
             @PathVariable("id")
             Long id
     );
@@ -33,7 +32,7 @@ public interface OrderClient {
      * @return 分页数据
      */
     @GetMapping
-    Result<Page<OrderResp>> page(
+    Page<OrderResp> page(
             @RequestParam("userId")
             Long userId,
             @RequestParam(value = "current", defaultValue = "1")

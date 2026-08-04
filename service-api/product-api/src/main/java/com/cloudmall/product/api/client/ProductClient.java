@@ -4,7 +4,6 @@ import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 
-import com.cloudmall.common.model.Result;
 import com.cloudmall.product.api.response.ProductResp;
 
 @FeignClient(name = "product-service", contextId = "productClient", path = "/product")
@@ -17,7 +16,7 @@ public interface ProductClient {
      * @return 处理结果
      */
     @GetMapping("/{id}")
-    Result<ProductResp> getById(
+    ProductResp getById(
             @PathVariable("id")
             Long id
     );
@@ -29,7 +28,7 @@ public interface ProductClient {
      * @return 处理结果
      */
     @GetMapping("/spu/{spu}")
-    Result<ProductResp> getBySpu(
+    ProductResp getBySpu(
             @PathVariable("spu")
             String spu
     );

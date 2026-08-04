@@ -7,7 +7,6 @@ import org.springframework.ai.tool.annotation.ToolParam;
 
 import com.cloudmall.aigc.agent.AgentTool;
 import com.cloudmall.aigc.agent.AgentType;
-import com.cloudmall.common.model.Result;
 import com.cloudmall.product.api.client.ProductClient;
 import com.cloudmall.product.api.response.ProductResp;
 
@@ -38,12 +37,10 @@ public class ProductTool {
             String spu,
             ToolContext toolContext
     ) {
-        Result<ProductResp> result = productClient.getBySpu(spu);
-        if (result == null || result.getData() == null) {
+        ProductResp product = productClient.getBySpu(spu);
+        if (product == null) {
             return null;
         }
-
-        ProductResp product = result.getData();
         if (toolContext.getContext().get("resultContext") instanceof ToolResultContext resultContext) {
             resultContext.put(ProductResp.class.getSimpleName(), product);
         }

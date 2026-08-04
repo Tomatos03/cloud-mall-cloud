@@ -4,7 +4,6 @@ import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
-import com.cloudmall.common.model.Result;
 import com.cloudmall.product.api.request.StockConfirmReq;
 import com.cloudmall.product.api.request.StockOpReq;
 import com.cloudmall.product.api.request.StockReleaseByOrderReq;
@@ -26,7 +25,7 @@ public interface StockClient {
      * @return 处理结果
      */
     @PostMapping("/reserve")
-    Result<Void> reserve(
+    void reserve(
             @RequestBody
             StockOpReq req
     );
@@ -38,7 +37,7 @@ public interface StockClient {
      * @return 处理结果
      */
     @PostMapping("/confirm")
-    Result<Void> confirm(
+    void confirm(
             @RequestBody
             StockConfirmReq req
     );
@@ -50,7 +49,7 @@ public interface StockClient {
      * @return 处理结果
      */
     @PostMapping("/release")
-    Result<Void> release(
+    void release(
             @RequestBody
             StockOpReq req
     );
@@ -62,7 +61,7 @@ public interface StockClient {
      * @return 处理结果
      */
     @PostMapping("/compensate")
-    Result<Void> compensate(
+    void compensate(
             @RequestBody
             StockOpReq req
     );
@@ -74,7 +73,7 @@ public interface StockClient {
      * @return 处理结果
      */
     @PostMapping("/release-by-order")
-    Result<Void> releaseByOrder(
+    void releaseByOrder(
             @RequestBody
             StockReleaseByOrderReq req
     );

@@ -24,7 +24,6 @@ import org.springframework.stereotype.Service;
 import com.cloudmall.common.context.UserContextHolder;
 import com.cloudmall.common.enums.BizErrorCode;
 import com.cloudmall.common.exception.BizException;
-import com.cloudmall.common.model.Result;
 import com.cloudmall.common.utils.AssertUtils;
 import com.cloudmall.coupon.api.client.CouponOrderClient;
 import com.cloudmall.coupon.api.dto.CouponCalcItem;
@@ -34,6 +33,7 @@ import com.cloudmall.coupon.api.request.CouponOrderReleaseReq;
 import com.cloudmall.coupon.api.response.CouponOrderCalcResp;
 import com.cloudmall.coupon.api.response.CouponUsageResult;
 import com.cloudmall.mybatisplus.enums.StatusEnum;
+import com.cloudmall.order.api.model.OrderItemReq;
 import com.cloudmall.order.api.request.CreateOrderReq;
 import com.cloudmall.order.api.request.QuoteOrderReq;
 import com.cloudmall.order.api.response.OrderResp;
@@ -51,6 +51,7 @@ import com.cloudmall.order.mapper.OrderCouponMapper;
 import com.cloudmall.order.mapper.OrderItemMapper;
 import com.cloudmall.order.mapper.OrderMapper;
 import com.cloudmall.order.mapper.OrderSubMapper;
+import com.cloudmall.order.model.OrderDraft;
 import com.cloudmall.order.model.req.OrderPageReq;
 import com.cloudmall.order.model.req.OrderSubPageReq;
 import com.cloudmall.order.service.ICartService;
@@ -119,7 +120,7 @@ public class OrderService implements IOrderService {
         List<Long> shopIds = new ArrayList<>(groupByShop(calcItems).keySet());
 
         String orderNo = genOrderNo();
-        OrderPersistenceService.Skeleton skeleton = orderPersistence.createSkeleton(
+        OrderDraft orderDraft = orderPersistence.createDraft(
                 userId,
                 orderNo,
                 req,
@@ -133,15 +134,15 @@ public class OrderService implements IOrderService {
             stockReserved = true;
             CouponOrderCalcResp calc = lockCoupons(userId, orderNo, req, calcItems);
             lockedUsages = calc.getUsages();
-            orderPersistence.finalizeOrder(skeleton, calc, skuMap, quantities);
+            orderPersistence.finalizeOrder(orderDraft, calc, skuMap, quantities);
         } catch (RuntimeException e) {
-            compensate(skeleton, userId, orderNo, quantities, stockReserved, lockedUsages);
+            compensate(orderDraft, userId, orderNo, quantities, stockReserved, lockedUsages);
             throw e;
         }
         cartService.removeItems(userId, quantities.keySet()
                                                   .stream()
                                                   .toList());
-        return getById(skeleton.order().getId());
+        return getById(orderDraft.order().getId());
     }
 
     /**
@@ -152,22 +153,28 @@ public class OrderService implements IOrderService {
      */
     @Override
     public CouponOrderCalcResp quote(QuoteOrderReq req) {
-        Long userId = UserContextHolder.getUserId();
-        AssertUtils.notNull(userId, BizErrorCode.USER_NOT_AUTHENTICATED);
-        Map<Long, Integer> quantities = mergeQuoteQuantities(req.getItems());
+        Long userId = requireUserId();
+        Map<Long, Integer> quantities = mergeQuantities(req.getItems());
         Map<Long, SkuResp> skuMap = requireAvailableSkus(quantities);
         List<CouponCalcItem> calcItems = buildCalcItems(quantities, skuMap);
-        CouponOrderQuoteReq quoteReq = CouponOrderQuoteReq.builder()
-                                                          .userId(userId)
-                                                          .items(calcItems)
-                                                          .userCouponIds(req.getUserCouponIds())
-                                                          .build();
-        Result<CouponOrderCalcResp> result = couponOrderClient.quote(quoteReq);
-        AssertUtils.isTrue(
-                result != null && result.getCode() == Result.SUCCESS_CODE,
-                BizErrorCode.COUPON_LOCK_FAILED
-        );
-        return result.getData();
+        CouponOrderQuoteReq quoteReq = buildQuoteReq(req, userId, calcItems);
+        return requireCouponOrderCalcResp(quoteReq);
+    }
+
+    private CouponOrderCalcResp requireCouponOrderCalcResp(CouponOrderQuoteReq req) {
+        return couponOrderClient.quote(req);
+    }
+
+    private static CouponOrderQuoteReq buildQuoteReq(
+            QuoteOrderReq req,
+            Long userId,
+            List<CouponCalcItem> calcItems
+    ) {
+        return CouponOrderQuoteReq.builder()
+                                  .userId(userId)
+                                  .items(calcItems)
+                                  .userCouponIds(req.getUserCouponIds())
+                                  .build();
     }
 
     /**
@@ -317,12 +324,7 @@ public class OrderService implements IOrderService {
      * @return 收货地址
      */
     private AddressResp requireAddress(Long userId, Long addressId) {
-        Result<List<AddressResp>> result = addressClient.listAddresses(userId);
-        AssertUtils.isTrue(
-                result != null && result.getCode() == Result.SUCCESS_CODE,
-                BizErrorCode.SERVICE_UNAVAILABLE
-        );
-        List<AddressResp> addresses = result.getData();
+        List<AddressResp> addresses = addressClient.listAddresses(userId);
         if (CollUtil.isEmpty(addresses)) {
             throw new BizException(BizErrorCode.ORDER_CREATE_ADDRESS_NOT_EXIST);
         }
@@ -339,23 +341,9 @@ public class OrderService implements IOrderService {
      * @param items 下单明细
      * @return skuId → 数量
      */
-    private Map<Long, Integer> mergeQuantities(List<CreateOrderReq.CreateOrderItemReq> items) {
+    private Map<Long, Integer> mergeQuantities(List<OrderItemReq> items) {
         Map<Long, Integer> quantities = new LinkedHashMap<>();
-        for (CreateOrderReq.CreateOrderItemReq item : items) {
-            quantities.merge(item.getSkuId(), item.getQuantity(), Integer::sum);
-        }
-        return quantities;
-    }
-
-    /**
-     * 合并报价明细为 skuId → 数量（同 SKU 累加）。
-     *
-     * @param items 报价明细
-     * @return skuId → 数量
-     */
-    private Map<Long, Integer> mergeQuoteQuantities(List<QuoteOrderReq.QuoteOrderItemReq> items) {
-        Map<Long, Integer> quantities = new LinkedHashMap<>();
-        for (QuoteOrderReq.QuoteOrderItemReq item : items) {
+        for (OrderItemReq item : items) {
             quantities.merge(item.getSkuId(), item.getQuantity(), Integer::sum);
         }
         return quantities;
@@ -398,12 +386,7 @@ public class OrderService implements IOrderService {
      * @return SKU 可信快照 map
      */
     private Map<Long, SkuResp> requireAvailableSkus(Map<Long, Integer> quantities) {
-        Result<List<SkuResp>> result = skuClient.listSkusByIds(new ArrayList<>(quantities.keySet()));
-        AssertUtils.isTrue(
-                result != null && result.getCode() == Result.SUCCESS_CODE,
-                BizErrorCode.SERVICE_UNAVAILABLE
-        );
-        List<SkuResp> skus = result.getData();
+        List<SkuResp> skus = skuClient.listSkusByIds(new ArrayList<>(quantities.keySet()));
         if (CollUtil.isEmpty(skus)) {
             throw new BizException(BizErrorCode.ORDER_CREATE_SKU_NOT_AVAILABLE);
         }
@@ -466,11 +449,14 @@ public class OrderService implements IOrderService {
      * @return shopId → 商品明细列表
      */
     private Map<Long, List<CouponCalcItem>> groupByShop(List<CouponCalcItem> calcItems) {
-        Map<Long, List<CouponCalcItem>> byShop = new LinkedHashMap<>();
-        for (CouponCalcItem item : calcItems) {
-            byShop.computeIfAbsent(item.getShopId(), key -> new ArrayList<>()).add(item);
-        }
-        return byShop;
+        return calcItems.stream()
+                        .collect(
+                                Collectors.groupingBy(
+                                        CouponCalcItem::getShopId,
+                                        LinkedHashMap::new,
+                                        Collectors.toList()
+                                )
+                        );
     }
 
     /**
@@ -480,13 +466,7 @@ public class OrderService implements IOrderService {
      * @param quantities skuId → 数量
      */
     private void reserveStock(String orderNo, Map<Long, Integer> quantities) {
-        Result<Void> result = stockClient.reserve(
-                buildStockOpReq(orderNo, quantities, RESERVE_REASON)
-        );
-        AssertUtils.isTrue(
-                result != null && result.getCode() == Result.SUCCESS_CODE,
-                BizErrorCode.ORDER_CREATE_SKU_INVENTORY_NOT_ENOUGH
-        );
+        stockClient.reserve(buildStockOpReq(orderNo, quantities, RESERVE_REASON));
     }
 
     /**
@@ -512,12 +492,7 @@ public class OrderService implements IOrderService {
                 .items(calcItems)
                 .userCouponIds(req.getUserCouponIds())
                 .build();
-        Result<CouponOrderCalcResp> result = couponOrderClient.lock(lockReq);
-        AssertUtils.isTrue(
-                result != null && result.getCode() == Result.SUCCESS_CODE,
-                BizErrorCode.COUPON_LOCK_FAILED
-        );
-        return result.getData();
+        return couponOrderClient.lock(lockReq);
     }
 
     /**
@@ -532,7 +507,7 @@ public class OrderService implements IOrderService {
      * @param lockedUsages 已锁定的券快照
      */
     private void compensate(
-            OrderPersistenceService.Skeleton skeleton,
+            OrderDraft skeleton,
             Long userId,
             String orderNo,
             Map<Long, Integer> quantities,
