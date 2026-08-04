@@ -21,7 +21,7 @@ import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 
-import com.cloudmall.common.enums.BizErrorCode;
+import com.cloudmall.common.enums.BizError;
 import com.cloudmall.common.model.Result;
 
 /**
@@ -53,27 +53,25 @@ public class GatewayExceptionHandler implements ErrorWebExceptionHandler {
 
         if (ex instanceof NotFoundException) {
             // 路由找不到（下游服务未注册等）
-            businessCode = BizErrorCode.SERVICE_UNAVAILABLE.getCode();
+            businessCode = BizError.SERVICE_UNAVAILABLE.getCode();
             httpStatus = HttpStatus.SERVICE_UNAVAILABLE;
-            message = BizErrorCode.SERVICE_UNAVAILABLE.getErrorMessage();
+            message = BizError.SERVICE_UNAVAILABLE.getErrorMessage();
         } else if (ex instanceof ResponseStatusException statusException) {
             // 其他已知状态异常
             httpStatus = HttpStatus.resolve(statusException.getStatusCode().value());
             if (httpStatus == null) {
                 httpStatus = HttpStatus.INTERNAL_SERVER_ERROR;
             }
-            businessCode = httpStatus.is5xxServerError()
-                    ? Result.INTERNAL_ERROR_CODE
-                    : httpStatus.value();
+            businessCode = httpStatus.is5xxServerError() ? Result.INTERNAL_ERROR_CODE : httpStatus.value();
             message = statusException.getReason();
             if (StrUtil.isBlank(message)) {
                 message = "服务器内部错误";
             }
         } else if (ex instanceof TimeoutException || ex instanceof ConnectException) {
             // 超时或连接异常
-            businessCode = BizErrorCode.GATEWAY_TIMEOUT.getCode();
+            businessCode = BizError.GATEWAY_TIMEOUT.getCode();
             httpStatus = HttpStatus.GATEWAY_TIMEOUT;
-            message = BizErrorCode.GATEWAY_TIMEOUT.getErrorMessage();
+            message = BizError.GATEWAY_TIMEOUT.getErrorMessage();
         } else {
             // 兜底
             businessCode = Result.INTERNAL_ERROR_CODE;
@@ -110,9 +108,7 @@ public class GatewayExceptionHandler implements ErrorWebExceptionHandler {
             bytes = objectMapper.writeValueAsString(result).getBytes(StandardCharsets.UTF_8);
         } catch (JsonProcessingException e) {
             log.error("序列化异常响应失败", e);
-            bytes = ("{\"code\":500,\"message\":\"服务器内部错误\",\"data\":null}").getBytes(
-                    StandardCharsets.UTF_8
-            );
+            bytes = ("{\"code\":500,\"message\":\"服务器内部错误\",\"data\":null}").getBytes(StandardCharsets.UTF_8);
         }
 
         DataBuffer buffer = response.bufferFactory().wrap(bytes);

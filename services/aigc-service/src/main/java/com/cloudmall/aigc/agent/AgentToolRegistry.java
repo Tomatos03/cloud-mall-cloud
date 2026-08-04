@@ -63,9 +63,7 @@ public class AgentToolRegistry {
         for (Object tool : toolBeans.values()) {
             AgentTool ann = tool.getClass().getAnnotation(AgentTool.class);
 
-            List<AgentType> list = List.of(
-                    ann.agents().length == 0 ? AgentType.values() : ann.agents()
-            );
+            List<AgentType> list = List.of(ann.agents().length == 0 ? AgentType.values() : ann.agents());
             Set<AgentType> allowed = new HashSet<>(list);
             List.of(ann.exclude()).forEach(allowed::remove);
 
@@ -74,9 +72,8 @@ public class AgentToolRegistry {
             }
         }
 
-        return result
-                .entrySet()
-                .stream()
-                .collect(Collectors.toMap(Map.Entry::getKey, entry -> entry.getValue().toArray()));
+        return result.entrySet()
+                     .stream()
+                     .collect(Collectors.toMap(Map.Entry::getKey, entry -> entry.getValue().toArray()));
     }
 }

@@ -33,10 +33,9 @@ public class ChatMessageService extends ServiceImpl<ChatMessageMapper, ChatMessa
     public IPage<MessageVO> pageMessageHistory(IMPageParamsDTO params) {
         Page<ChatMessage> page = new Page<>(calculateReversePage(params), params.getPageSize());
 
-        IPage<ChatMessage> messagePage = lambdaQuery()
-                .eq(ChatMessage::getSessionId, params.getSessionId())
-                .orderByAsc(ChatMessage::getCreateTime)
-                .page(page);
+        IPage<ChatMessage> messagePage = lambdaQuery().eq(ChatMessage::getSessionId, params.getSessionId())
+                                                      .orderByAsc(ChatMessage::getCreateTime)
+                                                      .page(page);
 
         return messagePage.convert(
                 msg -> MessageVO.builder()

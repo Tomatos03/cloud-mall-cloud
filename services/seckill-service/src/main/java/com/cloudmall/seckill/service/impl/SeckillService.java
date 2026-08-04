@@ -8,7 +8,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.cloudmall.common.exception.BizException;
-import com.cloudmall.common.utils.AssertUtils;
+import com.cloudmall.common.utils.Asserts;
 import com.cloudmall.seckill.api.response.ActivityResp;
 import com.cloudmall.seckill.convert.SeckillConverter;
 import com.cloudmall.seckill.entity.SeckillActivityDO;
@@ -46,7 +46,7 @@ public class SeckillService implements ISeckillService {
      */
     @Override
     public ActivityResp getActivity(Long id) {
-        SeckillActivityDO act = AssertUtils.requireNonNull(activityMapper.selectById(id));
+        SeckillActivityDO act = Asserts.requireNonNull(activityMapper.selectById(id));
         return seckillConverter.toResp(act);
     }
 
@@ -61,13 +61,8 @@ public class SeckillService implements ISeckillService {
      */
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public void submitProduct(
-            Long activityId,
-            Long productId,
-            BigDecimal seckillPrice,
-            Integer stock
-    ) {
-        SeckillActivityDO act = AssertUtils.requireNonNull(activityMapper.selectById(activityId));
+    public void submitProduct(Long activityId, Long productId, BigDecimal seckillPrice, Integer stock) {
+        SeckillActivityDO act = Asserts.requireNonNull(activityMapper.selectById(activityId));
         SeckillProductDO product = SeckillProductDO.builder()
                                                    .activityId(activityId)
                                                    .productId(productId)
@@ -88,7 +83,7 @@ public class SeckillService implements ISeckillService {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public void auditProduct(Long productId, boolean approved) {
-        SeckillProductDO product = AssertUtils.requireNonNull(productMapper.selectById(productId));
+        SeckillProductDO product = Asserts.requireNonNull(productMapper.selectById(productId));
         product.setAuditStatus(approved ? "APPROVED" : "REJECTED");
         productMapper.updateById(product);
     }

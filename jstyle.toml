@@ -6,9 +6,9 @@ indent-size = 4
 # Independent line width for formatted method Javadocs.
 javadoc-content-width = 50
 # 每行最大宽度（含缩进），与 code-style.md 保持一致。
-line-width = 100
+line-width = 110
 # 链式/方法调用参数平排超过该宽度时强制换行。
-chain-argument-line-width = 90
+chain-argument-line-width = 100
 
 # 源码目录（相对于本文件所在目录，即项目根）。支持 `*` 通配（匹配单层目录名）；
 # 缺省（空数组）时自动发现配置目录下所有 src/main/java。

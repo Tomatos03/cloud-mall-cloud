@@ -11,7 +11,7 @@ import org.springframework.http.HttpStatus;
  * @date : 2025/12/18
  */
 @Getter
-public enum BizErrorCode {
+public enum BizError {
     // 通用错误码 (1xxx)
     INVALID_PARAM(1000, "请求参数无效"),
     INVALID_AUDIT_STATUS(1001, "无效的审核状态"),
@@ -254,10 +254,10 @@ public enum BizErrorCode {
     final int code;
     final String errorMessage;
     final HttpStatus httpStatus;
-    BizErrorCode(int code, String errorMessage) {
+    BizError(int code, String errorMessage) {
         this(code, errorMessage, HttpStatus.OK);
     }
-    BizErrorCode(int code, String errorMessage, HttpStatus httpStatus) {
+    BizError(int code, String errorMessage, HttpStatus httpStatus) {
         this.code = code;
         this.errorMessage = errorMessage;
         this.httpStatus = httpStatus;

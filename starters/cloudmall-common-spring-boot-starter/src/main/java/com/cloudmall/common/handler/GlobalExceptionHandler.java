@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.servlet.NoHandlerFoundException;
 
-import com.cloudmall.common.enums.BizErrorCode;
+import com.cloudmall.common.enums.BizError;
 import com.cloudmall.common.exception.BizException;
 import com.cloudmall.common.exception.FeignRemoteException;
 import com.cloudmall.common.model.Result;
@@ -37,7 +37,7 @@ public class GlobalExceptionHandler {
      */
     @ExceptionHandler(BizException.class)
     public ResponseEntity<Result<Void>> handleBizException(BizException e) {
-        BizErrorCode errorCode = e.getBizErrorCode();
+        BizError errorCode = e.getBizError();
         return ResponseEntity.status(errorCode.getHttpStatus()).body(Result.error(errorCode));
     }
 
@@ -69,7 +69,7 @@ public class GlobalExceptionHandler {
                           .map(f -> f.getDefaultMessage())
                           .orElse("请求参数校验失败");
         return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                             .body(Result.error(message, BizErrorCode.INVALID_PARAM.getCode()));
+                             .body(Result.error(message, BizError.INVALID_PARAM.getCode()));
     }
 
     /**
@@ -79,14 +79,12 @@ public class GlobalExceptionHandler {
      * @return 处理结果
      */
     @ExceptionHandler(MissingServletRequestParameterException.class)
-    public ResponseEntity<Result<Void>> handleMissingParam(
-            MissingServletRequestParameterException e
-    ) {
+    public ResponseEntity<Result<Void>> handleMissingParam(MissingServletRequestParameterException e) {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                              .body(
                                      Result.error(
                                              "缺少必要参数: " + e.getParameterName(),
-                                             BizErrorCode.INVALID_PARAM.getCode()
+                                             BizError.INVALID_PARAM.getCode()
                                      )
                              );
     }
@@ -101,7 +99,7 @@ public class GlobalExceptionHandler {
     public ResponseEntity<Result<Void>> handleMsgNotReadable(HttpMessageNotReadableException e) {
         log.warn("请求参数格式错误", e);
         return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                             .body(Result.error("请求参数格式错误", BizErrorCode.INVALID_PARAM.getCode()));
+                             .body(Result.error("请求参数格式错误", BizError.INVALID_PARAM.getCode()));
     }
 
     /**
@@ -113,7 +111,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(NoHandlerFoundException.class)
     public ResponseEntity<Result<Void>> handleNotFound(NoHandlerFoundException e) {
         return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                             .body(Result.error("接口不存在", BizErrorCode.DATA_NOT_FOUND.getCode()));
+                             .body(Result.error("接口不存在", BizError.DATA_NOT_FOUND.getCode()));
     }
 
     /**
@@ -123,11 +121,9 @@ public class GlobalExceptionHandler {
      * @return 处理结果
      */
     @ExceptionHandler(HttpRequestMethodNotSupportedException.class)
-    public ResponseEntity<Result<Void>> handleMethodNotSupported(
-            HttpRequestMethodNotSupportedException e
-    ) {
+    public ResponseEntity<Result<Void>> handleMethodNotSupported(HttpRequestMethodNotSupportedException e) {
         return ResponseEntity.status(HttpStatus.METHOD_NOT_ALLOWED)
-                             .body(Result.error("请求方法不支持", BizErrorCode.INVALID_PARAM.getCode()));
+                             .body(Result.error("请求方法不支持", BizError.INVALID_PARAM.getCode()));
     }
 
     /**

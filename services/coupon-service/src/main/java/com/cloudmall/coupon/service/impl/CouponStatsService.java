@@ -12,8 +12,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import com.cloudmall.common.context.UserContextHolder;
-import com.cloudmall.common.enums.BizErrorCode;
-import com.cloudmall.common.utils.AssertUtils;
+import com.cloudmall.common.enums.BizError;
+import com.cloudmall.common.utils.Asserts;
 import com.cloudmall.coupon.api.response.CouponStatsResp;
 import com.cloudmall.coupon.entity.CouponDO;
 import com.cloudmall.coupon.entity.UserCouponLogDO;
@@ -47,9 +47,9 @@ public class CouponStatsService implements ICouponStatsService {
      */
     @Override
     public CouponStatsResp statsByCoupon(Long couponId) {
-        CouponDO coupon = AssertUtils.requireNonNull(
+        CouponDO coupon = Asserts.requireNonNull(
                 couponMapper.selectById(couponId),
-                BizErrorCode.COUPON_TEMPLATE_NOT_FOUND
+                BizError.COUPON_TEMPLATE_NOT_FOUND
         );
         requireManageable(coupon);
         CouponStatsResp stats = aggregate(couponId);
@@ -66,7 +66,7 @@ public class CouponStatsService implements ICouponStatsService {
      */
     @Override
     public CouponStatsResp overview() {
-        AssertUtils.isTrue(UserContextHolder.isAdmin(), BizErrorCode.COUPON_OPERATION_NOT_ALLOWED);
+        Asserts.isTrue(UserContextHolder.isAdmin(), BizError.COUPON_OPERATION_NOT_ALLOWED);
         CouponStatsResp stats = aggregate(null);
         fillUsageStats(stats, orderStatsClient.usageOverview());
         return stats;
@@ -134,10 +134,7 @@ public class CouponStatsService implements ICouponStatsService {
         if (UserContextHolder.isAdmin()) {
             return;
         }
-        Long shopId = AssertUtils.requireNonNull(
-                UserContextHolder.getShopId(),
-                BizErrorCode.MERCHANT_NO_SHOP
-        );
-        AssertUtils.isEqual(coupon.getShopId(), shopId, BizErrorCode.COUPON_OPERATION_NOT_ALLOWED);
+        Long shopId = Asserts.requireNonNull(UserContextHolder.getShopId(), BizError.MERCHANT_NO_SHOP);
+        Asserts.isEqual(coupon.getShopId(), shopId, BizError.COUPON_OPERATION_NOT_ALLOWED);
     }
 }

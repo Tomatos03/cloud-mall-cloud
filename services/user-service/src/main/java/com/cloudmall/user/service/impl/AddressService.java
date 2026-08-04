@@ -6,9 +6,9 @@ import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import com.cloudmall.common.enums.BizErrorCode;
+import com.cloudmall.common.enums.BizError;
 import com.cloudmall.common.exception.BizException;
-import com.cloudmall.common.utils.AssertUtils;
+import com.cloudmall.common.utils.Asserts;
 import com.cloudmall.user.api.request.AddressUpdateReq;
 import com.cloudmall.user.api.request.CreateReq;
 import com.cloudmall.user.api.response.AddressResp;
@@ -49,7 +49,7 @@ public class AddressService implements IAddressService {
      */
     @Override
     public AddressResp getById(Long id) {
-        AddressDO address = AssertUtils.requireNonNull(addressMapper.selectById(id));
+        AddressDO address = Asserts.requireNonNull(addressMapper.selectById(id));
         return addressConverter.toResp(address);
     }
 
@@ -66,7 +66,7 @@ public class AddressService implements IAddressService {
         long count = addressMapper.selectCount(
                 Wrappers.<AddressDO>lambdaQuery().eq(AddressDO::getUserId, userId)
         );
-        AssertUtils.isFalse(count >= MAX_ADDRESS_COUNT, BizErrorCode.ADDRESS_LIMIT_EXCEEDED);
+        Asserts.isFalse(count >= MAX_ADDRESS_COUNT, BizError.ADDRESS_LIMIT_EXCEEDED);
 
         AddressDO address = addressConverter.toDO(request, userId);
         addressMapper.insert(address);
@@ -81,7 +81,7 @@ public class AddressService implements IAddressService {
      */
     @Override
     public void update(AddressUpdateReq request) {
-        AddressDO address = AssertUtils.requireNonNull(addressMapper.selectById(request.getId()));
+        AddressDO address = Asserts.requireNonNull(addressMapper.selectById(request.getId()));
         addressConverter.updateEntity(request, address);
         addressMapper.updateById(address);
     }
@@ -95,10 +95,10 @@ public class AddressService implements IAddressService {
     @Override
     public void delete(List<Long> ids) {
         List<AddressDO> addresses = addressMapper.selectBatchIds(ids);
-        AssertUtils.notEmpty(addresses, BizErrorCode.ADDRESS_NOT_EXIST);
+        Asserts.notEmpty(addresses, BizError.ADDRESS_NOT_EXIST);
 
         boolean hasDefault = addresses.stream().anyMatch(AddressDO::getIsDefault);
-        AssertUtils.isFalse(hasDefault, BizErrorCode.ADDRESS_DEFAULT_CANNOT_DELETE);
+        Asserts.isFalse(hasDefault, BizError.ADDRESS_DEFAULT_CANNOT_DELETE);
         addressMapper.deleteByIds(ids);
     }
 }

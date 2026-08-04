@@ -47,10 +47,9 @@ public enum TtsVoice {
         if (code == null) {
             throw new IllegalArgumentException("code must not be null");
         }
-        return Arrays
-                .stream(values())
-                .filter(voice -> voice.code.equals(code))
-                .findFirst()
-                .orElseThrow(() -> new IllegalArgumentException("Unknown TtsVoice code: " + code));
+        return Arrays.stream(values())
+                     .filter(voice -> voice.code.equals(code))
+                     .findFirst()
+                     .orElseThrow(() -> new IllegalArgumentException("Unknown TtsVoice code: " + code));
     }
 }

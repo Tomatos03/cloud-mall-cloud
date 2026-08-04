@@ -36,9 +36,9 @@ import com.cloudmall.auth.service.IResourceService;
 import com.cloudmall.auth.service.IUserService;
 import com.cloudmall.common.context.UserContext;
 import com.cloudmall.common.context.UserContextHolder;
-import com.cloudmall.common.enums.BizErrorCode;
+import com.cloudmall.common.enums.BizError;
 import com.cloudmall.common.enums.UserTypeEnum;
-import com.cloudmall.common.utils.AssertUtils;
+import com.cloudmall.common.utils.Asserts;
 import com.cloudmall.jwt.service.ITokenService;
 import com.cloudmall.mybatisplus.enums.StatusEnum;
 import com.cloudmall.user.api.client.ShopClient;
@@ -70,16 +70,15 @@ public class UserService implements IUserService {
      */
     @Override
     public LoginResp login(LoginReq request) {
-        UserDO user = AssertUtils.requireNonNull(
+        UserDO user = Asserts.requireNonNull(
                 userMapper.selectOne(
-                        Wrappers.<UserDO>lambdaQuery()
-                                .eq(UserDO::getUsername, request.getUsername())
+                        Wrappers.<UserDO>lambdaQuery().eq(UserDO::getUsername, request.getUsername())
                 ),
-                BizErrorCode.USER_NOT_EXISTS
+                BizError.USER_NOT_EXISTS
         );
-        AssertUtils.isTrue(
+        Asserts.isTrue(
                 passwordEncoder.matches(request.getPassword(), user.getPassword()),
-                BizErrorCode.PASSWORD_ERROR
+                BizError.PASSWORD_ERROR
         );
 
         List<String> permissionCodes = resolvePermissionCodes(
@@ -157,7 +156,7 @@ public class UserService implements IUserService {
         Long count = userMapper.selectCount(
                 Wrappers.<UserDO>lambdaQuery().eq(UserDO::getUsername, request.getUsername())
         );
-        AssertUtils.isZero(count, BizErrorCode.USER_ALREADY_EXISTS);
+        Asserts.isZero(count, BizError.USER_ALREADY_EXISTS);
 
         UserDO user = userConverter.toDO(request);
         user.setPassword(passwordEncoder.encode(request.getPassword()));
@@ -173,10 +172,7 @@ public class UserService implements IUserService {
      */
     @Override
     public UserInfoResp getUserInfo(Long userId) {
-        UserDO user = AssertUtils.requireNonNull(
-                userMapper.selectById(userId),
-                BizErrorCode.USER_NOT_EXISTS
-        );
+        UserDO user = Asserts.requireNonNull(userMapper.selectById(userId), BizError.USER_NOT_EXISTS);
         return userConverter.toResp(user);
     }
 

@@ -105,10 +105,9 @@ public class OrderOutboxService implements IOrderOutboxService {
                 Wrappers.<OrderOutboxDO>lambdaQuery()
                         .eq(OrderOutboxDO::getPublishStatus, OutboxPublishStatusEnum.PENDING)
                         .and(
-                                wrapper -> wrapper
-                                        .isNull(OrderOutboxDO::getNextRetryTime)
-                                        .or()
-                                        .le(OrderOutboxDO::getNextRetryTime, LocalDateTime.now())
+                                wrapper -> wrapper.isNull(OrderOutboxDO::getNextRetryTime)
+                                                  .or()
+                                                  .le(OrderOutboxDO::getNextRetryTime, LocalDateTime.now())
                         )
                         .orderByAsc(OrderOutboxDO::getId)
         );
@@ -122,10 +121,7 @@ public class OrderOutboxService implements IOrderOutboxService {
      */
     private void publishOne(OrderOutboxDO outbox) {
         try {
-            OrderEvent event = JSONUtil.toBean(
-                    JSONUtil.parseObj(outbox.getPayload()),
-                    OrderEvent.class
-            );
+            OrderEvent event = JSONUtil.toBean(JSONUtil.parseObj(outbox.getPayload()), OrderEvent.class);
             rocketMQTemplate.syncSend(ORDER_EVENTS_TOPIC + ":" + outbox.getEventType(), event);
             markPublished(outbox);
         } catch (Exception e) {
@@ -166,8 +162,7 @@ public class OrderOutboxService implements IOrderOutboxService {
                         .set(OrderOutboxDO::getRetryCount, nextRetry)
                         .set(
                                 OrderOutboxDO::getNextRetryTime,
-                                LocalDateTime.now()
-                                             .plusSeconds(RETRY_BASE_SECONDS * (long) nextRetry)
+                                LocalDateTime.now().plusSeconds(RETRY_BASE_SECONDS * (long) nextRetry)
                         )
                         .set(OrderOutboxDO::getLastError, e.getMessage())
                         .set(OrderOutboxDO::getPublishStatus, status)

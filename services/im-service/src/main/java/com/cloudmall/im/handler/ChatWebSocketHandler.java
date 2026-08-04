@@ -54,18 +54,13 @@ public class ChatWebSocketHandler extends TextWebSocketHandler {
             return;
         }
 
-        boolean targetUserOnline = webSocketSessionManager.isOnline(
-                messageDTO.getReceiverId(),
-                session
-        );
+        boolean targetUserOnline = webSocketSessionManager.isOnline(messageDTO.getReceiverId(), session);
         ChatSession chatSession = chatSessionService.getById(sessionId);
         if (chatSession == null) {
-            chatSessionService.save(
-                    ChatSession.builder()
-                               .buyerId(senderId)
-                               .agentId(receiverId)
-                               .build()
-            );
+            chatSessionService.save(ChatSession.builder()
+                                               .buyerId(senderId)
+                                               .agentId(receiverId)
+                                               .build());
         }
 
         if (targetUserOnline) {

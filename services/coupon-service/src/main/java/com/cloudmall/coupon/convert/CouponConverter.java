@@ -49,10 +49,7 @@ public interface CouponConverter {
     @Mapping(target = "claimedCount", expression = "java(0L)")
     @Mapping(target = "createTime", expression = "java(java.time.LocalDateTime.now())")
     @Mapping(target = "updateTime", expression = "java(java.time.LocalDateTime.now())")
-    @Mapping(
-            target = "status",
-            expression = "java(com.cloudmall.coupon.enums.CouponStatusEnum.DRAFT)"
-    )
+    @Mapping(target = "status", expression = "java(com.cloudmall.coupon.enums.CouponStatusEnum.DRAFT)")
     @Mapping(
             target = "shopId",
             expression = "java(com.cloudmall.common.context.UserContextHolder.getShopId())"

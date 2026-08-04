@@ -13,9 +13,9 @@ import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import com.cloudmall.common.enums.BizErrorCode;
+import com.cloudmall.common.enums.BizError;
 import com.cloudmall.common.exception.BizException;
-import com.cloudmall.common.utils.AssertUtils;
+import com.cloudmall.common.utils.Asserts;
 import com.cloudmall.mybatisplus.enums.StatusEnum;
 import com.cloudmall.product.api.request.CategoryCreateReq;
 import com.cloudmall.product.api.response.CategoryNodeResp;
@@ -49,14 +49,7 @@ public class CategoryService implements ICategoryService {
 
         List<TreeNode<Long>> nodeList = categoryList
                 .stream()
-                .map(
-                        cat -> new TreeNode<>(
-                                cat.getId(),
-                                cat.getParentId(),
-                                cat.getName(),
-                                cat.getSortOrder()
-                        )
-                )
+                .map(cat -> new TreeNode<>(cat.getId(), cat.getParentId(), cat.getName(), cat.getSortOrder()))
                 .toList();
 
         return TreeUtil.build(nodeList, 0L)
@@ -74,7 +67,7 @@ public class CategoryService implements ICategoryService {
      */
     @Override
     public CategoryResp getById(Long id) {
-        CategoryDO cat = AssertUtils.requireNonNull(categoryMapper.selectById(id));
+        CategoryDO cat = Asserts.requireNonNull(categoryMapper.selectById(id));
         return categoryConverter.toResp(cat);
     }
 
@@ -118,9 +111,9 @@ public class CategoryService implements ICategoryService {
         if (parentId == null || parentId == 0L) {
             return 1;
         }
-        CategoryDO parent = AssertUtils.requireNonNull(categoryMapper.selectById(parentId));
+        CategoryDO parent = Asserts.requireNonNull(categoryMapper.selectById(parentId));
         int level = ObjectUtil.defaultIfNull(parent.getLevel(), 1) + 1;
-        AssertUtils.isTrue(level <= MAX_CATEGORY_LEVEL, BizErrorCode.CATEGORY_BEYOND_MAX_LEVEL);
+        Asserts.isTrue(level <= MAX_CATEGORY_LEVEL, BizError.CATEGORY_BEYOND_MAX_LEVEL);
         return level;
     }
 

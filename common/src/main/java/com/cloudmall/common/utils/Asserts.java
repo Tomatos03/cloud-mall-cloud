@@ -5,8 +5,9 @@ import java.util.Objects;
 import java.util.function.Supplier;
 
 import cn.hutool.core.collection.CollUtil;
+import lombok.experimental.UtilityClass;
 
-import com.cloudmall.common.enums.BizErrorCode;
+import com.cloudmall.common.enums.BizError;
 import com.cloudmall.common.exception.BizException;
 
 /**
@@ -16,14 +17,8 @@ import com.cloudmall.common.exception.BizException;
  * @author : Tomatos
  * @date : 2026/02/12
  */
-public class AssertUtils {
-
-    /**
-     * 使用指定参数构造对象。
-     */
-    private AssertUtils() {
-        throw new AssertionError("Cannot instantiate utility class");
-    }
+@UtilityClass
+public class Asserts {
 
     /**
      * 断言表达式为真，如果为假则抛出业务异常
@@ -32,7 +27,7 @@ public class AssertUtils {
      * @param errorCode 条件不满足时抛出的错误码
      * @throws BizException 当表达式为假时抛出
      */
-    public static void isTrue(boolean expression, BizErrorCode errorCode) {
+    public static void isTrue(boolean expression, BizError errorCode) {
         if (!expression) {
             throw new BizException(errorCode);
         }
@@ -45,7 +40,7 @@ public class AssertUtils {
      * @param errorCode 条件不满足时抛出的错误码
      * @throws BizException 当表达式为真时抛出
      */
-    public static void isFalse(boolean expression, BizErrorCode errorCode) {
+    public static void isFalse(boolean expression, BizError errorCode) {
         if (expression) {
             throw new BizException(errorCode);
         }
@@ -58,7 +53,7 @@ public class AssertUtils {
      * @param errorCode 对象为空时抛出的错误码
      * @throws BizException 当对象为空时抛出
      */
-    public static void notNull(Object obj, BizErrorCode errorCode) {
+    public static void notNull(Object obj, BizError errorCode) {
         if (obj == null) {
             throw new BizException(errorCode);
         }
@@ -71,7 +66,7 @@ public class AssertUtils {
      * @throws BizException 当对象为空时抛出
      */
     public static void notNull(Object obj) {
-        notNull(obj, BizErrorCode.DATA_NOT_FOUND);
+        notNull(obj, BizError.DATA_NOT_FOUND);
     }
 
     /**
@@ -85,7 +80,7 @@ public class AssertUtils {
      * @return 非空的原对象
      * @throws BizException 当对象为空时抛出
      */
-    public static <T> T requireNonNull(T obj, BizErrorCode errorCode) {
+    public static <T> T requireNonNull(T obj, BizError errorCode) {
         if (obj == null) {
             throw new BizException(errorCode);
         }
@@ -102,7 +97,7 @@ public class AssertUtils {
      * @throws BizException 当对象为空时抛出
      */
     public static <T> T requireNonNull(T obj) {
-        return requireNonNull(obj, BizErrorCode.DATA_NOT_FOUND);
+        return requireNonNull(obj, BizError.DATA_NOT_FOUND);
     }
 
     /**
@@ -111,10 +106,7 @@ public class AssertUtils {
      * @param obj 待校验对象
      * @param exceptionSupplier 异常供应器
      */
-    public static <X extends RuntimeException> void notNull(
-            Object obj,
-            Supplier<X> exceptionSupplier
-    ) {
+    public static <X extends RuntimeException> void notNull(Object obj, Supplier<X> exceptionSupplier) {
         if (obj == null) {
             throw exceptionSupplier.get();
         }
@@ -127,7 +119,7 @@ public class AssertUtils {
      * @param errorCode 错误码
      * @throws BizException 处理过程中可能抛出该异常
      */
-    public static void isNull(Object obj, BizErrorCode errorCode) {
+    public static void isNull(Object obj, BizError errorCode) {
         if (obj != null) {
             throw new BizException(errorCode);
         }
@@ -140,7 +132,7 @@ public class AssertUtils {
      * @param errorCode 对象不为空时抛出的错误码
      * @throws BizException 当对象不为空时抛出
      */
-    public static void assertNull(Object obj, BizErrorCode errorCode) {
+    public static void assertNull(Object obj, BizError errorCode) {
         if (obj != null) {
             throw new BizException(errorCode);
         }
@@ -153,7 +145,7 @@ public class AssertUtils {
      * @param errorCode 字符串为空或空字符串时抛出的错误码
      * @throws BizException 当字符串为空或空字符串时抛出
      */
-    public static void assertNotBlank(String str, BizErrorCode errorCode) {
+    public static void assertNotBlank(String str, BizError errorCode) {
         if (str == null || str.trim().isEmpty()) {
             throw new BizException(errorCode);
         }
@@ -167,7 +159,7 @@ public class AssertUtils {
      * @param errorCode 对象不相等时抛出的错误码
      * @throws BizException 当两个对象不相等时抛出
      */
-    public static void isEqual(Object obj1, Object obj2, BizErrorCode errorCode) {
+    public static void isEqual(Object obj1, Object obj2, BizError errorCode) {
         if (!Objects.equals(obj1, obj2)) {
             throw new BizException(errorCode);
         }
@@ -181,7 +173,7 @@ public class AssertUtils {
      * @param errorCode 对象相等时抛出的错误码
      * @throws BizException 当两个对象相等时抛出
      */
-    public static void assertNotEqual(Object obj1, Object obj2, BizErrorCode errorCode) {
+    public static void assertNotEqual(Object obj1, Object obj2, BizError errorCode) {
         if (Objects.equals(obj1, obj2)) {
             throw new BizException(errorCode);
         }
@@ -194,7 +186,7 @@ public class AssertUtils {
      * @param errorCode 错误码
      * @throws BizException 处理过程中可能抛出该异常
      */
-    public static void isZero(long value, BizErrorCode errorCode) {
+    public static void isZero(long value, BizError errorCode) {
         if (value != 0) {
             throw new BizException(errorCode);
         }
@@ -207,7 +199,7 @@ public class AssertUtils {
      * @param errorCode 错误码
      * @throws BizException 处理过程中可能抛出该异常
      */
-    public static void isNotZero(long value, BizErrorCode errorCode) {
+    public static void isNotZero(long value, BizError errorCode) {
         if (value == 0) {
             throw new BizException(errorCode);
         }
@@ -220,7 +212,7 @@ public class AssertUtils {
      * @param errorCode 错误码
      * @throws BizException 处理过程中可能抛出该异常
      */
-    public static void isPositive(long value, BizErrorCode errorCode) {
+    public static void isPositive(long value, BizError errorCode) {
         if (value <= 0) {
             throw new BizException(errorCode);
         }
@@ -234,7 +226,7 @@ public class AssertUtils {
      * @param errorCode 错误码
      * @throws BizException 处理过程中可能抛出该异常
      */
-    public static void greaterThan(long value, long min, BizErrorCode errorCode) {
+    public static void greaterThan(long value, long min, BizError errorCode) {
         if (value <= min) {
             throw new BizException(errorCode);
         }
@@ -248,7 +240,7 @@ public class AssertUtils {
      * @param errorCode 错误码
      * @throws BizException 处理过程中可能抛出该异常
      */
-    public static void greaterOrEqual(long value, long min, BizErrorCode errorCode) {
+    public static void greaterOrEqual(long value, long min, BizError errorCode) {
         if (value < min) {
             throw new BizException(errorCode);
         }
@@ -262,7 +254,7 @@ public class AssertUtils {
      * @param errorCode 错误码
      * @throws BizException 处理过程中可能抛出该异常
      */
-    public static void lessThan(long value, long max, BizErrorCode errorCode) {
+    public static void lessThan(long value, long max, BizError errorCode) {
         if (value >= max) {
             throw new BizException(errorCode);
         }
@@ -277,7 +269,7 @@ public class AssertUtils {
      * @param errorCode 错误码
      * @throws BizException 处理过程中可能抛出该异常
      */
-    public static void inRange(long value, long min, long max, BizErrorCode errorCode) {
+    public static void inRange(long value, long min, long max, BizError errorCode) {
         if (value < min || value > max) {
             throw new BizException(errorCode);
         }
@@ -289,7 +281,7 @@ public class AssertUtils {
      * @param str 待校验字符串
      * @param errorCode 错误码
      */
-    public static void notBlank(String str, BizErrorCode errorCode) {
+    public static void notBlank(String str, BizError errorCode) {
         assertNotBlank(str, errorCode);
     }
 
@@ -300,7 +292,7 @@ public class AssertUtils {
      * @param errorCode 集合为空或元素为空时抛出的错误码
      * @throws BizException 当集合为空或元素为空时抛出
      */
-    public static void notEmpty(Collection<?> collection, BizErrorCode errorCode) {
+    public static void notEmpty(Collection<?> collection, BizError errorCode) {
         if (CollUtil.isEmpty(collection)) {
             throw new BizException(errorCode);
         }
@@ -313,7 +305,7 @@ public class AssertUtils {
      * @param expressions 布尔表达式列表
      * @throws BizException 处理过程中可能抛出该异常
      */
-    public static void anyTrue(BizErrorCode errorCode, boolean... expressions) {
+    public static void anyTrue(BizError errorCode, boolean... expressions) {
         if (expressions == null || expressions.length == 0) {
             throw new BizException(errorCode);
         }
@@ -325,7 +317,7 @@ public class AssertUtils {
         throw new BizException(errorCode);
     }
 
-    public static void isIn(String value, String[] allowedValues, BizErrorCode errorCode) {
+    public static void isIn(String value, String[] allowedValues, BizError errorCode) {
         if (value == null) {
             throw new BizException(errorCode);
         }
@@ -345,7 +337,7 @@ public class AssertUtils {
      * @param errorCode 条件不满足时抛出的错误码
      * @param <T> 集合元素类型
      */
-    public static <T> void contains(Collection<T> collection, T element, BizErrorCode errorCode) {
+    public static <T> void contains(Collection<T> collection, T element, BizError errorCode) {
         if (collection == null || !collection.contains(element)) {
             throw new BizException(errorCode);
         }
@@ -359,7 +351,7 @@ public class AssertUtils {
      * @param errorCode 条件不满足时抛出的错误码
      * @param <T> 集合元素类型
      */
-    public static <T> void notContains(Collection<T> collection, T element, BizErrorCode errorCode) {
+    public static <T> void notContains(Collection<T> collection, T element, BizError errorCode) {
         if (collection != null && collection.contains(element)) {
             throw new BizException(errorCode);
         }

@@ -80,11 +80,10 @@ public class AgentConfig {
     )
     public Advisor questionAnswerAdvisor(VectorStore vectorStore, AgentProperties agentProperties) {
         AgentProperties.Rag rag = agentProperties.getRag();
-        SearchRequest searchRequest = SearchRequest
-                .builder()
-                .similarityThreshold(rag.getSimilarityThreshold())
-                .topK(rag.getTopK())
-                .build();
+        SearchRequest searchRequest = SearchRequest.builder()
+                                                   .similarityThreshold(rag.getSimilarityThreshold())
+                                                   .topK(rag.getTopK())
+                                                   .build();
         return QuestionAnswerAdvisor.builder(vectorStore)
                                     .searchRequest(searchRequest)
                                     .build();

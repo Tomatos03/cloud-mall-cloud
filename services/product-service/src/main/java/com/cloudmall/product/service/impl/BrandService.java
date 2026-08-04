@@ -9,9 +9,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.cloudmall.common.enums.BizErrorCode;
+import com.cloudmall.common.enums.BizError;
 import com.cloudmall.common.exception.BizException;
-import com.cloudmall.common.utils.AssertUtils;
+import com.cloudmall.common.utils.Asserts;
 import com.cloudmall.product.api.request.BrandCreateReq;
 import com.cloudmall.product.api.request.BrandUpdateReq;
 import com.cloudmall.product.api.response.BrandResp;
@@ -42,7 +42,7 @@ public class BrandService implements IBrandService {
      */
     @Override
     public BrandResp getById(Long id) {
-        BrandDO brand = AssertUtils.requireNonNull(brandMapper.selectById(id));
+        BrandDO brand = Asserts.requireNonNull(brandMapper.selectById(id));
         return brandConverter.toResp(brand);
     }
 
@@ -57,9 +57,7 @@ public class BrandService implements IBrandService {
         if (CollUtil.isEmpty(ids)) {
             return List.of();
         }
-        List<BrandDO> brands = brandMapper.selectList(
-                Wrappers.<BrandDO>lambdaQuery().in(BrandDO::getId, ids)
-        );
+        List<BrandDO> brands = brandMapper.selectList(Wrappers.<BrandDO>lambdaQuery().in(BrandDO::getId, ids));
         return brandConverter.toRespList(brands);
     }
 
@@ -99,7 +97,7 @@ public class BrandService implements IBrandService {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public void update(Long id, BrandUpdateReq req) {
-        BrandDO brand = AssertUtils.requireNonNull(brandMapper.selectById(id));
+        BrandDO brand = Asserts.requireNonNull(brandMapper.selectById(id));
         brandConverter.merge(brand, req);
         brandMapper.updateById(brand);
     }
@@ -113,7 +111,7 @@ public class BrandService implements IBrandService {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public void delete(List<Long> ids) {
-        AssertUtils.notEmpty(ids, BizErrorCode.INVALID_PARAM);
+        Asserts.notEmpty(ids, BizError.INVALID_PARAM);
         brandMapper.deleteBatchIds(ids);
     }
 }

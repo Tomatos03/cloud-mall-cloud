@@ -55,10 +55,7 @@ public interface ProductConverter {
     @Mapping(target = "spuCode", ignore = true)
     @Mapping(target = "createTime", ignore = true)
     @Mapping(target = "updateTime", ignore = true)
-    @Mapping(
-            target = "status",
-            expression = "java(com.cloudmall.mybatisplus.enums.StatusEnum.ENABLED)"
-    )
+    @Mapping(target = "status", expression = "java(com.cloudmall.mybatisplus.enums.StatusEnum.ENABLED)")
     ProductDO toDO(ProductCreateReq req);
 
     /**

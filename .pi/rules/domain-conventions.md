@@ -15,11 +15,11 @@ Controller 端点变更（路径、方法、参数）必须同步更新 FeignCli
 ## 返回与异常
 
 - 统一 `Result<T>` 包装。Controller 返回 `Result.success()` / `Result.error()`
-- 业务异常使用 `BizException` + `BizErrorCode`。禁止裸 `Exception` / `RuntimeException`
+- 业务异常使用 `BizException` + `BizError`。禁止裸 `Exception` / `RuntimeException`
 
 ## 条件校验
 
-使用 `AssertUtils`，禁止手写 `if (x) { throw ... }`：
+使用 `Asserts`，禁止手写 `if (x) { throw ... }`：
 
 | 禁止写法 | 必须使用 |
 |----------|----------|
@@ -29,7 +29,7 @@ Controller 端点变更（路径、方法、参数）必须同步更新 FeignCli
 | `if (expr)` | `AssertUtils.isFalse(expr, code)` |
 | `if (CollUtil.isEmpty(coll))` | `AssertUtils.notEmpty(coll, code)` |
 
-缺少方法时先扩展 `AssertUtils`。
+缺少方法时先扩展 `Asserts`。
 
 ## 数据库
 

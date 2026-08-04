@@ -102,10 +102,9 @@ public class AuthOutboxService implements IAuthOutboxService {
                 Wrappers.<OutboxDO>lambdaQuery()
                         .eq(OutboxDO::getPublishStatus, OutboxPublishStatusEnum.PENDING)
                         .and(
-                                wrapper -> wrapper
-                                        .isNull(OutboxDO::getNextRetryTime)
-                                        .or()
-                                        .le(OutboxDO::getNextRetryTime, LocalDateTime.now())
+                                wrapper -> wrapper.isNull(OutboxDO::getNextRetryTime)
+                                                  .or()
+                                                  .le(OutboxDO::getNextRetryTime, LocalDateTime.now())
                         )
                         .orderByAsc(OutboxDO::getId)
         );
@@ -163,8 +162,7 @@ public class AuthOutboxService implements IAuthOutboxService {
                         .set(OutboxDO::getRetryCount, nextRetry)
                         .set(
                                 OutboxDO::getNextRetryTime,
-                                LocalDateTime.now()
-                                             .plusSeconds(RETRY_BASE_SECONDS * (long) nextRetry)
+                                LocalDateTime.now().plusSeconds(RETRY_BASE_SECONDS * (long) nextRetry)
                         )
                         .set(OutboxDO::getLastError, e.getMessage())
                         .set(OutboxDO::getPublishStatus, status)

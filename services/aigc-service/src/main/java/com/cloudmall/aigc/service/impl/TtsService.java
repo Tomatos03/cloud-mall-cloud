@@ -59,8 +59,7 @@ public class TtsService implements ITtsService {
     public TtsResp synthesizeAsBase64(TtsReq req) {
         byte[] audioBytes = synthesize(req);
         String base64Audio = Base64.getEncoder().encodeToString(audioBytes);
-        String format = ObjectUtil.defaultIfNull(req.getResponseFormat(), TtsAudioFormat.MP3)
-                                  .getCode();
+        String format = ObjectUtil.defaultIfNull(req.getResponseFormat(), TtsAudioFormat.MP3).getCode();
 
         return TtsResp.builder()
                       .base64Audio(base64Audio)

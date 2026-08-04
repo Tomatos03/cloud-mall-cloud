@@ -32,9 +32,7 @@ public class FavoriteController {
             @RequestBody
             FavoriteToggleReq req
     ) {
-        return Result.success(
-                favoriteService.toggle(UserContextHolder.getUserId(), req.getProductId())
-        );
+        return Result.success(favoriteService.toggle(UserContextHolder.getUserId(), req.getProductId()));
     }
 
     /**

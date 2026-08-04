@@ -103,10 +103,7 @@ public class OrderEventConsumer implements RocketMQListener<MessageExt> {
      * @param event 订单事件
      */
     private void handleTimeout(OrderEvent event) {
-        if (consumeService.alreadyConsumed(
-                event.getEventId(),
-                IMessageConsumeService.OP_ORDER_TIMEOUT
-        )) {
+        if (consumeService.alreadyConsumed(event.getEventId(), IMessageConsumeService.OP_ORDER_TIMEOUT)) {
             return;
         }
         try {
@@ -124,18 +121,12 @@ public class OrderEventConsumer implements RocketMQListener<MessageExt> {
      * @param event 订单事件
      */
     private void handleCancelled(OrderEvent event) {
-        if (consumeService.alreadyConsumed(
-                event.getEventId(),
-                IMessageConsumeService.OP_ORDER_CANCELLED
-        )) {
+        if (consumeService.alreadyConsumed(event.getEventId(), IMessageConsumeService.OP_ORDER_CANCELLED)) {
             return;
         }
         try {
             releaseLockedByOrder(event);
-            consumeService.markConsumed(
-                    event.getEventId(),
-                    IMessageConsumeService.OP_ORDER_CANCELLED
-            );
+            consumeService.markConsumed(event.getEventId(), IMessageConsumeService.OP_ORDER_CANCELLED);
         } catch (RuntimeException e) {
             log.error("订单取消释放失败 orderNo={}", event.getOrderNo(), e);
             throw e;
@@ -151,10 +142,7 @@ public class OrderEventConsumer implements RocketMQListener<MessageExt> {
         if (StrUtil.isBlank(event.getRefundId())) {
             return;
         }
-        if (consumeService.alreadyConsumed(
-                event.getEventId(),
-                IMessageConsumeService.OP_ORDER_REFUNDED
-        )) {
+        if (consumeService.alreadyConsumed(event.getEventId(), IMessageConsumeService.OP_ORDER_REFUNDED)) {
             return;
         }
         try {
@@ -170,10 +158,7 @@ public class OrderEventConsumer implements RocketMQListener<MessageExt> {
                     );
                 }
             }
-            consumeService.markConsumed(
-                    event.getEventId(),
-                    IMessageConsumeService.OP_ORDER_REFUNDED
-            );
+            consumeService.markConsumed(event.getEventId(), IMessageConsumeService.OP_ORDER_REFUNDED);
         } catch (RuntimeException e) {
             log.error("订单全额退款回退失败 orderNo={}", event.getOrderNo(), e);
             throw e;

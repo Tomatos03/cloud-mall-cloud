@@ -106,8 +106,7 @@ public class CouponResp {
      * @return true 表示已领完
      */
     public boolean isClaimedOut() {
-        return this.totalCount != null && this.claimedCount != null
-                       && this.claimedCount >= this.totalCount;
+        return this.totalCount != null && this.claimedCount != null && this.claimedCount >= this.totalCount;
     }
 
     /**

@@ -17,11 +17,7 @@ public final class SubOrderStateTransitions {
 
     private static final Map<SubOrderStatusEnum, Set<SubOrderStatusEnum>> TRANSITIONS = Map.of(
             SubOrderStatusEnum.PENDING_SHIPMENT,
-            Set.of(
-                    SubOrderStatusEnum.SHIPPED,
-                    SubOrderStatusEnum.CANCELLED,
-                    SubOrderStatusEnum.REFUNDED
-            ),
+            Set.of(SubOrderStatusEnum.SHIPPED, SubOrderStatusEnum.CANCELLED, SubOrderStatusEnum.REFUNDED),
             SubOrderStatusEnum.SHIPPED,
             Set.of(SubOrderStatusEnum.DELIVERED, SubOrderStatusEnum.REFUNDED),
             SubOrderStatusEnum.DELIVERED,

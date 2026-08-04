@@ -39,9 +39,7 @@ public interface ProductSkuMapper extends BaseMapper<ProductSkuDO> {
      * @param quantity 回补数量
      * @return 影响行数
      */
-    @Update(
-            "UPDATE cm_product_sku SET stock = stock + #{quantity} " + "WHERE id = #{skuId} AND deleted = 0"
-    )
+    @Update("UPDATE cm_product_sku SET stock = stock + #{quantity} " + "WHERE id = #{skuId} AND deleted = 0")
     int releaseStock(
             @Param("skuId")
             Long skuId,

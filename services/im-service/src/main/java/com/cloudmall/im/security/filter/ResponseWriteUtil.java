@@ -29,11 +29,7 @@ public class ResponseWriteUtil {
         writeErrorResponse(response, message, HttpStatus.FORBIDDEN.value());
     }
 
-    public static void writeErrorResponse(
-            HttpServletResponse response,
-            String message,
-            int httpStatus
-    ) throws IOException {
+    public static void writeErrorResponse(HttpServletResponse response, String message, int httpStatus) throws IOException {
         Map<String, Object> result = new HashMap<>();
         result.put("message", message);
         writeResponse(response, result, httpStatus);

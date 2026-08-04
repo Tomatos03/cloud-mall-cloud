@@ -40,8 +40,7 @@ public class CouponCacheService {
         if (CollUtil.isEmpty(resps)) {
             return;
         }
-        stringRedisTemplate.opsForValue()
-                           .set(PUBLIC_TEMPLATES_KEY, JSONUtil.toJsonStr(resps), CACHE_TTL);
+        stringRedisTemplate.opsForValue().set(PUBLIC_TEMPLATES_KEY, JSONUtil.toJsonStr(resps), CACHE_TTL);
     }
 
     /**

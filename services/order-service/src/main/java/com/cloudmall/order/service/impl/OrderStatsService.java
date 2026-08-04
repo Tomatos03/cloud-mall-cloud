@@ -62,9 +62,7 @@ public class OrderStatsService implements IOrderStatsService {
         return CouponUsageStatsResp
                 .builder()
                 .orderCount(orderCount == null ? 0L : ((Number) orderCount).longValue())
-                .subsidyAmount(
-                        subsidy == null ? BigDecimal.ZERO : new BigDecimal(subsidy.toString())
-                )
+                .subsidyAmount(subsidy == null ? BigDecimal.ZERO : new BigDecimal(subsidy.toString()))
                 .build();
     }
 }

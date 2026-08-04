@@ -72,10 +72,7 @@ public class ProductSpecService implements IProductSpecService {
                     .collect(
                             Collectors.groupingBy(
                                     ProductSkuSpecDO::getSkuId,
-                                    Collectors.mapping(
-                                            ProductSkuSpecDO::getSpecValueId,
-                                            Collectors.toList()
-                                    )
+                                    Collectors.mapping(ProductSkuSpecDO::getSpecValueId, Collectors.toList())
                             )
                     );
     }
@@ -103,10 +100,7 @@ public class ProductSpecService implements IProductSpecService {
                 .collect(
                         Collectors.groupingBy(
                                 ProductSkuSpecDO::getSkuId,
-                                Collectors.mapping(
-                                        ProductSkuSpecDO::getSpecValueId,
-                                        Collectors.toList()
-                                )
+                                Collectors.mapping(ProductSkuSpecDO::getSpecValueId, Collectors.toList())
                         )
                 )
                 .entrySet()

@@ -12,8 +12,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.cloudmall.common.enums.BizErrorCode;
-import com.cloudmall.common.utils.AssertUtils;
+import com.cloudmall.common.enums.BizError;
+import com.cloudmall.common.utils.Asserts;
 import com.cloudmall.coupon.api.response.CouponItemResult;
 import com.cloudmall.coupon.api.response.CouponOrderCalcResp;
 import com.cloudmall.coupon.api.response.CouponSubOrderResult;
@@ -83,12 +83,7 @@ public class OrderPersistenceService {
         return new OrderDraft(order, subsByShop);
     }
 
-    private static OrderSubDO buildPendingSubOrder(
-            String orderNo,
-            int i,
-            OrderDO order,
-            Long shopId
-    ) {
+    private static OrderSubDO buildPendingSubOrder(String orderNo, int i, OrderDO order, Long shopId) {
         return OrderSubDO.builder()
                          .subOrderNo(orderNo + "-" + (i + 1))
                          .parentOrderId(order.getId())
@@ -182,10 +177,7 @@ public class OrderPersistenceService {
                 Wrappers.<OrderDO>lambdaUpdate()
                         .set(OrderDO::getTotalOriginalAmount, calc.getTotalOriginalAmount())
                         .set(OrderDO::getTotalShopDiscountAmount, calc.getTotalShopDiscountAmount())
-                        .set(
-                                OrderDO::getTotalPlatformDiscountAmount,
-                                calc.getTotalPlatformDiscountAmount()
-                        )
+                        .set(OrderDO::getTotalPlatformDiscountAmount, calc.getTotalPlatformDiscountAmount())
                         .set(OrderDO::getGoodsPayableAmount, calc.getGoodsPayableAmount())
                         .set(OrderDO::getPayableAmount, calc.getGoodsPayableAmount())
                         .eq(OrderDO::getId, orderId)
@@ -203,10 +195,7 @@ public class OrderPersistenceService {
                 Wrappers.<OrderSubDO>lambdaUpdate()
                         .set(OrderSubDO::getOriginalAmount, subResult.getOriginalAmount())
                         .set(OrderSubDO::getShopDiscountAmount, subResult.getShopDiscountAmount())
-                        .set(
-                                OrderSubDO::getPlatformDiscountAmount,
-                                subResult.getPlatformDiscountAmount()
-                        )
+                        .set(OrderSubDO::getPlatformDiscountAmount, subResult.getPlatformDiscountAmount())
                         .set(OrderSubDO::getPayableAmount, subResult.getPayableAmount())
                         .set(OrderSubDO::getMerchantSettlementAmount, subResult.getPayableAmount())
                         .eq(OrderSubDO::getId, subOrderId)
@@ -296,6 +285,6 @@ public class OrderPersistenceService {
                         .eq(OrderDO::getId, orderId)
                         .eq(OrderDO::getStatus, ParentOrderStatusEnum.CREATING)
         );
-        AssertUtils.isTrue(result > 0, BizErrorCode.INVALID_ORDER_STATUS);
+        Asserts.isTrue(result > 0, BizError.INVALID_ORDER_STATUS);
     }
 }

@@ -91,18 +91,11 @@ public abstract class AbstractAgent implements Agent {
         String conversationId = buildConversationId(sessionId);
         ToolResultContext resultContext = new ToolResultContext();
 
-        log.debug(
-                "{} 处理 chat 请求: sessionId={}, prompt={}",
-                getType().name(),
-                sessionId,
-                req.getPrompt()
-        );
+        log.debug("{} 处理 chat 请求: sessionId={}, prompt={}", getType().name(), sessionId, req.getPrompt());
 
         return getChatClient()
                 .prompt(req.getPrompt())
-                .advisors(
-                        advisorSpec -> advisorSpec.param(ChatMemory.CONVERSATION_ID, conversationId)
-                )
+                .advisors(advisorSpec -> advisorSpec.param(ChatMemory.CONVERSATION_ID, conversationId))
                 .toolContext(Map.of("toolResultContext", resultContext))
                 .stream()
                 .content()
@@ -159,18 +152,11 @@ public abstract class AbstractAgent implements Agent {
         String sessionId = req.getSessionId();
         String conversationId = buildConversationId(sessionId);
 
-        log.debug(
-                "{} 处理 chatText 请求: sessionId={}, prompt={}",
-                getType().name(),
-                sessionId,
-                req.getPrompt()
-        );
+        log.debug("{} 处理 chatText 请求: sessionId={}, prompt={}", getType().name(), sessionId, req.getPrompt());
 
         return getChatClient()
                 .prompt(req.getPrompt())
-                .advisors(
-                        advisorSpec -> advisorSpec.param(ChatMemory.CONVERSATION_ID, conversationId)
-                )
+                .advisors(advisorSpec -> advisorSpec.param(ChatMemory.CONVERSATION_ID, conversationId))
                 .call()
                 .content();
     }

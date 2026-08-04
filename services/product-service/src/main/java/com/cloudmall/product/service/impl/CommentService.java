@@ -5,9 +5,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import com.cloudmall.common.context.UserContextHolder;
-import com.cloudmall.common.enums.BizErrorCode;
+import com.cloudmall.common.enums.BizError;
 import com.cloudmall.common.exception.BizException;
-import com.cloudmall.common.utils.AssertUtils;
+import com.cloudmall.common.utils.Asserts;
 import com.cloudmall.product.api.request.CommentCreateReq;
 import com.cloudmall.product.api.response.CommentResp;
 import com.cloudmall.product.convert.CommentConverter;
@@ -43,10 +43,7 @@ public class CommentService implements ICommentService {
      */
     @Override
     public void create(CommentCreateReq req) {
-        Long userId = AssertUtils.requireNonNull(
-                UserContextHolder.getUserId(),
-                BizErrorCode.USER_NOT_AUTHENTICATED
-        );
+        Long userId = Asserts.requireNonNull(UserContextHolder.getUserId(), BizError.USER_NOT_AUTHENTICATED);
         CommentDO comment = commentConverter.toDO(req, userId);
         commentMapper.insert(comment);
     }

@@ -59,7 +59,7 @@
 
 | 模块 | 说明 |
 |------|------|
-| `cloudmall-common-spring-boot-starter` | 公共自动配置（`Result`、`BizException`、`BizErrorCode`、`UserContextFilter`） |
+| `cloudmall-common-spring-boot-starter` | 公共自动配置（`Result`、`BizException`、`BizError`、`UserContextFilter`） |
 | `cloudmall-mybatis-plus-spring-boot-starter` | MyBatis-Plus 自动配置（MyMetaObjectHandler、SqlLoggingInterceptor） |
 | `cloudmall-jwt-spring-boot-starter` | JWT 令牌生成与验证 |
 | `cloudmall-feign-spring-boot-starter` | Feign 拦截器（用户上下文传递） |
@@ -131,7 +131,7 @@ mvn clean compile -DskipTests 2>&1 | tail -20
 - RESTful Level 2，资源名使用复数（`/users`、`/orders`、`/addresses`）
 - Controller 路径前缀与服务名对齐（`/auth/**`、`/users/**`、`/product/**`）
 - 认证接口使用动词（`/auth/login`、`/auth/register`）
-- 统一返回 `Result<T>`，业务异常使用 `BizException` + `BizErrorCode`
+- 统一返回 `Result<T>`，业务异常使用 `BizException` + `BizError`
 
 ## 架构要点
 

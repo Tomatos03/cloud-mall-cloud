@@ -20,11 +20,7 @@ import com.cloudmall.coupon.api.response.CouponOrderCalcResp;
  *
  * @author : Tomatos
  */
-@FeignClient(
-        name = "coupon-service",
-        contextId = "couponOrderClient",
-        path = "/internal/coupon-orders"
-)
+@FeignClient(name = "coupon-service", contextId = "couponOrderClient", path = "/internal/coupon-orders")
 public interface CouponOrderClient {
 
     /**

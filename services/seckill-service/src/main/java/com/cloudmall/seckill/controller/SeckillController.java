@@ -72,12 +72,7 @@ public class SeckillController {
             @RequestBody
             ActivityProductSubmitReq req
     ) {
-        seckillService.submitProduct(
-                activityId,
-                req.getProductId(),
-                req.getSeckillPrice(),
-                req.getStock()
-        );
+        seckillService.submitProduct(activityId, req.getProductId(), req.getSeckillPrice(), req.getStock());
         return Result.success(null);
     }
 

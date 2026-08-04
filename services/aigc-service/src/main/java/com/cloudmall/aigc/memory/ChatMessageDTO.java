@@ -85,9 +85,7 @@ public class ChatMessageDTO {
                 .builder()
                 .type(message.getMessageType())
                 .content(message.getText())
-                .metadata(
-                        message.getMetadata() != null ? new HashMap<>(message.getMetadata()) : null
-                );
+                .metadata(message.getMetadata() != null ? new HashMap<>(message.getMetadata()) : null);
 
         if (message instanceof MediaContent mediaContent && !mediaContent.getMedia().isEmpty()) {
             builder.media(mediaContent.getMedia());

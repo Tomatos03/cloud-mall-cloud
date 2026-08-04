@@ -20,9 +20,9 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
-import com.cloudmall.common.enums.BizErrorCode;
+import com.cloudmall.common.enums.BizError;
 import com.cloudmall.common.exception.BizException;
-import com.cloudmall.common.utils.AssertUtils;
+import com.cloudmall.common.utils.Asserts;
 import com.cloudmall.order.api.model.CartItem;
 import com.cloudmall.order.api.model.CartShopGroup;
 import com.cloudmall.order.api.request.CartOperatorReq;
@@ -96,7 +96,7 @@ public class CartService implements ICartService {
                         .eq(CartDO::getUserId, userId)
                         .eq(CartDO::getSkuId, req.skuId())
         );
-        AssertUtils.isTrue(updated > 0, BizErrorCode.CART_ITEM_NOT_EXIST);
+        Asserts.isTrue(updated > 0, BizError.CART_ITEM_NOT_EXIST);
     }
 
     /**
@@ -131,7 +131,7 @@ public class CartService implements ICartService {
                         .eq(CartDO::getUserId, userId)
                         .eq(CartDO::getSkuId, req.getSkuId())
         );
-        AssertUtils.isTrue(updated > 0, BizErrorCode.CART_ITEM_NOT_EXIST);
+        Asserts.isTrue(updated > 0, BizError.CART_ITEM_NOT_EXIST);
     }
 
     /**
@@ -142,7 +142,7 @@ public class CartService implements ICartService {
      */
     @Override
     public void selectAll(Long userId, Boolean selected) {
-        AssertUtils.notNull(selected, BizErrorCode.INVALID_PARAM);
+        Asserts.notNull(selected, BizError.INVALID_PARAM);
         cartMapper.update(
                 Wrappers.<CartDO>lambdaUpdate()
                         .set(CartDO::getSelected, selected)
@@ -225,7 +225,7 @@ public class CartService implements ICartService {
      */
     private Long mergeToExisting(CartDO existing, SkuResp sku, Integer quantity) {
         int newQuantity = existing.getQuantity() + quantity;
-        AssertUtils.isTrue(newQuantity <= MAX_QUANTITY, BizErrorCode.CART_LIMIT_EXCEEDED);
+        Asserts.isTrue(newQuantity <= MAX_QUANTITY, BizError.CART_LIMIT_EXCEEDED);
         cartMapper.update(
                 Wrappers.<CartDO>lambdaUpdate()
                         .set(CartDO::getQuantity, newQuantity)
@@ -243,10 +243,8 @@ public class CartService implements ICartService {
      * @throws BizException 处理过程中可能抛出该异常
      */
     private void checkCartCapacity(Long userId) {
-        Long count = cartMapper.selectCount(
-                Wrappers.<CartDO>lambdaQuery().eq(CartDO::getUserId, userId)
-        );
-        AssertUtils.isTrue(count < MAX_ITEMS, BizErrorCode.CART_LIMIT_EXCEEDED);
+        Long count = cartMapper.selectCount(Wrappers.<CartDO>lambdaQuery().eq(CartDO::getUserId, userId));
+        Asserts.isTrue(count < MAX_ITEMS, BizError.CART_LIMIT_EXCEEDED);
     }
 
     /**
@@ -271,7 +269,7 @@ public class CartService implements ICartService {
      */
     private SkuResp fetchSku(Long skuId) {
         List<SkuResp> skus = fetchSkus(Collections.singletonList(skuId));
-        AssertUtils.notEmpty(skus, BizErrorCode.CART_GOODS_NOT_EXIST);
+        Asserts.notEmpty(skus, BizError.CART_GOODS_NOT_EXIST);
         return skus.get(0);
     }
 

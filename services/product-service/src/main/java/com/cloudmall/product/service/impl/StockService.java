@@ -10,9 +10,9 @@ import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.cloudmall.common.enums.BizErrorCode;
+import com.cloudmall.common.enums.BizError;
 import com.cloudmall.common.exception.BizException;
-import com.cloudmall.common.utils.AssertUtils;
+import com.cloudmall.common.utils.Asserts;
 import com.cloudmall.product.api.request.StockConfirmReq;
 import com.cloudmall.product.api.request.StockOpReq;
 import com.cloudmall.product.api.request.StockReserveItem;
@@ -134,7 +134,7 @@ public class StockService implements IStockService {
         if (opExists(req.getOrderNo(), item.getSkuId(), opType)) {
             return;
         }
-        ProductSkuDO sku = AssertUtils.requireNonNull(productSkuMapper.selectById(item.getSkuId()));
+        ProductSkuDO sku = Asserts.requireNonNull(productSkuMapper.selectById(item.getSkuId()));
         int before = ObjectUtil.defaultIfNull(sku.getStock(), 0);
         StockOpLogDO log = insertLog(
                 req.getOrderNo(),
@@ -196,7 +196,7 @@ public class StockService implements IStockService {
                 ? productSkuMapper.reserveStock(item.getSkuId(), item.getQuantity())
                 : productSkuMapper.releaseStock(item.getSkuId(), item.getQuantity());
         if (deduct && affected == 0) {
-            throw new BizException(BizErrorCode.STOCK_NOT_ENOUGH);
+            throw new BizException(BizError.STOCK_NOT_ENOUGH);
         }
     }
 

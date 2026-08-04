@@ -76,12 +76,7 @@ public final class QueryConditionHelper {
      * @param operator 操作符
      * @param value 条件值
      */
-    public static void applyCondition(
-            QueryWrapper<?> wrapper,
-            String column,
-            Operator operator,
-            Object value
-    ) {
+    public static void applyCondition(QueryWrapper<?> wrapper, String column, Operator operator, Object value) {
         switch (operator) {
             case EQ -> wrapper.eq(column, value);
             case NE -> wrapper.ne(column, value);

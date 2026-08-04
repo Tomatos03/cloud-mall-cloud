@@ -60,9 +60,7 @@ public class ResultUnwrappingDecoder implements Decoder {
 
     private String readBody(Response response) throws IOException {
         InputStream is = response.body().asInputStream();
-        try (BufferedReader br = new BufferedReader(
-                new InputStreamReader(is, StandardCharsets.UTF_8)
-        )) {
+        try (BufferedReader br = new BufferedReader(new InputStreamReader(is, StandardCharsets.UTF_8))) {
             StringBuilder sb = new StringBuilder();
             String line;
             while ((line = br.readLine()) != null) {

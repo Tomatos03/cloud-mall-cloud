@@ -140,9 +140,7 @@ public interface CouponOrderConverter {
                 .originalAmount(originalAmount)
                 .shopDiscountAmount(shopDiscountAmount)
                 .platformDiscountAmount(platformDiscountAmount)
-                .payableAmount(
-                        originalAmount.subtract(shopDiscountAmount).subtract(platformDiscountAmount)
-                )
+                .payableAmount(originalAmount.subtract(shopDiscountAmount).subtract(platformDiscountAmount))
                 .items(items)
                 .build();
     }
@@ -162,10 +160,7 @@ public interface CouponOrderConverter {
     ) {
         BigDecimal totalOriginalAmount = sum(items, CouponItemResult::getOriginalAmount);
         BigDecimal totalShopDiscountAmount = sum(items, CouponItemResult::getShopDiscountAmount);
-        BigDecimal totalPlatformDiscountAmount = sum(
-                items,
-                CouponItemResult::getPlatformDiscountAmount
-        );
+        BigDecimal totalPlatformDiscountAmount = sum(items, CouponItemResult::getPlatformDiscountAmount);
         return CouponOrderCalcResp
                 .builder()
                 .totalOriginalAmount(totalOriginalAmount)
@@ -187,10 +182,7 @@ public interface CouponOrderConverter {
      * @param getter 金额取值函数
      * @return 合计
      */
-    private static BigDecimal sum(
-            List<CouponItemResult> items,
-            Function<CouponItemResult, BigDecimal> getter
-    ) {
+    private static BigDecimal sum(List<CouponItemResult> items, Function<CouponItemResult, BigDecimal> getter) {
         return items.stream()
                     .map(getter)
                     .reduce(BigDecimal.ZERO, BigDecimal::add);

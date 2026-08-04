@@ -82,11 +82,7 @@ public interface UserCouponLogConverter {
      * @param reason 撤销原因（为空时使用默认原因）
      * @return 流水实体列表
      */
-    default List<UserCouponLogDO> toRevokeLogList(
-            List<UserCouponDO> ucs,
-            Long operatorId,
-            String reason
-    ) {
+    default List<UserCouponLogDO> toRevokeLogList(List<UserCouponDO> ucs, Long operatorId, String reason) {
         return ucs
                 .stream()
                 .map(

@@ -8,8 +8,8 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import com.cloudmall.common.enums.BizErrorCode;
-import com.cloudmall.common.utils.AssertUtils;
+import com.cloudmall.common.enums.BizError;
+import com.cloudmall.common.utils.Asserts;
 import com.cloudmall.im.common.entity.PageParamsDTO;
 import com.cloudmall.im.model.chat.dto.CreateSessionResult;
 import com.cloudmall.im.model.chat.entity.ChatMessage;
@@ -65,8 +65,7 @@ public class ChatAppService implements IChatAppService {
                 .unreadCount(unReadCount);
 
         if (lastMessage != null) {
-            builder.lastMessageContent(lastMessage.getContent())
-                   .lastTime(lastMessage.getCreateTime());
+            builder.lastMessageContent(lastMessage.getContent()).lastTime(lastMessage.getCreateTime());
         }
         return builder.build();
     }
@@ -83,9 +82,9 @@ public class ChatAppService implements IChatAppService {
 
     @Override
     public void markReadForChatSession(Long sessionId) {
-        ChatSession chatSession = AssertUtils.requireNonNull(
+        ChatSession chatSession = Asserts.requireNonNull(
                 chatSessionService.getById(sessionId),
-                BizErrorCode.CONVERSATION_NOT_EXIST
+                BizError.CONVERSATION_NOT_EXIST
         );
 
         Long currentUserId = AuthUserContext.getUserId();
@@ -102,10 +101,7 @@ public class ChatAppService implements IChatAppService {
 
     @Override
     public CreateSessionResult createChatSession(Long storeId) {
-        Store store = AssertUtils.requireNonNull(
-                storeService.getById(storeId),
-                BizErrorCode.STORE_NOT_EXIST
-        );
+        Store store = Asserts.requireNonNull(storeService.getById(storeId), BizError.STORE_NOT_EXIST);
 
         Long merchantId = store.getUserId();
         Long userId = AuthUserContext.getUserId();

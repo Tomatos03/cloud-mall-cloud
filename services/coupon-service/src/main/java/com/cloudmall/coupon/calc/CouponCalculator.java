@@ -13,9 +13,9 @@ import cn.hutool.core.collection.CollUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
-import com.cloudmall.common.enums.BizErrorCode;
+import com.cloudmall.common.enums.BizError;
 import com.cloudmall.common.exception.BizException;
-import com.cloudmall.common.utils.AssertUtils;
+import com.cloudmall.common.utils.Asserts;
 import com.cloudmall.coupon.api.dto.CouponCalcItem;
 import com.cloudmall.coupon.api.response.CouponItemResult;
 import com.cloudmall.coupon.api.response.CouponOrderCalcResp;
@@ -142,10 +142,7 @@ public class CouponCalculator {
      * @param applicableAmount 适用金额
      */
     private void assertMeetsThreshold(CalcCoupon coupon, BigDecimal applicableAmount) {
-        AssertUtils.isTrue(
-                coupon.isMeetsThreshold(applicableAmount),
-                BizErrorCode.COUPON_QUOTE_INVALID
-        );
+        Asserts.isTrue(coupon.isMeetsThreshold(applicableAmount), BizError.COUPON_QUOTE_INVALID);
     }
 
     /**
@@ -339,7 +336,7 @@ public class CouponCalculator {
      */
     private void assertNotNegative(BigDecimal amount) {
         if (amount.signum() < 0) {
-            throw new BizException(BizErrorCode.COUPON_QUOTE_INVALID);
+            throw new BizException(BizError.COUPON_QUOTE_INVALID);
         }
     }
 }

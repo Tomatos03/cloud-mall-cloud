@@ -39,18 +39,12 @@ public class UserRegisteredConsumer implements RocketMQListener<UserRegisteredEv
         if (event == null || StrUtil.isBlank(event.getEventId())) {
             return;
         }
-        if (consumeService.alreadyConsumed(
-                event.getEventId(),
-                IMessageConsumeService.OP_REGISTER_AUTO_ISSUE
-        )) {
+        if (consumeService.alreadyConsumed(event.getEventId(), IMessageConsumeService.OP_REGISTER_AUTO_ISSUE)) {
             return;
         }
         try {
             userCouponService.autoIssueForRegister(event.getUserId(), event.getEventId());
-            consumeService.markConsumed(
-                    event.getEventId(),
-                    IMessageConsumeService.OP_REGISTER_AUTO_ISSUE
-            );
+            consumeService.markConsumed(event.getEventId(), IMessageConsumeService.OP_REGISTER_AUTO_ISSUE);
         } catch (RuntimeException e) {
             log.error("注册自动发券失败 userId={} eventId={}", event.getUserId(), event.getEventId(), e);
             throw e;

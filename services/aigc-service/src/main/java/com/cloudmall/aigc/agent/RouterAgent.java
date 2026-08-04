@@ -45,11 +45,7 @@ public class RouterAgent implements Agent {
      * @param agents 所有业务智能体列表（不含路由自身）
      * @param promptLoader 提示词加载器，用于加载路由 system prompt
      */
-    public RouterAgent(
-            ChatClient.Builder clientBuilder,
-            List<Agent> agents,
-            AgentPromptLoader promptLoader
-    ) {
+    public RouterAgent(ChatClient.Builder clientBuilder, List<Agent> agents, AgentPromptLoader promptLoader) {
         this.chatClientBuilder = clientBuilder;
         this.promptLoader = promptLoader;
         this.agentMap = agents.stream()
@@ -164,9 +160,7 @@ public class RouterAgent implements Agent {
      */
     @Override
     public String chatText(ChatReq req) {
-        throw new UnsupportedOperationException(
-                "RouterAgent 不支持非流式聊天，请直接调用 GeneralAgent.chatText()"
-        );
+        throw new UnsupportedOperationException("RouterAgent 不支持非流式聊天，请直接调用 GeneralAgent.chatText()");
     }
 
     /**

@@ -160,11 +160,7 @@ public class OperatorCouponController {
             @Valid
             RevokeReq req
     ) {
-        int revoked = userCouponService.revokeByCoupon(
-                id,
-                UserContextHolder.getUserId(),
-                req.getReason()
-        );
+        int revoked = userCouponService.revokeByCoupon(id, UserContextHolder.getUserId(), req.getReason());
         return Result.success(revoked);
     }
 

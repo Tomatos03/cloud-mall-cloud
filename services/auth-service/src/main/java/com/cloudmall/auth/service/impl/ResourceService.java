@@ -27,8 +27,8 @@ import com.cloudmall.auth.model.req.ResourceReq;
 import com.cloudmall.auth.model.resp.ResourceNodeResp;
 import com.cloudmall.auth.model.resp.ResourceResp;
 import com.cloudmall.auth.service.IResourceService;
-import com.cloudmall.common.enums.BizErrorCode;
-import com.cloudmall.common.utils.AssertUtils;
+import com.cloudmall.common.enums.BizError;
+import com.cloudmall.common.utils.Asserts;
 import com.cloudmall.mybatisplus.enums.StatusEnum;
 
 /**
@@ -125,7 +125,7 @@ public class ResourceService implements IResourceService {
      */
     @Override
     public ResourceResp getResource(Long resourceId) {
-        ResourceDO resourceDo = AssertUtils.requireNonNull(resourceMapper.selectById(resourceId));
+        ResourceDO resourceDo = Asserts.requireNonNull(resourceMapper.selectById(resourceId));
         return resourceConverter.toResourceResp(resourceDo);
     }
 
@@ -135,7 +135,7 @@ public class ResourceService implements IResourceService {
     @Override
     public List<ResourceResp> listResources(String type) {
         if (type != null) {
-            AssertUtils.isTrue(ResourceTypeEnum.isValid(type), BizErrorCode.INVALID_RESOURCE_TYPE);
+            Asserts.isTrue(ResourceTypeEnum.isValid(type), BizError.INVALID_RESOURCE_TYPE);
         }
 
         List<ResourceDO> resources = resourceMapper.selectList(
@@ -153,13 +153,10 @@ public class ResourceService implements IResourceService {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public Long createResource(ResourceReq req) {
-        AssertUtils.isTrue(
-                ResourceTypeEnum.isValid(req.getType()),
-                BizErrorCode.INVALID_RESOURCE_TYPE
-        );
+        Asserts.isTrue(ResourceTypeEnum.isValid(req.getType()), BizError.INVALID_RESOURCE_TYPE);
 
         if (req.getParentId() != null) {
-            AssertUtils.notNull(resourceMapper.selectById(req.getParentId()));
+            Asserts.notNull(resourceMapper.selectById(req.getParentId()));
         }
 
         ResourceDO resourceDo = ResourceDO.builder()
@@ -181,16 +178,13 @@ public class ResourceService implements IResourceService {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public void updateResource(Long id, ResourceReq req) {
-        ResourceDO existing = AssertUtils.requireNonNull(resourceMapper.selectById(id));
+        ResourceDO existing = Asserts.requireNonNull(resourceMapper.selectById(id));
 
         if (req.getType() != null) {
-            AssertUtils.isTrue(
-                    ResourceTypeEnum.isValid(req.getType()),
-                    BizErrorCode.INVALID_RESOURCE_TYPE
-            );
+            Asserts.isTrue(ResourceTypeEnum.isValid(req.getType()), BizError.INVALID_RESOURCE_TYPE);
         }
         if (req.getParentId() != null) {
-            AssertUtils.notNull(resourceMapper.selectById(req.getParentId()));
+            Asserts.notNull(resourceMapper.selectById(req.getParentId()));
         }
 
         resourceConverter.updateEntity(req, existing);
@@ -204,12 +198,12 @@ public class ResourceService implements IResourceService {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public void deleteResource(Long resourceId) {
-        ResourceDO existing = AssertUtils.requireNonNull(resourceMapper.selectById(resourceId));
+        ResourceDO existing = Asserts.requireNonNull(resourceMapper.selectById(resourceId));
 
         Long childCount = resourceMapper.selectCount(
                 Wrappers.<ResourceDO>lambdaQuery().eq(ResourceDO::getParentId, resourceId)
         );
-        AssertUtils.isZero(ObjectUtil.defaultIfNull(childCount, 0L), BizErrorCode.INVALID_PARAM);
+        Asserts.isZero(ObjectUtil.defaultIfNull(childCount, 0L), BizError.INVALID_PARAM);
 
         resourceMapper.deleteById(resourceId);
     }
@@ -239,11 +233,7 @@ public class ResourceService implements IResourceService {
             return Collections.emptyList();
         }
 
-        List<Tree<Long>> hutoolTree = TreeUtil.build(
-                resources,
-                null,
-                ResourceService::resourceToTree
-        );
+        List<Tree<Long>> hutoolTree = TreeUtil.build(resources, null, ResourceService::resourceToTree);
         if (CollUtil.isEmpty(hutoolTree)) {
             return Collections.emptyList();
         }

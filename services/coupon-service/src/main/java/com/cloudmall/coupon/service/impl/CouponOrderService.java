@@ -16,8 +16,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.cloudmall.common.enums.BizErrorCode;
-import com.cloudmall.common.utils.AssertUtils;
+import com.cloudmall.common.enums.BizError;
+import com.cloudmall.common.utils.Asserts;
 import com.cloudmall.coupon.api.dto.CouponCalcItem;
 import com.cloudmall.coupon.api.request.CouponOrderCommitReq;
 import com.cloudmall.coupon.api.request.CouponOrderLockReq;
@@ -87,7 +87,7 @@ public class CouponOrderService implements ICouponOrderService {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public CouponOrderCalcResp lock(CouponOrderLockReq req) {
-        AssertUtils.assertNotBlank(req.getOrderNo(), BizErrorCode.INVALID_PARAM);
+        Asserts.assertNotBlank(req.getOrderNo(), BizError.INVALID_PARAM);
         if (hasLocked(req.getOrderNo())) {
             return rebuildByOrder(req);
         }
@@ -137,12 +137,7 @@ public class CouponOrderService implements ICouponOrderService {
                         .eq(UserCouponDO::getStatus, UserCouponStatusEnum.LOCKED)
         );
         for (UserCouponDO uc : locked) {
-            userCouponService.release(
-                    req.getOrderNo(),
-                    uc.getUserId(),
-                    uc.getId(),
-                    DEFAULT_RELEASE_REASON
-            );
+            userCouponService.release(req.getOrderNo(), uc.getUserId(), uc.getId(), DEFAULT_RELEASE_REASON);
         }
     }
 
@@ -171,7 +166,7 @@ public class CouponOrderService implements ICouponOrderService {
      */
     private CouponOrderCalcResp doCalculate(CouponOrderQuoteReq req) {
         List<CouponCalcItem> items = req.getItems();
-        AssertUtils.notEmpty(items, BizErrorCode.INVALID_PARAM);
+        Asserts.notEmpty(items, BizError.INVALID_PARAM);
         Long platformId = resolvePlatformCouponId(req);
         Map<Long, Long> shopIds = resolveShopCouponIds(req);
         CalcCoupon platformCoupon = resolveSelectedPlatform(req.getUserId(), platformId, items);
@@ -225,16 +220,12 @@ public class CouponOrderService implements ICouponOrderService {
      * @param items 商品明细
      * @return 计算券（未选择为 null）
      */
-    private CalcCoupon resolveSelectedPlatform(
-            Long userId,
-            Long userCouponId,
-            List<CouponCalcItem> items
-    ) {
+    private CalcCoupon resolveSelectedPlatform(Long userId, Long userCouponId, List<CouponCalcItem> items) {
         if (userCouponId == null) {
             return null;
         }
         UserCouponDO uc = requireOwnedAvailable(userId, userCouponId);
-        AssertUtils.isTrue(uc.isPlatform(), BizErrorCode.COUPON_OWNER_INVALID);
+        Asserts.isTrue(uc.isPlatform(), BizError.COUPON_OWNER_INVALID);
         return toCalcCoupon(uc, items);
     }
 
@@ -262,8 +253,8 @@ public class CouponOrderService implements ICouponOrderService {
                 continue;
             }
             UserCouponDO uc = requireOwnedAvailable(userId, ucId);
-            AssertUtils.isTrue(uc.isShopCoupon(), BizErrorCode.COUPON_OWNER_INVALID);
-            AssertUtils.isEqual(uc.getShopId(), entry.getKey(), BizErrorCode.COUPON_OWNER_INVALID);
+            Asserts.isTrue(uc.isShopCoupon(), BizError.COUPON_OWNER_INVALID);
+            Asserts.isEqual(uc.getShopId(), entry.getKey(), BizError.COUPON_OWNER_INVALID);
             result.add(toCalcCoupon(uc, items));
         }
         return result;
@@ -277,15 +268,15 @@ public class CouponOrderService implements ICouponOrderService {
      * @return 用户券
      */
     private UserCouponDO requireOwnedAvailable(Long userId, Long userCouponId) {
-        UserCouponDO uc = AssertUtils.requireNonNull(
+        UserCouponDO uc = Asserts.requireNonNull(
                 userCouponMapper.selectById(userCouponId),
-                BizErrorCode.USER_COUPON_NOT_FOUND
+                BizError.USER_COUPON_NOT_FOUND
         );
-        AssertUtils.isEqual(uc.getUserId(), userId, BizErrorCode.USER_COUPON_NOT_BELONG_TO_USER);
-        AssertUtils.isFalse(uc.isOverdue(), BizErrorCode.USER_COUPON_EXPIRED);
-        AssertUtils.isFalse(uc.isLocked(), BizErrorCode.USER_COUPON_LOCKED);
-        AssertUtils.isFalse(uc.isUsed(), BizErrorCode.USER_COUPON_USED);
-        AssertUtils.isTrue(uc.isAvailable(), BizErrorCode.USER_COUPON_STATE_CONFLICT);
+        Asserts.isEqual(uc.getUserId(), userId, BizError.USER_COUPON_NOT_BELONG_TO_USER);
+        Asserts.isFalse(uc.isOverdue(), BizError.USER_COUPON_EXPIRED);
+        Asserts.isFalse(uc.isLocked(), BizError.USER_COUPON_LOCKED);
+        Asserts.isFalse(uc.isUsed(), BizError.USER_COUPON_USED);
+        Asserts.isTrue(uc.isAvailable(), BizError.USER_COUPON_STATE_CONFLICT);
         return uc;
     }
 
@@ -297,9 +288,9 @@ public class CouponOrderService implements ICouponOrderService {
      * @return 计算券
      */
     private CalcCoupon toCalcCoupon(UserCouponDO uc, List<CouponCalcItem> items) {
-        CouponDO template = AssertUtils.requireNonNull(
+        CouponDO template = Asserts.requireNonNull(
                 couponMapper.selectById(uc.getCouponId()),
-                BizErrorCode.COUPON_TEMPLATE_NOT_FOUND
+                BizError.COUPON_TEMPLATE_NOT_FOUND
         );
         List<CouponCalcItem> applicable = scopeMatcher.matchItems(template, items);
         return couponOrderConverter.toCalcCoupon(uc, applicable);
@@ -335,8 +326,7 @@ public class CouponOrderService implements ICouponOrderService {
             if (uc.isPlatform()) {
                 validPlatform.add(calcCoupon);
             } else {
-                validShopByShop.computeIfAbsent(uc.getShopId(), k -> new ArrayList<>())
-                               .add(calcCoupon);
+                validShopByShop.computeIfAbsent(uc.getShopId(), k -> new ArrayList<>()).add(calcCoupon);
             }
         }
         resp.setCandidates(candidates);
@@ -360,9 +350,7 @@ public class CouponOrderService implements ICouponOrderService {
     ) {
         String invalidReason = null;
         if (!valid) {
-            invalidReason = CollUtil.isEmpty(calcCoupon.getApplicableItems())
-                    ? "商品不在适用范围内"
-                    : "未满足使用门槛";
+            invalidReason = CollUtil.isEmpty(calcCoupon.getApplicableItems()) ? "商品不在适用范围内" : "未满足使用门槛";
         }
         return CouponCandidateResp
                 .builder()
@@ -379,9 +367,7 @@ public class CouponOrderService implements ICouponOrderService {
                 .effectiveTime(uc.getEffectiveTime())
                 .expireTime(uc.getExpireTime())
                 .applicableAmount(applicableAmount)
-                .estimatedDiscountAmount(
-                        valid ? estimateDiscount(calcCoupon, applicableAmount) : null
-                )
+                .estimatedDiscountAmount(valid ? estimateDiscount(calcCoupon, applicableAmount) : null)
                 .valid(valid)
                 .invalidReason(invalidReason)
                 .build();
@@ -579,7 +565,7 @@ public class CouponOrderService implements ICouponOrderService {
                         .eq(UserCouponDO::getLockedOrderNo, req.getOrderNo())
                         .eq(UserCouponDO::getStatus, UserCouponStatusEnum.LOCKED)
         );
-        AssertUtils.notEmpty(locked, BizErrorCode.COUPON_LOCK_FAILED);
+        Asserts.notEmpty(locked, BizError.COUPON_LOCK_FAILED);
         CalcCoupon platform = null;
         List<CalcCoupon> shops = new ArrayList<>();
         for (UserCouponDO uc : locked) {

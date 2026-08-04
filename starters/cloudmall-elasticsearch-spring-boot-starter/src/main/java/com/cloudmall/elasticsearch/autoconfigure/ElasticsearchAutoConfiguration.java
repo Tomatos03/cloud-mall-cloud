@@ -51,10 +51,7 @@ public class ElasticsearchAutoConfiguration {
         if (StrUtil.isNotBlank(properties.getUsername())) {
             credentialsProvider.setCredentials(
                     AuthScope.ANY,
-                    new UsernamePasswordCredentials(
-                            properties.getUsername(),
-                            properties.getPassword()
-                    )
+                    new UsernamePasswordCredentials(properties.getUsername(), properties.getPassword())
             );
         }
 
@@ -69,19 +66,12 @@ public class ElasticsearchAutoConfiguration {
                                                                 }
                                                         );
         restClientBuilder.setRequestConfigCallback(
-                requestConfigBuilder -> requestConfigBuilder.setConnectTimeout(
-                                                                    properties.getConnectTimeout()
-                                                            )
-                                                            .setSocketTimeout(
-                                                                    properties.getSocketTimeout()
-                                                            )
+                requestConfigBuilder -> requestConfigBuilder.setConnectTimeout(properties.getConnectTimeout())
+                                                            .setSocketTimeout(properties.getSocketTimeout())
         );
 
         RestClient restClient = restClientBuilder.build();
-        RestClientTransport transport = new RestClientTransport(
-                restClient,
-                new JacksonJsonpMapper()
-        );
+        RestClientTransport transport = new RestClientTransport(restClient, new JacksonJsonpMapper());
         return new ElasticsearchClient(transport);
     }
 

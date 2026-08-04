@@ -7,9 +7,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.cloudmall.common.enums.BizErrorCode;
+import com.cloudmall.common.enums.BizError;
 import com.cloudmall.common.exception.BizException;
-import com.cloudmall.common.utils.AssertUtils;
+import com.cloudmall.common.utils.Asserts;
 import com.cloudmall.product.api.request.UnitCreateReq;
 import com.cloudmall.product.api.request.UnitUpdateReq;
 import com.cloudmall.product.api.response.UnitResp;
@@ -40,7 +40,7 @@ public class UnitService implements IUnitService {
      */
     @Override
     public UnitResp getById(Long id) {
-        UnitDO unit = AssertUtils.requireNonNull(unitMapper.selectById(id));
+        UnitDO unit = Asserts.requireNonNull(unitMapper.selectById(id));
         return unitConverter.toResp(unit);
     }
 
@@ -80,7 +80,7 @@ public class UnitService implements IUnitService {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public void update(Long id, UnitUpdateReq req) {
-        UnitDO unit = AssertUtils.requireNonNull(unitMapper.selectById(id));
+        UnitDO unit = Asserts.requireNonNull(unitMapper.selectById(id));
         unitConverter.merge(unit, req);
         unitMapper.updateById(unit);
     }
@@ -94,7 +94,7 @@ public class UnitService implements IUnitService {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public void delete(List<Long> ids) {
-        AssertUtils.notEmpty(ids, BizErrorCode.INVALID_PARAM);
+        Asserts.notEmpty(ids, BizError.INVALID_PARAM);
         unitMapper.deleteBatchIds(ids);
     }
 }

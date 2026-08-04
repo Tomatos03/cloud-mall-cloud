@@ -19,11 +19,7 @@ public final class ParentOrderStateTransitions {
             ParentOrderStatusEnum.CREATING,
             Set.of(ParentOrderStatusEnum.PENDING_PAYMENT, ParentOrderStatusEnum.CANCELLED),
             ParentOrderStatusEnum.PENDING_PAYMENT,
-            Set.of(
-                    ParentOrderStatusEnum.PAID,
-                    ParentOrderStatusEnum.TIMEOUT,
-                    ParentOrderStatusEnum.CANCELLED
-            ),
+            Set.of(ParentOrderStatusEnum.PAID, ParentOrderStatusEnum.TIMEOUT, ParentOrderStatusEnum.CANCELLED),
             ParentOrderStatusEnum.PAID,
             Set.of(ParentOrderStatusEnum.PARTIAL_REFUNDED, ParentOrderStatusEnum.REFUNDED),
             ParentOrderStatusEnum.PARTIAL_REFUNDED,

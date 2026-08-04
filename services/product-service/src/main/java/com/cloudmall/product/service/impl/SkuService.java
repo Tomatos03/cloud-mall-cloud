@@ -18,9 +18,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.cloudmall.common.enums.BizErrorCode;
+import com.cloudmall.common.enums.BizError;
 import com.cloudmall.common.exception.BizException;
-import com.cloudmall.common.utils.AssertUtils;
+import com.cloudmall.common.utils.Asserts;
 import com.cloudmall.mybatisplus.enums.StatusEnum;
 import com.cloudmall.product.api.response.SkuResp;
 import com.cloudmall.product.convert.SkuConverter;
@@ -65,7 +65,7 @@ public class SkuService implements ISkuService {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public Boolean updateStock(Long skuId, Integer quantity) {
-        ProductSkuDO sku = AssertUtils.requireNonNull(productSkuMapper.selectById(skuId));
+        ProductSkuDO sku = Asserts.requireNonNull(productSkuMapper.selectById(skuId));
         if (quantity == 0) {
             return Boolean.TRUE;
         }
@@ -76,7 +76,7 @@ public class SkuService implements ISkuService {
                         .eq(ProductSkuDO::getId, skuId)
                         .ge(ProductSkuDO::getStock, -quantity)
         );
-        AssertUtils.isTrue(updated > 0, BizErrorCode.STOCK_NOT_ENOUGH);
+        Asserts.isTrue(updated > 0, BizError.STOCK_NOT_ENOUGH);
         return Boolean.TRUE;
     }
 
@@ -147,10 +147,7 @@ public class SkuService implements ISkuService {
         if (CollUtil.isEmpty(specValueIds)) {
             return null;
         }
-        Map<Long, List<Long>> matched = productSpecService.getSpecValueSkuMap(
-                productId,
-                specValueIds
-        );
+        Map<Long, List<Long>> matched = productSpecService.getSpecValueSkuMap(productId, specValueIds);
         if (matched.size() != 1) {
             return null;
         }

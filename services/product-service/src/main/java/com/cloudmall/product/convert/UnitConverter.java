@@ -37,10 +37,7 @@ public interface UnitConverter {
     @Mapping(target = "deleted", ignore = true)
     @Mapping(target = "createTime", ignore = true)
     @Mapping(target = "updateTime", ignore = true)
-    @Mapping(
-            target = "status",
-            expression = "java(com.cloudmall.mybatisplus.enums.StatusEnum.ENABLED)"
-    )
+    @Mapping(target = "status", expression = "java(com.cloudmall.mybatisplus.enums.StatusEnum.ENABLED)")
     @Mapping(
             target = "sortOrder",
             expression = "java(java.util.Optional.ofNullable(req.getSortOrder()).orElse(0))"

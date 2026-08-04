@@ -54,8 +54,7 @@ public class CacheChatMemoryRepository implements ChatMemoryRepository {
      */
     @Override
     public List<Message> findByConversationId(String conversationId) {
-        List<String> messageJsons = stringRedisTemplate.boundListOps(buildKey(conversationId))
-                                                       .range(0, -1);
+        List<String> messageJsons = stringRedisTemplate.boundListOps(buildKey(conversationId)).range(0, -1);
         if (CollectionUtil.isEmpty(messageJsons)) {
             return Collections.emptyList();
         }
@@ -79,8 +78,7 @@ public class CacheChatMemoryRepository implements ChatMemoryRepository {
             return;
         }
         ChatMessageDTO newMessage = ChatMessageDTO.fromMessage(messages.get(messages.size() - 1));
-        stringRedisTemplate.boundListOps(buildKey(conversationId))
-                           .rightPush(JSONUtil.toJsonStr(newMessage));
+        stringRedisTemplate.boundListOps(buildKey(conversationId)).rightPush(JSONUtil.toJsonStr(newMessage));
     }
 
     /**

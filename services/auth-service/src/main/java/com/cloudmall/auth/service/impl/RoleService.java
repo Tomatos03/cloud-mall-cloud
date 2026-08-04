@@ -22,8 +22,8 @@ import com.cloudmall.auth.model.req.RolePageReq;
 import com.cloudmall.auth.model.req.RoleReq;
 import com.cloudmall.auth.model.resp.RoleResp;
 import com.cloudmall.auth.service.IRoleService;
-import com.cloudmall.common.enums.BizErrorCode;
-import com.cloudmall.common.utils.AssertUtils;
+import com.cloudmall.common.enums.BizError;
+import com.cloudmall.common.utils.Asserts;
 
 /**
  * 角色管理服务实现
@@ -64,7 +64,7 @@ public class RoleService implements IRoleService {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public void updateRole(Long roleId, RoleReq req) {
-        RoleDO existing = AssertUtils.requireNonNull(roleMapper.selectById(roleId));
+        RoleDO existing = Asserts.requireNonNull(roleMapper.selectById(roleId));
 
         roleConverter.updateEntity(req, existing);
         roleMapper.updateById(existing);
@@ -76,8 +76,8 @@ public class RoleService implements IRoleService {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public void deleteRole(Long roleId) {
-        RoleDO existing = AssertUtils.requireNonNull(roleMapper.selectById(roleId));
-        AssertUtils.isTrue(!BooleanUtil.isTrue(existing.getBuiltIn()), BizErrorCode.INVALID_PARAM);
+        RoleDO existing = Asserts.requireNonNull(roleMapper.selectById(roleId));
+        Asserts.isTrue(!BooleanUtil.isTrue(existing.getBuiltIn()), BizError.INVALID_PARAM);
 
         userRoleMapper.delete(Wrappers.<UserRoleDO>lambdaQuery().eq(UserRoleDO::getRoleId, roleId));
         roleResourceMapper.delete(
@@ -91,7 +91,7 @@ public class RoleService implements IRoleService {
      */
     @Override
     public RoleResp getRole(Long roleId) {
-        RoleDO roleDo = AssertUtils.requireNonNull(roleMapper.selectById(roleId));
+        RoleDO roleDo = Asserts.requireNonNull(roleMapper.selectById(roleId));
         return roleConverter.toRoleResp(roleDo);
     }
 
@@ -110,7 +110,7 @@ public class RoleService implements IRoleService {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public void assignResources(Long roleId, List<Long> resourceIds) {
-        AssertUtils.notNull(roleMapper.selectById(roleId));
+        Asserts.notNull(roleMapper.selectById(roleId));
 
         roleResourceMapper.delete(
                 Wrappers.<RoleResourceDO>lambdaQuery().eq(RoleResourceDO::getRoleId, roleId)
@@ -118,12 +118,10 @@ public class RoleService implements IRoleService {
         if (CollUtil.isNotEmpty(resourceIds)) {
             List<RoleResourceDO> list = resourceIds
                     .stream()
-                    .map(
-                            resourceId -> RoleResourceDO.builder()
-                                                        .roleId(roleId)
-                                                        .resourceId(resourceId)
-                                                        .build()
-                    )
+                    .map(resourceId -> RoleResourceDO.builder()
+                                                     .roleId(roleId)
+                                                     .resourceId(resourceId)
+                                                     .build())
                     .toList();
             list.forEach(roleResourceMapper::insert);
         }

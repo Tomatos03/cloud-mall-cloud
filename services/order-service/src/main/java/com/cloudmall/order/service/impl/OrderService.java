@@ -23,9 +23,9 @@ import org.jspecify.annotations.NonNull;
 import org.springframework.stereotype.Service;
 
 import com.cloudmall.common.context.UserContextHolder;
-import com.cloudmall.common.enums.BizErrorCode;
+import com.cloudmall.common.enums.BizError;
 import com.cloudmall.common.exception.BizException;
-import com.cloudmall.common.utils.AssertUtils;
+import com.cloudmall.common.utils.Asserts;
 import com.cloudmall.coupon.api.client.CouponOrderClient;
 import com.cloudmall.coupon.api.dto.CouponCalcItem;
 import com.cloudmall.coupon.api.request.CouponOrderLockReq;
@@ -191,12 +191,7 @@ public class OrderService implements IOrderService {
                     context.getCalcItems()
             );
             lockedUsages = calc.getUsages();
-            orderPersistence.finalizeOrder(
-                    draft,
-                    calc,
-                    context.getSkuMap(),
-                    context.getQuantities()
-            );
+            orderPersistence.finalizeOrder(draft, calc, context.getSkuMap(), context.getQuantities());
         } catch (RuntimeException e) {
             compensate(
                     draft,
@@ -279,15 +274,9 @@ public class OrderService implements IOrderService {
      */
     @Override
     public OrderResp getById(Long id) {
-        OrderDO order = AssertUtils.requireNonNull(
-                orderMapper.selectById(id),
-                BizErrorCode.ORDER_NOT_EXIST
-        );
+        OrderDO order = Asserts.requireNonNull(orderMapper.selectById(id), BizError.ORDER_NOT_EXIST);
         Long userId = UserContextHolder.getUserId();
-        AssertUtils.isTrue(
-                Objects.equals(order.getUserId(), userId),
-                BizErrorCode.ORDER_NOT_BELONG_TO_USER
-        );
+        Asserts.isTrue(Objects.equals(order.getUserId(), userId), BizError.ORDER_NOT_BELONG_TO_USER);
         return toResp(order);
     }
 
@@ -312,10 +301,7 @@ public class OrderService implements IOrderService {
      */
     @Override
     public IPage<OrderSubResp> pageMerchant(OrderSubPageReq req) {
-        Long shopId = AssertUtils.requireNonNull(
-                UserContextHolder.getShopId(),
-                BizErrorCode.MERCHANT_NO_SHOP
-        );
+        Long shopId = Asserts.requireNonNull(UserContextHolder.getShopId(), BizError.MERCHANT_NO_SHOP);
         req.setShopId(shopId);
         IPage<OrderSubDO> page = orderSubMapper.selectPage(req, req.buildLambdaWrapper());
         return page.convert(this::toSubRespWithItems);
@@ -348,8 +334,7 @@ public class OrderService implements IOrderService {
         );
         resp.setSubs(toSubRespsWithItems(subs));
         List<OrderCouponDO> coupons = orderCouponMapper.selectList(
-                Wrappers.<OrderCouponDO>lambdaQuery()
-                        .eq(OrderCouponDO::getParentOrderId, order.getId())
+                Wrappers.<OrderCouponDO>lambdaQuery().eq(OrderCouponDO::getParentOrderId, order.getId())
         );
         resp.setCoupons(orderCouponConverter.toRespList(coupons));
         return resp;
@@ -379,10 +364,7 @@ public class OrderService implements IOrderService {
                                                                )
                                                        );
         for (OrderSubResp subResp : resps) {
-            List<OrderItemDO> subItems = itemsBySub.getOrDefault(
-                    subResp.getId(),
-                    Collections.emptyList()
-            );
+            List<OrderItemDO> subItems = itemsBySub.getOrDefault(subResp.getId(), Collections.emptyList());
             subResp.setItems(orderItemConverter.toItemRespList(subItems));
         }
         return resps;
@@ -409,10 +391,7 @@ public class OrderService implements IOrderService {
      * @return 用户 ID
      */
     private Long requireUserId() {
-        return AssertUtils.requireNonNull(
-                UserContextHolder.getUserId(),
-                BizErrorCode.USER_NOT_AUTHENTICATED
-        );
+        return Asserts.requireNonNull(UserContextHolder.getUserId(), BizError.USER_NOT_AUTHENTICATED);
     }
 
     /**
@@ -425,13 +404,12 @@ public class OrderService implements IOrderService {
     private AddressResp requireAddress(Long userId, Long addressId) {
         List<AddressResp> addresses = addressClient.listAddresses(userId);
         if (CollUtil.isEmpty(addresses)) {
-            throw new BizException(BizErrorCode.ORDER_CREATE_ADDRESS_NOT_EXIST);
+            throw new BizException(BizError.ORDER_CREATE_ADDRESS_NOT_EXIST);
         }
-        return addresses
-                .stream()
-                .filter(address -> Objects.equals(address.getId(), addressId))
-                .findFirst()
-                .orElseThrow(() -> new BizException(BizErrorCode.ORDER_CREATE_ADDRESS_NOT_EXIST));
+        return addresses.stream()
+                        .filter(address -> Objects.equals(address.getId(), addressId))
+                        .findFirst()
+                        .orElseThrow(() -> new BizException(BizError.ORDER_CREATE_ADDRESS_NOT_EXIST));
     }
 
     /**
@@ -458,24 +436,13 @@ public class OrderService implements IOrderService {
     private Map<Long, CartDO> requireCartSelection(Long userId, Map<Long, Integer> quantities) {
         List<CartDO> selected = cartService.listSelectedItems(userId);
         if (CollUtil.isEmpty(selected)) {
-            throw new BizException(BizErrorCode.GOODS_NOT_IN_CART);
+            throw new BizException(BizError.GOODS_NOT_IN_CART);
         }
         Map<Long, CartDO> cartMap = selected.stream()
-                                            .collect(
-                                                    Collectors.toMap(
-                                                            CartDO::getSkuId,
-                                                            Function.identity()
-                                                    )
-                                            );
+                                            .collect(Collectors.toMap(CartDO::getSkuId, Function.identity()));
         for (Map.Entry<Long, Integer> entry : quantities.entrySet()) {
-            CartDO cart = AssertUtils.requireNonNull(
-                    cartMap.get(entry.getKey()),
-                    BizErrorCode.GOODS_NOT_IN_CART
-            );
-            AssertUtils.isTrue(
-                    cart.getQuantity() >= entry.getValue(),
-                    BizErrorCode.ORDER_QUANTITY_INVALID
-            );
+            CartDO cart = Asserts.requireNonNull(cartMap.get(entry.getKey()), BizError.GOODS_NOT_IN_CART);
+            Asserts.isTrue(cart.getQuantity() >= entry.getValue(), BizError.ORDER_QUANTITY_INVALID);
         }
         return cartMap;
     }
@@ -489,27 +456,19 @@ public class OrderService implements IOrderService {
     private Map<Long, SkuResp> requireAvailableSkus(Map<Long, Integer> quantities) {
         List<SkuResp> skus = skuClient.listSkusByIds(new ArrayList<>(quantities.keySet()));
         if (CollUtil.isEmpty(skus)) {
-            throw new BizException(BizErrorCode.ORDER_CREATE_SKU_NOT_AVAILABLE);
+            throw new BizException(BizError.ORDER_CREATE_SKU_NOT_AVAILABLE);
         }
         Map<Long, SkuResp> skuMap = skus.stream()
-                                        .collect(
-                                                Collectors.toMap(
-                                                        SkuResp::getSkuId,
-                                                        Function.identity()
-                                                )
-                                        );
+                                        .collect(Collectors.toMap(SkuResp::getSkuId, Function.identity()));
         for (Map.Entry<Long, Integer> entry : quantities.entrySet()) {
-            SkuResp sku = AssertUtils.requireNonNull(
+            SkuResp sku = Asserts.requireNonNull(
                     skuMap.get(entry.getKey()),
-                    BizErrorCode.ORDER_CREATE_SKU_NOT_AVAILABLE
+                    BizError.ORDER_CREATE_SKU_NOT_AVAILABLE
             );
-            AssertUtils.isTrue(
-                    sku.getStatus() == StatusEnum.ENABLED,
-                    BizErrorCode.ORDER_CREATE_SKU_NOT_AVAILABLE
-            );
-            AssertUtils.isTrue(
+            Asserts.isTrue(sku.getStatus() == StatusEnum.ENABLED, BizError.ORDER_CREATE_SKU_NOT_AVAILABLE);
+            Asserts.isTrue(
                     sku.getStock() != null && sku.getStock() >= entry.getValue(),
-                    BizErrorCode.ORDER_CREATE_SKU_INVENTORY_NOT_ENOUGH
+                    BizError.ORDER_CREATE_SKU_INVENTORY_NOT_ENOUGH
             );
         }
         return skuMap;
@@ -522,10 +481,7 @@ public class OrderService implements IOrderService {
      * @param skuMap SKU 可信快照
      * @return 商品明细列表
      */
-    private List<CouponCalcItem> buildCalcItems(
-            Map<Long, Integer> quantities,
-            Map<Long, SkuResp> skuMap
-    ) {
+    private List<CouponCalcItem> buildCalcItems(Map<Long, Integer> quantities, Map<Long, SkuResp> skuMap) {
         List<CouponCalcItem> items = new ArrayList<>();
         for (Map.Entry<Long, Integer> entry : quantities.entrySet()) {
             SkuResp sku = skuMap.get(entry.getKey());
@@ -608,11 +564,7 @@ public class OrderService implements IOrderService {
      * @param orderNo 订单号
      * @param lockedUsages 已锁定的券快照
      */
-    private void releaseCouponsQuietly(
-            Long userId,
-            String orderNo,
-            List<CouponUsageResult> lockedUsages
-    ) {
+    private void releaseCouponsQuietly(Long userId, String orderNo, List<CouponUsageResult> lockedUsages) {
         if (CollUtil.isEmpty(lockedUsages)) {
             return;
         }
@@ -627,12 +579,7 @@ public class OrderService implements IOrderService {
                                              .build()
                 );
             } catch (RuntimeException e) {
-                log.warn(
-                        "Saga 补偿释放用户券失败 orderNo={} userCouponId={}",
-                        orderNo,
-                        usage.getUserCouponId(),
-                        e
-                );
+                log.warn("Saga 补偿释放用户券失败 orderNo={} userCouponId={}", orderNo, usage.getUserCouponId(), e);
             }
         }
     }

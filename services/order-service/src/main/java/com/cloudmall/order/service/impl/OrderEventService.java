@@ -5,8 +5,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.cloudmall.common.enums.BizErrorCode;
-import com.cloudmall.common.utils.AssertUtils;
+import com.cloudmall.common.enums.BizError;
+import com.cloudmall.common.utils.Asserts;
 import com.cloudmall.order.entity.OrderDO;
 import com.cloudmall.order.enums.ParentOrderStatusEnum;
 import com.cloudmall.order.mapper.OrderMapper;
@@ -84,7 +84,7 @@ public class OrderEventService implements IOrderEventService {
                                 ParentOrderStatusEnum.PENDING_PAYMENT
                         )
         );
-        AssertUtils.isTrue(updated > 0, BizErrorCode.INVALID_ORDER_STATUS);
+        Asserts.isTrue(updated > 0, BizError.INVALID_ORDER_STATUS);
         orderOutboxService.appendOrderEvent(orderNo, order.getUserId(), EVENT_CANCELLED, null);
     }
 
@@ -97,7 +97,7 @@ public class OrderEventService implements IOrderEventService {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public void handleFullyRefunded(String orderNo, String refundId) {
-        AssertUtils.assertNotBlank(refundId, BizErrorCode.INVALID_PARAM);
+        Asserts.assertNotBlank(refundId, BizError.INVALID_PARAM);
         OrderDO order = requireOrder(orderNo);
         int updated = orderMapper.update(
                 Wrappers.<OrderDO>lambdaUpdate()
@@ -109,13 +109,8 @@ public class OrderEventService implements IOrderEventService {
                                 ParentOrderStatusEnum.PARTIAL_REFUNDED
                         )
         );
-        AssertUtils.isTrue(updated > 0, BizErrorCode.INVALID_ORDER_STATUS);
-        orderOutboxService.appendOrderEvent(
-                orderNo,
-                order.getUserId(),
-                EVENT_FULLY_REFUNDED,
-                refundId
-        );
+        Asserts.isTrue(updated > 0, BizError.INVALID_ORDER_STATUS);
+        orderOutboxService.appendOrderEvent(orderNo, order.getUserId(), EVENT_FULLY_REFUNDED, refundId);
     }
 
     /**
@@ -125,11 +120,9 @@ public class OrderEventService implements IOrderEventService {
      * @return 父订单
      */
     private OrderDO requireOrder(String orderNo) {
-        OrderDO order = AssertUtils.requireNonNull(
-                orderMapper.selectOne(
-                        Wrappers.<OrderDO>lambdaQuery().eq(OrderDO::getOrderNo, orderNo)
-                ),
-                BizErrorCode.ORDER_NOT_EXIST
+        OrderDO order = Asserts.requireNonNull(
+                orderMapper.selectOne(Wrappers.<OrderDO>lambdaQuery().eq(OrderDO::getOrderNo, orderNo)),
+                BizError.ORDER_NOT_EXIST
         );
         return order;
     }

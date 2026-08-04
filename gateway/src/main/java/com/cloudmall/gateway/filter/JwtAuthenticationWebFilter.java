@@ -119,10 +119,7 @@ public class JwtAuthenticationWebFilter implements WebFilter {
 
             return chain.filter(mutatedExchange)
                         .contextWrite(
-                                ctx -> ctx.put(
-                                        SecurityContext.class,
-                                        new SecurityContextImpl(authentication)
-                                )
+                                ctx -> ctx.put(SecurityContext.class, new SecurityContextImpl(authentication))
                         );
         } catch (JsonProcessingException e) {
             log.error("序列化 UserContext 失败", e);

@@ -20,9 +20,9 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.interceptor.TransactionAspectSupport;
 
 import com.cloudmall.common.context.UserContextHolder;
-import com.cloudmall.common.enums.BizErrorCode;
+import com.cloudmall.common.enums.BizError;
 import com.cloudmall.common.exception.BizException;
-import com.cloudmall.common.utils.AssertUtils;
+import com.cloudmall.common.utils.Asserts;
 import com.cloudmall.coupon.api.response.CouponResp;
 import com.cloudmall.coupon.api.response.UserCouponResp;
 import com.cloudmall.coupon.cache.CouponCacheService;
@@ -78,7 +78,7 @@ public class UserCouponService implements IUserCouponService {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public UserCouponResp claimPublic(Long couponId, Long userId) {
-        AssertUtils.notNull(userId, BizErrorCode.USER_NOT_AUTHENTICATED);
+        Asserts.notNull(userId, BizError.USER_NOT_AUTHENTICATED);
         couponRateLimitService.checkClaimRate(userId);
         CouponDO template = couponTemplateService.getTemplate(couponId);
         UserCouponDO exist = findClaimed(userId, couponId);
@@ -100,9 +100,9 @@ public class UserCouponService implements IUserCouponService {
             return resp;
         } catch (DuplicateKeyException e) {
             TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
-            UserCouponDO claimed = AssertUtils.requireNonNull(
+            UserCouponDO claimed = Asserts.requireNonNull(
                     findClaimed(userId, couponId),
-                    BizErrorCode.COUPON_CLAIM_FAILED
+                    BizError.COUPON_CLAIM_FAILED
             );
             couponCacheService.evictPublicTemplates();
             return userCouponConverter.toResp(claimed);
@@ -119,8 +119,8 @@ public class UserCouponService implements IUserCouponService {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public List<UserCouponResp> autoIssueForRegister(Long userId, String eventId) {
-        AssertUtils.notNull(userId, BizErrorCode.INVALID_PARAM);
-        AssertUtils.assertNotBlank(eventId, BizErrorCode.INVALID_PARAM);
+        Asserts.notNull(userId, BizError.INVALID_PARAM);
+        Asserts.assertNotBlank(eventId, BizError.INVALID_PARAM);
         List<UserCouponDO> issued = userCouponMapper.selectList(
                 Wrappers.<UserCouponDO>lambdaQuery()
                         .eq(UserCouponDO::getUserId, userId)
@@ -237,12 +237,9 @@ public class UserCouponService implements IUserCouponService {
      * @return 用户视角模板列表
      */
     private List<CouponResp> refreshClaimState(List<CouponResp> resps, Long userId) {
-        Set<Long> claimedIds = listClaimedCouponIds(
-                userId,
-                resps.stream()
-                     .map(CouponResp::getId)
-                     .toList()
-        );
+        Set<Long> claimedIds = listClaimedCouponIds(userId, resps.stream()
+                                                                 .map(CouponResp::getId)
+                                                                 .toList());
         LocalDateTime now = LocalDateTime.now();
         for (CouponResp resp : resps) {
             boolean claimed = claimedIds.contains(resp.getId());
@@ -305,31 +302,23 @@ public class UserCouponService implements IUserCouponService {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public void lock(String orderNo, Long userId, Long userCouponId, LocalDateTime lockExpireTime) {
-        AssertUtils.assertNotBlank(orderNo, BizErrorCode.INVALID_PARAM);
-        AssertUtils.notNull(userId, BizErrorCode.INVALID_PARAM);
-        AssertUtils.notNull(userCouponId, BizErrorCode.INVALID_PARAM);
+        Asserts.assertNotBlank(orderNo, BizError.INVALID_PARAM);
+        Asserts.notNull(userId, BizError.INVALID_PARAM);
+        Asserts.notNull(userCouponId, BizError.INVALID_PARAM);
         String eventId = orderNo + ":" + userCouponId + ":LOCK";
         if (logExists(eventId, UserCouponOperationTypeEnum.LOCK)) {
             return;
         }
         UserCouponDO uc = requireOwned(userId, userCouponId);
         expireIfOverdue(uc);
-        AssertUtils.isFalse(
-                uc.getStatus() == UserCouponStatusEnum.EXPIRED,
-                BizErrorCode.USER_COUPON_EXPIRED
-        );
-        int affected = userCouponMapper.lockIfAvailable(
-                userCouponId,
-                userId,
-                orderNo,
-                lockExpireTime
-        );
+        Asserts.isFalse(uc.getStatus() == UserCouponStatusEnum.EXPIRED, BizError.USER_COUPON_EXPIRED);
+        int affected = userCouponMapper.lockIfAvailable(userCouponId, userId, orderNo, lockExpireTime);
         if (affected == 0) {
             UserCouponDO fresh = userCouponMapper.selectById(userCouponId);
             if (fresh != null && fresh.getStatus() == UserCouponStatusEnum.LOCKED) {
-                throw new BizException(BizErrorCode.USER_COUPON_LOCKED);
+                throw new BizException(BizError.USER_COUPON_LOCKED);
             }
-            throw new BizException(BizErrorCode.USER_COUPON_STATE_CONFLICT);
+            throw new BizException(BizError.USER_COUPON_STATE_CONFLICT);
         }
         appendLog(
                 uc,
@@ -354,9 +343,9 @@ public class UserCouponService implements IUserCouponService {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public void commit(String orderNo, Long userId, Long userCouponId) {
-        AssertUtils.assertNotBlank(orderNo, BizErrorCode.INVALID_PARAM);
-        AssertUtils.notNull(userId, BizErrorCode.INVALID_PARAM);
-        AssertUtils.notNull(userCouponId, BizErrorCode.INVALID_PARAM);
+        Asserts.assertNotBlank(orderNo, BizError.INVALID_PARAM);
+        Asserts.notNull(userId, BizError.INVALID_PARAM);
+        Asserts.notNull(userCouponId, BizError.INVALID_PARAM);
         String eventId = orderNo + ":" + userCouponId + ":COMMIT";
         if (logExists(eventId, UserCouponOperationTypeEnum.COMMIT)) {
             return;
@@ -368,7 +357,7 @@ public class UserCouponService implements IUserCouponService {
             if (fresh != null && fresh.getStatus() == UserCouponStatusEnum.USED) {
                 return;
             }
-            throw new BizException(BizErrorCode.USER_COUPON_STATE_CONFLICT);
+            throw new BizException(BizError.USER_COUPON_STATE_CONFLICT);
         }
         appendLog(
                 uc,
@@ -394,9 +383,9 @@ public class UserCouponService implements IUserCouponService {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public void release(String orderNo, Long userId, Long userCouponId, String reason) {
-        AssertUtils.assertNotBlank(orderNo, BizErrorCode.INVALID_PARAM);
-        AssertUtils.notNull(userId, BizErrorCode.INVALID_PARAM);
-        AssertUtils.notNull(userCouponId, BizErrorCode.INVALID_PARAM);
+        Asserts.assertNotBlank(orderNo, BizError.INVALID_PARAM);
+        Asserts.notNull(userId, BizError.INVALID_PARAM);
+        Asserts.notNull(userCouponId, BizError.INVALID_PARAM);
         String eventId = orderNo + ":" + userCouponId + ":RELEASE";
         if (logExists(eventId, UserCouponOperationTypeEnum.RELEASE)) {
             return;
@@ -404,15 +393,15 @@ public class UserCouponService implements IUserCouponService {
         UserCouponDO uc = requireOwned(userId, userCouponId);
         int affected = userCouponMapper.releaseIfLockedByOrder(userCouponId, userId, orderNo);
         if (affected == 0) {
-            UserCouponDO fresh = AssertUtils.requireNonNull(
+            UserCouponDO fresh = Asserts.requireNonNull(
                     userCouponMapper.selectById(userCouponId),
-                    BizErrorCode.USER_COUPON_NOT_FOUND
+                    BizError.USER_COUPON_NOT_FOUND
             );
             if (fresh.getStatus() == UserCouponStatusEnum.USED) {
                 return;
             }
             if (fresh.getStatus() == UserCouponStatusEnum.LOCKED) {
-                throw new BizException(BizErrorCode.USER_COUPON_STATE_CONFLICT);
+                throw new BizException(BizError.USER_COUPON_STATE_CONFLICT);
             }
             return;
         }
@@ -441,17 +430,11 @@ public class UserCouponService implements IUserCouponService {
      */
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public void revert(
-            String orderNo,
-            Long userId,
-            Long userCouponId,
-            String refundId,
-            String reason
-    ) {
-        AssertUtils.assertNotBlank(orderNo, BizErrorCode.INVALID_PARAM);
-        AssertUtils.assertNotBlank(refundId, BizErrorCode.INVALID_PARAM);
-        AssertUtils.notNull(userId, BizErrorCode.INVALID_PARAM);
-        AssertUtils.notNull(userCouponId, BizErrorCode.INVALID_PARAM);
+    public void revert(String orderNo, Long userId, Long userCouponId, String refundId, String reason) {
+        Asserts.assertNotBlank(orderNo, BizError.INVALID_PARAM);
+        Asserts.assertNotBlank(refundId, BizError.INVALID_PARAM);
+        Asserts.notNull(userId, BizError.INVALID_PARAM);
+        Asserts.notNull(userCouponId, BizError.INVALID_PARAM);
         String eventId = orderNo + ":" + refundId + ":" + userCouponId + ":REVERT";
         if (logExists(eventId, UserCouponOperationTypeEnum.REVERT)) {
             return;
@@ -459,14 +442,14 @@ public class UserCouponService implements IUserCouponService {
         UserCouponDO uc = requireOwned(userId, userCouponId);
         int affected = userCouponMapper.revertIfUsed(userCouponId, userId);
         if (affected == 0) {
-            UserCouponDO fresh = AssertUtils.requireNonNull(
+            UserCouponDO fresh = Asserts.requireNonNull(
                     userCouponMapper.selectById(userCouponId),
-                    BizErrorCode.USER_COUPON_NOT_FOUND
+                    BizError.USER_COUPON_NOT_FOUND
             );
             if (fresh.isAvailableOrExpired()) {
                 return;
             }
-            throw new BizException(BizErrorCode.USER_COUPON_STATE_CONFLICT);
+            throw new BizException(BizError.USER_COUPON_STATE_CONFLICT);
         }
         UserCouponDO after = userCouponMapper.selectById(userCouponId);
         appendLog(
@@ -493,7 +476,7 @@ public class UserCouponService implements IUserCouponService {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public int revokeByCoupon(Long couponId, Long operatorId, String reason) {
-        AssertUtils.isTrue(UserContextHolder.isAdmin(), BizErrorCode.COUPON_OPERATION_NOT_ALLOWED);
+        Asserts.isTrue(UserContextHolder.isAdmin(), BizError.COUPON_OPERATION_NOT_ALLOWED);
         List<UserCouponDO> available = userCouponMapper.selectList(
                 Wrappers.<UserCouponDO>lambdaQuery()
                         .eq(UserCouponDO::getCouponId, couponId)
@@ -503,9 +486,7 @@ public class UserCouponService implements IUserCouponService {
             return 0;
         }
         int affected = userCouponMapper.revokeAvailableByCoupon(couponId);
-        userCouponLogMapper.insert(
-                userCouponLogConverter.toRevokeLogList(available, operatorId, reason)
-        );
+        userCouponLogMapper.insert(userCouponLogConverter.toRevokeLogList(available, operatorId, reason));
         return affected;
     }
 
@@ -536,16 +517,13 @@ public class UserCouponService implements IUserCouponService {
      * @param template 模板
      */
     private void validateClaimable(CouponDO template) {
-        AssertUtils.isTrue(template.isPublicClaimChannel(), BizErrorCode.COUPON_NOT_CLAIMABLE);
-        AssertUtils.isTrue(
-                template.getStatus() == CouponStatusEnum.ACTIVE,
-                BizErrorCode.COUPON_NOT_CLAIMABLE
-        );
+        Asserts.isTrue(template.isPublicClaimChannel(), BizError.COUPON_NOT_CLAIMABLE);
+        Asserts.isTrue(template.getStatus() == CouponStatusEnum.ACTIVE, BizError.COUPON_NOT_CLAIMABLE);
         LocalDateTime now = LocalDateTime.now();
-        AssertUtils.isFalse(template.isNotStarted(now), BizErrorCode.COUPON_NOT_STARTED);
-        AssertUtils.isFalse(template.isEnded(now), BizErrorCode.COUPON_ISSUE_ENDED);
+        Asserts.isFalse(template.isNotStarted(now), BizError.COUPON_NOT_STARTED);
+        Asserts.isFalse(template.isEnded(now), BizError.COUPON_ISSUE_ENDED);
         if (template.getTotalCount() != null) {
-            AssertUtils.isTrue(template.isStockAvailable(), BizErrorCode.COUPON_STOCK_NOT_ENOUGH);
+            Asserts.isTrue(template.isStockAvailable(), BizError.COUPON_STOCK_NOT_ENOUGH);
         }
     }
 
@@ -571,7 +549,7 @@ public class UserCouponService implements IUserCouponService {
             String reason
     ) {
         int affected = couponMapper.increaseClaimedCount(template.getId());
-        AssertUtils.isNotZero(affected, BizErrorCode.COUPON_STOCK_NOT_ENOUGH);
+        Asserts.isNotZero(affected, BizError.COUPON_STOCK_NOT_ENOUGH);
         LocalDateTime now = LocalDateTime.now();
         LocalDateTime effective;
         LocalDateTime expire;
@@ -600,9 +578,7 @@ public class UserCouponService implements IUserCouponService {
                         UserCouponStatusEnum.AVAILABLE,
                         logSource,
                         null,
-                        source == IssuedSourceEnum.REGISTER_AUTO
-                                ? eventId + ":" + template.getId()
-                                : null,
+                        source == IssuedSourceEnum.REGISTER_AUTO ? eventId + ":" + template.getId() : null,
                         operatorId,
                         reason
                 )
@@ -683,11 +659,11 @@ public class UserCouponService implements IUserCouponService {
      * @return 用户券
      */
     private UserCouponDO requireOwned(Long userId, Long userCouponId) {
-        UserCouponDO uc = AssertUtils.requireNonNull(
+        UserCouponDO uc = Asserts.requireNonNull(
                 userCouponMapper.selectById(userCouponId),
-                BizErrorCode.USER_COUPON_NOT_FOUND
+                BizError.USER_COUPON_NOT_FOUND
         );
-        AssertUtils.isEqual(uc.getUserId(), userId, BizErrorCode.USER_COUPON_NOT_BELONG_TO_USER);
+        Asserts.isEqual(uc.getUserId(), userId, BizError.USER_COUPON_NOT_BELONG_TO_USER);
         return uc;
     }
 
@@ -732,17 +708,7 @@ public class UserCouponService implements IUserCouponService {
             String reason
     ) {
         userCouponLogMapper.insert(
-                userCouponLogConverter.toLog(
-                        uc,
-                        op,
-                        from,
-                        to,
-                        source,
-                        orderNo,
-                        eventId,
-                        operatorId,
-                        reason
-                )
+                userCouponLogConverter.toLog(uc, op, from, to, source, orderNo, eventId, operatorId, reason)
         );
     }
 

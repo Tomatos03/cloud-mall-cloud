@@ -18,13 +18,14 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import lombok.RequiredArgsConstructor;
+import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.cloudmall.common.context.UserContextHolder;
-import com.cloudmall.common.enums.BizErrorCode;
+import com.cloudmall.common.enums.BizError;
 import com.cloudmall.common.exception.BizException;
-import com.cloudmall.common.utils.AssertUtils;
+import com.cloudmall.common.utils.Asserts;
 import com.cloudmall.product.api.model.ImageItem;
 import com.cloudmall.product.api.model.SkuItem;
 import com.cloudmall.product.api.model.SpecGroupItem;
@@ -99,57 +100,24 @@ public class ProductService implements IProductService {
      */
     @Override
     public ProductResp get(ProductGetReq req) {
-        ProductDO product = productMapper.selectOne(req.buildLambdaWrapper());
-        if (product == null) {
-            return null;
-        }
+        ProductDO product = Asserts.requireNonNull(productMapper.selectOne(req.buildLambdaWrapper()));
+        return assembleProductResp(product);
+    }
 
+    @NonNull
+    private ProductResp assembleProductResp(ProductDO product) {
         ProductResp resp = productConverter.toResp(product);
-        fillBrand(resp, product.getBrandId());
-        fillImage(resp, product.getImageId());
-        fillCategory(resp, product.getCategoryId());
-        resp.setPrice(findLowestPrice(product.getId()));
+        BrandDO brand = Asserts.requireNonNull(brandMapper.selectById(product.getBrandId()));
+        ProductImageDO img = Asserts.requireNonNull(productImageMapper.selectById(product.getImageId()));
+        CategoryDO categoryDO = Asserts.requireNonNull(categoryMapper.selectById(product.getCategoryId()));
+        BigDecimal lowestPrice = findLowestPrice(product.getId());
+
+        resp.setPrice(lowestPrice);
+        resp.setBrand(brand.getName());
+        resp.setCategoryId(categoryDO.getId());
+        resp.setCategoryName(categoryDO.getName());
+        resp.setImage(img.getUrl());
         return resp;
-    }
-
-    /**
-     * 填充品牌名，品牌不存在时留空。
-     *
-     * @param resp 商品响应
-     * @param brandId 品牌 ID
-     */
-    private void fillBrand(ProductResp resp, Long brandId) {
-        BrandDO brand = brandMapper.selectById(brandId);
-        if (brand != null) {
-            resp.setBrand(brand.getName());
-        }
-    }
-
-    /**
-     * 填充主图 URL，主图不存在时留空。
-     *
-     * @param resp 商品响应
-     * @param imageId 主图 ID
-     */
-    private void fillImage(ProductResp resp, Long imageId) {
-        ProductImageDO img = productImageMapper.selectById(imageId);
-        if (img != null) {
-            resp.setImage(img.getUrl());
-        }
-    }
-
-    /**
-     * 填充分类信息，分类不存在时留空。
-     *
-     * @param resp 商品响应
-     * @param categoryId 分类 ID
-     */
-    private void fillCategory(ProductResp resp, Long categoryId) {
-        CategoryDO categoryDO = categoryMapper.selectById(categoryId);
-        if (categoryDO != null) {
-            resp.setCategoryId(categoryDO.getId());
-            resp.setCategoryName(categoryDO.getName());
-        }
     }
 
     /**
@@ -185,16 +153,14 @@ public class ProductService implements IProductService {
         Map<Long, BrandDO> brandMap = new HashMap<>();
         if (CollUtil.isNotEmpty(brandIds)) {
             List<BrandDO> brands = brandMapper.selectByIds(brandIds);
-            brandMap = brands.stream()
-                             .collect(Collectors.toMap(BrandDO::getId, Function.identity()));
+            brandMap = brands.stream().collect(Collectors.toMap(BrandDO::getId, Function.identity()));
         }
 
         // 批量查询主图
         Map<Long, ProductImageDO> imageMap = new HashMap<>();
         if (CollUtil.isNotEmpty(imageIds)) {
             List<ProductImageDO> images = productImageMapper.selectByIds(imageIds);
-            imageMap = images.stream()
-                             .collect(Collectors.toMap(ProductImageDO::getId, Function.identity()));
+            imageMap = images.stream().collect(Collectors.toMap(ProductImageDO::getId, Function.identity()));
         }
 
         // 批量查询每个 SPU 的最低 SKU 价格
@@ -222,30 +188,39 @@ public class ProductService implements IProductService {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public Long create(ProductCreateReq req) {
-        AssertUtils.notNull(brandMapper.selectById(req.getBrandId()), BizErrorCode.BRAND_NOT_EXIST);
-        AssertUtils.notNull(
-                categoryMapper.selectById(req.getCategoryId()),
-                BizErrorCode.CATEGORY_NOT_EXIST_OR_NO_ENABLE
-        );
+        validateBrandAndCategory(req);
         validateSkuTopology(req);
         validatePrices(req);
-        Long shopId = validateAndReturnShopId();
+        Long shopId = requireShopId();
 
-        // 落库 Product
+        ProductDO productDO = saveProductWithImages(req, shopId);
+        List<List<Long>> specValueIds = saveSpecs(productDO.getId(), req.getSpecGroups());
+        saveSkus(productDO.getId(), req, specValueIds);
+        return productDO.getId();
+    }
+
+    private void validateBrandAndCategory(ProductCreateReq req) {
+        Asserts.notNull(brandMapper.selectById(req.getBrandId()), BizError.BRAND_NOT_EXIST);
+        Asserts.notNull(
+                categoryMapper.selectById(req.getCategoryId()),
+                BizError.CATEGORY_NOT_EXIST_OR_NO_ENABLE
+        );
+    }
+
+    private ProductDO saveProductWithImages(ProductCreateReq req, Long shopId) {
+        ProductDO product = saveProduct(req, shopId);
+        Long imageId = saveImages(req, product.getId());
+        product.setImageId(imageId);
+        productMapper.updateById(product);
+        return product;
+    }
+
+    private ProductDO saveProduct(ProductCreateReq req, Long shopId) {
         ProductDO product = productConverter.toDO(req);
         product.setSpuCode(String.format("SPU%s", IdUtil.getSnowflakeNextIdStr()));
         product.setShopId(shopId);
         productMapper.insert(product);
-
-        Long productId = product.getId();
-
-        Long imageId = saveImages(req, productId);
-        List<List<Long>> specValueIds = saveSpecs(productId, req.getSpecGroups());
-        saveSkus(productId, req, specValueIds);
-
-        product.setImageId(imageId);
-        productMapper.updateById(product);
-        return productId;
+        return product;
     }
 
     /**
@@ -359,8 +334,7 @@ public class ProductService implements IProductService {
      */
     @Override
     public ProductDetailResp detail(Long id) {
-        ProductDO product = AssertUtils.requireNonNull(productMapper.selectById(id));
-
+        ProductDO product = Asserts.requireNonNull(productMapper.selectById(id));
         BrandDO brand = brandMapper.selectById(product.getBrandId());
         List<ImageResp> images = productImageService.listByProductId(id);
         List<SpecGroupResp> specGroups = productSpecService.getSpecGroups(id);
@@ -387,16 +361,10 @@ public class ProductService implements IProductService {
         // 组名不重复、组内规格值不重复
         Set<String> groupNames = new HashSet<>();
         for (SpecGroupItem group : groups) {
-            AssertUtils.isTrue(
-                    groupNames.add(normalize(group.getName())),
-                    BizErrorCode.SPEC_VALUE_INVALID
-            );
+            Asserts.isTrue(groupNames.add(normalize(group.getName())), BizError.SPEC_VALUE_INVALID);
             Set<String> values = new HashSet<>();
             for (SpecValueItem value : group.getValues()) {
-                AssertUtils.isTrue(
-                        values.add(normalize(value.getValue())),
-                        BizErrorCode.SPEC_VALUE_INVALID
-                );
+                Asserts.isTrue(values.add(normalize(value.getValue())), BizError.SPEC_VALUE_INVALID);
             }
         }
 
@@ -405,22 +373,22 @@ public class ProductService implements IProductService {
             List<String> specValues = sku.getSpecValues();
 
             // 每个规格组恰好一个值
-            AssertUtils.notEmpty(specValues, BizErrorCode.SKU_SPECS_CANNOT_BE_EMPTY);
-            AssertUtils.isEqual(specValues.size(), groups.size(), BizErrorCode.SKU_SPEC_NOT_MATCH);
+            Asserts.notEmpty(specValues, BizError.SKU_SPECS_CANNOT_BE_EMPTY);
+            Asserts.isEqual(specValues.size(), groups.size(), BizError.SKU_SPEC_NOT_MATCH);
 
             // 按组隔离查找，第 g 位的值只在第 g 组的候选里匹配
             List<String> normalized = new ArrayList<>(specValues.size());
             for (int g = 0; g < groups.size(); g++) {
                 String target = normalize(specValues.get(g));
-                AssertUtils.isTrue(
+                Asserts.isTrue(
                         indexOfValue(groups.get(g).getValues(), target) >= 0,
-                        BizErrorCode.SKU_SPEC_NOT_MATCH
+                        BizError.SKU_SPEC_NOT_MATCH
                 );
                 normalized.add(target);
             }
 
             // 组合唯一。位置已固定，直接比较归一化后的列表，无需排序
-            AssertUtils.isTrue(seen.add(normalized), BizErrorCode.SKU_SPEC_NOT_MATCH);
+            Asserts.isTrue(seen.add(normalized), BizError.SKU_SPEC_NOT_MATCH);
         }
     }
 
@@ -433,10 +401,7 @@ public class ProductService implements IProductService {
     private void validatePrices(ProductCreateReq req) {
         for (SkuItem sku : req.getSkus()) {
             if (sku.getMarketPrice() != null) {
-                AssertUtils.isTrue(
-                        sku.getPrice().compareTo(sku.getMarketPrice()) <= 0,
-                        BizErrorCode.INVALID_PARAM
-                );
+                Asserts.isTrue(sku.getPrice().compareTo(sku.getMarketPrice()) <= 0, BizError.INVALID_PARAM);
             }
         }
     }
@@ -493,11 +458,11 @@ public class ProductService implements IProductService {
      * @return 店铺 ID
      * @throws BizException 处理过程中可能抛出该异常
      */
-    private Long validateAndReturnShopId() {
+    private Long requireShopId() {
         Long userId = UserContextHolder.getUserId();
-        ShopResp shop = AssertUtils.requireNonNull(
+        ShopResp shop = Asserts.requireNonNull(
                 shopClient.getByUserId(userId),
-                BizErrorCode.MERCHANT_STORE_NOT_FOUND
+                BizError.MERCHANT_STORE_NOT_FOUND
         );
         return shop.getId();
     }

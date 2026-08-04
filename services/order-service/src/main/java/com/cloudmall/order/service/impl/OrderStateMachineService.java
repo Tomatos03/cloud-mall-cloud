@@ -4,8 +4,8 @@ import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import com.cloudmall.common.enums.BizErrorCode;
-import com.cloudmall.common.utils.AssertUtils;
+import com.cloudmall.common.enums.BizError;
+import com.cloudmall.common.utils.Asserts;
 import com.cloudmall.order.entity.OrderDO;
 import com.cloudmall.order.entity.OrderSubDO;
 import com.cloudmall.order.enums.ParentOrderStateTransitions;
@@ -39,14 +39,14 @@ public class OrderStateMachineService implements IOrderStateMachineService {
      */
     @Override
     public void transitionParent(Long orderId, ParentOrderStatusEnum from, ParentOrderStatusEnum to) {
-        AssertUtils.isTrue(canParentTransition(from, to), BizErrorCode.INVALID_ORDER_STATUS);
+        Asserts.isTrue(canParentTransition(from, to), BizError.INVALID_ORDER_STATUS);
         int updated = orderMapper.update(
                 Wrappers.<OrderDO>lambdaUpdate()
                         .set(OrderDO::getStatus, to)
                         .eq(OrderDO::getId, orderId)
                         .eq(OrderDO::getStatus, from)
         );
-        AssertUtils.isTrue(updated > 0, BizErrorCode.INVALID_ORDER_STATUS);
+        Asserts.isTrue(updated > 0, BizError.INVALID_ORDER_STATUS);
     }
 
     /**
@@ -58,14 +58,14 @@ public class OrderStateMachineService implements IOrderStateMachineService {
      */
     @Override
     public void transitionSub(Long subOrderId, SubOrderStatusEnum from, SubOrderStatusEnum to) {
-        AssertUtils.isTrue(canSubTransition(from, to), BizErrorCode.INVALID_ORDER_STATUS);
+        Asserts.isTrue(canSubTransition(from, to), BizError.INVALID_ORDER_STATUS);
         int updated = orderSubMapper.update(
                 Wrappers.<OrderSubDO>lambdaUpdate()
                         .set(OrderSubDO::getStatus, to)
                         .eq(OrderSubDO::getId, subOrderId)
                         .eq(OrderSubDO::getStatus, from)
         );
-        AssertUtils.isTrue(updated > 0, BizErrorCode.INVALID_ORDER_STATUS);
+        Asserts.isTrue(updated > 0, BizError.INVALID_ORDER_STATUS);
     }
 
     /**

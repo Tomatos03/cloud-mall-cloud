@@ -81,10 +81,7 @@ public class RbacReactiveAuthorizationManager implements ReactiveAuthorizationMa
      * @param matched 匹配的权限规则
      * @return 授权决策
      */
-    private AuthorizationDecision checkPermissions(
-            Authentication auth,
-            AuthProperties.UrlPermission matched
-    ) {
+    private AuthorizationDecision checkPermissions(Authentication auth, AuthProperties.UrlPermission matched) {
         Set<String> userPermissions = auth.getAuthorities()
                                           .stream()
                                           .map(GrantedAuthority::getAuthority)

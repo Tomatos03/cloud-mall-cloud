@@ -31,9 +31,9 @@ import com.cloudmall.aigc.model.resp.SessionHistoryItemResp;
 import com.cloudmall.aigc.properties.AgentProperties;
 import com.cloudmall.aigc.service.ISessionService;
 import com.cloudmall.common.context.UserContextHolder;
-import com.cloudmall.common.enums.BizErrorCode;
+import com.cloudmall.common.enums.BizError;
 import com.cloudmall.common.exception.BizException;
-import com.cloudmall.common.utils.AssertUtils;
+import com.cloudmall.common.utils.Asserts;
 
 /**
  * 会话管理服务实现
@@ -95,9 +95,7 @@ public class SessionService implements ISessionService {
     @Override
     public List<ChatMessageResp> getSessionMessages(String sessionId) {
         validateSession(sessionId);
-        List<Message> messages = chatMemoryRepository.findByConversationId(
-                getConversationId(sessionId)
-        );
+        List<Message> messages = chatMemoryRepository.findByConversationId(getConversationId(sessionId));
         return messages
                 .stream()
                 .filter(
@@ -152,12 +150,11 @@ public class SessionService implements ISessionService {
                 if (bucket.matches(session.getUpdateTime(), now)) {
                     result.computeIfAbsent(bucket.getDisplayName(), k -> new ArrayList<>())
                           .add(
-                                  SessionHistoryItemResp
-                                          .builder()
-                                          .sessionId(session.getSessionId())
-                                          .title(session.getTitle())
-                                          .updateTime(session.getUpdateTime().format(formatter))
-                                          .build()
+                                  SessionHistoryItemResp.builder()
+                                                        .sessionId(session.getSessionId())
+                                                        .title(session.getTitle())
+                                                        .updateTime(session.getUpdateTime().format(formatter))
+                                                        .build()
                           );
                     break;
                 }
@@ -202,13 +199,13 @@ public class SessionService implements ISessionService {
      *                      SESSION_NOT_FOUND
      */
     private ChatSessionDO getValidatedSession(String sessionId) {
-        ChatSessionDO chatSession = AssertUtils.requireNonNull(
+        ChatSessionDO chatSession = Asserts.requireNonNull(
                 chatSessionMapper.selectOne(
                         Wrappers.<ChatSessionDO>lambdaQuery()
                                 .eq(ChatSessionDO::getSessionId, sessionId)
                                 .eq(ChatSessionDO::getUserId, UserContextHolder.getUserId())
                 ),
-                BizErrorCode.SESSION_NOT_FOUND
+                BizError.SESSION_NOT_FOUND
         );
         return chatSession;
     }

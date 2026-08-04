@@ -83,12 +83,7 @@ public class CouponLockExpireTask {
      */
     private void releaseOne(UserCouponDO uc) {
         try {
-            userCouponService.release(
-                    uc.getLockedOrderNo(),
-                    uc.getUserId(),
-                    uc.getId(),
-                    RELEASE_REASON
-            );
+            userCouponService.release(uc.getLockedOrderNo(), uc.getUserId(), uc.getId(), RELEASE_REASON);
         } catch (RuntimeException e) {
             log.warn("锁定过期释放失败 userCouponId={}", uc.getId(), e);
         }

@@ -159,7 +159,7 @@ resp.setItems(orderItemConverter.toItemRespList(items));
 
 ## 多行布尔条件
 
-布尔条件出现换行续排（行首 `||` / `&&`）时，必须抽取为具名谓词方法，禁止在 `if` / `AssertUtils` 中裸写多行复合条件。
+布尔条件出现换行续排（行首 `||` / `&&`）时，必须抽取为具名谓词方法，禁止在 `if` / `Asserts` 中裸写多行复合条件。
 
 落位按条件主语决定：
 
