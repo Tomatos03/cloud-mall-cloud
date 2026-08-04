@@ -17,7 +17,6 @@ import cn.hutool.core.util.StrUtil;
 import cn.hutool.json.JSONUtil;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
-import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -51,6 +50,7 @@ import com.cloudmall.order.mapper.OrderItemMapper;
 import com.cloudmall.order.mapper.OrderMapper;
 import com.cloudmall.order.mapper.OrderSubMapper;
 import com.cloudmall.order.model.req.OrderPageReq;
+import com.cloudmall.order.model.req.OrderSubPageReq;
 import com.cloudmall.order.service.ICartService;
 import com.cloudmall.order.service.IOrderService;
 import com.cloudmall.product.api.client.SkuClient;
@@ -176,21 +176,16 @@ public class OrderService implements IOrderService {
     /**
      * 商家分页查询自己店铺的子订单。
      *
-     * @param current 当前页码
-     * @param size 页大小
+     * @param req 分页请求（shopId 由服务层注入）
      * @return 子订单分页
      */
     @Override
-    public IPage<OrderSubResp> pageMerchant(long current, long size) {
+    public IPage<OrderSubResp> pageMerchant(OrderSubPageReq req) {
         Long shopId = UserContextHolder.getShopId();
         AssertUtils.notNull(shopId, BizErrorCode.MERCHANT_NO_SHOP);
-        IPage<OrderSubDO> page = orderSubMapper.selectPage(
-                new Page<>(current, size),
-                Wrappers.<OrderSubDO>lambdaQuery()
-                        .eq(OrderSubDO::getShopId, shopId)
-                        .orderByDesc(OrderSubDO::getCreateTime)
-        );
-        return page.convert(sub -> toSubRespWithItems(sub));
+        req.setShopId(shopId);
+        IPage<OrderSubDO> page = orderSubMapper.selectPage(req, req.buildLambdaWrapper());
+        return page.convert(this::toSubRespWithItems);
     }
 
     /**

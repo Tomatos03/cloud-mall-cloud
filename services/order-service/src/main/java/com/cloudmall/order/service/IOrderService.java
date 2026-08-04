@@ -6,6 +6,7 @@ import com.cloudmall.order.api.request.CreateOrderReq;
 import com.cloudmall.order.api.response.OrderResp;
 import com.cloudmall.order.api.response.OrderSubResp;
 import com.cloudmall.order.model.req.OrderPageReq;
+import com.cloudmall.order.model.req.OrderSubPageReq;
 
 /**
  * 订单服务
@@ -44,11 +45,10 @@ public interface IOrderService {
     /**
      * 商家分页查询自己店铺的子订单。
      *
-     * @param current 当前页码
-     * @param size 页大小
+     * @param req 分页请求（shopId 由服务层注入）
      * @return 子订单分页
      */
-    IPage<OrderSubResp> pageMerchant(long current, long size);
+    IPage<OrderSubResp> pageMerchant(OrderSubPageReq req);
 
     /**
      * 运营分页查询全量父订单。

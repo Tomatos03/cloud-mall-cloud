@@ -8,7 +8,6 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.cloudmall.common.model.Result;
@@ -16,6 +15,7 @@ import com.cloudmall.order.api.request.CreateOrderReq;
 import com.cloudmall.order.api.response.OrderResp;
 import com.cloudmall.order.api.response.OrderSubResp;
 import com.cloudmall.order.model.req.OrderPageReq;
+import com.cloudmall.order.model.req.OrderSubPageReq;
 import com.cloudmall.order.service.IOrderService;
 
 /**
@@ -65,38 +65,23 @@ public class OrderController {
     /**
      * 当前用户分页查询自己的父订单。
      *
-     * @param userId 旧客户端兼容参数，忽略（以用户上下文为准）
-     * @param current 当前页码
-     * @param size 页大小
+     * @param req 分页请求
      * @return 父订单分页
      */
     @GetMapping
-    public Result<IPage<OrderResp>> page(
-            @RequestParam(required = false)
-            Long userId,
-            @RequestParam(value = "current", defaultValue = "1")
-            long current,
-            @RequestParam(value = "size", defaultValue = "20")
-            long size
-    ) {
-        return Result.success(orderService.pageUser(new OrderPageReq(current, size)));
+    public Result<IPage<OrderResp>> page(OrderPageReq req) {
+        return Result.success(orderService.pageUser(req));
     }
 
     /**
      * 当前商家分页查询自己店铺的子订单。
      *
-     * @param current 当前页码
-     * @param size 页大小
+     * @param req 分页请求（shopId 由服务层注入）
      * @return 子订单分页
      */
     @GetMapping("/merchant")
-    public Result<IPage<OrderSubResp>> merchantPage(
-            @RequestParam(value = "current", defaultValue = "1")
-            long current,
-            @RequestParam(value = "size", defaultValue = "20")
-            long size
-    ) {
-        return Result.success(orderService.pageMerchant(current, size));
+    public Result<IPage<OrderSubResp>> merchantPage(OrderSubPageReq req) {
+        return Result.success(orderService.pageMerchant(req));
     }
 
     /**
