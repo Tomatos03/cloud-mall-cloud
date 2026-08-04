@@ -7,8 +7,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import com.cloudmall.coupon.enums.CouponOwnerTypeEnum;
-import com.cloudmall.coupon.enums.CouponTypeEnum;
+import com.cloudmall.coupon.enums.CouponEnum;
+import com.cloudmall.coupon.enums.CouponOwnerEnum;
 
 /**
  * 实际使用的券快照
@@ -31,7 +31,7 @@ public class CouponUsageResult {
     private Long couponId;
 
     /** 券归属 */
-    private CouponOwnerTypeEnum ownerType;
+    private CouponOwnerEnum ownerType;
 
     /** 店铺 ID（平台券为 null） */
     private Long shopId;
@@ -40,7 +40,7 @@ public class CouponUsageResult {
     private String name;
 
     /** 券类型 */
-    private CouponTypeEnum type;
+    private CouponEnum type;
 
     /** 门槛快照（0 表示无门槛） */
     private BigDecimal thresholdSnapshot;

@@ -19,7 +19,7 @@ import com.cloudmall.coupon.api.dto.CouponCalcItem;
 import com.cloudmall.coupon.entity.CouponCategoryDO;
 import com.cloudmall.coupon.entity.CouponDO;
 import com.cloudmall.coupon.entity.CouponProductDO;
-import com.cloudmall.coupon.enums.CouponScopeTypeEnum;
+import com.cloudmall.coupon.enums.CouponScopeEnum;
 import com.cloudmall.coupon.mapper.CouponCategoryMapper;
 import com.cloudmall.coupon.mapper.CouponProductMapper;
 import com.cloudmall.product.api.client.CategoryClient;
@@ -56,11 +56,11 @@ public class CouponScopeMatcher {
         if (CollUtil.isEmpty(shopItems)) {
             return Collections.emptyList();
         }
-        CouponScopeTypeEnum scopeType = template.getScopeType();
-        if (scopeType == CouponScopeTypeEnum.ALL) {
+        CouponScopeEnum scopeType = template.getScopeType();
+        if (scopeType == CouponScopeEnum.ALL) {
             return shopItems;
         }
-        if (scopeType == CouponScopeTypeEnum.PRODUCT) {
+        if (scopeType == CouponScopeEnum.PRODUCT) {
             return filterByProducts(template.getId(), shopItems);
         }
         return filterByCategories(template.getId(), shopItems);

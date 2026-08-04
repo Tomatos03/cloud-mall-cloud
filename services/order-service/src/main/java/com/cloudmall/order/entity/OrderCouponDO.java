@@ -13,8 +13,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import com.cloudmall.coupon.enums.CouponOwnerTypeEnum;
-import com.cloudmall.coupon.enums.CouponTypeEnum;
+import com.cloudmall.coupon.enums.CouponEnum;
+import com.cloudmall.coupon.enums.CouponOwnerEnum;
 
 /**
  * 订单优惠关联实体
@@ -48,13 +48,13 @@ public class OrderCouponDO {
     private Long couponId;
 
     /** 券归属 */
-    private CouponOwnerTypeEnum ownerType;
+    private CouponOwnerEnum ownerType;
 
     /** 店铺 ID */
     private Long shopId;
 
     /** 券类型快照 */
-    private CouponTypeEnum typeSnapshot;
+    private CouponEnum typeSnapshot;
 
     /** 门槛快照 */
     private BigDecimal thresholdSnapshot;

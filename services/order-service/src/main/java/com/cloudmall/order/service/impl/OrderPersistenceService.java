@@ -18,7 +18,7 @@ import com.cloudmall.coupon.api.response.CouponItemResult;
 import com.cloudmall.coupon.api.response.CouponOrderCalcResp;
 import com.cloudmall.coupon.api.response.CouponSubOrderResult;
 import com.cloudmall.coupon.api.response.CouponUsageResult;
-import com.cloudmall.coupon.enums.CouponOwnerTypeEnum;
+import com.cloudmall.coupon.enums.CouponOwnerEnum;
 import com.cloudmall.order.api.request.CreateOrderReq;
 import com.cloudmall.order.convert.OrderCouponConverter;
 import com.cloudmall.order.entity.OrderCouponDO;
@@ -251,7 +251,7 @@ public class OrderPersistenceService {
         List<OrderCouponDO> couponDOs = new ArrayList<>();
         for (CouponUsageResult usage : usages) {
             Long subOrderId = null;
-            if (usage.getOwnerType() == CouponOwnerTypeEnum.SHOP) {
+            if (usage.getOwnerType() == CouponOwnerEnum.SHOP) {
                 OrderSubDO sub = skeleton.subsByShop().get(usage.getShopId());
                 subOrderId = sub == null ? null : sub.getId();
             }

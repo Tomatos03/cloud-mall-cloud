@@ -12,10 +12,10 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import com.cloudmall.coupon.enums.CouponOwnerTypeEnum;
-import com.cloudmall.coupon.enums.CouponScopeTypeEnum;
+import com.cloudmall.coupon.enums.CouponEnum;
+import com.cloudmall.coupon.enums.CouponOwnerEnum;
+import com.cloudmall.coupon.enums.CouponScopeEnum;
 import com.cloudmall.coupon.enums.CouponStatusEnum;
-import com.cloudmall.coupon.enums.CouponTypeEnum;
 import com.cloudmall.coupon.enums.IssueChannelEnum;
 import com.cloudmall.coupon.enums.ValidityModeEnum;
 
@@ -41,7 +41,7 @@ public class CouponDO {
     private String name;
 
     /** 券归属（PLATFORM / SHOP） */
-    private CouponOwnerTypeEnum ownerType;
+    private CouponOwnerEnum ownerType;
 
     /** 店铺 ID（平台券为 null） */
     private Long shopId;
@@ -50,10 +50,10 @@ public class CouponDO {
     private Long createdBy;
 
     /** 券类型 */
-    private CouponTypeEnum type;
+    private CouponEnum type;
 
     /** 适用范围 */
-    private CouponScopeTypeEnum scopeType;
+    private CouponScopeEnum scopeType;
 
     /** 使用门槛（0 表示无门槛） */
     private BigDecimal threshold;
@@ -181,7 +181,7 @@ public class CouponDO {
      * @return true 表示平台券
      */
     public boolean isPlatform() {
-        return CouponOwnerTypeEnum.PLATFORM.equals(this.ownerType);
+        return CouponOwnerEnum.PLATFORM.equals(this.ownerType);
     }
 
     /**
@@ -190,6 +190,6 @@ public class CouponDO {
      * @return true 表示店铺券
      */
     public boolean isShop() {
-        return CouponOwnerTypeEnum.SHOP.equals(this.ownerType);
+        return CouponOwnerEnum.SHOP.equals(this.ownerType);
     }
 }

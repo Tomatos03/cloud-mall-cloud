@@ -19,7 +19,7 @@ import lombok.Getter;
  */
 @Getter
 @AllArgsConstructor
-public enum CouponScopeTypeEnum {
+public enum CouponScopeEnum {
     /** 全范围 — 归属范围内所有符合条件商品，不产生范围关联记录 */
     ALL("ALL", "全范围"),
 
@@ -42,7 +42,7 @@ public enum CouponScopeTypeEnum {
      * @throws IllegalArgumentException 编码非法或为 null 时抛出
      */
     @JsonCreator
-    public static CouponScopeTypeEnum fromCode(@JsonProperty("code") String code) {
+    public static CouponScopeEnum fromCode(@JsonProperty("code") String code) {
         return Arrays
                 .stream(values())
                 .filter(t -> t.code.equals(code))

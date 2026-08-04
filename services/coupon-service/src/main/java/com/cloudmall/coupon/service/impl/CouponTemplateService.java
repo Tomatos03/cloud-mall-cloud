@@ -26,7 +26,7 @@ import com.cloudmall.coupon.entity.CouponDO;
 import com.cloudmall.coupon.entity.CouponOperationLogDO;
 import com.cloudmall.coupon.entity.CouponProductDO;
 import com.cloudmall.coupon.enums.CouponOperationActionEnum;
-import com.cloudmall.coupon.enums.CouponScopeTypeEnum;
+import com.cloudmall.coupon.enums.CouponScopeEnum;
 import com.cloudmall.coupon.enums.CouponStatusEnum;
 import com.cloudmall.coupon.mapper.CouponCategoryMapper;
 import com.cloudmall.coupon.mapper.CouponMapper;
@@ -93,7 +93,7 @@ public class CouponTemplateService implements ICouponTemplateService {
      * @param req 编辑请求
      */
     @Override
-    @Transactional
+    @Transactional(rollbackFor = Exception.class)
     public void updateDraft(Long id, CouponReq req) {
         CouponDO coupon = getTemplate(id);
         requireManageable(coupon);
@@ -108,9 +108,7 @@ public class CouponTemplateService implements ICouponTemplateService {
         validateRule(req, coupon.getShopId());
         validateScope(req, coupon.getShopId());
 
-        LocalDateTime now = LocalDateTime.now();
         couponConverter.applyUpdate(coupon, req);
-        coupon.setUpdateTime(now);
         couponMapper.updateById(coupon);
         saveScope(id, req.getScopeType(), req.getProductIds(), req.getCategoryIds());
         appendOperationLog(
@@ -333,9 +331,9 @@ public class CouponTemplateService implements ICouponTemplateService {
     public CouponResp getDetail(Long id) {
         CouponDO coupon = getTemplate(id);
         CouponResp resp = couponConverter.toResp(coupon);
-        if (coupon.getScopeType() == CouponScopeTypeEnum.PRODUCT) {
+        if (coupon.getScopeType() == CouponScopeEnum.PRODUCT) {
             resp.setProductIds(selectProductIds(id));
-        } else if (coupon.getScopeType() == CouponScopeTypeEnum.CATEGORY) {
+        } else if (coupon.getScopeType() == CouponScopeEnum.CATEGORY) {
             resp.setCategoryIds(selectCategoryIds(id));
         }
         return resp;
@@ -439,13 +437,13 @@ public class CouponTemplateService implements ICouponTemplateService {
      */
     private void validatePublish(CouponDO coupon) {
         AssertUtils.isTrue(coupon.isClaimable(), BizErrorCode.COUPON_NOT_CLAIMABLE);
-        if (coupon.getScopeType() == CouponScopeTypeEnum.PRODUCT) {
+        if (coupon.getScopeType() == CouponScopeEnum.PRODUCT) {
             Long count = couponProductMapper.selectCount(
                     Wrappers.<CouponProductDO>lambdaQuery()
                             .eq(CouponProductDO::getCouponId, coupon.getId())
             );
             AssertUtils.isTrue(count != null && count > 0, BizErrorCode.COUPON_SCOPE_INVALID);
-        } else if (coupon.getScopeType() == CouponScopeTypeEnum.CATEGORY) {
+        } else if (coupon.getScopeType() == CouponScopeEnum.CATEGORY) {
             Long count = couponCategoryMapper.selectCount(
                     Wrappers.<CouponCategoryDO>lambdaQuery()
                             .eq(CouponCategoryDO::getCouponId, coupon.getId())
@@ -464,11 +462,11 @@ public class CouponTemplateService implements ICouponTemplateService {
      */
     private void saveScope(
             Long couponId,
-            CouponScopeTypeEnum scopeType,
+            CouponScopeEnum scopeType,
             List<Long> productIds,
             List<Long> categoryIds
     ) {
-        if (scopeType == CouponScopeTypeEnum.PRODUCT) {
+        if (scopeType == CouponScopeEnum.PRODUCT) {
             couponProductMapper.delete(
                     Wrappers.<CouponProductDO>lambdaQuery()
                             .eq(CouponProductDO::getCouponId, couponId)
@@ -484,7 +482,7 @@ public class CouponTemplateService implements ICouponTemplateService {
                     )
                     .toList();
             couponProductMapper.insert(list);
-        } else if (scopeType == CouponScopeTypeEnum.CATEGORY) {
+        } else if (scopeType == CouponScopeEnum.CATEGORY) {
             couponCategoryMapper.delete(
                     Wrappers.<CouponCategoryDO>lambdaQuery()
                             .eq(CouponCategoryDO::getCouponId, couponId)

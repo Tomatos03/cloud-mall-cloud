@@ -7,6 +7,10 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import com.cloudmall.coupon.enums.CouponOperationActionEnum;
+import com.cloudmall.coupon.enums.CouponOperatorEnum;
+import com.cloudmall.coupon.enums.CouponStatusEnum;
+
 /**
  * 模板操作流水响应
  * <p>
@@ -29,21 +33,20 @@ public class CouponOperationLogResp {
     /** 操作人 ID */
     private Long operatorId;
 
-    /** 操作人类型 code */
-    private String operatorType;
+    /** 操作人类型 */
+    private CouponOperatorEnum operator;
 
     /** 店铺 ID（平台券为 null） */
     private Long shopId;
 
-    /** 操作前状态 code */
-    private String fromStatus;
+    /** 操作前状态 */
+    private CouponStatusEnum fromStatus;
 
-    /** 操作后状态 code */
-    private String toStatus;
+    /** 操作后状态 */
+    private CouponStatusEnum toStatus;
 
-    /** 操作类型 code */
-    private String actionType;
-
+    /** 操作类型 */
+    private CouponOperationActionEnum action;
     /** 变更摘要 */
     private String changeSummary;
 

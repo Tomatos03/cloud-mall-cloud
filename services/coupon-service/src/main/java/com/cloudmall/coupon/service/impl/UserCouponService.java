@@ -11,9 +11,8 @@ import java.util.stream.Collectors;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.BooleanUtil;
 import cn.hutool.core.util.ObjectUtil;
-import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
-import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Service;
@@ -34,7 +33,7 @@ import com.cloudmall.coupon.convert.UserCouponLogConverter;
 import com.cloudmall.coupon.entity.CouponDO;
 import com.cloudmall.coupon.entity.UserCouponDO;
 import com.cloudmall.coupon.entity.UserCouponLogDO;
-import com.cloudmall.coupon.enums.CouponOwnerTypeEnum;
+import com.cloudmall.coupon.enums.CouponOwnerEnum;
 import com.cloudmall.coupon.enums.CouponStatusEnum;
 import com.cloudmall.coupon.enums.IssueChannelEnum;
 import com.cloudmall.coupon.enums.IssuedSourceEnum;
@@ -45,6 +44,8 @@ import com.cloudmall.coupon.enums.ValidityModeEnum;
 import com.cloudmall.coupon.mapper.CouponMapper;
 import com.cloudmall.coupon.mapper.UserCouponLogMapper;
 import com.cloudmall.coupon.mapper.UserCouponMapper;
+import com.cloudmall.coupon.model.req.CouponPageReq;
+import com.cloudmall.coupon.model.req.UserCouponPageReq;
 import com.cloudmall.coupon.service.ICouponTemplateService;
 import com.cloudmall.coupon.service.IUserCouponService;
 
@@ -130,7 +131,7 @@ public class UserCouponService implements IUserCouponService {
         List<CouponDO> templates = couponMapper.selectList(
                 Wrappers.<CouponDO>lambdaQuery()
                         .eq(CouponDO::getStatus, CouponStatusEnum.ACTIVE)
-                        .eq(CouponDO::getOwnerType, CouponOwnerTypeEnum.PLATFORM)
+                        .eq(CouponDO::getOwnerType, CouponOwnerEnum.PLATFORM)
                         .eq(CouponDO::getIssueChannel, IssueChannelEnum.REGISTER_AUTO)
                         .le(CouponDO::getIssueStartTime, now)
                         .ge(CouponDO::getIssueEndTime, now)
@@ -160,39 +161,35 @@ public class UserCouponService implements IUserCouponService {
      * 分页查询我的优惠券。
      *
      * @param userId 用户 ID
-     * @param status 状态过滤
-     * @param current 页码
-     * @param size 每页条数
+     * @param req 分页请求（status 为空表示全部）
      * @return 分页结果
      */
     @Override
     @Transactional
-    public Page<UserCouponResp> pageMine(
-            Long userId,
-            UserCouponStatusEnum status,
-            long current,
-            long size
-    ) {
+    public IPage<UserCouponResp> pageMine(Long userId, UserCouponPageReq req) {
         expireOverdueByUser(userId);
-        LambdaQueryWrapper<UserCouponDO> wrapper = Wrappers.<UserCouponDO>lambdaQuery()
-                                                           .eq(UserCouponDO::getUserId, userId)
-                                                           .orderByDesc(UserCouponDO::getCreateTime);
-        if (status != null) {
-            wrapper.eq(UserCouponDO::getStatus, status);
-        }
-        Page<UserCouponDO> page = new Page<>(current, size);
-        userCouponMapper.selectPage(page, wrapper);
-        Page<UserCouponResp> respPage = new Page<>(
-                page.getCurrent(),
-                page.getSize(),
-                page.getTotal()
-        );
-        respPage.setRecords(userCouponConverter.toRespList(page.getRecords()));
-        return respPage;
+        IPage<UserCouponDO> result = userCouponMapper.selectPage(req, req.buildLambdaWrapper());
+        return result.convert(userCouponConverter::toResp);
     }
 
     /**
-     * 查询我的单张用户券。
+     * 分页查询公开券中心（仅 PUBLIC_CLAIM 渠道模板）。
+     *
+     * @param userId 用户 ID（匿名为 null）
+     * @param req 分页请求（name 为空表示全部，issueChannel 由服务层注入）
+     * @return 模板分页
+     */
+    @Override
+    public IPage<CouponResp> pagePublic(Long userId, CouponPageReq req) {
+        req.setIssueChannel(IssueChannelEnum.PUBLIC_CLAIM);
+        IPage<CouponDO> page = couponMapper.selectPage(req, req.buildLambdaWrapper());
+        IPage<CouponResp> result = page.convert(couponConverter::toResp);
+        enrichPublicClaimState(result.getRecords(), userId);
+        return result;
+    }
+
+    /**
+     * 查询我的单张用户券，校验归属并实时过期。
      *
      * @param userId 用户 ID
      * @param userCouponId 用户券 ID
@@ -750,11 +747,24 @@ public class UserCouponService implements IUserCouponService {
      */
     private List<CouponResp> toPublicResps(List<CouponDO> templates, Long userId) {
         List<CouponResp> resps = couponConverter.toRespList(templates);
+        enrichPublicClaimState(resps, userId);
+        return resps;
+    }
+
+    /**
+     * 填充公开券中心模板的用户领取状态与可领状态。 <p>
+     * 匿名用户（userId 为 null）claimed 为 null，仅计算
+     * stockRemaining。
+     *
+     * @param resps 模板响应列表（原地修改）
+     * @param userId 用户 ID（匿名为 null）
+     */
+    private void enrichPublicClaimState(List<CouponResp> resps, Long userId) {
         Set<Long> claimedIds = userId == null
                 ? Collections.emptySet()
-                : listClaimedCouponIds(userId, templates.stream()
-                                                        .map(CouponDO::getId)
-                                                        .toList());
+                : listClaimedCouponIds(userId, resps.stream()
+                                                    .map(CouponResp::getId)
+                                                    .toList());
         LocalDateTime now = LocalDateTime.now();
         for (CouponResp resp : resps) {
             boolean claimed = claimedIds.contains(resp.getId());
@@ -762,7 +772,6 @@ public class UserCouponService implements IUserCouponService {
             resp.setClaimable(resp.isClaimable(now, claimed));
             resp.setStockRemaining(calcStockRemaining(resp));
         }
-        return resps;
     }
 
     /**

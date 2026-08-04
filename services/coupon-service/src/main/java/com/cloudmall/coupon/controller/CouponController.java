@@ -2,20 +2,21 @@ package com.cloudmall.coupon.controller;
 
 import java.util.List;
 
-import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.baomidou.mybatisplus.core.metadata.IPage;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.cloudmall.common.context.UserContextHolder;
 import com.cloudmall.common.model.Result;
 import com.cloudmall.coupon.api.response.CouponResp;
 import com.cloudmall.coupon.api.response.UserCouponResp;
-import com.cloudmall.coupon.enums.UserCouponStatusEnum;
+import com.cloudmall.coupon.enums.IssueChannelEnum;
+import com.cloudmall.coupon.model.req.CouponPageReq;
+import com.cloudmall.coupon.model.req.UserCouponPageReq;
 import com.cloudmall.coupon.service.IUserCouponService;
 
 /**
@@ -41,6 +42,18 @@ public class CouponController {
     @GetMapping
     public Result<List<CouponResp>> list() {
         return Result.success(userCouponService.listPublicCoupons(UserContextHolder.getUserId()));
+    }
+
+    /**
+     * 分页查询公开券中心（仅公开领取模板）。
+     *
+     * @param req 分页请求（name 为空表示全部）
+     * @return 模板分页
+     */
+    @GetMapping("/page")
+    public Result<IPage<CouponResp>> page(CouponPageReq req) {
+        req.setIssueChannel(IssueChannelEnum.PUBLIC_CLAIM);
+        return Result.success(userCouponService.pagePublic(UserContextHolder.getUserId(), req));
     }
 
     /**
@@ -74,28 +87,12 @@ public class CouponController {
     /**
      * 分页查询我的优惠券。
      *
-     * @param current 页码
-     * @param size 每页条数
-     * @param status 状态过滤（
-     * AVAILABLE/LOCKED/USED/EXPIRED/REVOKED
-     *               ，默认查询全部）
+     * @param req 分页请求（status 为空表示全部）
      * @return 分页结果
      */
     @GetMapping("/me")
-    public Result<Page<UserCouponResp>> pageMine(
-            @RequestParam(defaultValue = "1")
-            long current,
-            @RequestParam(defaultValue = "10")
-            long size,
-            @RequestParam(required = false)
-            UserCouponStatusEnum status
-    ) {
-        Page<UserCouponResp> page = userCouponService.pageMine(
-                UserContextHolder.getUserId(),
-                status,
-                current,
-                size
-        );
+    public Result<IPage<UserCouponResp>> pageMine(UserCouponPageReq req) {
+        IPage<UserCouponResp> page = userCouponService.pageMine(UserContextHolder.getUserId(), req);
         return Result.success(page);
     }
 

@@ -12,9 +12,9 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 
-import com.cloudmall.coupon.enums.CouponOwnerTypeEnum;
-import com.cloudmall.coupon.enums.CouponScopeTypeEnum;
-import com.cloudmall.coupon.enums.CouponTypeEnum;
+import com.cloudmall.coupon.enums.CouponEnum;
+import com.cloudmall.coupon.enums.CouponOwnerEnum;
+import com.cloudmall.coupon.enums.CouponScopeEnum;
 import com.cloudmall.coupon.enums.IssueChannelEnum;
 import com.cloudmall.coupon.enums.ValidityModeEnum;
 
@@ -37,18 +37,18 @@ public class CouponReq {
 
     /** 券归属（PLATFORM / SHOP） */
     @NotNull
-    private CouponOwnerTypeEnum ownerType;
+    private CouponOwnerEnum ownerType;
 
     /** 店铺 ID（店铺券必填，商家创建时忽略并以当前店铺为准） */
     private Long shopId;
 
     /** 券类型（FULL_REDUCTION / DISCOUNT / CASH） */
     @NotNull
-    private CouponTypeEnum type;
+    private CouponEnum type;
 
     /** 适用范围（ALL / PRODUCT / CATEGORY） */
     @NotNull
-    private CouponScopeTypeEnum scopeType;
+    private CouponScopeEnum scopeType;
     /** 使用门槛（0 表示无门槛） */
     private BigDecimal threshold;
 
@@ -95,7 +95,7 @@ public class CouponReq {
      * @return true 表示平台券
      */
     public boolean isPlatform() {
-        return CouponOwnerTypeEnum.PLATFORM.equals(this.ownerType);
+        return CouponOwnerEnum.PLATFORM.equals(this.ownerType);
     }
 
     /**
@@ -163,7 +163,7 @@ public class CouponReq {
      * @return true 表示店铺券
      */
     public boolean isShop() {
-        return CouponOwnerTypeEnum.SHOP.equals(this.ownerType);
+        return CouponOwnerEnum.SHOP.equals(this.ownerType);
     }
 
     /**
@@ -199,7 +199,7 @@ public class CouponReq {
      * @return true 表示指定商品范围
      */
     public boolean isProductScope() {
-        return CouponScopeTypeEnum.PRODUCT.equals(this.scopeType);
+        return CouponScopeEnum.PRODUCT.equals(this.scopeType);
     }
 
     /**
@@ -208,7 +208,7 @@ public class CouponReq {
      * @return true 表示指定分类范围
      */
     public boolean isCategoryScope() {
-        return CouponScopeTypeEnum.CATEGORY.equals(this.scopeType);
+        return CouponScopeEnum.CATEGORY.equals(this.scopeType);
     }
 
     /**

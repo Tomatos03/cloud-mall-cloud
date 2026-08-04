@@ -11,7 +11,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import com.cloudmall.coupon.enums.CouponOperationActionEnum;
-import com.cloudmall.coupon.enums.CouponOperatorTypeEnum;
+import com.cloudmall.coupon.enums.CouponOperatorEnum;
 import com.cloudmall.coupon.enums.CouponStatusEnum;
 
 /**
@@ -39,7 +39,7 @@ public class CouponOperationLogDO {
     private Long operatorId;
 
     /** 操作人类型 */
-    private CouponOperatorTypeEnum operatorType;
+    private CouponOperatorEnum operatorType;
 
     /** 店铺 ID（平台券为 null） */
     private Long shopId;

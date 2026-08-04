@@ -5,11 +5,12 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 
-import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.baomidou.mybatisplus.core.metadata.IPage;
 
 import com.cloudmall.coupon.api.response.CouponResp;
 import com.cloudmall.coupon.api.response.UserCouponResp;
-import com.cloudmall.coupon.enums.UserCouponStatusEnum;
+import com.cloudmall.coupon.model.req.CouponPageReq;
+import com.cloudmall.coupon.model.req.UserCouponPageReq;
 
 /**
  * 用户券领域服务
@@ -45,12 +46,20 @@ public interface IUserCouponService {
      * 分页查询我的优惠券，查询前先对当前用户做实时过期落库。
      *
      * @param userId 用户 ID
-     * @param status 状态过滤（null 表示全部）
-     * @param current 页码
-     * @param size 每页条数
+     * @param req 分页请求（status 为空表示全部）
      * @return 分页结果
      */
-    Page<UserCouponResp> pageMine(Long userId, UserCouponStatusEnum status, long current, long size);
+    IPage<UserCouponResp> pageMine(Long userId, UserCouponPageReq req);
+
+    /**
+     * 分页查询公开券中心（仅 PUBLIC_CLAIM 渠道模板），附带
+     * claimed/claimable/stock_remaining。
+     *
+     * @param userId 用户 ID（匿名为 null）
+     * @param req 分页请求（name 为空表示全部，issueChannel 由服务层注入）
+     * @return 模板分页
+     */
+    IPage<CouponResp> pagePublic(Long userId, CouponPageReq req);
 
     /**
      * 查询我的单张用户券，校验归属并实时过期。

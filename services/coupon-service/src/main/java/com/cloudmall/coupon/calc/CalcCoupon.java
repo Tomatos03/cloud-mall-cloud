@@ -11,8 +11,8 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import com.cloudmall.coupon.api.dto.CouponCalcItem;
-import com.cloudmall.coupon.enums.CouponOwnerTypeEnum;
-import com.cloudmall.coupon.enums.CouponTypeEnum;
+import com.cloudmall.coupon.enums.CouponEnum;
+import com.cloudmall.coupon.enums.CouponOwnerEnum;
 
 /**
  * 参与计算的一张券
@@ -38,13 +38,13 @@ public class CalcCoupon {
     private String name;
 
     /** 券归属 */
-    private CouponOwnerTypeEnum ownerType;
+    private CouponOwnerEnum ownerType;
 
     /** 店铺 ID（平台券为 null） */
     private Long shopId;
 
     /** 券类型 */
-    private CouponTypeEnum type;
+    private CouponEnum type;
 
     /** 使用门槛（0 表示无门槛） */
     private BigDecimal threshold;
@@ -70,7 +70,7 @@ public class CalcCoupon {
      * @return true 表示平台券
      */
     public boolean isPlatform() {
-        return CouponOwnerTypeEnum.PLATFORM.equals(this.ownerType);
+        return CouponOwnerEnum.PLATFORM.equals(this.ownerType);
     }
 
     /**
@@ -79,7 +79,7 @@ public class CalcCoupon {
      * @return true 表示店铺券
      */
     public boolean isShop() {
-        return CouponOwnerTypeEnum.SHOP.equals(this.ownerType);
+        return CouponOwnerEnum.SHOP.equals(this.ownerType);
     }
 
     /**
@@ -88,7 +88,7 @@ public class CalcCoupon {
      * @return true 表示折扣券
      */
     public boolean isDiscount() {
-        return CouponTypeEnum.DISCOUNT.equals(this.type);
+        return CouponEnum.DISCOUNT.equals(this.type);
     }
 
     /**

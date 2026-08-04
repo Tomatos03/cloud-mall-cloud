@@ -8,9 +8,9 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import com.cloudmall.coupon.enums.CouponOwnerTypeEnum;
-import com.cloudmall.coupon.enums.CouponScopeTypeEnum;
-import com.cloudmall.coupon.enums.CouponTypeEnum;
+import com.cloudmall.coupon.enums.CouponEnum;
+import com.cloudmall.coupon.enums.CouponOwnerEnum;
+import com.cloudmall.coupon.enums.CouponScopeEnum;
 
 /**
  * 合法候选券
@@ -33,7 +33,7 @@ public class CouponCandidateResp {
     private Long couponId;
 
     /** 券归属 */
-    private CouponOwnerTypeEnum ownerType;
+    private CouponOwnerEnum ownerType;
 
     /** 店铺 ID（平台券为 null） */
     private Long shopId;
@@ -42,10 +42,10 @@ public class CouponCandidateResp {
     private String name;
 
     /** 券类型 */
-    private CouponTypeEnum type;
+    private CouponEnum type;
 
     /** 适用范围 */
-    private CouponScopeTypeEnum scopeType;
+    private CouponScopeEnum scopeType;
 
     /** 使用门槛 */
     private BigDecimal threshold;

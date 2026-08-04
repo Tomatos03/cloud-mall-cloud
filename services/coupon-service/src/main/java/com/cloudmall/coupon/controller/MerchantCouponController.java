@@ -16,7 +16,7 @@ import com.cloudmall.common.model.Result;
 import com.cloudmall.coupon.api.request.CouponReq;
 import com.cloudmall.coupon.api.response.CouponResp;
 import com.cloudmall.coupon.api.response.CouponStatsResp;
-import com.cloudmall.coupon.enums.CouponOwnerTypeEnum;
+import com.cloudmall.coupon.enums.CouponOwnerEnum;
 import com.cloudmall.coupon.model.req.CouponPageReq;
 import com.cloudmall.coupon.service.ICouponStatsService;
 import com.cloudmall.coupon.service.ICouponTemplateService;
@@ -60,7 +60,7 @@ public class MerchantCouponController {
             @Valid
             CouponReq req
     ) {
-        req.setOwnerType(CouponOwnerTypeEnum.SHOP);
+        req.setOwnerType(CouponOwnerEnum.SHOP);
         return Result.success(couponTemplateService.createDraft(req));
     }
 

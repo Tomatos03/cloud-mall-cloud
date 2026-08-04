@@ -3,6 +3,8 @@
 -- 包含所有服务模块的表结构
 -- ============================================================
 
+SET NAMES utf8mb4;
+
 CREATE DATABASE IF NOT EXISTS cm_mall DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 USE cm_mall;

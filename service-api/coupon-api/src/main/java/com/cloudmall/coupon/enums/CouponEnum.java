@@ -18,7 +18,7 @@ import lombok.Getter;
  */
 @Getter
 @AllArgsConstructor
-public enum CouponTypeEnum {
+public enum CouponEnum {
     /** 满减券 — 满足门槛后按固定金额减免 */
     FULL_REDUCTION("FULL_REDUCTION", "满减"),
 
@@ -41,7 +41,7 @@ public enum CouponTypeEnum {
      * @throws IllegalArgumentException 编码非法或为 null 时抛出
      */
     @JsonCreator
-    public static CouponTypeEnum fromCode(@JsonProperty("code") String code) {
+    public static CouponEnum fromCode(@JsonProperty("code") String code) {
         return Arrays
                 .stream(values())
                 .filter(t -> t.code.equals(code))

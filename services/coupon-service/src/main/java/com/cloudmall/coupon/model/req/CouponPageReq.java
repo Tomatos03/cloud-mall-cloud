@@ -7,6 +7,9 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import com.cloudmall.coupon.entity.CouponDO;
+import com.cloudmall.coupon.enums.CouponOwnerEnum;
+import com.cloudmall.coupon.enums.CouponStatusEnum;
+import com.cloudmall.coupon.enums.IssueChannelEnum;
 import com.cloudmall.mybatisplus.annotation.Operator;
 import com.cloudmall.mybatisplus.annotation.QueryCondition;
 import com.cloudmall.mybatisplus.model.PageReq;
@@ -14,7 +17,7 @@ import com.cloudmall.mybatisplus.model.PageReq;
 /**
  * 优惠券模板分页查询请求
  * <p>
- * 商家端强制注入 shopId，运营端可按 ownerType/status 等过滤全量。
+ * 商家端强制注入 shopId，运营端可按 ownerType/status/issueChannel 等过滤全量。
  *
  * @author : Tomatos
  */
@@ -36,13 +39,17 @@ public class CouponPageReq extends PageReq<CouponDO> {
     @QueryCondition(operator = Operator.LIKE)
     private String name;
 
-    /** 券归属 code（PLATFORM/SHOP） */
+    /** 券归属（PLATFORM/SHOP） */
     @QueryCondition(operator = Operator.EQ)
-    private String ownerType;
+    private CouponOwnerEnum ownerType;
 
-    /** 模板状态 code */
+    /** 模板状态 */
     @QueryCondition(operator = Operator.EQ)
-    private String status;
+    private CouponStatusEnum status;
+
+    /** 发行渠道（PUBLIC_CLAIM / REGISTER_AUTO） */
+    @QueryCondition(operator = Operator.EQ)
+    private IssueChannelEnum issueChannel;
 
     /**
      * 使用指定参数构造对象。
