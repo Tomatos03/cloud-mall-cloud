@@ -20,6 +20,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.interceptor.TransactionAspectSupport;
 
+import com.cloudmall.common.context.UserContextHolder;
 import com.cloudmall.common.enums.BizErrorCode;
 import com.cloudmall.common.exception.BizException;
 import com.cloudmall.common.utils.AssertUtils;
@@ -35,6 +36,7 @@ import com.cloudmall.coupon.entity.UserCouponDO;
 import com.cloudmall.coupon.entity.UserCouponLogDO;
 import com.cloudmall.coupon.enums.CouponOwnerTypeEnum;
 import com.cloudmall.coupon.enums.CouponStatusEnum;
+import com.cloudmall.coupon.enums.IssueChannelEnum;
 import com.cloudmall.coupon.enums.IssuedSourceEnum;
 import com.cloudmall.coupon.enums.UserCouponLogSourceEnum;
 import com.cloudmall.coupon.enums.UserCouponOperationTypeEnum;
@@ -45,7 +47,6 @@ import com.cloudmall.coupon.mapper.UserCouponLogMapper;
 import com.cloudmall.coupon.mapper.UserCouponMapper;
 import com.cloudmall.coupon.service.ICouponTemplateService;
 import com.cloudmall.coupon.service.IUserCouponService;
-import com.cloudmall.mybatisplus.enums.StatusEnum;
 
 /**
  * 用户券领域服务实现。
@@ -130,7 +131,7 @@ public class UserCouponService implements IUserCouponService {
                 Wrappers.<CouponDO>lambdaQuery()
                         .eq(CouponDO::getStatus, CouponStatusEnum.ACTIVE)
                         .eq(CouponDO::getOwnerType, CouponOwnerTypeEnum.PLATFORM)
-                        .eq(CouponDO::getAutoIssueOnRegister, StatusEnum.ENABLED)
+                        .eq(CouponDO::getIssueChannel, IssueChannelEnum.REGISTER_AUTO)
                         .le(CouponDO::getIssueStartTime, now)
                         .ge(CouponDO::getIssueEndTime, now)
         );
@@ -217,7 +218,7 @@ public class UserCouponService implements IUserCouponService {
         if (anonymous == null) {
             List<CouponDO> templates = couponMapper.selectList(
                     Wrappers.<CouponDO>lambdaQuery()
-                            .eq(CouponDO::getClaimEnabled, StatusEnum.ENABLED)
+                            .eq(CouponDO::getIssueChannel, IssueChannelEnum.PUBLIC_CLAIM)
                             .orderByAsc(CouponDO::getId)
             );
             anonymous = toPublicResps(templates, null);
@@ -489,6 +490,7 @@ public class UserCouponService implements IUserCouponService {
     @Override
     @Transactional
     public int revokeByCoupon(Long couponId, Long operatorId, String reason) {
+        AssertUtils.isTrue(UserContextHolder.isAdmin(), BizErrorCode.COUPON_OPERATION_NOT_ALLOWED);
         List<UserCouponDO> available = userCouponMapper.selectList(
                 Wrappers.<UserCouponDO>lambdaQuery()
                         .eq(UserCouponDO::getCouponId, couponId)
@@ -531,10 +533,7 @@ public class UserCouponService implements IUserCouponService {
      * @param template 模板
      */
     private void validateClaimable(CouponDO template) {
-        AssertUtils.isTrue(
-                BooleanUtil.isTrue(template.getClaimEnabled()),
-                BizErrorCode.COUPON_NOT_CLAIMABLE
-        );
+        AssertUtils.isTrue(template.isPublicClaimChannel(), BizErrorCode.COUPON_NOT_CLAIMABLE);
         AssertUtils.isTrue(
                 template.getStatus() == CouponStatusEnum.ACTIVE,
                 BizErrorCode.COUPON_NOT_CLAIMABLE

@@ -21,6 +21,11 @@
             <groupId>org.springframework</groupId>
             <artifactId>spring-web</artifactId>
         </dependency>
+        <!-- UserContext 跨服务 JSON 透传依赖的枚举序列化注解 -->
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-annotations</artifactId>
+        </dependency>
         <!-- mybatis-plus-extension 已移除：PageReq 已迁至 cloudmall-mybatis-plus-spring-boot-starter -->
     </dependencies>
 </project>

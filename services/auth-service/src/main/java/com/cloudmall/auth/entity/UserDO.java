@@ -12,7 +12,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import com.cloudmall.auth.enums.UserTypeEnum;
+import com.cloudmall.common.enums.UserTypeEnum;
 
 /**
  * 用户实体

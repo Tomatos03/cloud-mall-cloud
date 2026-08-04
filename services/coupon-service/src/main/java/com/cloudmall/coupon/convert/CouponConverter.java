@@ -6,8 +6,7 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
 
-import com.cloudmall.coupon.api.request.CouponBaseReq;
-import com.cloudmall.coupon.api.request.CouponUpdateReq;
+import com.cloudmall.coupon.api.request.CouponReq;
 import com.cloudmall.coupon.api.response.CouponResp;
 import com.cloudmall.coupon.entity.CouponDO;
 
@@ -63,18 +62,10 @@ public interface CouponConverter {
             expression = "java(com.cloudmall.common.context.UserContextHolder.getUserId())"
     )
     @Mapping(
-            target = "claimEnabled",
-            expression = "java(cn.hutool.core.util.BooleanUtil.isTrue(req.getClaimEnabled()))"
-    )
-    @Mapping(
             target = "threshold",
             expression = "java(req.getThreshold() == null ? java.math.BigDecimal.ZERO : req.getThreshold())"
     )
-    @Mapping(
-            target = "autoIssueOnRegister",
-            expression = "java(cn.hutool.core.util.BooleanUtil.isTrue(req.getAutoIssueOnRegister()))"
-    )
-    CouponDO toDraft(CouponBaseReq req);
+    CouponDO toDraft(CouponReq req);
 
     /**
      * 编辑请求覆盖到已存在草稿：仅覆盖业务字段，归属、状态、时间戳等系统字段保持不变。
@@ -93,16 +84,8 @@ public interface CouponConverter {
     @Mapping(target = "claimedCount", ignore = true)
     @Mapping(target = "firstIssuedTime", ignore = true)
     @Mapping(
-            target = "claimEnabled",
-            expression = "java(cn.hutool.core.util.BooleanUtil.isTrue(req.getClaimEnabled()))"
-    )
-    @Mapping(
             target = "threshold",
             expression = "java(req.getThreshold() == null ? java.math.BigDecimal.ZERO : req.getThreshold())"
     )
-    @Mapping(
-            target = "autoIssueOnRegister",
-            expression = "java(cn.hutool.core.util.BooleanUtil.isTrue(req.getAutoIssueOnRegister()))"
-    )
-    void applyUpdate(@MappingTarget CouponDO coupon, CouponUpdateReq req);
+    void applyUpdate(@MappingTarget CouponDO coupon, CouponReq req);
 }

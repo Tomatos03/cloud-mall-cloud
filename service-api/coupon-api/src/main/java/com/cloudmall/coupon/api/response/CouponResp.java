@@ -58,11 +58,8 @@ public class CouponResp {
     /** 累计发放数量 */
     private Long claimedCount;
 
-    /** 是否允许公开领取 */
-    private Boolean claimEnabled;
-
-    /** 是否注册自动发放 */
-    private Boolean autoIssueOnRegister;
+    /** 发放渠道（PUBLIC_CLAIM / REGISTER_AUTO，null=未设置） */
+    private String issueChannel;
 
     /** 有效期模式（FIXED / RELATIVE） */
     private String validityMode;

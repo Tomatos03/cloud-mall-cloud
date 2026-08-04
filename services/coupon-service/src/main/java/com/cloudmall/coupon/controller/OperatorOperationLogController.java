@@ -33,7 +33,6 @@ public class OperatorOperationLogController {
      */
     @GetMapping("/coupon-operation-logs")
     public Result<IPage<CouponOperationLogResp>> operationLogs(CouponOperationLogPageReq req) {
-        couponTemplateService.requireOperator();
         return Result.success(couponTemplateService.pageOperationLogs(req));
     }
 }

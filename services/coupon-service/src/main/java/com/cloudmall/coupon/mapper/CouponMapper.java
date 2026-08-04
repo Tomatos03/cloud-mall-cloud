@@ -27,7 +27,7 @@ public interface CouponMapper extends BaseMapper<CouponDO> {
             "UPDATE cm_coupon SET claimed_count = claimed_count + 1, "
                     + "first_issued_time = COALESCE(first_issued_time, NOW()), update_time = NOW() "
                     + "WHERE id = #{couponId} AND deleted = 0 AND status = 'ACTIVE' "
-                    + "AND claim_enabled = 1 AND issue_start_time <= NOW() AND issue_end_time >= NOW() "
+                    + "AND issue_channel = 'PUBLIC_CLAIM' AND issue_start_time <= NOW() AND issue_end_time >= NOW() "
                     + "AND (total_count IS NULL OR claimed_count < total_count)"
     )
     int increaseClaimedCount(

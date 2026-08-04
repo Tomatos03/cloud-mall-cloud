@@ -14,8 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.cloudmall.common.context.UserContextHolder;
 import com.cloudmall.common.model.Result;
-import com.cloudmall.coupon.api.request.CouponBaseReq;
-import com.cloudmall.coupon.api.request.CouponUpdateReq;
+import com.cloudmall.coupon.api.request.CouponReq;
 import com.cloudmall.coupon.api.request.RevokeReq;
 import com.cloudmall.coupon.api.response.CouponResp;
 import com.cloudmall.coupon.api.response.CouponStatsResp;
@@ -49,7 +48,6 @@ public class OperatorCouponController {
      */
     @GetMapping
     public Result<IPage<CouponResp>> page(CouponPageReq req) {
-        couponTemplateService.requireOperator();
         return Result.success(couponTemplateService.pageAll(req));
     }
 
@@ -63,9 +61,8 @@ public class OperatorCouponController {
     public Result<Long> create(
             @RequestBody
             @Valid
-            CouponBaseReq req
+            CouponReq req
     ) {
-        couponTemplateService.requireOperator();
         return Result.success(couponTemplateService.createDraft(req));
     }
 
@@ -82,9 +79,8 @@ public class OperatorCouponController {
             Long id,
             @RequestBody
             @Valid
-            CouponUpdateReq req
+            CouponReq req
     ) {
-        couponTemplateService.requireOperator();
         couponTemplateService.updateDraft(id, req);
         return Result.success();
     }
@@ -100,7 +96,6 @@ public class OperatorCouponController {
             @PathVariable
             Long id
     ) {
-        couponTemplateService.requireOperator();
         couponTemplateService.publish(id);
         return Result.success();
     }
@@ -116,7 +111,6 @@ public class OperatorCouponController {
             @PathVariable
             Long id
     ) {
-        couponTemplateService.requireOperator();
         couponTemplateService.pause(id);
         return Result.success();
     }
@@ -132,7 +126,6 @@ public class OperatorCouponController {
             @PathVariable
             Long id
     ) {
-        couponTemplateService.requireOperator();
         couponTemplateService.end(id);
         return Result.success();
     }
@@ -148,7 +141,6 @@ public class OperatorCouponController {
             @PathVariable
             Long id
     ) {
-        couponTemplateService.requireOperator();
         couponTemplateService.deleteDraft(id);
         return Result.success();
     }
@@ -168,7 +160,6 @@ public class OperatorCouponController {
             @Valid
             RevokeReq req
     ) {
-        couponTemplateService.requireOperator();
         int revoked = userCouponService.revokeByCoupon(
                 id,
                 UserContextHolder.getUserId(),
@@ -188,7 +179,6 @@ public class OperatorCouponController {
             @PathVariable
             Long id
     ) {
-        couponTemplateService.requireOperator();
         return Result.success(couponStatsService.statsByCoupon(id));
     }
 
@@ -199,7 +189,6 @@ public class OperatorCouponController {
      */
     @GetMapping("/stats/overview")
     public Result<CouponStatsResp> overview() {
-        couponTemplateService.requireOperator();
         return Result.success(couponStatsService.overview());
     }
 

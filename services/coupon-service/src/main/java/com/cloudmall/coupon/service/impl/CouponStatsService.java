@@ -11,6 +11,7 @@ import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import com.cloudmall.common.context.UserContextHolder;
 import com.cloudmall.common.enums.BizErrorCode;
 import com.cloudmall.common.model.Result;
 import com.cloudmall.common.utils.AssertUtils;
@@ -49,6 +50,7 @@ public class CouponStatsService implements ICouponStatsService {
     public CouponStatsResp statsByCoupon(Long couponId) {
         CouponDO coupon = couponMapper.selectById(couponId);
         AssertUtils.notNull(coupon, BizErrorCode.COUPON_TEMPLATE_NOT_FOUND);
+        requireManageable(coupon);
         CouponStatsResp stats = aggregate(couponId);
         stats.setCouponId(coupon.getId());
         stats.setName(coupon.getName());
@@ -63,6 +65,7 @@ public class CouponStatsService implements ICouponStatsService {
      */
     @Override
     public CouponStatsResp overview() {
+        AssertUtils.isTrue(UserContextHolder.isAdmin(), BizErrorCode.COUPON_OPERATION_NOT_ALLOWED);
         CouponStatsResp stats = aggregate(null);
         fillUsageStats(stats, orderStatsClient.usageOverview());
         return stats;
@@ -123,5 +126,19 @@ public class CouponStatsService implements ICouponStatsService {
         }
         stats.setOrderCount(usage.getOrderCount());
         stats.setSubsidyAmount(usage.getSubsidyAmount());
+    }
+
+    /**
+     * 校验当前用户可管理该模板：运营放行，非运营必须为店铺拥有者。
+     *
+     * @param coupon 模板
+     */
+    private void requireManageable(CouponDO coupon) {
+        if (UserContextHolder.isAdmin()) {
+            return;
+        }
+        Long shopId = UserContextHolder.getShopId();
+        AssertUtils.notNull(shopId, BizErrorCode.MERCHANT_NO_SHOP);
+        AssertUtils.isEqual(coupon.getShopId(), shopId, BizErrorCode.COUPON_OPERATION_NOT_ALLOWED);
     }
 }

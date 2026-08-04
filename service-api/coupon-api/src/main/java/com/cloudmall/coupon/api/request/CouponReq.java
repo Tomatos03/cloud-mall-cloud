@@ -4,7 +4,7 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 
-import cn.hutool.core.util.BooleanUtil;
+import cn.hutool.core.util.ObjectUtil;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
@@ -15,12 +15,13 @@ import lombok.experimental.SuperBuilder;
 import com.cloudmall.coupon.enums.CouponOwnerTypeEnum;
 import com.cloudmall.coupon.enums.CouponScopeTypeEnum;
 import com.cloudmall.coupon.enums.CouponTypeEnum;
+import com.cloudmall.coupon.enums.IssueChannelEnum;
 import com.cloudmall.coupon.enums.ValidityModeEnum;
 
 /**
  * 优惠券模板请求体
  * <p>
- * 创建与编辑共用的模板核心规则字段，CouponUpdateReq 继承本类复用字段。
+ * 创建与编辑共用的模板核心规则字段，编辑时归属（ownerType）不允许修改。
  *
  * @author : Tomatos
  */
@@ -28,7 +29,7 @@ import com.cloudmall.coupon.enums.ValidityModeEnum;
 @SuperBuilder
 @NoArgsConstructor
 @AllArgsConstructor
-public class CouponBaseReq {
+public class CouponReq {
 
     /** 券展示名称 */
     @NotBlank
@@ -60,12 +61,8 @@ public class CouponBaseReq {
     /** 发行总量（null 表示不限量） */
     private Long totalCount;
 
-    /** 是否允许公开领取 */
-    private Boolean claimEnabled;
-
-    /** 是否注册自动发放 */
-    private Boolean autoIssueOnRegister;
-
+    /** 发放渠道（PUBLIC_CLAIM=公开领取 REGISTER_AUTO=注册自动发放，null=未设置不可发布） */
+    private IssueChannelEnum issueChannel;
     /** 有效期模式（FIXED / RELATIVE） */
     @NotNull
     private ValidityModeEnum validityMode;
@@ -92,23 +89,22 @@ public class CouponBaseReq {
 
     /** 指定分类 ID 列表（scopeType=CATEGORY 时必填） */
     private List<Long> categoryIds;
-
     /**
-     * 领取与自动发放是否同时开启。
+     * 归属是否为平台券。
      *
-     * @return true 表示两个渠道都开启
+     * @return true 表示平台券
      */
-    public boolean isBothIssueChannelsEnabled() {
-        return BooleanUtil.isTrue(this.claimEnabled) && BooleanUtil.isTrue(this.autoIssueOnRegister);
+    public boolean isPlatform() {
+        return CouponOwnerTypeEnum.PLATFORM.equals(this.ownerType);
     }
 
     /**
      * 折扣金额是否在有效范围内（大于 0 且低于门槛）。
      *
-     * @param threshold 门槛金额
      * @return true 表示金额有效
      */
-    public boolean isDiscountAmountValid(BigDecimal threshold) {
+    public boolean isDiscountAmountValid() {
+        BigDecimal threshold = ObjectUtil.defaultIfNull(this.threshold, BigDecimal.ZERO);
         return this.discountAmount != null && this.discountAmount.compareTo(BigDecimal.ZERO) > 0
                        && this.discountAmount.compareTo(threshold) < 0;
     }
@@ -159,5 +155,77 @@ public class CouponBaseReq {
      */
     public boolean hasValidDays() {
         return this.validDays != null && this.validDays > 0;
+    }
+
+    /**
+     * 归属是否为店铺券。
+     *
+     * @return true 表示店铺券
+     */
+    public boolean isShop() {
+        return CouponOwnerTypeEnum.SHOP.equals(this.ownerType);
+    }
+
+    /**
+     * 发放渠道是否为注册自动发放。
+     *
+     * @return true 表示注册自动发放渠道
+     */
+    public boolean isRegisterAutoChannel() {
+        return IssueChannelEnum.REGISTER_AUTO.equals(this.issueChannel);
+    }
+
+    /**
+     * 使用门槛是否为正数。
+     *
+     * @return true 表示门槛大于 0
+     */
+    public boolean isThresholdPositive() {
+        return this.threshold != null && this.threshold.compareTo(BigDecimal.ZERO) > 0;
+    }
+
+    /**
+     * 使用门槛是否为非负数（null 按 0 处理）。
+     *
+     * @return true 表示门槛大于等于 0
+     */
+    public boolean isThresholdNonNegative() {
+        return this.threshold == null || this.threshold.compareTo(BigDecimal.ZERO) >= 0;
+    }
+
+    /**
+     * 适用范围是否为指定商品。
+     *
+     * @return true 表示指定商品范围
+     */
+    public boolean isProductScope() {
+        return CouponScopeTypeEnum.PRODUCT.equals(this.scopeType);
+    }
+
+    /**
+     * 适用范围是否为指定分类。
+     *
+     * @return true 表示指定分类范围
+     */
+    public boolean isCategoryScope() {
+        return CouponScopeTypeEnum.CATEGORY.equals(this.scopeType);
+    }
+
+    /**
+     * 有效期模式是否为固定有效期。
+     *
+     * @return true 表示固定有效期
+     */
+    public boolean isFixedValidity() {
+        return ValidityModeEnum.FIXED.equals(this.validityMode);
+    }
+
+    /**
+     * 有效期模式是否为相对有效期。
+     *
+     * @return true 表示相对有效期
+     */
+    public boolean isRelativeValidity() {
+        return ValidityModeEnum.RELATIVE.equals(this.validityMode);
     }
 }

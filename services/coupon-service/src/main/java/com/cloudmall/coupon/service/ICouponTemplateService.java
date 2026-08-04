@@ -2,11 +2,9 @@ package com.cloudmall.coupon.service;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
 
-import com.cloudmall.coupon.api.request.CouponBaseReq;
-import com.cloudmall.coupon.api.request.CouponUpdateReq;
+import com.cloudmall.coupon.api.request.CouponReq;
 import com.cloudmall.coupon.api.response.CouponOperationLogResp;
 import com.cloudmall.coupon.api.response.CouponResp;
-import com.cloudmall.coupon.entity.CouponDO;
 import com.cloudmall.coupon.entity.CouponDO;
 import com.cloudmall.coupon.model.req.CouponOperationLogPageReq;
 import com.cloudmall.coupon.model.req.CouponPageReq;
@@ -28,7 +26,7 @@ public interface ICouponTemplateService {
      * @param req 创建请求
      * @return 新模板 ID
      */
-    Long createDraft(CouponBaseReq req);
+    Long createDraft(CouponReq req);
 
     /**
      * 编辑模板草稿，仅 DRAFT 状态可编辑。
@@ -36,7 +34,7 @@ public interface ICouponTemplateService {
      * @param id 模板 ID
      * @param req 编辑请求
      */
-    void updateDraft(Long id, CouponUpdateReq req);
+    void updateDraft(Long id, CouponReq req);
 
     /**
      * 发布模板草稿：DRAFT → ACTIVE。
@@ -80,19 +78,6 @@ public interface ICouponTemplateService {
      * @return 模板响应
      */
     CouponResp getDetail(Long id);
-
-    /**
-     * 校验当前商家拥有该模板（返回模板实体）。
-     *
-     * @param id 模板 ID
-     * @return 模板实体
-     */
-    CouponDO requireShopOwned(Long id);
-
-    /**
-     * 校验当前用户为运营角色。
-     */
-    void requireOperator();
 
     /**
      * 商家分页查询自己店铺的模板。

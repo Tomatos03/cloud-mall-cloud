@@ -26,7 +26,6 @@ import com.cloudmall.auth.entity.ResourceDO;
 import com.cloudmall.auth.entity.UserDO;
 import com.cloudmall.auth.entity.UserRoleDO;
 import com.cloudmall.auth.enums.ResourceTypeEnum;
-import com.cloudmall.auth.enums.UserTypeEnum;
 import com.cloudmall.auth.mapper.ResourceMapper;
 import com.cloudmall.auth.mapper.UserMapper;
 import com.cloudmall.auth.mapper.UserRoleMapper;
@@ -38,6 +37,7 @@ import com.cloudmall.auth.service.IUserService;
 import com.cloudmall.common.context.UserContext;
 import com.cloudmall.common.context.UserContextHolder;
 import com.cloudmall.common.enums.BizErrorCode;
+import com.cloudmall.common.enums.UserTypeEnum;
 import com.cloudmall.common.model.Result;
 import com.cloudmall.common.utils.AssertUtils;
 import com.cloudmall.jwt.service.ITokenService;
@@ -89,7 +89,7 @@ public class UserService implements IUserService {
                 .builder()
                 .userId(user.getId())
                 .username(user.getUsername())
-                .userType(ObjectUtil.defaultIfNull(user.getTypes(), UserTypeEnum.NORMAL).getCode())
+                .userType(ObjectUtil.defaultIfNull(user.getTypes(), UserTypeEnum.NORMAL))
                 .shopId(resolveShopId(user))
                 .permissionCodes(permissionCodes)
                 .build();

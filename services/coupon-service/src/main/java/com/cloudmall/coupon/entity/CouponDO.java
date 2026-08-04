@@ -3,7 +3,6 @@ package com.cloudmall.coupon.entity;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
-import cn.hutool.core.util.BooleanUtil;
 import com.baomidou.mybatisplus.annotation.FieldFill;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableLogic;
@@ -17,6 +16,7 @@ import com.cloudmall.coupon.enums.CouponOwnerTypeEnum;
 import com.cloudmall.coupon.enums.CouponScopeTypeEnum;
 import com.cloudmall.coupon.enums.CouponStatusEnum;
 import com.cloudmall.coupon.enums.CouponTypeEnum;
+import com.cloudmall.coupon.enums.IssueChannelEnum;
 import com.cloudmall.coupon.enums.ValidityModeEnum;
 
 /**
@@ -70,11 +70,8 @@ public class CouponDO {
     /** 累计发放数量（只增不减） */
     private Long claimedCount;
 
-    /** 是否允许公开领取 */
-    private Boolean claimEnabled;
-
-    /** 是否注册自动发放 */
-    private Boolean autoIssueOnRegister;
+    /** 发放渠道（PUBLIC_CLAIM=公开领取 REGISTER_AUTO=注册自动发放，null=未设置不可发布） */
+    private IssueChannelEnum issueChannel;
 
     /** 有效期模式 */
     private ValidityModeEnum validityMode;
@@ -123,12 +120,30 @@ public class CouponDO {
     }
 
     /**
-     * 是否至少开启一种发放方式。
+     * 是否已设置发放渠道。
      *
      * @return true 表示可发放
      */
     public boolean isClaimable() {
-        return BooleanUtil.isTrue(this.claimEnabled) || BooleanUtil.isTrue(this.autoIssueOnRegister);
+        return this.issueChannel != null;
+    }
+
+    /**
+     * 发放渠道是否为公开领取。
+     *
+     * @return true 表示公开领取渠道
+     */
+    public boolean isPublicClaimChannel() {
+        return IssueChannelEnum.PUBLIC_CLAIM.equals(this.issueChannel);
+    }
+
+    /**
+     * 发放渠道是否为注册自动发放。
+     *
+     * @return true 表示注册自动发放渠道
+     */
+    public boolean isRegisterAutoChannel() {
+        return IssueChannelEnum.REGISTER_AUTO.equals(this.issueChannel);
     }
 
     /**

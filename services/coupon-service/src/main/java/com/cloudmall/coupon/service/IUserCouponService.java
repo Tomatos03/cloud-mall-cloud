@@ -62,7 +62,7 @@ public interface IUserCouponService {
     UserCouponResp getMine(Long userId, Long userCouponId);
 
     /**
-     * 查询公开券中心（仅 claim_enabled 模板），附带
+     * 查询公开券中心（仅 PUBLIC_CLAIM 渠道模板），附带
      * claimed/claimable/stock_remaining。
      *
      * @param userId 用户 ID（匿名为 null）

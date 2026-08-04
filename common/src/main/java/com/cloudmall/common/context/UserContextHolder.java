@@ -1,5 +1,7 @@
 package com.cloudmall.common.context;
 
+import com.cloudmall.common.enums.UserTypeEnum;
+
 /**
  * 用户上下文持有者
  * <p>
@@ -61,9 +63,39 @@ public final class UserContextHolder {
      *
      * @return 用户类型，未登录时返回 null
      */
-    public static String getUserType() {
+    public static UserTypeEnum getUserType() {
         UserContext c = get();
         return c != null ? c.getUserType() : null;
+    }
+
+    /**
+     * 当前用户是否为管理员。
+     *
+     * @return true 表示管理员
+     */
+    public static boolean isAdmin() {
+        UserContext c = get();
+        return c != null && c.isAdmin();
+    }
+
+    /**
+     * 当前用户是否为店铺商家。
+     *
+     * @return true 表示店铺商家
+     */
+    public static boolean isMerchant() {
+        UserContext c = get();
+        return c != null && c.isMerchant();
+    }
+
+    /**
+     * 当前用户是否为普通用户。
+     *
+     * @return true 表示普通用户
+     */
+    public static boolean isNormal() {
+        UserContext c = get();
+        return c != null && c.isNormal();
     }
 
     /**

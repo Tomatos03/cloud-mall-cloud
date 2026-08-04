@@ -1,4 +1,4 @@
-package com.cloudmall.auth.enums;
+package com.cloudmall.common.enums;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -7,7 +7,8 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import cn.hutool.core.util.StrUtil;
-import com.baomidou.mybatisplus.annotation.EnumValue;
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonValue;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
@@ -16,6 +17,7 @@ import lombok.Getter;
  * <p>
  * 对应 cm_user.types 列的取值集合（MySQL SET 类型，一个用户可拥有多个类型，
  * 存储形式为逗号分隔的编码串，如 "NORMAL,MERCHANT"）。
+ * 用户上下文中为单值，通过 {@link #fromCodes(String)} 解析多值场景。
  *
  * @author : Tomatos
  */
@@ -30,8 +32,8 @@ public enum UserTypeEnum {
 
     /** 店铺商家 */
     MERCHANT("MERCHANT", "店铺商家");
-    /** 数据库存储值 */
-    @EnumValue
+    /** 类型编码 */
+    @JsonValue
     private final String code;
     /** 类型描述 */
     private final String desc;
@@ -42,6 +44,7 @@ public enum UserTypeEnum {
      * @return 匹配的用户类型
      * @throws IllegalArgumentException 编码非法或为 null 时抛出
      */
+    @JsonCreator
     public static UserTypeEnum fromCode(String code) {
         return Arrays
                 .stream(values())
@@ -52,6 +55,21 @@ public enum UserTypeEnum {
                                 "Invalid user type: '" + code + "', valid values: " + allCodes()
                         )
                 );
+    }
+    /**
+     * 根据编码查找用户类型，编码为空或非法时返回 null。
+     *
+     * @param code 类型编码，如 "ADMIN"
+     * @return 匹配的用户类型，无法解析时返回 null
+     */
+    public static UserTypeEnum fromCodeOrNull(String code) {
+        if (StrUtil.isBlank(code)) {
+            return null;
+        }
+        return Arrays.stream(values())
+                     .filter(t -> t.code.equals(code))
+                     .findFirst()
+                     .orElse(null);
     }
     /**
      * 解析逗号分隔的编码串为用户类型集合。 <p>

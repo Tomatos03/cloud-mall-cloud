@@ -14,6 +14,7 @@ import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
 
 import com.cloudmall.common.context.UserContext;
+import com.cloudmall.common.enums.UserTypeEnum;
 import com.cloudmall.jwt.config.JwtProperties;
 import com.cloudmall.jwt.exception.AuthTokenException;
 
@@ -122,7 +123,7 @@ public class JwtTokenService implements ITokenService {
                 .builder()
                 .userId(claims.get("userId", Long.class))
                 .username(claims.get("username", String.class))
-                .userType(claims.get("userType", String.class))
+                .userType(UserTypeEnum.fromCodeOrNull(claims.get("userType", String.class)))
                 .shopId(claims.get("shopId", Long.class))
                 .extra(claims.get("extra", Map.class));
 

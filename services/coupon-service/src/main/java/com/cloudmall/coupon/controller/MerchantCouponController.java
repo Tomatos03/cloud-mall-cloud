@@ -13,8 +13,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.cloudmall.common.model.Result;
-import com.cloudmall.coupon.api.request.CouponBaseReq;
-import com.cloudmall.coupon.api.request.CouponUpdateReq;
+import com.cloudmall.coupon.api.request.CouponReq;
 import com.cloudmall.coupon.api.response.CouponResp;
 import com.cloudmall.coupon.api.response.CouponStatsResp;
 import com.cloudmall.coupon.enums.CouponOwnerTypeEnum;
@@ -59,7 +58,7 @@ public class MerchantCouponController {
     public Result<Long> create(
             @RequestBody
             @Valid
-            CouponBaseReq req
+            CouponReq req
     ) {
         req.setOwnerType(CouponOwnerTypeEnum.SHOP);
         return Result.success(couponTemplateService.createDraft(req));
@@ -78,9 +77,8 @@ public class MerchantCouponController {
             Long id,
             @RequestBody
             @Valid
-            CouponUpdateReq req
+            CouponReq req
     ) {
-        couponTemplateService.requireShopOwned(id);
         couponTemplateService.updateDraft(id, req);
         return Result.success();
     }
@@ -96,7 +94,6 @@ public class MerchantCouponController {
             @PathVariable
             Long id
     ) {
-        couponTemplateService.requireShopOwned(id);
         couponTemplateService.publish(id);
         return Result.success();
     }
@@ -112,7 +109,6 @@ public class MerchantCouponController {
             @PathVariable
             Long id
     ) {
-        couponTemplateService.requireShopOwned(id);
         couponTemplateService.pause(id);
         return Result.success();
     }
@@ -128,7 +124,6 @@ public class MerchantCouponController {
             @PathVariable
             Long id
     ) {
-        couponTemplateService.requireShopOwned(id);
         couponTemplateService.end(id);
         return Result.success();
     }
@@ -144,7 +139,6 @@ public class MerchantCouponController {
             @PathVariable
             Long id
     ) {
-        couponTemplateService.requireShopOwned(id);
         couponTemplateService.deleteDraft(id);
         return Result.success();
     }
@@ -160,7 +154,6 @@ public class MerchantCouponController {
             @PathVariable
             Long id
     ) {
-        couponTemplateService.requireShopOwned(id);
         return Result.success(couponStatsService.statsByCoupon(id));
     }
 }
