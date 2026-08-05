@@ -27,6 +27,7 @@ import com.cloudmall.coupon.api.response.CouponOrderCalcResp;
 import com.cloudmall.coupon.api.response.CouponSubOrderResult;
 import com.cloudmall.coupon.api.response.CouponUsageResult;
 import com.cloudmall.coupon.enums.CouponOwnerEnum;
+import com.cloudmall.order.api.response.CouponUsageStatsResp;
 import com.cloudmall.order.api.response.OrderResp;
 import com.cloudmall.order.api.response.OrderSubResp;
 import com.cloudmall.order.convert.OrderConverter;
@@ -54,7 +55,7 @@ import com.cloudmall.product.api.response.SkuResp;
 /**
  * 订单服务实现
  * <p>
- * 本地查询与响应组装（父/子订单分页、详情），以及下单 Saga 中需要独立事务提交的写库步骤：
+ * 本地查询与响应组装（父/子订单分页、详情、券使用统计），以及下单 Saga 中需要独立事务提交的写库步骤：
  * CREATING 骨架、金额/明细/优惠落库、失败标记取消。 骨架必须先于远程调用提交，宕机时才能被
  * 超时恢复任务发现并补偿。 涉及远程调用的下单编排见
  * {@link com.cloudmall.order.application.OrderApp}。
@@ -400,5 +401,48 @@ public class OrderService implements IOrderService {
     private void transitionToPendingPayment(Long orderId) {
         int result = orderMapper.transitionToPendingPayment(orderId, ParentOrderStatusEnum.PENDING_PAYMENT);
         Asserts.isTrue(result > 0, BizError.INVALID_ORDER_STATUS);
+    }
+
+    /**
+     * 查询指定模板的使用订单数与补贴金额。
+     *
+     * @param couponId 模板 ID
+     * @return 使用统计
+     */
+    @Override
+    public CouponUsageStatsResp usageByCoupon(Long couponId) {
+        return toResp(orderCouponMapper.aggregateByCoupon(couponId));
+    }
+
+    /**
+     * 查询全局使用订单数与补贴金额。
+     *
+     * @return 使用统计
+     */
+    @Override
+    public CouponUsageStatsResp usageOverview() {
+        return toResp(orderCouponMapper.aggregateOverview());
+    }
+
+    /**
+     * 聚合结果转统计响应。
+     *
+     * @param row 聚合行
+     * @return 统计响应
+     */
+    private CouponUsageStatsResp toResp(Map<String, Object> row) {
+        if (row == null) {
+            return CouponUsageStatsResp.builder()
+                                       .orderCount(0L)
+                                       .subsidyAmount(BigDecimal.ZERO)
+                                       .build();
+        }
+        Object orderCount = row.get("order_count");
+        Object subsidy = row.get("subsidy_amount");
+        return CouponUsageStatsResp
+                .builder()
+                .orderCount(orderCount == null ? 0L : ((Number) orderCount).longValue())
+                .subsidyAmount(subsidy == null ? BigDecimal.ZERO : new BigDecimal(subsidy.toString()))
+                .build();
     }
 }

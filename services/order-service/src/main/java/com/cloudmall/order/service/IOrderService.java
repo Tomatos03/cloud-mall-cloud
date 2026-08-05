@@ -2,15 +2,15 @@ package com.cloudmall.order.service;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
 
+import com.cloudmall.order.api.response.CouponUsageStatsResp;
 import com.cloudmall.order.api.response.OrderResp;
 import com.cloudmall.order.api.response.OrderSubResp;
 import com.cloudmall.order.model.req.OrderPageReq;
 import com.cloudmall.order.model.req.OrderSubPageReq;
-
 /**
  * 订单查询服务
  * <p>
- * 负责父/子订单的本地查询与响应组装；涉及远程调用的下单与预览流程由
+ * 负责父/子订单的本地查询与响应组装，以及订单优惠使用统计；涉及远程调用的下单与预览流程由
  * {@link com.cloudmall.order.application.OrderApp} 编排。
  *
  * @author : Tomatos
@@ -42,4 +42,19 @@ public interface IOrderService {
      * @return 子订单分页
      */
     IPage<OrderSubResp> pageMerchant(OrderSubPageReq req);
+
+    /**
+     * 查询指定模板的使用订单数与补贴金额。
+     *
+     * @param couponId 模板 ID
+     * @return 使用统计
+     */
+    CouponUsageStatsResp usageByCoupon(Long couponId);
+
+    /**
+     * 查询全局使用订单数与补贴金额。
+     *
+     * @return 使用统计
+     */
+    CouponUsageStatsResp usageOverview();
 }

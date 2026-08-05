@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.cloudmall.common.model.Result;
 import com.cloudmall.order.api.response.CouponUsageStatsResp;
-import com.cloudmall.order.service.IOrderStatsService;
+import com.cloudmall.order.service.IOrderService;
 
 /**
  * 订单优惠统计内部接口
@@ -22,7 +22,7 @@ import com.cloudmall.order.service.IOrderStatsService;
 @RequestMapping("/internal/order-stats")
 public class OrderStatsController {
 
-    private final IOrderStatsService orderStatsService;
+    private final IOrderService orderStatsService;
 
     /**
      * 查询指定模板的使用订单数与补贴金额。
