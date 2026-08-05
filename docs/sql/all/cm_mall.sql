@@ -659,7 +659,7 @@ CREATE TABLE IF NOT EXISTS cm_order_outbox (
 CREATE TABLE IF NOT EXISTS cm_message_consume_record (
     id             bigint       NOT NULL AUTO_INCREMENT comment '消费记录ID',
     event_id       varchar(64)  NOT NULL comment '事件ID',
-    consumer       varchar(50)  NOT NULL comment '消费者(如coupon-service)',
+    consumer       varchar(50)  NOT NULL comment '消费者(如consumer-service)',
     operation_type varchar(30)  NOT NULL comment '消费操作类型',
     status         varchar(20)  NOT NULL DEFAULT 'CONSUMED' comment '消费状态(CONSUMED=已消费 DEAD=死信)',
     retry_count    int          NOT NULL DEFAULT 0 comment '重试次数',

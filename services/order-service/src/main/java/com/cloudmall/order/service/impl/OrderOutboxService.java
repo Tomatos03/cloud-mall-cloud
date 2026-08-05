@@ -10,14 +10,15 @@ import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.rocketmq.spring.core.RocketMQTemplate;
 import org.springframework.stereotype.Service;
 
 import com.cloudmall.order.api.event.OrderEvent;
+import com.cloudmall.order.api.event.OrderTagEnum;
 import com.cloudmall.order.entity.OrderOutboxDO;
 import com.cloudmall.order.enums.OutboxPublishStatusEnum;
 import com.cloudmall.order.mapper.OrderOutboxMapper;
 import com.cloudmall.order.service.IOrderOutboxService;
+import com.cloudmall.rocketmq.producer.MQProducer;
 
 /**
  * 订单服务 Outbox 服务实现
@@ -42,18 +43,18 @@ public class OrderOutboxService implements IOrderOutboxService {
     private static final int RETRY_BASE_SECONDS = 30;
 
     private final OrderOutboxMapper orderOutboxMapper;
-    private final RocketMQTemplate rocketMQTemplate;
+    private final MQProducer mqProducer;
 
     /**
      * 追加订单事件（与状态变更同事务）。
      *
      * @param orderNo 父订单号
      * @param userId 用户 ID
-     * @param eventType 事件类型（如 OrderPaid）
+     * @param eventType 事件类型
      * @param refundId 退款单 ID（退款事件）
      */
     @Override
-    public void appendOrderEvent(String orderNo, Long userId, String eventType, String refundId) {
+    public void appendOrderEvent(String orderNo, Long userId, OrderTagEnum eventType, String refundId) {
         String eventId = UUID.randomUUID()
                              .toString()
                              .replace("-", "");
@@ -67,7 +68,7 @@ public class OrderOutboxService implements IOrderOutboxService {
                                             .eventId(eventId)
                                             .aggregateType("ORDER")
                                             .aggregateId(orderNo)
-                                            .eventType(eventType)
+                                            .eventType(eventType.getTag())
                                             .payload(JSONUtil.toJsonStr(event))
                                             .publishStatus(OutboxPublishStatusEnum.PENDING)
                                             .retryCount(0)
@@ -122,7 +123,7 @@ public class OrderOutboxService implements IOrderOutboxService {
     private void publishOne(OrderOutboxDO outbox) {
         try {
             OrderEvent event = JSONUtil.toBean(JSONUtil.parseObj(outbox.getPayload()), OrderEvent.class);
-            rocketMQTemplate.syncSend(ORDER_EVENTS_TOPIC + ":" + outbox.getEventType(), event);
+            mqProducer.sendSync(ORDER_EVENTS_TOPIC, outbox.getEventType(), event);
             markPublished(outbox);
         } catch (Exception e) {
             log.warn("Outbox 发布失败 eventId={}", outbox.getEventId(), e);

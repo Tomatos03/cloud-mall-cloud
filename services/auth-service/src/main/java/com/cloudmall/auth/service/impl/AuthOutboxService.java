@@ -10,7 +10,6 @@ import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.rocketmq.spring.core.RocketMQTemplate;
 import org.springframework.stereotype.Service;
 
 import com.cloudmall.auth.api.event.UserRegisteredEvent;
@@ -18,6 +17,7 @@ import com.cloudmall.auth.entity.OutboxDO;
 import com.cloudmall.auth.enums.OutboxPublishStatusEnum;
 import com.cloudmall.auth.mapper.OutboxMapper;
 import com.cloudmall.auth.service.IAuthOutboxService;
+import com.cloudmall.rocketmq.producer.MQProducer;
 
 /**
  * 认证服务 Outbox 服务实现
@@ -42,7 +42,7 @@ public class AuthOutboxService implements IAuthOutboxService {
     private static final int RETRY_BASE_SECONDS = 30;
 
     private final OutboxMapper outboxMapper;
-    private final RocketMQTemplate rocketMQTemplate;
+    private final MQProducer mqProducer;
 
     /**
      * 追加用户注册事件（与注册事务同提交）。
@@ -122,7 +122,7 @@ public class AuthOutboxService implements IAuthOutboxService {
                     JSONUtil.parseObj(outbox.getPayload()),
                     UserRegisteredEvent.class
             );
-            rocketMQTemplate.syncSend(USER_REGISTERED_TOPIC, event);
+            mqProducer.sendSync(USER_REGISTERED_TOPIC, event);
             markPublished(outbox);
         } catch (Exception e) {
             log.warn("Outbox 发布失败 eventId={}", outbox.getEventId(), e);

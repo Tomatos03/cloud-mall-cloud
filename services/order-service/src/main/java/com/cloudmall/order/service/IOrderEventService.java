@@ -5,22 +5,12 @@ package com.cloudmall.order.service;
  * <p>
  * 处理支付成功、超时、取消、全额退款等生命周期事件（本阶段为模拟入口），
  * 状态迁移与事件 Outbox 写入在同一本地事务提交。
+ * <p>
+ * 事件类型复用 {@link com.cloudmall.order.api.event.OrderTagEnum} 作为 RocketMQ Tag。
  *
  * @author : Tomatos
  */
 public interface IOrderEventService {
-
-    /** 支付成功事件 */
-    String EVENT_PAID = "OrderPaid";
-
-    /** 超时关闭事件 */
-    String EVENT_TIMEOUT = "OrderTimeout";
-
-    /** 取消事件 */
-    String EVENT_CANCELLED = "OrderCancelled";
-
-    /** 全额退款事件 */
-    String EVENT_FULLY_REFUNDED = "OrderFullyRefunded";
 
     /**
      * 支付成功：PENDING_PAYMENT → PAID。

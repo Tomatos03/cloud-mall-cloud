@@ -7,6 +7,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.cloudmall.common.enums.BizError;
 import com.cloudmall.common.utils.Asserts;
+import com.cloudmall.order.api.event.OrderTagEnum;
 import com.cloudmall.order.entity.OrderDO;
 import com.cloudmall.order.enums.ParentOrderStatusEnum;
 import com.cloudmall.order.mapper.OrderMapper;
@@ -45,7 +46,7 @@ public class OrderEventService implements IOrderEventService {
                 ParentOrderStatusEnum.PENDING_PAYMENT,
                 ParentOrderStatusEnum.PAID
         );
-        orderOutboxService.appendOrderEvent(orderNo, order.getUserId(), EVENT_PAID, null);
+        orderOutboxService.appendOrderEvent(orderNo, order.getUserId(), OrderTagEnum.PAID, null);
     }
 
     /**
@@ -62,7 +63,7 @@ public class OrderEventService implements IOrderEventService {
                 ParentOrderStatusEnum.PENDING_PAYMENT,
                 ParentOrderStatusEnum.TIMEOUT
         );
-        orderOutboxService.appendOrderEvent(orderNo, order.getUserId(), EVENT_TIMEOUT, null);
+        orderOutboxService.appendOrderEvent(orderNo, order.getUserId(), OrderTagEnum.TIMEOUT, null);
     }
 
     /**
@@ -85,7 +86,7 @@ public class OrderEventService implements IOrderEventService {
                         )
         );
         Asserts.isTrue(updated > 0, BizError.INVALID_ORDER_STATUS);
-        orderOutboxService.appendOrderEvent(orderNo, order.getUserId(), EVENT_CANCELLED, null);
+        orderOutboxService.appendOrderEvent(orderNo, order.getUserId(), OrderTagEnum.CANCELLED, null);
     }
 
     /**
@@ -110,7 +111,8 @@ public class OrderEventService implements IOrderEventService {
                         )
         );
         Asserts.isTrue(updated > 0, BizError.INVALID_ORDER_STATUS);
-        orderOutboxService.appendOrderEvent(orderNo, order.getUserId(), EVENT_FULLY_REFUNDED, refundId);
+        OrderTagEnum eventType = OrderTagEnum.FULLY_REFUNDED;
+        orderOutboxService.appendOrderEvent(orderNo, order.getUserId(), eventType, refundId);
     }
 
     /**

@@ -1,5 +1,7 @@
 package com.cloudmall.order.service;
 
+import com.cloudmall.order.api.event.OrderTagEnum;
+
 /**
  * 订单服务 Outbox 服务
  * <p>
@@ -14,10 +16,10 @@ public interface IOrderOutboxService {
      *
      * @param orderNo 父订单号
      * @param userId 用户 ID
-     * @param eventType 事件类型（如 OrderPaid）
+     * @param eventType 事件类型
      * @param refundId 退款单 ID（退款事件）
      */
-    void appendOrderEvent(String orderNo, Long userId, String eventType, String refundId);
+    void appendOrderEvent(String orderNo, Long userId, OrderTagEnum eventType, String refundId);
 
     /**
      * 发布一批待发布事件，更新发布状态。

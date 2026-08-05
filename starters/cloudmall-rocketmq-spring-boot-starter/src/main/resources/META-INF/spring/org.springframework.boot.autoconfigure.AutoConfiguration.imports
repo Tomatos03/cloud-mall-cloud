@@ -1,1 +1,1 @@
-com.cloudmall.rocketmq.autoconfigure.RocketMqAutoConfiguration
+com.cloudmall.rocketmq.autoconfigure.MqAutoConfiguration
