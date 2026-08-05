@@ -1,0 +1,6 @@
+mybatis-plus:
+  type-aliases-package: com.cloudmall.im.entity
+
+logging:
+  level:
+    com.cloudmall.im: debug

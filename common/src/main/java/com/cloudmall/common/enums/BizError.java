@@ -152,11 +152,12 @@ public enum BizError {
     // 资源相关错误码 (85xxx)
     INVALID_RESOURCE_TYPE(85000, "无效的资源类型"),
 
-    // 消息相关错误码 (91xxx)
-    INVALID_MESSAGE_STATUS(91000, "无效的消息状态"),
-    INVALID_MESSAGE_TYPE(91001, "无效的消息类型"),
-    CONVERSATION_NOT_EXIST(91002, "会话不存在"),
-    MESSAGE_CONTENT_EMPTY(91003, "消息内容不能为空"),
+    // IM 聊天相关错误码 (94xxx)
+    INVALID_MESSAGE_STATUS(94000, "无效的消息状态"),
+    INVALID_MESSAGE_TYPE(94001, "无效的消息类型"),
+    CONVERSATION_NOT_EXIST(94002, "会话不存在"),
+    MESSAGE_CONTENT_EMPTY(94003, "消息内容不能为空"),
+    CONVERSATION_NOT_MEMBER(94005, "无权访问该会话"),
 
     // 审核相关错误码 (90xxx)
     AUDIT_SUBMIT_PARAMS_INCOMPLETE(90000, "审核申请参数不完整"),
@@ -249,8 +250,8 @@ public enum BizError {
     COUPON_OPERATION_NOT_ALLOWED(93115, "当前角色或状态不允许操作"),
     COUPON_RULE_INVALID(93116, "优惠券规则配置无效"),
 
-    // AI Agent 相关错误码 (91xxx)
-    SESSION_NOT_FOUND(91004, "会话不存在或已经过期");
+    // AI Agent 相关错误码 (9101x)
+    SESSION_NOT_FOUND(91010, "会话不存在或已经过期");
     final int code;
     final String errorMessage;
     final HttpStatus httpStatus;

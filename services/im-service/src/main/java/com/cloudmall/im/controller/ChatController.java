@@ -11,67 +11,89 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.cloudmall.common.context.UserContextHolder;
 import com.cloudmall.common.model.Result;
-import com.cloudmall.im.common.entity.PageParamsDTO;
-import com.cloudmall.im.model.chat.application.IChatAppService;
-import com.cloudmall.im.model.chat.dto.CreateSessionResult;
-import com.cloudmall.im.model.chat.dto.IMPageParamsDTO;
-import com.cloudmall.im.model.chat.service.IChatMessageService;
-import com.cloudmall.im.model.chat.vo.ChatSessionVO;
-import com.cloudmall.im.model.chat.vo.MessageVO;
+import com.cloudmall.im.application.IChatAppService;
+import com.cloudmall.im.model.req.MessagePageReq;
+import com.cloudmall.im.model.req.SessionPageReq;
+import com.cloudmall.im.model.resp.ChatSessionResp;
+import com.cloudmall.im.model.resp.CreateSessionResp;
+import com.cloudmall.im.model.resp.MessageResp;
 
 /**
  * 聊天控制器
  *
  * @author : Tomatos
- * @date : 2026/02/02
+ * @date : 2026/8
  */
 @RestController
 @RequestMapping("/chat")
 @RequiredArgsConstructor
 public class ChatController {
-    private final IChatMessageService chatMessageService;
+
     private final IChatAppService chatAppService;
 
-    @PostMapping("/session/create")
-    public Result<CreateSessionResult> createChatSession(
+    /**
+     * 创建买家与商家的会话（已存在则复用）。
+     *
+     * @param storeId 店铺ID
+     * @return 会话ID
+     */
+    @PostMapping("/sessions")
+    public Result<CreateSessionResp> createChatSession(
             @RequestParam
             Long storeId
     ) {
-        return Result.success(chatAppService.createChatSession(storeId));
+        return Result.success(chatAppService.createChatSession(UserContextHolder.getUserId(), storeId));
     }
 
     /**
-     * 获取当前用户的所有会话列表
+     * 获取当前用户的会话列表。
+     *
+     * @param req 分页请求
+     * @return 会话分页数据
      */
     @GetMapping("/sessions")
-    public Result<IPage<ChatSessionVO>> queryChatSession(
+    public Result<IPage<ChatSessionResp>> queryChatSession(
             @Valid
-            PageParamsDTO pageParams
+            SessionPageReq req
     ) {
-        return Result.success(chatAppService.pageChatSession(pageParams));
+        return Result.success(chatAppService.pageChatSession(UserContextHolder.getUserId(), req));
     }
 
     /**
-     * 获取指定会话的消息历史
+     * 获取指定会话的消息历史（第 1 页为最新一页）。
+     *
+     * @param sessionId 会话ID
+     * @param req 分页请求
+     * @return 消息分页数据
      */
-    @GetMapping("/history")
-    public Result<IPage<MessageVO>> getMessageHistory(
+    @GetMapping("/sessions/{sessionId}/messages")
+    public Result<IPage<MessageResp>> getMessageHistory(
+            @PathVariable
+            Long sessionId,
             @Valid
-            IMPageParamsDTO params
+            SessionPageReq req
     ) {
-        return Result.success(chatMessageService.pageMessageHistory(params));
+        MessagePageReq messageReq = new MessagePageReq();
+        messageReq.setSessionId(sessionId);
+        messageReq.setPage(req.getPage());
+        messageReq.setPageSize(req.getPageSize());
+        return Result.success(chatAppService.pageMessageHistory(UserContextHolder.getUserId(), messageReq));
     }
 
     /**
-     * 标记会话为已读
+     * 标记会话为已读。
+     *
+     * @param sessionId 会话ID
+     * @return 处理结果
      */
-    @PutMapping("/read/{sessionId}")
+    @PutMapping("/sessions/{sessionId}/read")
     public Result<Void> markAsRead(
             @PathVariable
             Long sessionId
     ) {
-        chatAppService.markReadForChatSession(sessionId);
-        return Result.success(null);
+        chatAppService.markReadForChatSession(UserContextHolder.getUserId(), sessionId);
+        return Result.success();
     }
 }

@@ -1,41 +1,91 @@
 package com.cloudmall.im.handler;
 
+import java.time.Duration;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Component;
 import org.springframework.web.socket.WebSocketSession;
 
 /**
- * WebSocket会话管理器
+ * WebSocket 会话管理器
+ * <p>
+ * 在线状态存储在 Redis（key: {@code im:online:{userId}}），
+ * 实际的 {@link WebSocketSession} 连接对象仍保存在本地 JVM 内存
+ * （Redis 无法序列化连接对象）。
+ * <p>
+ * 多实例部署时：在线状态跨实例可见，但消息投递仍需要连接所在的实例
+ * 持有会话对象；当前为单实例部署，本地查询即可命中。
  *
  * @author : Tomatos
- * @date : 2026/02/02
+ * @date : 2026/8
  */
 @Slf4j
 @Component
+@RequiredArgsConstructor
 public class WebSocketSessionManager {
+
+    private static final String ONLINE_KEY_PREFIX = "im:online:";
+    private static final Duration ONLINE_TTL = Duration.ofHours(24);
+
+    /** 用户 ID 与本地连接对象的映射（连接对象不可序列化，只能存内存） */
+    private final Map<Long, WebSocketSession> localSessions = new ConcurrentHashMap<>();
+
+    private final StringRedisTemplate stringRedisTemplate;
+
     /**
-     * 存储用户ID与WebSocketSession的映射
+     * 添加用户连接，并写入 Redis 在线状态。
+     *
+     * @param userId 用户ID
+     * @param session WebSocket 会话
      */
-    private static final Map<Long, WebSocketSession> userSessions = new ConcurrentHashMap<>();
-
     public void addSession(Long userId, WebSocketSession session) {
-        userSessions.put(userId, session);
-        log.info("用户 {} 已连接 WebSocket", userId);
+        localSessions.put(userId, session);
+        stringRedisTemplate.opsForValue().set(onlineKey(userId), session.getId(), ONLINE_TTL);
+        log.info("用户 {} 已连接 WebSocket，sessionId: {}，已写入 Redis 在线状态", userId, session.getId());
     }
 
+    /**
+     * 移除用户连接，并清除 Redis 在线状态。
+     *
+     * @param userId 用户ID
+     */
     public void removeSession(Long userId) {
-        userSessions.remove(userId);
-        log.info("用户 {} 已断开 WebSocket", userId);
+        localSessions.remove(userId);
+        stringRedisTemplate.delete(onlineKey(userId));
+        log.info("用户 {} 已断开 WebSocket，已清除 Redis 在线状态", userId);
     }
 
-    public boolean isOnline(Long userId, WebSocketSession session) {
-        return userSessions.containsKey(userId);
+    /**
+     * 用户是否在线（基于 Redis，跨实例可见）。
+     *
+     * @param userId 用户ID
+     * @return true 表示在线
+     */
+    public boolean isOnline(Long userId) {
+        return Boolean.TRUE.equals(stringRedisTemplate.hasKey(onlineKey(userId)));
     }
 
+    /**
+     * 获取用户在本实例上的 WebSocket 会话。
+     *
+     * @param userId 用户ID
+     * @return WebSocket 会话，本实例不存在时返回 null
+     */
     public WebSocketSession getSession(Long userId) {
-        return userSessions.get(userId);
+        return localSessions.get(userId);
+    }
+
+    /**
+     * 构建在线状态 Redis key。
+     *
+     * @param userId 用户ID
+     * @return Redis key
+     */
+    private static String onlineKey(Long userId) {
+        return ONLINE_KEY_PREFIX + userId;
     }
 }

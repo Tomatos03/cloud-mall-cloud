@@ -756,3 +756,33 @@ CREATE TABLE IF NOT EXISTS cm_chat_session (
     UNIQUE KEY uk_session_id (session_id),
     KEY idx_user_id (user_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 comment 'AI聊天会话表';
+
+-- ============================================================
+-- IM 模块 (im) —— 买家与商家实时聊天
+-- ============================================================
+
+CREATE TABLE IF NOT EXISTS cm_im_session (
+    id          bigint       NOT NULL AUTO_INCREMENT comment '会话ID',
+    buyer_id    bigint       NOT NULL comment '买家用户ID',
+    agent_id    bigint       NOT NULL comment '商家用户ID',
+    create_time datetime     DEFAULT NULL comment '创建时间',
+    update_time datetime     DEFAULT NULL comment '更新时间',
+    deleted     tinyint(1)   DEFAULT '0' comment '是否删除(0=否 1=是)',
+    PRIMARY KEY (id),
+    UNIQUE KEY uk_buyer_agent (buyer_id, agent_id),
+    KEY idx_agent_id (agent_id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 comment '买家商家聊天会话表';
+
+CREATE TABLE IF NOT EXISTS cm_im_message (
+    id          bigint       NOT NULL AUTO_INCREMENT comment '消息ID',
+    session_id  bigint       NOT NULL comment '会话ID',
+    sender_id   bigint       NOT NULL comment '发送者用户ID',
+    content     varchar(2000) NOT NULL comment '消息内容（文本或图片URL）',
+    type        varchar(20)  NOT NULL DEFAULT 'text' comment '消息类型(text/image)',
+    is_read     tinyint(1)   DEFAULT '0' comment '是否已读(0=否 1=是)',
+    create_time datetime     DEFAULT NULL comment '创建时间',
+    deleted     tinyint(1)   DEFAULT '0' comment '是否删除(0=否 1=是)',
+    PRIMARY KEY (id),
+    KEY idx_session_id (session_id),
+    KEY idx_sender_id (sender_id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 comment '买家商家聊天消息表';
