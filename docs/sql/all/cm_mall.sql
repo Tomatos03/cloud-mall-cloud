@@ -655,6 +655,27 @@ CREATE TABLE IF NOT EXISTS cm_order_outbox (
     KEY idx_next_retry_time (next_retry_time)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 comment 'order-service 本地 Outbox 表';
 
+-- product-service 本地 Outbox（商品创建/更新/删除事件）
+CREATE TABLE IF NOT EXISTS cm_product_outbox (
+    id             bigint       NOT NULL AUTO_INCREMENT comment 'Outbox记录ID',
+    event_id       varchar(64)  NOT NULL comment '事件ID',
+    aggregate_type varchar(50)  NOT NULL comment '聚合类型(如PRODUCT)',
+    aggregate_id   varchar(64)  NOT NULL comment '聚合ID(如商品ID)',
+    event_type     varchar(50)  NOT NULL comment '事件类型(如ProductCreated)',
+    payload        json         NOT NULL comment '事件负载',
+    publish_status varchar(20)  NOT NULL DEFAULT 'PENDING' comment '发布状态(PENDING=待发布 PUBLISHED=已发布 DEAD=死信)',
+    retry_count    int          NOT NULL DEFAULT 0 comment '重试次数',
+    next_retry_time datetime    DEFAULT NULL comment '下次重试时间',
+    publish_time   datetime     DEFAULT NULL comment '发布时间',
+    last_error     varchar(500) DEFAULT NULL comment '最后错误信息',
+    create_time    datetime     DEFAULT NULL comment '创建时间',
+    update_time    datetime     DEFAULT NULL comment '更新时间',
+    PRIMARY KEY (id),
+    UNIQUE KEY uk_event_id (event_id),
+    KEY idx_publish_status (publish_status),
+    KEY idx_next_retry_time (next_retry_time)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 comment 'product-service 本地 Outbox 表';
+
 -- 消息消费幂等记录（event_id + consumer + operation_type 唯一约束）
 CREATE TABLE IF NOT EXISTS cm_message_consume_record (
     id             bigint       NOT NULL AUTO_INCREMENT comment '消费记录ID',

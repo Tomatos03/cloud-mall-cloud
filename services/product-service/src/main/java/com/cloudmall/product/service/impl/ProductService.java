@@ -26,6 +26,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.cloudmall.common.enums.BizError;
 import com.cloudmall.common.exception.BizException;
 import com.cloudmall.common.utils.Asserts;
+import com.cloudmall.product.api.event.ProductTagEnum;
 import com.cloudmall.product.api.model.ImageItem;
 import com.cloudmall.product.api.model.SkuItem;
 import com.cloudmall.product.api.model.SpecGroupItem;
@@ -61,6 +62,7 @@ import com.cloudmall.product.mapper.ProductSpecValueMapper;
 import com.cloudmall.product.model.ProductSkuPrice;
 import com.cloudmall.product.model.req.ProductGetReq;
 import com.cloudmall.product.service.IProductImageService;
+import com.cloudmall.product.service.IProductOutboxService;
 import com.cloudmall.product.service.IProductService;
 import com.cloudmall.product.service.IProductSpecService;
 
@@ -90,6 +92,7 @@ public class ProductService implements IProductService {
     private final ImageConverter imageConverter;
     private final IProductSpecService productSpecService;
     private final IProductImageService productImageService;
+    private final IProductOutboxService productOutboxService;
 
     /**
      * 获取相关数据。
@@ -255,6 +258,11 @@ public class ProductService implements IProductService {
         ProductDO productDO = saveProductWithImages(req, shopId);
         List<List<Long>> specValueIds = saveSpecs(productDO.getId(), req.getSpecGroups());
         saveSkus(productDO.getId(), req, specValueIds);
+        productOutboxService.appendProductEvent(
+                productDO.getId(),
+                productDO.getSpuCode(),
+                ProductTagEnum.CREATED
+        );
         return productDO.getId();
     }
 

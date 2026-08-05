@@ -1,2 +1,15 @@
 mybatis-plus:
   type-aliases-package: com.cloudmall.product.entity
+
+xxl:
+  job:
+    executor:
+      app-name: product-service
+      port: 9994
+    auto-register:
+      enabled: true
+      jobs:
+        - handler: productOutboxPublish
+          desc: 商品Outbox事件发布
+          schedule-type: FIX_DELAY
+          schedule-conf: "5"
