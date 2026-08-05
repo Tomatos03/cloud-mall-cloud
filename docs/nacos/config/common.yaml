@@ -30,7 +30,7 @@ xxl:
       addresses: http://localhost:8088
       # 自动注册任务时登录调度中心的账号（开发默认值，生产用环境变量覆盖）
       username: admin
-      password: "123456"
+      password: "zjlljz"
     # 执行器与调度中心通信令牌，必须与 compose 中 xxl-job-admin 的 PARAMS 一致
     access-token: cloudmall-xxl-job
     executor:
@@ -38,3 +38,9 @@ xxl:
       ip: host.docker.internal
       log-path: /tmp/xxl-job/jobhandler
       log-retention-days: 30
+
+cloudmall:
+  outbox:
+    # Outbox 发布单批上限与已发布记录保留天数，服务级可覆盖
+    batch-size: 100
+    retention-days: 7

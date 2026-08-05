@@ -39,11 +39,9 @@ public class CouponLockExpireJobHandler {
 
     /**
      * 周期释放锁定过期的用户券。
-     *
-     * @param param 任务参数（未使用）
      */
     @XxlJob("couponLockExpire")
-    public void releaseExpiredLocks(String param) {
+    public void releaseExpiredLocks() {
         long pageNo = 1;
         List<UserCouponDO> expired;
         do {

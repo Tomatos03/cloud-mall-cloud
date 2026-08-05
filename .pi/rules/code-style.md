@@ -91,6 +91,50 @@ List<ProductSkuSpecDO> specs = productSkuSpecMapper.selectList(
 );
 ```
 
+### Mapper 方法禁止注解脚本 SQL
+
+Mapper 方法一律定义为 `default` 方法并用 `Wrappers.lambdaQuery()` / `Wrappers.lambdaUpdate()` 构建，**禁止在接口上书写任何手动定义 SQL 的注解**。
+
+禁止清单（含其 XML `<script>` 等价写法）：
+
+| 分类 | 禁止注解 |
+|------|----------|
+| 脚本 SQL | `@Select`、`@Insert`、`@Update`、`@Delete` |
+| Provider 动态 SQL | `@SelectProvider`、`@InsertProvider`、`@UpdateProvider`、`@DeleteProvider` |
+| 脚本注解内嵌 | `<script>` / `<foreach>` / `<if>` 等 XML 标签拼在注解字符串中 |
+
+需要逐行计算的 SQL 表达式（如批量自增、按列推导状态）时，使用 `setSql` 片段：
+
+- 纯字面量（不含变量拼接）的 `setSql` 可内联
+- 包含变量拼接的 `setSql` 必须先抽取为方法体内紧邻使用处之上的 `final` 局部变量（与「手写 SQL 常量抽取」一致）
+- 动态值优先用 `set(实体::getXxx, value)` 参数绑定，禁止拼进 `setSql`
+
+```java
+// 必须：default 方法 + Wrapper，setSql 仅承载无法用 DSL 表达的逐行表达式
+default int markFailedBatch(Collection<Long> ids, int maxRetry, int retryBaseSeconds) {
+    if (CollUtil.isEmpty(ids)) {
+        return 0;
+    }
+    final String nextRetryTimeSql = String.format(
+            "next_retry_time = DATE_ADD(NOW(), INTERVAL (retry_count + 1) * %d SECOND)",
+            retryBaseSeconds
+    );
+    return update(
+            Wrappers.<OutboxDO>lambdaUpdate()
+                    .setSql("retry_count = retry_count + 1")
+                    .setSql(nextRetryTimeSql)
+                    .set(OutboxDO::getLastError, lastError)
+                    .in(OutboxDO::getId, ids)
+    );
+}
+```
+
+| 禁止写法 | 必须使用 |
+|----------|----------|
+| `@Select("SELECT ... WHERE ...")` / `@Update("<script>UPDATE ... </script>")` 等一切脚本 SQL | `default` 方法 + `Wrappers.lambdaQuery()/lambdaUpdate()` |
+| `@SelectProvider` / `@UpdateProvider` 等 Provider 动态 SQL | `default` 方法 + `Wrappers`（表达式用 `setSql` 片段） |
+| 变量拼接内联在 `setSql` 参数位 | 先抽为 `final` 局部变量，紧邻使用处 |
+
 ## 查询与转换分离
 
 Service 层中，数据库查询（mapper 调用）与对象转换（converter 调用）必须分步书写，禁止嵌套在同一个表达式中。查询结果先落入具名变量，再做转换，便于阅读、断点调试与结果复用。

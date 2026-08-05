@@ -15,6 +15,7 @@ import org.jspecify.annotations.NonNull;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.cloudmall.auth.api.event.UserRegisteredEvent;
 import com.cloudmall.auth.api.request.RegisterReq;
 import com.cloudmall.auth.api.response.UserInfoResp;
 import com.cloudmall.auth.convert.UserConverter;
@@ -26,13 +27,14 @@ import com.cloudmall.auth.mapper.UserMapper;
 import com.cloudmall.auth.mapper.UserRoleMapper;
 import com.cloudmall.auth.model.req.UserPageReq;
 import com.cloudmall.auth.model.resp.ResourceNodeResp;
-import com.cloudmall.auth.service.IAuthOutboxService;
 import com.cloudmall.auth.service.IUserService;
 import com.cloudmall.common.context.UserContext;
 import com.cloudmall.common.context.UserContextHolder;
 import com.cloudmall.common.enums.BizError;
 import com.cloudmall.common.enums.UserTypeEnum;
 import com.cloudmall.common.utils.Asserts;
+import com.cloudmall.outbox.appender.OutboxAppender;
+import com.cloudmall.outbox.model.OutboxAppendReq;
 
 /**
  * 用户服务实现
@@ -47,10 +49,13 @@ import com.cloudmall.common.utils.Asserts;
 public class UserService implements IUserService {
 
     private final UserMapper userMapper;
-    private final IAuthOutboxService authOutboxService;
+    private final OutboxAppender outboxAppender;
     private final UserRoleMapper userRoleMapper;
     private final ResourceMapper resourceMapper;
     private final UserConverter userConverter;
+
+    /** 用户注册事件 Topic */
+    private static final String USER_REGISTERED_TOPIC = "USER_REGISTERED";
     /**
      * {@inheritDoc}
      */
@@ -67,7 +72,19 @@ public class UserService implements IUserService {
     public Long register(RegisterReq request) {
         Asserts.isFalse(userMapper.existsByUsername(request.getUsername()), BizError.USER_ALREADY_EXISTS);
         UserDO user = addNewUser(request);
-        authOutboxService.appendUserRegistered(user.getId(), user.getUsername());
+        UserRegisteredEvent event = UserRegisteredEvent.builder()
+                                                       .userId(user.getId())
+                                                       .username(user.getUsername())
+                                                       .build();
+        outboxAppender.append(
+                OutboxAppendReq.builder()
+                               .topic(USER_REGISTERED_TOPIC)
+                               .eventType("UserRegistered")
+                               .aggregateType("USER")
+                               .aggregateId(String.valueOf(user.getId()))
+                               .event(event)
+                               .build()
+        );
         return user.getId();
     }
 

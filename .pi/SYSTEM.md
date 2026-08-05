@@ -62,6 +62,8 @@
 | `cloudmall-common-spring-boot-starter` | 公共自动配置（`Result`、`BizException`、`BizError`、`UserContextFilter`） |
 | `cloudmall-mybatis-plus-spring-boot-starter` | MyBatis-Plus 自动配置（MyMetaObjectHandler、SqlLoggingInterceptor） |
 | `cloudmall-jwt-spring-boot-starter` | JWT 令牌生成与验证 |
+| `cloudmall-rocketmq-spring-boot-starter` | RocketMQ 发送/消费模板（MQProducer、AbstractMessageConsumer） |
+| `cloudmall-outbox-spring-boot-starter` | 通用本地消息 Outbox（追加/分发/清理，共用 cm_message_outbox） |
 | `cloudmall-feign-spring-boot-starter` | Feign 拦截器（用户上下文传递） |
 | `cloudmall-context` | 用户上下文（`UserContext`、`UserContextHolder`） |
 | `cloudmall-auth-api` | 认证 & RBAC 权限服务抽象层 |

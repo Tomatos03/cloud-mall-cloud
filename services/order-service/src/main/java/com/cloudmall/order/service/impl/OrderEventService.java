@@ -6,13 +6,15 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.cloudmall.common.enums.BizError;
 import com.cloudmall.common.utils.Asserts;
+import com.cloudmall.order.api.event.OrderEvent;
 import com.cloudmall.order.api.event.OrderTagEnum;
 import com.cloudmall.order.entity.OrderDO;
 import com.cloudmall.order.enums.ParentOrderStatusEnum;
 import com.cloudmall.order.mapper.OrderMapper;
 import com.cloudmall.order.service.IOrderEventService;
-import com.cloudmall.order.service.IOrderOutboxService;
 import com.cloudmall.order.service.IOrderStateMachineService;
+import com.cloudmall.outbox.appender.OutboxAppender;
+import com.cloudmall.outbox.model.OutboxAppendReq;
 
 /**
  * 订单事件服务实现
@@ -29,8 +31,10 @@ public class OrderEventService implements IOrderEventService {
 
     private final OrderMapper orderMapper;
     private final IOrderStateMachineService stateMachine;
-    private final IOrderOutboxService orderOutboxService;
+    private final OutboxAppender outboxAppender;
 
+    /** 订单事件 Topic */
+    private static final String ORDER_EVENTS_TOPIC = "ORDER_EVENTS";
     /**
      * 支付成功：PENDING_PAYMENT → PAID。
      *
@@ -45,7 +49,19 @@ public class OrderEventService implements IOrderEventService {
                 ParentOrderStatusEnum.PENDING_PAYMENT,
                 ParentOrderStatusEnum.PAID
         );
-        orderOutboxService.appendOrderEvent(orderNo, order.getUserId(), OrderTagEnum.PAID, null);
+        OrderEvent event = OrderEvent.builder()
+                                     .orderNo(orderNo)
+                                     .userId(order.getUserId())
+                                     .build();
+        outboxAppender.append(
+                OutboxAppendReq.builder()
+                               .topic(ORDER_EVENTS_TOPIC)
+                               .eventType(OrderTagEnum.PAID.getTag())
+                               .aggregateType("ORDER")
+                               .aggregateId(orderNo)
+                               .event(event)
+                               .build()
+        );
     }
 
     /**
@@ -62,7 +78,19 @@ public class OrderEventService implements IOrderEventService {
                 ParentOrderStatusEnum.PENDING_PAYMENT,
                 ParentOrderStatusEnum.TIMEOUT
         );
-        orderOutboxService.appendOrderEvent(orderNo, order.getUserId(), OrderTagEnum.TIMEOUT, null);
+        OrderEvent event = OrderEvent.builder()
+                                     .orderNo(orderNo)
+                                     .userId(order.getUserId())
+                                     .build();
+        outboxAppender.append(
+                OutboxAppendReq.builder()
+                               .topic(ORDER_EVENTS_TOPIC)
+                               .eventType(OrderTagEnum.TIMEOUT.getTag())
+                               .aggregateType("ORDER")
+                               .aggregateId(orderNo)
+                               .event(event)
+                               .build()
+        );
     }
 
     /**
@@ -76,7 +104,19 @@ public class OrderEventService implements IOrderEventService {
         OrderDO order = requireOrder(orderNo);
         int updated = orderMapper.markCancelled(order.getId(), ParentOrderStatusEnum.CANCELLED);
         Asserts.isTrue(updated > 0, BizError.INVALID_ORDER_STATUS);
-        orderOutboxService.appendOrderEvent(orderNo, order.getUserId(), OrderTagEnum.CANCELLED, null);
+        OrderEvent event = OrderEvent.builder()
+                                     .orderNo(orderNo)
+                                     .userId(order.getUserId())
+                                     .build();
+        outboxAppender.append(
+                OutboxAppendReq.builder()
+                               .topic(ORDER_EVENTS_TOPIC)
+                               .eventType(OrderTagEnum.CANCELLED.getTag())
+                               .aggregateType("ORDER")
+                               .aggregateId(orderNo)
+                               .event(event)
+                               .build()
+        );
     }
 
     /**
@@ -93,7 +133,20 @@ public class OrderEventService implements IOrderEventService {
         int updated = orderMapper.markRefunded(order.getId());
         Asserts.isTrue(updated > 0, BizError.INVALID_ORDER_STATUS);
         OrderTagEnum eventType = OrderTagEnum.FULLY_REFUNDED;
-        orderOutboxService.appendOrderEvent(orderNo, order.getUserId(), eventType, refundId);
+        OrderEvent event = OrderEvent.builder()
+                                     .orderNo(orderNo)
+                                     .userId(order.getUserId())
+                                     .refundId(refundId)
+                                     .build();
+        outboxAppender.append(
+                OutboxAppendReq.builder()
+                               .topic(ORDER_EVENTS_TOPIC)
+                               .eventType(eventType.getTag())
+                               .aggregateType("ORDER")
+                               .aggregateId(orderNo)
+                               .event(event)
+                               .build()
+        );
     }
 
     /**

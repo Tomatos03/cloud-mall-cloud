@@ -9,7 +9,11 @@ xxl:
     auto-register:
       enabled: true
       jobs:
-        - handler: authOutboxPublish
-          desc: 认证Outbox事件发布
+        - handler: outboxPublish
+          desc: Outbox事件发布
           schedule-type: FIX_DELAY
           schedule-conf: "5"
+        - handler: outboxCleanup
+          desc: Outbox已发布记录清理
+          schedule-type: CRON
+          schedule-conf: "0 0 3 * * ?"

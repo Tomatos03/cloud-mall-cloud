@@ -1,4 +1,4 @@
-package com.cloudmall.auth.entity;
+package com.cloudmall.outbox.entity;
 
 import java.time.LocalDateTime;
 
@@ -11,13 +11,13 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import com.cloudmall.auth.enums.OutboxPublishStatusEnum;
+import com.cloudmall.outbox.enums.OutboxPublishStatusEnum;
 
 /**
- * 认证服务本地 Outbox 实体
+ * 通用本地消息 Outbox 实体
  * <p>
- * 记录待发布事件（UserRegistered），业务状态与 Outbox 在同一本地事务提交，
- * 由定时任务发布到 RocketMQ，防止消息丢失。
+ * 所有服务共用的本地消息表（app_name 区分来源），
+ * 业务变更与 Outbox 在同一本地事务提交，由定时任务发布到 RocketMQ。
  *
  * @author : Tomatos
  */
@@ -25,23 +25,29 @@ import com.cloudmall.auth.enums.OutboxPublishStatusEnum;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@TableName("cm_auth_outbox")
+@TableName("cm_message_outbox")
 public class OutboxDO {
 
     /** Outbox 记录 ID */
     @TableId
     private Long id;
 
-    /** 事件 ID */
+    /** 来源服务（spring.application.name） */
+    private String appName;
+
+    /** 事件 ID（全局 UUID，消费端幂等键） */
     private String eventId;
 
-    /** 聚合类型（如 USER） */
+    /** 目标 RocketMQ Topic */
+    private String topic;
+
+    /** 聚合类型（如 ORDER） */
     private String aggregateType;
 
-    /** 聚合 ID（如用户 ID） */
+    /** 聚合 ID（如父订单号） */
     private String aggregateId;
 
-    /** 事件类型（如 UserRegistered） */
+    /** 事件类型（同时作为 RocketMQ tag） */
     private String eventType;
 
     /** 事件负载（JSON） */

@@ -1,9 +1,9 @@
 package com.cloudmall.feign.autoconfigure;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.cloud.openfeign.EnableFeignClients;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
 
 import com.cloudmall.feign.decoder.ResultUnwrappingDecoder;
 import com.cloudmall.feign.interceptor.FeignUserContextInterceptor;
@@ -15,7 +15,7 @@ import com.cloudmall.feign.interceptor.FeignUserContextInterceptor;
  * @author : Tomatos
  * @date : 2026/7/22
  */
-@Configuration
+@AutoConfiguration
 @EnableFeignClients(basePackages = "com.cloudmall")
 public class CloudmallFeignAutoConfiguration {
 

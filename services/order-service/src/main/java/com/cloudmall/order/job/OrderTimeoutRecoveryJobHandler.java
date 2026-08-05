@@ -42,11 +42,9 @@ public class OrderTimeoutRecoveryJobHandler {
 
     /**
      * 周期扫描并恢复创建中超时订单。
-     *
-     * @param param 任务参数（未使用）
      */
     @XxlJob("orderTimeoutRecovery")
-    public void recoverStuckCreatingOrders(String param) {
+    public void recoverStuckCreatingOrders() {
         List<OrderDO> stuck = orderMapper.selectStuckCreatingOrders(
                 ParentOrderStatusEnum.CREATING,
                 LocalDateTime.now().minusMinutes(CREATING_TIMEOUT_MINUTES)

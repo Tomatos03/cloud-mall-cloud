@@ -1,6 +1,7 @@
 package com.cloudmall.rocketmq.producer;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -96,6 +97,24 @@ public class MQProducer {
                                            .setHeader("KEYS", keys)
                                            .build();
         return rocketMQTemplate.syncSend(buildDestination(topic, tag), message);
+    }
+
+    /**
+     * 同步批量发送消息，指定 topic 和 tag。 <p>
+     * 整批一次网络请求，所有消息发往同一 destination（topic:tag）； 发送是原子的，成
+     * 功即整批进入 broker。
+     *
+     * @param topic 主题
+     * @param tag 标签
+     * @param payloads 消息体列表
+     * @param <T> 消息体类型
+     * @return 发送结果
+     */
+    public <T> SendResult sendSyncBatch(String topic, String tag, Collection<T> payloads) {
+        List<Message<T>> messages = payloads.stream()
+                                            .map(payload -> MessageBuilder.withPayload(payload).build())
+                                            .toList();
+        return rocketMQTemplate.syncSend(buildDestination(topic, tag), messages);
     }
 
     /**

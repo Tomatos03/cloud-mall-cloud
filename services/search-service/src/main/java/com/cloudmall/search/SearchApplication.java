@@ -12,8 +12,8 @@ import org.springframework.cloud.openfeign.EnableFeignClients;
  *
  * @author : Tomatos
  */
+@EnableFeignClients
 @SpringBootApplication
-@EnableFeignClients(basePackages = "com.cloudmall.product.api.client")
 public class SearchApplication {
 
     /**

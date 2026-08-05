@@ -24,6 +24,9 @@ import org.springframework.transaction.annotation.Transactional;
 import com.cloudmall.common.enums.BizError;
 import com.cloudmall.common.exception.BizException;
 import com.cloudmall.common.utils.Asserts;
+import com.cloudmall.outbox.appender.OutboxAppender;
+import com.cloudmall.outbox.model.OutboxAppendReq;
+import com.cloudmall.product.api.event.ProductEvent;
 import com.cloudmall.product.api.event.ProductTagEnum;
 import com.cloudmall.product.api.model.ImageItem;
 import com.cloudmall.product.api.model.SkuItem;
@@ -60,7 +63,6 @@ import com.cloudmall.product.mapper.ProductSpecValueMapper;
 import com.cloudmall.product.model.ProductSkuPrice;
 import com.cloudmall.product.model.req.ProductGetReq;
 import com.cloudmall.product.service.IProductImageService;
-import com.cloudmall.product.service.IProductOutboxService;
 import com.cloudmall.product.service.IProductService;
 import com.cloudmall.product.service.IProductSpecService;
 
@@ -90,7 +92,10 @@ public class ProductService implements IProductService {
     private final ImageConverter imageConverter;
     private final IProductSpecService productSpecService;
     private final IProductImageService productImageService;
-    private final IProductOutboxService productOutboxService;
+    private final OutboxAppender outboxAppender;
+
+    /** 商品事件 Topic */
+    private static final String PRODUCT_EVENTS_TOPIC = "PRODUCT_EVENTS";
 
     /**
      * 获取相关数据。
@@ -245,10 +250,18 @@ public class ProductService implements IProductService {
         ProductDO productDO = saveProductWithImages(req, shopId);
         List<List<Long>> specValueIds = saveSpecs(productDO.getId(), req.getSpecGroups());
         saveSkus(productDO.getId(), req, specValueIds);
-        productOutboxService.appendProductEvent(
-                productDO.getId(),
-                productDO.getSpuCode(),
-                ProductTagEnum.CREATED
+        ProductEvent event = ProductEvent.builder()
+                                         .productId(productDO.getId())
+                                         .spuCode(productDO.getSpuCode())
+                                         .build();
+        outboxAppender.append(
+                OutboxAppendReq.builder()
+                               .topic(PRODUCT_EVENTS_TOPIC)
+                               .eventType(ProductTagEnum.CREATED.getTag())
+                               .aggregateType("PRODUCT")
+                               .aggregateId(String.valueOf(productDO.getId()))
+                               .event(event)
+                               .build()
         );
         return productDO.getId();
     }

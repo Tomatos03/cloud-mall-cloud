@@ -16,6 +16,7 @@
         <module>cloudmall-mybatis-plus-spring-boot-starter</module>
         <module>cloudmall-jwt-spring-boot-starter</module>
         <module>cloudmall-rocketmq-spring-boot-starter</module>
+        <module>cloudmall-outbox-spring-boot-starter</module>
         <module>cloudmall-feign-spring-boot-starter</module>
         <module>cloudmall-elasticsearch-spring-boot-starter</module>
         <module>cloudmall-xxl-job-spring-boot-starter</module>
