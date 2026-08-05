@@ -18,6 +18,7 @@ import com.cloudmall.coupon.api.request.CouponReq;
 import com.cloudmall.coupon.api.request.RevokeReq;
 import com.cloudmall.coupon.api.response.CouponResp;
 import com.cloudmall.coupon.api.response.CouponStatsResp;
+import com.cloudmall.coupon.application.CouponTemplateApp;
 import com.cloudmall.coupon.model.req.CouponPageReq;
 import com.cloudmall.coupon.service.ICouponStatsService;
 import com.cloudmall.coupon.service.ICouponTemplateService;
@@ -37,6 +38,7 @@ import com.cloudmall.coupon.service.IUserCouponService;
 public class OperatorCouponController {
 
     private final ICouponTemplateService couponTemplateService;
+    private final CouponTemplateApp couponTemplateApp;
     private final ICouponStatsService couponStatsService;
     private final IUserCouponService userCouponService;
 
@@ -63,7 +65,7 @@ public class OperatorCouponController {
             @Valid
             CouponReq req
     ) {
-        return Result.success(couponTemplateService.createDraft(req));
+        return Result.success(couponTemplateApp.createDraft(req));
     }
 
     /**
@@ -81,7 +83,7 @@ public class OperatorCouponController {
             @Valid
             CouponReq req
     ) {
-        couponTemplateService.updateDraft(id, req);
+        couponTemplateApp.updateDraft(id, req);
         return Result.success();
     }
 

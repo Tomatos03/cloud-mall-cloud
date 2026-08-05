@@ -6,7 +6,6 @@ import java.util.List;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.ObjectUtil;
 import com.baomidou.mybatisplus.core.metadata.IPage;
-import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -34,10 +33,6 @@ import com.cloudmall.coupon.mapper.CouponProductMapper;
 import com.cloudmall.coupon.model.req.CouponOperationLogPageReq;
 import com.cloudmall.coupon.model.req.CouponPageReq;
 import com.cloudmall.coupon.service.ICouponTemplateService;
-import com.cloudmall.product.api.client.CategoryClient;
-import com.cloudmall.product.api.client.ProductClient;
-import com.cloudmall.product.api.response.CategoryResp;
-import com.cloudmall.product.api.response.ProductResp;
 
 /**
  * 优惠券模板领域服务实现。
@@ -55,21 +50,18 @@ public class CouponTemplateService implements ICouponTemplateService {
     private final CouponConverter couponConverter;
     private final CouponOperationLogConverter couponOperationLogConverter;
     private final CouponCacheService couponCacheService;
-    private final ProductClient productClient;
-    private final CategoryClient categoryClient;
 
     /**
      * 创建模板草稿。
      *
      * @param req 创建请求
+     * @param shopId 店铺 ID（平台券为 null）
      * @return 新模板 ID
      */
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public Long createDraft(CouponReq req) {
-        Long shopId = resolveCreateShopId(req);
+    public Long createDraft(CouponReq req, Long shopId) {
         validateRule(req, shopId);
-        validateScope(req, shopId);
 
         CouponDO coupon = couponConverter.toDraft(req);
         couponMapper.insert(coupon);
@@ -90,16 +82,16 @@ public class CouponTemplateService implements ICouponTemplateService {
      *
      * @param id 模板 ID
      * @param req 编辑请求
+     * @param shopId 店铺 ID
      */
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public void updateDraft(Long id, CouponReq req) {
+    public void updateDraft(Long id, CouponReq req, Long shopId) {
         CouponDO coupon = getTemplate(id);
         requireManageable(coupon);
         Asserts.isTrue(coupon.getStatus() == CouponStatusEnum.DRAFT, BizError.COUPON_RULE_FROZEN);
         Asserts.isTrue(req.getOwnerType() == coupon.getOwnerType(), BizError.COUPON_OWNER_INVALID);
-        validateRule(req, coupon.getShopId());
-        validateScope(req, coupon.getShopId());
+        validateRule(req, shopId);
 
         couponConverter.applyUpdate(coupon, req);
         couponMapper.updateById(coupon);
@@ -245,7 +237,7 @@ public class CouponTemplateService implements ICouponTemplateService {
     public IPage<CouponResp> pageShop(CouponPageReq req) {
         Long shopId = Asserts.requireNonNull(UserContextHolder.getShopId(), BizError.MERCHANT_NO_SHOP);
         req.setShopId(shopId);
-        IPage<CouponDO> page = couponMapper.selectPage(req, req.buildLambdaWrapper());
+        IPage<CouponDO> page = couponMapper.selectCouponPage(req);
         return page.convert(couponConverter::toResp);
     }
 
@@ -258,7 +250,7 @@ public class CouponTemplateService implements ICouponTemplateService {
     @Override
     public IPage<CouponResp> pageAll(CouponPageReq req) {
         Asserts.isTrue(UserContextHolder.isAdmin(), BizError.COUPON_OPERATION_NOT_ALLOWED);
-        IPage<CouponDO> page = couponMapper.selectPage(req, req.buildLambdaWrapper());
+        IPage<CouponDO> page = couponMapper.selectCouponPage(req);
         return page.convert(couponConverter::toResp);
     }
 
@@ -271,24 +263,8 @@ public class CouponTemplateService implements ICouponTemplateService {
     @Override
     public IPage<CouponOperationLogResp> pageOperationLogs(CouponOperationLogPageReq req) {
         Asserts.isTrue(UserContextHolder.isAdmin(), BizError.COUPON_OPERATION_NOT_ALLOWED);
-        IPage<CouponOperationLogDO> page = couponOperationLogMapper.selectPage(req, req.buildLambdaWrapper());
+        IPage<CouponOperationLogDO> page = couponOperationLogMapper.selectOperationLogPage(req);
         return page.convert(couponOperationLogConverter::toResp);
-    }
-
-    /**
-     * 解析创建模板的店铺 ID：平台券为 null，商家强制当前店铺，运营按请求指定。
-     *
-     * @param req 创建请求
-     * @return 店铺 ID（平台券为 null）
-     */
-    private Long resolveCreateShopId(CouponReq req) {
-        if (req.isPlatform()) {
-            return null;
-        }
-        if (UserContextHolder.isAdmin()) {
-            return req.getShopId();
-        }
-        return UserContextHolder.getShopId();
     }
 
     /**
@@ -361,35 +337,6 @@ public class CouponTemplateService implements ICouponTemplateService {
     }
 
     /**
-     * 校验适用范围配置（商品/分类存在性，店铺券目标商品必须属于当前店铺）。
-     *
-     * @param req 请求参数
-     * @param shopId 店铺 ID
-     */
-    private void validateScope(CouponReq req, Long shopId) {
-        if (req.isProductScope()) {
-            List<Long> distinct = req.getProductIds()
-                                     .stream()
-                                     .distinct()
-                                     .toList();
-            for (Long productId : distinct) {
-                ProductResp product = callProduct(productId);
-                if (req.isShop()) {
-                    Asserts.isTrue(shopId.equals(product.getShopId()), BizError.COUPON_SCOPE_INVALID);
-                }
-            }
-        } else if (req.isCategoryScope()) {
-            List<Long> distinct = req.getCategoryIds()
-                                     .stream()
-                                     .distinct()
-                                     .toList();
-            for (Long categoryId : distinct) {
-                callCategory(categoryId);
-            }
-        }
-    }
-
-    /**
      * 发布前完整校验：至少开启一种发放方式，范围配置完整。
      *
      * @param coupon 模板
@@ -397,15 +344,15 @@ public class CouponTemplateService implements ICouponTemplateService {
     private void validatePublish(CouponDO coupon) {
         Asserts.isTrue(coupon.isClaimable(), BizError.COUPON_NOT_CLAIMABLE);
         if (coupon.getScopeType() == CouponScopeEnum.PRODUCT) {
-            Long count = couponProductMapper.selectCount(
-                    Wrappers.<CouponProductDO>lambdaQuery().eq(CouponProductDO::getCouponId, coupon.getId())
+            Asserts.isTrue(
+                    couponProductMapper.countByCouponId(coupon.getId()) > 0,
+                    BizError.COUPON_SCOPE_INVALID
             );
-            Asserts.isTrue(count != null && count > 0, BizError.COUPON_SCOPE_INVALID);
         } else if (coupon.getScopeType() == CouponScopeEnum.CATEGORY) {
-            Long count = couponCategoryMapper.selectCount(
-                    Wrappers.<CouponCategoryDO>lambdaQuery().eq(CouponCategoryDO::getCouponId, coupon.getId())
+            Asserts.isTrue(
+                    couponCategoryMapper.countByCouponId(coupon.getId()) > 0,
+                    BizError.COUPON_SCOPE_INVALID
             );
-            Asserts.isTrue(count != null && count > 0, BizError.COUPON_SCOPE_INVALID);
         }
     }
 
@@ -424,9 +371,7 @@ public class CouponTemplateService implements ICouponTemplateService {
             List<Long> categoryIds
     ) {
         if (scopeType == CouponScopeEnum.PRODUCT) {
-            couponProductMapper.delete(
-                    Wrappers.<CouponProductDO>lambdaQuery().eq(CouponProductDO::getCouponId, couponId)
-            );
+            couponProductMapper.deleteByCouponId(couponId);
             List<CouponProductDO> list = productIds
                     .stream()
                     .distinct()
@@ -439,9 +384,7 @@ public class CouponTemplateService implements ICouponTemplateService {
                     .toList();
             couponProductMapper.insert(list);
         } else if (scopeType == CouponScopeEnum.CATEGORY) {
-            couponCategoryMapper.delete(
-                    Wrappers.<CouponCategoryDO>lambdaQuery().eq(CouponCategoryDO::getCouponId, couponId)
-            );
+            couponCategoryMapper.deleteByCouponId(couponId);
             List<CouponCategoryDO> list = categoryIds
                     .stream()
                     .distinct()
@@ -464,12 +407,8 @@ public class CouponTemplateService implements ICouponTemplateService {
      * @param couponId 模板 ID
      */
     private void deleteScope(Long couponId) {
-        couponProductMapper.delete(
-                Wrappers.<CouponProductDO>lambdaQuery().eq(CouponProductDO::getCouponId, couponId)
-        );
-        couponCategoryMapper.delete(
-                Wrappers.<CouponCategoryDO>lambdaQuery().eq(CouponCategoryDO::getCouponId, couponId)
-        );
+        couponProductMapper.deleteByCouponId(couponId);
+        couponCategoryMapper.deleteByCouponId(couponId);
     }
 
     /**
@@ -479,12 +418,7 @@ public class CouponTemplateService implements ICouponTemplateService {
      * @return 商品 ID 列表
      */
     private List<Long> selectProductIds(Long couponId) {
-        List<CouponProductDO> list = couponProductMapper.selectList(
-                Wrappers.<CouponProductDO>lambdaQuery().eq(CouponProductDO::getCouponId, couponId)
-        );
-        return list.stream()
-                   .map(CouponProductDO::getProductId)
-                   .toList();
+        return couponProductMapper.selectIdsByCouponId(couponId);
     }
 
     /**
@@ -494,12 +428,7 @@ public class CouponTemplateService implements ICouponTemplateService {
      * @return 分类 ID 列表
      */
     private List<Long> selectCategoryIds(Long couponId) {
-        List<CouponCategoryDO> list = couponCategoryMapper.selectList(
-                Wrappers.<CouponCategoryDO>lambdaQuery().eq(CouponCategoryDO::getCouponId, couponId)
-        );
-        return list.stream()
-                   .map(CouponCategoryDO::getCategoryId)
-                   .toList();
+        return couponCategoryMapper.selectIdsByCouponId(couponId);
     }
 
     /**
@@ -522,29 +451,6 @@ public class CouponTemplateService implements ICouponTemplateService {
     ) {
         couponOperationLogMapper.insert(
                 couponOperationLogConverter.toLog(coupon, from, to, action, summary, reason)
-        );
-    }
-
-    /**
-     * 调用商品服务校验商品存在性。
-     *
-     * @param productId 商品 ID
-     * @return 商品信息
-     */
-    private ProductResp callProduct(Long productId) {
-        return Asserts.requireNonNull(productClient.getById(productId), BizError.GOODS_NOT_EXIST);
-    }
-
-    /**
-     * 调用商品服务校验分类存在性。
-     *
-     * @param categoryId 分类 ID
-     * @return 分类信息
-     */
-    private CategoryResp callCategory(Long categoryId) {
-        return Asserts.requireNonNull(
-                categoryClient.getById(categoryId),
-                BizError.CATEGORY_NOT_EXIST_OR_NO_ENABLE
         );
     }
 

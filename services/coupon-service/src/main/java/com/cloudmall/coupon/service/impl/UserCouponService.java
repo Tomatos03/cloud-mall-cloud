@@ -4,15 +4,14 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.BooleanUtil;
 import cn.hutool.core.util.ObjectUtil;
 import com.baomidou.mybatisplus.core.metadata.IPage;
-import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Service;
@@ -32,8 +31,6 @@ import com.cloudmall.coupon.convert.UserCouponConverter;
 import com.cloudmall.coupon.convert.UserCouponLogConverter;
 import com.cloudmall.coupon.entity.CouponDO;
 import com.cloudmall.coupon.entity.UserCouponDO;
-import com.cloudmall.coupon.entity.UserCouponLogDO;
-import com.cloudmall.coupon.enums.CouponOwnerEnum;
 import com.cloudmall.coupon.enums.CouponStatusEnum;
 import com.cloudmall.coupon.enums.IssueChannelEnum;
 import com.cloudmall.coupon.enums.IssuedSourceEnum;
@@ -121,23 +118,12 @@ public class UserCouponService implements IUserCouponService {
     public List<UserCouponResp> autoIssueForRegister(Long userId, String eventId) {
         Asserts.notNull(userId, BizError.INVALID_PARAM);
         Asserts.assertNotBlank(eventId, BizError.INVALID_PARAM);
-        List<UserCouponDO> issued = userCouponMapper.selectList(
-                Wrappers.<UserCouponDO>lambdaQuery()
-                        .eq(UserCouponDO::getUserId, userId)
-                        .eq(UserCouponDO::getIssuedEventId, eventId)
-        );
+        List<UserCouponDO> issued = userCouponMapper.selectByUserAndEvent(userId, eventId);
         if (CollUtil.isNotEmpty(issued)) {
             return userCouponConverter.toRespList(issued);
         }
         LocalDateTime now = LocalDateTime.now();
-        List<CouponDO> templates = couponMapper.selectList(
-                Wrappers.<CouponDO>lambdaQuery()
-                        .eq(CouponDO::getStatus, CouponStatusEnum.ACTIVE)
-                        .eq(CouponDO::getOwnerType, CouponOwnerEnum.PLATFORM)
-                        .eq(CouponDO::getIssueChannel, IssueChannelEnum.REGISTER_AUTO)
-                        .le(CouponDO::getIssueStartTime, now)
-                        .ge(CouponDO::getIssueEndTime, now)
-        );
+        List<CouponDO> templates = couponMapper.selectRegisterAutoTemplates(now);
         List<UserCouponResp> result = new ArrayList<>();
         for (CouponDO template : templates) {
             UserCouponDO exist = findClaimed(userId, template.getId());
@@ -170,7 +156,7 @@ public class UserCouponService implements IUserCouponService {
     @Transactional(rollbackFor = Exception.class)
     public IPage<UserCouponResp> pageMine(Long userId, UserCouponPageReq req) {
         expireOverdueByUser(userId);
-        IPage<UserCouponDO> result = userCouponMapper.selectPage(req, req.buildLambdaWrapper());
+        IPage<UserCouponDO> result = userCouponMapper.selectUserCouponPage(req);
         return result.convert(userCouponConverter::toResp);
     }
 
@@ -184,7 +170,7 @@ public class UserCouponService implements IUserCouponService {
     @Override
     public IPage<CouponResp> pagePublic(Long userId, CouponPageReq req) {
         req.setIssueChannel(IssueChannelEnum.PUBLIC_CLAIM);
-        IPage<CouponDO> page = couponMapper.selectPage(req, req.buildLambdaWrapper());
+        IPage<CouponDO> page = couponMapper.selectCouponPage(req);
         IPage<CouponResp> result = page.convert(couponConverter::toResp);
         enrichPublicClaimState(result.getRecords(), userId);
         return result;
@@ -215,11 +201,7 @@ public class UserCouponService implements IUserCouponService {
     public List<CouponResp> listPublicCoupons(Long userId) {
         List<CouponResp> anonymous = couponCacheService.getPublicTemplates();
         if (anonymous == null) {
-            List<CouponDO> templates = couponMapper.selectList(
-                    Wrappers.<CouponDO>lambdaQuery()
-                            .eq(CouponDO::getIssueChannel, IssueChannelEnum.PUBLIC_CLAIM)
-                            .orderByAsc(CouponDO::getId)
-            );
+            List<CouponDO> templates = couponMapper.selectPublicClaimTemplates();
             anonymous = toPublicResps(templates, null);
             couponCacheService.putPublicTemplates(anonymous);
         }
@@ -281,14 +263,7 @@ public class UserCouponService implements IUserCouponService {
         if (CollUtil.isEmpty(couponIds)) {
             return Collections.emptySet();
         }
-        List<UserCouponDO> list = userCouponMapper.selectList(
-                Wrappers.<UserCouponDO>lambdaQuery()
-                        .eq(UserCouponDO::getUserId, userId)
-                        .in(UserCouponDO::getCouponId, couponIds)
-        );
-        return list.stream()
-                   .map(UserCouponDO::getCouponId)
-                   .collect(Collectors.toSet());
+        return new HashSet<>(userCouponMapper.selectClaimedCouponIds(userId, couponIds));
     }
 
     /**
@@ -353,11 +328,12 @@ public class UserCouponService implements IUserCouponService {
         UserCouponDO uc = requireOwned(userId, userCouponId);
         int affected = userCouponMapper.commitIfLockedByOrder(userCouponId, userId, orderNo);
         if (affected == 0) {
-            UserCouponDO fresh = userCouponMapper.selectById(userCouponId);
-            if (fresh != null && fresh.getStatus() == UserCouponStatusEnum.USED) {
-                return;
-            }
-            throw new BizException(BizError.USER_COUPON_STATE_CONFLICT);
+            UserCouponDO fresh = Asserts.requireNonNull(
+                    userCouponMapper.selectById(userCouponId),
+                    BizError.USER_COUPON_NOT_FOUND
+            );
+            Asserts.isTrue(fresh.isUsed(), BizError.USER_COUPON_STATE_CONFLICT);
+            return;
         }
         appendLog(
                 uc,
@@ -397,13 +373,10 @@ public class UserCouponService implements IUserCouponService {
                     userCouponMapper.selectById(userCouponId),
                     BizError.USER_COUPON_NOT_FOUND
             );
-            if (fresh.getStatus() == UserCouponStatusEnum.USED) {
+            if (fresh.isUsed()) {
                 return;
             }
-            if (fresh.getStatus() == UserCouponStatusEnum.LOCKED) {
-                throw new BizException(BizError.USER_COUPON_STATE_CONFLICT);
-            }
-            return;
+            Asserts.isFalse(fresh.isLocked(), BizError.USER_COUPON_STATE_CONFLICT);
         }
         UserCouponDO after = userCouponMapper.selectById(userCouponId);
         appendLog(
@@ -446,10 +419,8 @@ public class UserCouponService implements IUserCouponService {
                     userCouponMapper.selectById(userCouponId),
                     BizError.USER_COUPON_NOT_FOUND
             );
-            if (fresh.isAvailableOrExpired()) {
-                return;
-            }
-            throw new BizException(BizError.USER_COUPON_STATE_CONFLICT);
+            Asserts.isTrue(fresh.isAvailableOrExpired(), BizError.USER_COUPON_STATE_CONFLICT);
+            return;
         }
         UserCouponDO after = userCouponMapper.selectById(userCouponId);
         appendLog(
@@ -477,11 +448,7 @@ public class UserCouponService implements IUserCouponService {
     @Transactional(rollbackFor = Exception.class)
     public int revokeByCoupon(Long couponId, Long operatorId, String reason) {
         Asserts.isTrue(UserContextHolder.isAdmin(), BizError.COUPON_OPERATION_NOT_ALLOWED);
-        List<UserCouponDO> available = userCouponMapper.selectList(
-                Wrappers.<UserCouponDO>lambdaQuery()
-                        .eq(UserCouponDO::getCouponId, couponId)
-                        .eq(UserCouponDO::getStatus, UserCouponStatusEnum.AVAILABLE)
-        );
+        List<UserCouponDO> available = userCouponMapper.selectAvailableByCoupon(couponId);
         if (CollUtil.isEmpty(available)) {
             return 0;
         }
@@ -498,11 +465,7 @@ public class UserCouponService implements IUserCouponService {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public int expireOverdue() {
-        List<UserCouponDO> overdue = userCouponMapper.selectList(
-                Wrappers.<UserCouponDO>lambdaQuery()
-                        .eq(UserCouponDO::getStatus, UserCouponStatusEnum.AVAILABLE)
-                        .lt(UserCouponDO::getExpireTime, LocalDateTime.now())
-        );
+        List<UserCouponDO> overdue = userCouponMapper.selectOverdue(LocalDateTime.now());
         if (CollUtil.isEmpty(overdue)) {
             return 0;
         }
@@ -594,11 +557,7 @@ public class UserCouponService implements IUserCouponService {
      * @return 用户券（未领取为 null）
      */
     private UserCouponDO findClaimed(Long userId, Long couponId) {
-        return userCouponMapper.selectOne(
-                Wrappers.<UserCouponDO>lambdaQuery()
-                        .eq(UserCouponDO::getUserId, userId)
-                        .eq(UserCouponDO::getCouponId, couponId)
-        );
+        return userCouponMapper.selectClaimed(userId, couponId);
     }
 
     /**
@@ -607,12 +566,7 @@ public class UserCouponService implements IUserCouponService {
      * @param userId 用户 ID
      */
     private void expireOverdueByUser(Long userId) {
-        List<UserCouponDO> overdue = userCouponMapper.selectList(
-                Wrappers.<UserCouponDO>lambdaQuery()
-                        .eq(UserCouponDO::getUserId, userId)
-                        .eq(UserCouponDO::getStatus, UserCouponStatusEnum.AVAILABLE)
-                        .lt(UserCouponDO::getExpireTime, LocalDateTime.now())
-        );
+        List<UserCouponDO> overdue = userCouponMapper.selectOverdueByUser(userId, LocalDateTime.now());
         if (CollUtil.isEmpty(overdue)) {
             return;
         }
@@ -630,14 +584,7 @@ public class UserCouponService implements IUserCouponService {
             return;
         }
         LocalDateTime now = LocalDateTime.now();
-        userCouponMapper.update(
-                Wrappers.<UserCouponDO>lambdaUpdate()
-                        .set(UserCouponDO::getStatus, UserCouponStatusEnum.EXPIRED)
-                        .set(UserCouponDO::getStateTime, now)
-                        .set(UserCouponDO::getUpdateTime, now)
-                        .eq(UserCouponDO::getId, uc.getId())
-                        .eq(UserCouponDO::getStatus, UserCouponStatusEnum.AVAILABLE)
-        );
+        userCouponMapper.expireIfOverdue(uc.getId(), now);
         uc.setStatus(UserCouponStatusEnum.EXPIRED);
         userCouponLogMapper.insert(userCouponLogConverter.toExpireLog(uc, "实时过期校验"));
     }
@@ -675,11 +622,7 @@ public class UserCouponService implements IUserCouponService {
      * @return true 为已处理
      */
     private boolean logExists(String eventId, UserCouponOperationTypeEnum op) {
-        Long count = userCouponLogMapper.selectCount(
-                Wrappers.<UserCouponLogDO>lambdaQuery()
-                        .eq(UserCouponLogDO::getEventId, eventId)
-                        .eq(UserCouponLogDO::getOperationType, op)
-        );
+        Long count = userCouponLogMapper.countByEventAndOperation(eventId, op);
         return count != null && count > 0;
     }
 

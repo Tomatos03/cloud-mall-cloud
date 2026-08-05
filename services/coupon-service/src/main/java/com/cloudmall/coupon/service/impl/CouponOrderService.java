@@ -58,7 +58,6 @@ public class CouponOrderService implements ICouponOrderService {
     private static final String DEFAULT_REVERT_REASON = "全额退款回退";
 
     private final UserCouponMapper userCouponMapper;
-    private final UserCouponLogMapper userCouponLogMapper;
     private final CouponMapper couponMapper;
     private final CouponScopeMatcher scopeMatcher;
     private final CouponCalculator calculator;

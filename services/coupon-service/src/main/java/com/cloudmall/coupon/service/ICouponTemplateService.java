@@ -21,20 +21,27 @@ public interface ICouponTemplateService {
 
     /**
      * 创建模板草稿。 <p>
-     * ownerType=SHOP 时 shopId 取自登录令牌；平台券 shopId 恒为空。
+     * 店铺 ID 由调用方（
+     * {@link com.cloudmall.coupon.application.CouponTemplateApp}
+     * ）解析后传入。
      *
      * @param req 创建请求
+     * @param shopId 店铺 ID（平台券为 null）
      * @return 新模板 ID
      */
-    Long createDraft(CouponReq req);
+    Long createDraft(CouponReq req, Long shopId);
 
     /**
-     * 编辑模板草稿，仅 DRAFT 状态可编辑。
+     * 编辑模板草稿，仅 DRAFT 状态可编辑。 <p>
+     * 店铺 ID 由调用方（
+     * {@link com.cloudmall.coupon.application.CouponTemplateApp}
+     * ）以已存在模板为准解析后传入。
      *
      * @param id 模板 ID
      * @param req 编辑请求
+     * @param shopId 店铺 ID
      */
-    void updateDraft(Long id, CouponReq req);
+    void updateDraft(Long id, CouponReq req, Long shopId);
 
     /**
      * 发布模板草稿：DRAFT → ACTIVE。

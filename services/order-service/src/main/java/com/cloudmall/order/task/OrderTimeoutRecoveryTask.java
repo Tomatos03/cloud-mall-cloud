@@ -15,7 +15,7 @@ import com.cloudmall.coupon.api.request.CouponOrderReleaseByOrderReq;
 import com.cloudmall.order.entity.OrderDO;
 import com.cloudmall.order.enums.ParentOrderStatusEnum;
 import com.cloudmall.order.mapper.OrderMapper;
-import com.cloudmall.order.service.impl.OrderPersistenceService;
+import com.cloudmall.order.service.impl.OrderService;
 import com.cloudmall.product.api.client.StockClient;
 import com.cloudmall.product.api.request.StockReleaseByOrderReq;
 
@@ -37,7 +37,7 @@ public class OrderTimeoutRecoveryTask {
     private static final int CREATING_TIMEOUT_MINUTES = 30;
 
     private final OrderMapper orderMapper;
-    private final OrderPersistenceService orderPersistence;
+    private final OrderService orderService;
     private final CouponOrderClient couponOrderClient;
     private final StockClient stockClient;
 
@@ -88,7 +88,7 @@ public class OrderTimeoutRecoveryTask {
             log.warn("超时恢复释放库存失败 orderNo={}", orderNo, e);
         }
         try {
-            orderPersistence.markCancelled(order.getId());
+            orderService.markCancelled(order.getId());
         } catch (RuntimeException e) {
             log.warn("超时恢复标记订单取消失败 orderNo={}", orderNo, e);
         }

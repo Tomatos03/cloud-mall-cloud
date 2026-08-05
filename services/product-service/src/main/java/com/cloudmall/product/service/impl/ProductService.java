@@ -3,7 +3,6 @@ package com.cloudmall.product.service.impl;
 import java.math.BigDecimal;
 import java.text.Normalizer;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -15,14 +14,11 @@ import java.util.stream.Collectors;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.IdUtil;
 import com.baomidou.mybatisplus.core.metadata.IPage;
-import com.baomidou.mybatisplus.core.toolkit.Wrappers;
-import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import lombok.RequiredArgsConstructor;
 import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.cloudmall.common.context.UserContextHolder;
 import com.cloudmall.common.enums.BizError;
 import com.cloudmall.common.exception.BizException;
 import com.cloudmall.common.utils.Asserts;
@@ -56,13 +52,12 @@ import com.cloudmall.product.mapper.ProductSkuMapper;
 import com.cloudmall.product.mapper.ProductSkuSpecMapper;
 import com.cloudmall.product.mapper.ProductSpecGroupMapper;
 import com.cloudmall.product.mapper.ProductSpecValueMapper;
+import com.cloudmall.product.model.ProductSkuPrice;
 import com.cloudmall.product.model.req.ProductGetReq;
 import com.cloudmall.product.model.req.ProductPageReq;
 import com.cloudmall.product.service.IProductImageService;
 import com.cloudmall.product.service.IProductService;
 import com.cloudmall.product.service.IProductSpecService;
-import com.cloudmall.user.api.client.ShopClient;
-import com.cloudmall.user.api.response.ShopResp;
 
 /**
  * 商品 SPU 服务实现。
@@ -76,7 +71,6 @@ import com.cloudmall.user.api.response.ShopResp;
 public class ProductService implements IProductService {
 
     private final ProductMapper productMapper;
-    private final ShopClient shopClient;
     private final ProductSkuMapper productSkuMapper;
     private final ProductSkuSpecMapper productSkuSpecMapper;
     private final ProductSpecGroupMapper productSpecGroupMapper;
@@ -100,7 +94,7 @@ public class ProductService implements IProductService {
      */
     @Override
     public ProductResp get(ProductGetReq req) {
-        ProductDO product = Asserts.requireNonNull(productMapper.selectOne(req.buildLambdaWrapper()));
+        ProductDO product = Asserts.requireNonNull(productMapper.selectByGetReq(req));
         return assembleProductResp(product);
     }
 
@@ -110,7 +104,7 @@ public class ProductService implements IProductService {
         BrandDO brand = Asserts.requireNonNull(brandMapper.selectById(product.getBrandId()));
         ProductImageDO img = Asserts.requireNonNull(productImageMapper.selectById(product.getImageId()));
         CategoryDO categoryDO = Asserts.requireNonNull(categoryMapper.selectById(product.getCategoryId()));
-        BigDecimal lowestPrice = findLowestPrice(product.getId());
+        BigDecimal lowestPrice = productSkuMapper.selectLowestPrice(product.getId());
 
         resp.setPrice(lowestPrice);
         resp.setBrand(brand.getName());
@@ -128,10 +122,7 @@ public class ProductService implements IProductService {
      */
     @Override
     public IPage<ProductResp> page(ProductPageReq req) {
-        IPage<ProductDO> page = productMapper.selectPage(
-                req,
-                req.buildLambdaWrapper().orderByDesc(ProductDO::getCreateTime)
-        );
+        IPage<ProductDO> page = productMapper.selectProductPage(req);
 
         List<ProductDO> records = page.getRecords();
         if (CollUtil.isEmpty(records)) {
@@ -164,7 +155,10 @@ public class ProductService implements IProductService {
         }
 
         // 批量查询每个 SPU 的最低 SKU 价格
-        Map<Long, BigDecimal> lowestPriceMap = batchFindLowestPrice(productIds);
+        Map<Long, BigDecimal> lowestPriceMap = productSkuMapper
+                .selectLowestPrices(productIds)
+                .stream()
+                .collect(Collectors.toMap(ProductSkuPrice::productId, ProductSkuPrice::price));
 
         // 组装响应
         Map<Long, BrandDO> finalBrandMap = brandMap;
@@ -187,11 +181,10 @@ public class ProductService implements IProductService {
      */
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public Long create(ProductCreateReq req) {
+    public Long create(ProductCreateReq req, Long shopId) {
         validateBrandAndCategory(req);
         validateSkuTopology(req);
         validatePrices(req);
-        Long shopId = requireShopId();
 
         ProductDO productDO = saveProductWithImages(req, shopId);
         List<List<Long>> specValueIds = saveSpecs(productDO.getId(), req.getSpecGroups());
@@ -338,9 +331,7 @@ public class ProductService implements IProductService {
         BrandDO brand = brandMapper.selectById(product.getBrandId());
         List<ImageResp> images = productImageService.listByProductId(id);
         List<SpecGroupResp> specGroups = productSpecService.getSpecGroups(id);
-        List<ProductSkuDO> skus = productSkuMapper.selectList(
-                Wrappers.<ProductSkuDO>lambdaQuery().eq(ProductSkuDO::getProductId, id)
-        );
+        List<ProductSkuDO> skus = productSkuMapper.selectByProductId(id);
 
         return productConverter.toDetailResp(product, brand, images, skus, specGroups);
     }
@@ -452,64 +443,4 @@ public class ProductService implements IProductService {
                            .collect(Collectors.joining("_"));
     }
 
-    /**
-     * 校验当前登录用户是否存在店铺，并返回店铺 ID。
-     *
-     * @return 店铺 ID
-     * @throws BizException 处理过程中可能抛出该异常
-     */
-    private Long requireShopId() {
-        Long userId = UserContextHolder.getUserId();
-        ShopResp shop = Asserts.requireNonNull(
-                shopClient.getByUserId(userId),
-                BizError.MERCHANT_STORE_NOT_FOUND
-        );
-        return shop.getId();
-    }
-
-    /**
-     * 查询指定 SPU 下所有 SKU 的最低价格。
-     *
-     * @param productId SPU ID
-     * @return 最低价格，无 SKU 时返回 null
-     */
-    private BigDecimal findLowestPrice(Long productId) {
-        Page<ProductSkuDO> page = productSkuMapper.selectPage(
-                new Page<>(1, 1),
-                Wrappers.<ProductSkuDO>lambdaQuery()
-                        .eq(ProductSkuDO::getProductId, productId)
-                        .orderByAsc(ProductSkuDO::getPrice)
-        );
-        List<ProductSkuDO> skus = page.getRecords();
-        return CollUtil.isEmpty(skus) ? null : skus.get(0).getPrice();
-    }
-
-    /**
-     * 批量查询多个 SPU 下每个 SPU 的最低 SKU 价格。 <p>
-     * 通过查询所有符合条件的 SKU 后在应用层按 product_id 分组归约。
-     *
-     * @param productIds SPU ID 集合
-     * @return SPU ID -> 最低价 映射
-     */
-    private Map<Long, BigDecimal> batchFindLowestPrice(Set<Long> productIds) {
-        if (CollUtil.isEmpty(productIds)) {
-            return Collections.emptyMap();
-        }
-        List<ProductSkuDO> skus = productSkuMapper.selectList(
-                Wrappers.<ProductSkuDO>lambdaQuery().in(ProductSkuDO::getProductId, productIds)
-        );
-        return skus.stream()
-                   .collect(
-                           Collectors.groupingBy(
-                                   ProductSkuDO::getProductId,
-                                   Collectors.collectingAndThen(
-                                           Collectors.mapping(
-                                                   ProductSkuDO::getPrice,
-                                                   Collectors.minBy(BigDecimal::compareTo)
-                                           ),
-                                           opt -> opt.orElse(null)
-                                   )
-                           )
-                   );
-    }
 }

@@ -19,6 +19,7 @@ import com.cloudmall.order.api.request.CreateOrderReq;
 import com.cloudmall.order.api.request.QuoteOrderReq;
 import com.cloudmall.order.api.response.OrderResp;
 import com.cloudmall.order.api.response.OrderSubResp;
+import com.cloudmall.order.application.OrderApp;
 import com.cloudmall.order.model.req.OrderPageReq;
 import com.cloudmall.order.model.req.OrderSubPageReq;
 import com.cloudmall.order.service.IOrderService;
@@ -37,6 +38,7 @@ import com.cloudmall.order.service.IOrderService;
 public class OrderController {
 
     private final IOrderService orderService;
+    private final OrderApp orderApp;
 
     /**
      * 创建订单（跨店结算 Saga）。
@@ -50,7 +52,7 @@ public class OrderController {
             @Valid
             CreateOrderReq req
     ) {
-        return Result.success(orderService.create(req));
+        return Result.success(orderApp.create(req));
     }
 
     /**
@@ -65,7 +67,7 @@ public class OrderController {
             @Valid
             QuoteOrderReq req
     ) {
-        return Result.success(orderService.quote(req));
+        return Result.success(orderApp.quote(req));
     }
 
     /**

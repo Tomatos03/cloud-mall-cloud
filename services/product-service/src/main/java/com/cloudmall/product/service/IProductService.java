@@ -32,12 +32,16 @@ public interface IProductService {
     IPage<ProductResp> page(ProductPageReq req);
 
     /**
-     * 创建商品
+     * 创建商品。 <p>
+     * 店铺 ID 由调用方（
+     * {@link com.cloudmall.product.application.ProductApp}
+     * ） 经远程调用解析后传入。
      *
      * @param req 创建请求
+     * @param shopId 店铺 ID
      * @return 新建 SPU ID
      */
-    Long create(ProductCreateReq req);
+    Long create(ProductCreateReq req, Long shopId);
 
     /**
      * 查询 SPU 完整详情（含品牌、图片、SKU、规格）。

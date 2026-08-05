@@ -14,6 +14,7 @@ import com.cloudmall.common.model.Result;
 import com.cloudmall.product.api.request.ProductCreateReq;
 import com.cloudmall.product.api.response.ProductDetailResp;
 import com.cloudmall.product.api.response.ProductResp;
+import com.cloudmall.product.application.ProductApp;
 import com.cloudmall.product.model.req.ProductGetReq;
 import com.cloudmall.product.model.req.ProductPageReq;
 import com.cloudmall.product.service.IProductService;
@@ -31,6 +32,7 @@ import com.cloudmall.product.service.IProductService;
 public class ProductController {
 
     private final IProductService productService;
+    private final ProductApp productApp;
 
     /**
      * 创建商品（SPU + 规格 + SKU + 图片）。
@@ -44,7 +46,7 @@ public class ProductController {
             @RequestBody
             ProductCreateReq req
     ) {
-        return Result.success(productService.create(req));
+        return Result.success(productApp.create(req));
     }
 
     /**

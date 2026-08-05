@@ -2,39 +2,20 @@ package com.cloudmall.order.service;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
 
-import com.cloudmall.coupon.api.response.CouponOrderCalcResp;
-import com.cloudmall.order.api.request.CreateOrderReq;
-import com.cloudmall.order.api.request.QuoteOrderReq;
 import com.cloudmall.order.api.response.OrderResp;
 import com.cloudmall.order.api.response.OrderSubResp;
 import com.cloudmall.order.model.req.OrderPageReq;
 import com.cloudmall.order.model.req.OrderSubPageReq;
 
 /**
- * 订单服务
+ * 订单查询服务
  * <p>
- * 负责下单 Saga 编排（校验 → CREATING 骨架 → 预占库存 → 锁券 →
- * 落库优惠/明细 → 待支付 → 删购物车），失败按逆序补偿。
+ * 负责父/子订单的本地查询与响应组装；涉及远程调用的下单与预览流程由
+ * {@link com.cloudmall.order.application.OrderApp} 编排。
  *
  * @author : Tomatos
  */
 public interface IOrderService {
-
-    /**
-     * 创建订单（跨店结算 Saga）。
-     *
-     * @param req 下单请求
-     * @return 父订单详情
-     */
-    OrderResp create(CreateOrderReq req);
-
-    /**
-     * 下单前价格预览（无副作用）。
-     *
-     * @param req 预览请求（只需商品 SKU 与数量）
-     * @return 三级价格明细 + 优惠券使用明细 + 推荐组合
-     */
-    CouponOrderCalcResp quote(QuoteOrderReq req);
 
     /**
      * 获取父订单详情（仅当前用户本人可查）。
