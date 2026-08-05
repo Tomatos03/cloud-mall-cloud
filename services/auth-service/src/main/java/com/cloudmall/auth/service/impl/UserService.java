@@ -8,18 +8,15 @@ import java.util.Optional;
 import java.util.Set;
 
 import cn.hutool.core.collection.CollUtil;
-import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.crypto.password.PasswordEncoder;
+import org.jspecify.annotations.NonNull;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.cloudmall.auth.api.request.LoginReq;
 import com.cloudmall.auth.api.request.RegisterReq;
-import com.cloudmall.auth.api.response.LoginResp;
 import com.cloudmall.auth.api.response.UserInfoResp;
 import com.cloudmall.auth.convert.UserConverter;
 import com.cloudmall.auth.entity.ResourceDO;
@@ -32,17 +29,13 @@ import com.cloudmall.auth.mapper.UserRoleMapper;
 import com.cloudmall.auth.model.req.UserPageReq;
 import com.cloudmall.auth.model.resp.ResourceNodeResp;
 import com.cloudmall.auth.service.IAuthOutboxService;
-import com.cloudmall.auth.service.IResourceService;
 import com.cloudmall.auth.service.IUserService;
 import com.cloudmall.common.context.UserContext;
 import com.cloudmall.common.context.UserContextHolder;
 import com.cloudmall.common.enums.BizError;
 import com.cloudmall.common.enums.UserTypeEnum;
 import com.cloudmall.common.utils.Asserts;
-import com.cloudmall.jwt.service.ITokenService;
 import com.cloudmall.mybatisplus.enums.StatusEnum;
-import com.cloudmall.user.api.client.ShopClient;
-import com.cloudmall.user.api.response.ShopResp;
 
 /**
  * 用户服务实现
@@ -60,91 +53,13 @@ public class UserService implements IUserService {
     private final IAuthOutboxService authOutboxService;
     private final UserRoleMapper userRoleMapper;
     private final ResourceMapper resourceMapper;
-    private final ITokenService authTokenService;
-    private final PasswordEncoder passwordEncoder;
     private final UserConverter userConverter;
-    private final IResourceService resourceService;
-    private final ShopClient shopClient;
     /**
      * {@inheritDoc}
      */
     @Override
-    public LoginResp login(LoginReq request) {
-        UserDO user = Asserts.requireNonNull(
-                userMapper.selectOne(
-                        Wrappers.<UserDO>lambdaQuery().eq(UserDO::getUsername, request.getUsername())
-                ),
-                BizError.USER_NOT_EXISTS
-        );
-        Asserts.isTrue(
-                passwordEncoder.matches(request.getPassword(), user.getPassword()),
-                BizError.PASSWORD_ERROR
-        );
-
-        List<String> permissionCodes = resolvePermissionCodes(
-                user,
-                resourceService.getPermissionCodes(user.getId())
-        );
-
-        UserContext userCtx = UserContext
-                .builder()
-                .userId(user.getId())
-                .username(user.getUsername())
-                .userType(ObjectUtil.defaultIfNull(user.getTypes(), UserTypeEnum.NORMAL))
-                .shopId(resolveShopId(user))
-                .permissionCodes(permissionCodes)
-                .build();
-        String token = authTokenService.createToken(userCtx);
-
-        LoginResp response = userConverter.toLoginResp(user);
-        response.setToken(token);
-        return response;
-    }
-
-    /** 商家默认权限码 */
-    private static final List<String> MERCHANT_PERMISSIONS = List.of(
-            "coupon:template:create",
-            "coupon:template:view",
-            "coupon:template:publish",
-            "coupon:template:pause",
-            "coupon:template:end",
-            "coupon:template:delete",
-            "coupon:stats:view"
-    );
-
-    /**
-     * 解析用户权限码：角色权限 + 按用户类型注入的默认权限。 商家注入店铺券管理权限，管理员注入超级权限
-     * 。
-     *
-     * @param user 用户实体
-     * @param roleCodes 角色关联权限码
-     * @return 权限码列表
-     */
-    private List<String> resolvePermissionCodes(UserDO user, List<String> roleCodes) {
-        Set<String> codes = new HashSet<>();
-        if (CollUtil.isNotEmpty(roleCodes)) {
-            codes.addAll(roleCodes);
-        }
-        if (user.getTypes() == UserTypeEnum.MERCHANT) {
-            codes.addAll(MERCHANT_PERMISSIONS);
-        } else if (user.getTypes() == UserTypeEnum.ADMIN) {
-            codes.add("*");
-        }
-        return new ArrayList<>(codes);
-    }
-
-    /**
-     * 解析用户店铺 ID：仅商家查询其名下唯一店铺，其余类型或未开店时返回 null。
-     *
-     * @param user 用户实体
-     * @return 店铺 ID，无店铺时为 null
-     */
-    private Long resolveShopId(UserDO user) {
-        if (user.getTypes() != UserTypeEnum.MERCHANT) {
-            return null;
-        }
-        ShopResp shop = shopClient.getByUserId(user.getId());
-        return shop != null ? shop.getId() : null;
+    public UserDO findByUsername(String username) {
+        return userMapper.selectOne(Wrappers.<UserDO>lambdaQuery().eq(UserDO::getUsername, username));
     }
 
     /**
@@ -153,18 +68,18 @@ public class UserService implements IUserService {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public Long register(RegisterReq request) {
-        Long count = userMapper.selectCount(
-                Wrappers.<UserDO>lambdaQuery().eq(UserDO::getUsername, request.getUsername())
-        );
-        Asserts.isZero(count, BizError.USER_ALREADY_EXISTS);
-
-        UserDO user = userConverter.toDO(request);
-        user.setPassword(passwordEncoder.encode(request.getPassword()));
-        user.setTypes(UserTypeEnum.NORMAL);
-
-        userMapper.insert(user);
+        Asserts.isFalse(userMapper.existsByUsername(request.getUsername()), BizError.USER_ALREADY_EXISTS);
+        UserDO user = addNewUser(request);
         authOutboxService.appendUserRegistered(user.getId(), user.getUsername());
         return user.getId();
+    }
+
+    @NonNull
+    private UserDO addNewUser(RegisterReq request) {
+        UserDO user = userConverter.toDO(request);
+        user.setTypes(UserTypeEnum.NORMAL);
+        userMapper.insert(user);
+        return user;
     }
 
     /**

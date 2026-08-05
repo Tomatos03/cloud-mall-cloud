@@ -8,11 +8,13 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.cloudmall.common.model.Result;
+import com.cloudmall.coupon.api.request.CouponOrderCommitByOrderReq;
 import com.cloudmall.coupon.api.request.CouponOrderCommitReq;
 import com.cloudmall.coupon.api.request.CouponOrderLockReq;
 import com.cloudmall.coupon.api.request.CouponOrderQuoteReq;
 import com.cloudmall.coupon.api.request.CouponOrderReleaseByOrderReq;
 import com.cloudmall.coupon.api.request.CouponOrderReleaseReq;
+import com.cloudmall.coupon.api.request.CouponOrderRevertByOrderReq;
 import com.cloudmall.coupon.api.request.CouponOrderRevertReq;
 import com.cloudmall.coupon.api.response.CouponOrderCalcResp;
 import com.cloudmall.coupon.service.ICouponOrderService;
@@ -122,6 +124,38 @@ public class CouponOrderController {
             CouponOrderReleaseByOrderReq req
     ) {
         couponOrderService.releaseByOrder(req);
+        return Result.success();
+    }
+
+    /**
+     * 按订单核销全部已锁定用户券。
+     *
+     * @param req 核销请求
+     * @return 处理结果
+     */
+    @PostMapping("/commit-by-order")
+    public Result<Void> commitByOrder(
+            @RequestBody
+            @Valid
+            CouponOrderCommitByOrderReq req
+    ) {
+        couponOrderService.commitByOrder(req);
+        return Result.success();
+    }
+
+    /**
+     * 按订单回退全部已核销用户券。
+     *
+     * @param req 回退请求
+     * @return 处理结果
+     */
+    @PostMapping("/revert-by-order")
+    public Result<Void> revertByOrder(
+            @RequestBody
+            @Valid
+            CouponOrderRevertByOrderReq req
+    ) {
+        couponOrderService.revertByOrder(req);
         return Result.success();
     }
 }

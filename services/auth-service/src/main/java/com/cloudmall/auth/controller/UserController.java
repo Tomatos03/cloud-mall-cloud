@@ -17,6 +17,7 @@ import com.cloudmall.auth.api.request.LoginReq;
 import com.cloudmall.auth.api.request.RegisterReq;
 import com.cloudmall.auth.api.response.LoginResp;
 import com.cloudmall.auth.api.response.UserInfoResp;
+import com.cloudmall.auth.application.AuthApp;
 import com.cloudmall.auth.model.req.UserPageReq;
 import com.cloudmall.auth.model.resp.ResourceNodeResp;
 import com.cloudmall.auth.service.IRoleService;
@@ -38,6 +39,7 @@ import com.cloudmall.common.model.Result;
 @RequestMapping("/users")
 public class UserController {
 
+    private final AuthApp authApp;
     private final IUserService userService;
     private final IRoleService roleService;
 
@@ -53,7 +55,7 @@ public class UserController {
             @Valid
             LoginReq request
     ) {
-        return Result.success(userService.login(request));
+        return Result.success(authApp.login(request));
     }
 
     /**

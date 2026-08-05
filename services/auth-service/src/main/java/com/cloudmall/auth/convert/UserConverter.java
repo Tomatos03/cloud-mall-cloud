@@ -25,9 +25,9 @@ public interface UserConverter {
      * @param user 用户实体
      * @return 处理结果
      */
-    @Mapping(source = "id", target = "userId")
-    @Mapping(source = "types", target = "userType")
-    LoginResp toLoginResp(UserDO user);
+    @Mapping(source = "user.id", target = "userId")
+    @Mapping(source = "user.types", target = "userType")
+    LoginResp toLoginResp(UserDO user, String token);
 
     /**
      * 转换对象数据。

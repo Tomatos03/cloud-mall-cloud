@@ -19,11 +19,13 @@ import org.springframework.transaction.annotation.Transactional;
 import com.cloudmall.common.enums.BizError;
 import com.cloudmall.common.utils.Asserts;
 import com.cloudmall.coupon.api.dto.CouponCalcItem;
+import com.cloudmall.coupon.api.request.CouponOrderCommitByOrderReq;
 import com.cloudmall.coupon.api.request.CouponOrderCommitReq;
 import com.cloudmall.coupon.api.request.CouponOrderLockReq;
 import com.cloudmall.coupon.api.request.CouponOrderQuoteReq;
 import com.cloudmall.coupon.api.request.CouponOrderReleaseByOrderReq;
 import com.cloudmall.coupon.api.request.CouponOrderReleaseReq;
+import com.cloudmall.coupon.api.request.CouponOrderRevertByOrderReq;
 import com.cloudmall.coupon.api.request.CouponOrderRevertReq;
 import com.cloudmall.coupon.api.response.CouponCandidateResp;
 import com.cloudmall.coupon.api.response.CouponOrderCalcResp;
@@ -36,7 +38,6 @@ import com.cloudmall.coupon.entity.CouponDO;
 import com.cloudmall.coupon.entity.UserCouponDO;
 import com.cloudmall.coupon.enums.UserCouponStatusEnum;
 import com.cloudmall.coupon.mapper.CouponMapper;
-import com.cloudmall.coupon.mapper.UserCouponLogMapper;
 import com.cloudmall.coupon.mapper.UserCouponMapper;
 import com.cloudmall.coupon.service.ICouponOrderService;
 import com.cloudmall.coupon.service.IUserCouponService;
@@ -130,14 +131,62 @@ public class CouponOrderService implements ICouponOrderService {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public void releaseByOrder(CouponOrderReleaseByOrderReq req) {
-        List<UserCouponDO> locked = userCouponMapper.selectList(
-                Wrappers.<UserCouponDO>lambdaQuery()
-                        .eq(UserCouponDO::getLockedOrderNo, req.getOrderNo())
-                        .eq(UserCouponDO::getStatus, UserCouponStatusEnum.LOCKED)
-        );
+        List<UserCouponDO> locked = listLockedByOrder(req.getOrderNo());
         for (UserCouponDO uc : locked) {
             userCouponService.release(req.getOrderNo(), uc.getUserId(), uc.getId(), DEFAULT_RELEASE_REASON);
         }
+    }
+
+    /**
+     * 按订单核销全部已锁定用户券（支付成功事件，订单号幂等）。
+     *
+     * @param req 核销请求
+     */
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public void commitByOrder(CouponOrderCommitByOrderReq req) {
+        List<UserCouponDO> locked = listLockedByOrder(req.getOrderNo());
+        for (UserCouponDO uc : locked) {
+            userCouponService.commit(req.getOrderNo(), uc.getUserId(), uc.getId());
+        }
+    }
+
+    /**
+     * 按订单回退全部已核销用户券（全额退款事件，订单号 + 退款单号幂等）。
+     *
+     * @param req 回退请求
+     */
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public void revertByOrder(CouponOrderRevertByOrderReq req) {
+        List<UserCouponDO> used = userCouponMapper.selectList(
+                Wrappers.<UserCouponDO>lambdaQuery()
+                        .eq(UserCouponDO::getLockedOrderNo, req.getOrderNo())
+                        .eq(UserCouponDO::getStatus, UserCouponStatusEnum.USED)
+        );
+        for (UserCouponDO uc : used) {
+            userCouponService.revert(
+                    req.getOrderNo(),
+                    uc.getUserId(),
+                    uc.getId(),
+                    req.getRefundId(),
+                    DEFAULT_REVERT_REASON
+            );
+        }
+    }
+
+    /**
+     * 按订单号查询全部已锁定用户券。
+     *
+     * @param orderNo 订单号
+     * @return 已锁定用户券列表
+     */
+    private List<UserCouponDO> listLockedByOrder(String orderNo) {
+        return userCouponMapper.selectList(
+                Wrappers.<UserCouponDO>lambdaQuery()
+                        .eq(UserCouponDO::getLockedOrderNo, orderNo)
+                        .eq(UserCouponDO::getStatus, UserCouponStatusEnum.LOCKED)
+        );
     }
 
     /**

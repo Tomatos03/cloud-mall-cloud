@@ -1,10 +1,12 @@
 package com.cloudmall.coupon.service;
 
+import com.cloudmall.coupon.api.request.CouponOrderCommitByOrderReq;
 import com.cloudmall.coupon.api.request.CouponOrderCommitReq;
 import com.cloudmall.coupon.api.request.CouponOrderLockReq;
 import com.cloudmall.coupon.api.request.CouponOrderQuoteReq;
 import com.cloudmall.coupon.api.request.CouponOrderReleaseByOrderReq;
 import com.cloudmall.coupon.api.request.CouponOrderReleaseReq;
+import com.cloudmall.coupon.api.request.CouponOrderRevertByOrderReq;
 import com.cloudmall.coupon.api.request.CouponOrderRevertReq;
 import com.cloudmall.coupon.api.response.CouponOrderCalcResp;
 
@@ -27,6 +29,19 @@ public interface ICouponOrderService {
      */
     void releaseByOrder(CouponOrderReleaseByOrderReq req);
 
+    /**
+     * 按订单核销全部已锁定用户券（支付成功事件，订单号幂等）。
+     *
+     * @param req 核销请求
+     */
+    void commitByOrder(CouponOrderCommitByOrderReq req);
+
+    /**
+     * 按订单回退全部已核销用户券（全额退款事件，订单号 + 退款单号幂等）。
+     *
+     * @param req 回退请求
+     */
+    void revertByOrder(CouponOrderRevertByOrderReq req);
     /**
      * 无副作用试算：按用户选择计算优惠快照，并返回候选券与推荐组合。
      *

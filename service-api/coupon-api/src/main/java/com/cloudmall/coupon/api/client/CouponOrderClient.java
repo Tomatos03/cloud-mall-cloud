@@ -4,11 +4,13 @@ import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
+import com.cloudmall.coupon.api.request.CouponOrderCommitByOrderReq;
 import com.cloudmall.coupon.api.request.CouponOrderCommitReq;
 import com.cloudmall.coupon.api.request.CouponOrderLockReq;
 import com.cloudmall.coupon.api.request.CouponOrderQuoteReq;
 import com.cloudmall.coupon.api.request.CouponOrderReleaseByOrderReq;
 import com.cloudmall.coupon.api.request.CouponOrderReleaseReq;
+import com.cloudmall.coupon.api.request.CouponOrderRevertByOrderReq;
 import com.cloudmall.coupon.api.request.CouponOrderRevertReq;
 import com.cloudmall.coupon.api.response.CouponOrderCalcResp;
 
@@ -93,5 +95,29 @@ public interface CouponOrderClient {
     void releaseByOrder(
             @RequestBody
             CouponOrderReleaseByOrderReq req
+    );
+
+    /**
+     * 按订单核销全部已锁定用户券。
+     *
+     * @param req 核销请求
+     * @return 处理结果
+     */
+    @PostMapping("/commit-by-order")
+    void commitByOrder(
+            @RequestBody
+            CouponOrderCommitByOrderReq req
+    );
+
+    /**
+     * 按订单回退全部已核销用户券。
+     *
+     * @param req 回退请求
+     * @return 处理结果
+     */
+    @PostMapping("/revert-by-order")
+    void revertByOrder(
+            @RequestBody
+            CouponOrderRevertByOrderReq req
     );
 }

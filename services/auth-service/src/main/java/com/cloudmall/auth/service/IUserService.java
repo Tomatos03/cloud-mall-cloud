@@ -4,10 +4,9 @@ import java.util.List;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
 
-import com.cloudmall.auth.api.request.LoginReq;
 import com.cloudmall.auth.api.request.RegisterReq;
-import com.cloudmall.auth.api.response.LoginResp;
 import com.cloudmall.auth.api.response.UserInfoResp;
+import com.cloudmall.auth.entity.UserDO;
 import com.cloudmall.auth.model.req.UserPageReq;
 import com.cloudmall.auth.model.resp.ResourceNodeResp;
 
@@ -22,12 +21,12 @@ import com.cloudmall.auth.model.resp.ResourceNodeResp;
 public interface IUserService {
 
     /**
-     * 执行用户登录认证。
+     * 根据用户名查找用户。
      *
-     * @param request 请求参数
-     * @return 处理结果
+     * @param username 用户名
+     * @return 用户实体，不存在时返回 null
      */
-    LoginResp login(LoginReq request);
+    UserDO findByUsername(String username);
 
     /**
      * 创建并保存数据。
