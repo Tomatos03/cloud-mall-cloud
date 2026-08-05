@@ -1,2 +1,15 @@
 mybatis-plus:
   type-aliases-package: com.cloudmall.auth.entity
+
+xxl:
+  job:
+    executor:
+      app-name: auth-service
+      port: 9992
+    auto-register:
+      enabled: true
+      jobs:
+        - handler: authOutboxPublish
+          desc: 认证Outbox事件发布
+          schedule-type: FIX_DELAY
+          schedule-conf: "5"

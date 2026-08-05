@@ -32,6 +32,7 @@
         <jjwt-version>0.13.0</jjwt-version>
         <rocketmq-starter-version>2.3.5</rocketmq-starter-version>
         <mapstruct-version>1.6.3</mapstruct-version>
+        <xxl-job-version>3.4.2</xxl-job-version>
     </properties>
 
     <dependencyManagement>
@@ -95,6 +96,11 @@
             <dependency>
                 <groupId>com.cloudmall</groupId>
                 <artifactId>cloudmall-feign-spring-boot-starter</artifactId>
+                <version>1.0-SNAPSHOT</version>
+            </dependency>
+            <dependency>
+                <groupId>com.cloudmall</groupId>
+                <artifactId>cloudmall-xxl-job-spring-boot-starter</artifactId>
                 <version>1.0-SNAPSHOT</version>
             </dependency>
     </dependencies>

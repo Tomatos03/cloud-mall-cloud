@@ -1,4 +1,4 @@
-package com.cloudmall.coupon.task;
+package com.cloudmall.coupon.job;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -6,9 +6,9 @@ import java.util.List;
 import cn.hutool.core.collection.CollUtil;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.xxl.job.core.handler.annotation.XxlJob;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 import com.cloudmall.coupon.entity.UserCouponDO;
@@ -17,7 +17,7 @@ import com.cloudmall.coupon.mapper.UserCouponMapper;
 import com.cloudmall.coupon.service.IUserCouponService;
 
 /**
- * 用户券锁定过期释放任务
+ * 用户券锁定过期释放 JobHandler
  * <p>
  * 兜底释放超过锁定过期时间仍处于 LOCKED 的用户券（订单取消/超时事件
  * 漏处理或服务宕机场景），避免用户券长期不可用。
@@ -28,7 +28,7 @@ import com.cloudmall.coupon.service.IUserCouponService;
 @Slf4j
 @Component
 @RequiredArgsConstructor
-public class CouponLockExpireTask {
+public class CouponLockExpireJobHandler {
 
     /** 单批处理上限 */
     private static final int BATCH_SIZE = 200;
@@ -41,9 +41,11 @@ public class CouponLockExpireTask {
 
     /**
      * 周期释放锁定过期的用户券。
+     *
+     * @param param 任务参数（未使用）
      */
-    @Scheduled(fixedDelay = 60_000)
-    public void releaseExpiredLocks() {
+    @XxlJob("couponLockExpire")
+    public void releaseExpiredLocks(String param) {
         long pageNo = 1;
         List<UserCouponDO> expired;
         do {

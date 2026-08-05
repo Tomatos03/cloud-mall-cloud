@@ -1,13 +1,13 @@
-package com.cloudmall.order.task;
+package com.cloudmall.order.job;
 
 import java.time.LocalDateTime;
 import java.util.List;
 
 import cn.hutool.core.collection.CollUtil;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
+import com.xxl.job.core.handler.annotation.XxlJob;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 import com.cloudmall.coupon.api.client.CouponOrderClient;
@@ -20,7 +20,7 @@ import com.cloudmall.product.api.client.StockClient;
 import com.cloudmall.product.api.request.StockReleaseByOrderReq;
 
 /**
- * 创建中超时恢复任务
+ * 创建中超时恢复 JobHandler
  * <p>
  * 扫描长时间停留在 CREATING 的父订单（服务中途宕机遗留），
  * 按逆序释放已锁用户券与预占库存并标记取消。
@@ -31,7 +31,7 @@ import com.cloudmall.product.api.request.StockReleaseByOrderReq;
 @Slf4j
 @Component
 @RequiredArgsConstructor
-public class OrderTimeoutRecoveryTask {
+public class OrderTimeoutRecoveryJobHandler {
 
     /** 创建中超时阈值（分钟），与锁券过期时长一致 */
     private static final int CREATING_TIMEOUT_MINUTES = 30;
@@ -43,9 +43,11 @@ public class OrderTimeoutRecoveryTask {
 
     /**
      * 周期扫描并恢复创建中超时订单。
+     *
+     * @param param 任务参数（未使用）
      */
-    @Scheduled(fixedDelay = 60_000)
-    public void recoverStuckCreatingOrders() {
+    @XxlJob("orderTimeoutRecovery")
+    public void recoverStuckCreatingOrders(String param) {
         List<OrderDO> stuck = orderMapper.selectList(
                 Wrappers.<OrderDO>lambdaQuery()
                         .eq(OrderDO::getStatus, ParentOrderStatusEnum.CREATING)

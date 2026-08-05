@@ -22,3 +22,19 @@ mybatis-plus:
       logic-delete-field: deleted
       logic-delete-value: 1
       logic-not-delete-value: 0
+
+xxl:
+  job:
+    admin:
+      # v3 admin context-path 为 /，地址不带 /xxl-job-admin 后缀
+      addresses: http://localhost:8088
+      # 自动注册任务时登录调度中心的账号（开发默认值，生产用环境变量覆盖）
+      username: admin
+      password: "123456"
+    # 执行器与调度中心通信令牌，必须与 compose 中 xxl-job-admin 的 PARAMS 一致
+    access-token: cloudmall-xxl-job
+    executor:
+      # 开发环境 admin 在容器内，通过 host 网关回连本机 executor；生产按实际网络覆盖
+      ip: host.docker.internal
+      log-path: /tmp/xxl-job/jobhandler
+      log-retention-days: 30

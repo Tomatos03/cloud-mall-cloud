@@ -1,2 +1,19 @@
 mybatis-plus:
   type-aliases-package: com.cloudmall.coupon.entity
+
+xxl:
+  job:
+    executor:
+      app-name: coupon-service
+      port: 9993
+    auto-register:
+      enabled: true
+      jobs:
+        - handler: couponLockExpire
+          desc: 用户券锁定过期释放
+          schedule-type: FIX_DELAY
+          schedule-conf: "60"
+        - handler: userCouponExpire
+          desc: 用户券批量过期
+          schedule-type: CRON
+          schedule-conf: "0 */5 * * * ?"

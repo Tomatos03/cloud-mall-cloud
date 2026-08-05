@@ -1,2 +1,19 @@
 mybatis-plus:
   type-aliases-package: com.cloudmall.order.entity
+
+xxl:
+  job:
+    executor:
+      app-name: order-service
+      port: 9995
+    auto-register:
+      enabled: true
+      jobs:
+        - handler: orderOutboxPublish
+          desc: 订单Outbox事件发布
+          schedule-type: FIX_DELAY
+          schedule-conf: "5"
+        - handler: orderTimeoutRecovery
+          desc: 创建中超时订单恢复
+          schedule-type: FIX_DELAY
+          schedule-conf: "60"
