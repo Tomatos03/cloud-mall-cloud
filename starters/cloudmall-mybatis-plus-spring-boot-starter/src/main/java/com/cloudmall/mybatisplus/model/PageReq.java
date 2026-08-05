@@ -2,8 +2,6 @@ package com.cloudmall.mybatisplus.model;
 
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 
-import com.cloudmall.mybatisplus.annotation.Operator;
-import com.cloudmall.mybatisplus.annotation.QueryCondition;
 import com.cloudmall.mybatisplus.query.ConditionBuilder;
 
 /**

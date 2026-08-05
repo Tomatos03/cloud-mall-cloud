@@ -12,9 +12,6 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import cn.hutool.core.collection.CollUtil;
-import cn.hutool.core.util.IdUtil;
-import cn.hutool.core.util.StrUtil;
-import cn.hutool.json.JSONUtil;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import lombok.RequiredArgsConstructor;
@@ -112,18 +109,11 @@ public class OrderService implements IOrderService {
      */
     @Override
     public OrderResp create(CreateOrderReq req) {
-        // 准备订单上下文：用户、地址、数量、SKU 快照与计价明细
         OrderContext context = prepareOrderContext(req);
-
-        // 创建 CREATING 草稿单
-        OrderDraft draft = initializeDraft(context);
-
-        // 预占库存、锁定优惠券并最终落库，失败自动补偿
+        OrderDraft draft = orderPersistence.createDraft(context);
         OrderDO finalizedOrder = executePlacement(draft, context);
-
-        // 清理购物车并组装响应
         cleanupAfterPlacement(context, finalizedOrder);
-        return buildResponse(finalizedOrder);
+        return toResp(finalizedOrder);
     }
 
     /**
@@ -152,24 +142,6 @@ public class OrderService implements IOrderService {
     }
 
     /**
-     * 创建草稿单：生成单号、序列化地址快照并持久化 CREATING 骨架。
-     *
-     * @param context 订单上下文
-     * @return 下单骨架
-     */
-    private OrderDraft initializeDraft(OrderContext context) {
-        String orderNo = genOrderNo();
-        String addressSnapshot = JSONUtil.toJsonStr(context.getAddress());
-        return orderPersistence.createDraft(
-                context.getUserId(),
-                orderNo,
-                context.getReq(),
-                addressSnapshot,
-                context.getShopIds()
-        );
-    }
-
-    /**
      * 执行下单核心：预占库存、锁定优惠券并最终落库，返回已迁移为待支付的父订单。 任一环节失败按逆序补偿并
      * 上抛，主流程不感知中间状态。
      *
@@ -184,23 +156,11 @@ public class OrderService implements IOrderService {
         try {
             stockClient.reserve(buildStockOpReq(orderNo, context.getQuantities(), RESERVE_REASON));
             stockReserved = true;
-            CouponOrderCalcResp calc = lockCoupons(
-                    context.getUserId(),
-                    orderNo,
-                    context.getReq(),
-                    context.getCalcItems()
-            );
+            CouponOrderCalcResp calc = lockCoupons(context, orderNo);
             lockedUsages = calc.getUsages();
-            orderPersistence.finalizeOrder(draft, calc, context.getSkuMap(), context.getQuantities());
+            orderPersistence.finalizeOrder(draft, context, calc);
         } catch (RuntimeException e) {
-            compensate(
-                    draft,
-                    context.getUserId(),
-                    orderNo,
-                    context.getQuantities(),
-                    stockReserved,
-                    lockedUsages
-            );
+            compensate(draft, context, orderNo, stockReserved, lockedUsages);
             throw e;
         }
         return orderMapper.selectById(draft.order().getId());
@@ -221,26 +181,12 @@ public class OrderService implements IOrderService {
         log.info("下单成功 orderNo={} orderId={}", finalizedOrder.getOrderNo(), finalizedOrder.getId());
     }
 
-    /**
-     * 组装父订单响应。
-     *
-     * @param finalizedOrder 最终父订单
-     * @return 父订单详情
-     */
-    private OrderResp buildResponse(OrderDO finalizedOrder) {
-        return toResp(finalizedOrder);
-    }
-
     @NonNull
     private static List<Long> toShopIdList(Map<Long, SkuResp> skuMap) {
         return skuMap.values()
                      .stream()
                      .map(SkuResp::getShopId)
                      .toList();
-    }
-
-    private static String genOrderNo() {
-        return StrUtil.sub(IdUtil.fastSimpleUUID(), 0, 20);
     }
 
     /**
@@ -281,14 +227,13 @@ public class OrderService implements IOrderService {
     }
 
     /**
-     * 用户分页查询自己的父订单。
+     * 分页查询父订单（条件由调用方组装：用户端点已注入 userId，运营端点可传全量条件）。
      *
      * @param req 分页请求
      * @return 父订单分页
      */
     @Override
-    public IPage<OrderResp> pageUser(OrderPageReq req) {
-        req.setUserId(requireUserId());
+    public IPage<OrderResp> page(OrderPageReq req) {
         IPage<OrderDO> page = orderMapper.selectPage(req, req.buildLambdaWrapper());
         return page.convert(this::toResp);
     }
@@ -305,18 +250,6 @@ public class OrderService implements IOrderService {
         req.setShopId(shopId);
         IPage<OrderSubDO> page = orderSubMapper.selectPage(req, req.buildLambdaWrapper());
         return page.convert(this::toSubRespWithItems);
-    }
-
-    /**
-     * 运营分页查询全量父订单。
-     *
-     * @param req 分页请求
-     * @return 父订单分页
-     */
-    @Override
-    public IPage<OrderResp> pageOperator(OrderPageReq req) {
-        IPage<OrderDO> page = orderMapper.selectPage(req, req.buildLambdaWrapper());
-        return page.convert(this::toResp);
     }
 
     /**
@@ -504,25 +437,18 @@ public class OrderService implements IOrderService {
     /**
      * 调用优惠券服务重新计算并锁定用户券。
      *
-     * @param userId 用户 ID
+     * @param context 订单上下文
      * @param orderNo 订单号
-     * @param req 下单请求
-     * @param calcItems 可信商品明细
      * @return 优惠快照
      */
-    private CouponOrderCalcResp lockCoupons(
-            Long userId,
-            String orderNo,
-            CreateOrderReq req,
-            List<CouponCalcItem> calcItems
-    ) {
+    private CouponOrderCalcResp lockCoupons(OrderContext context, String orderNo) {
         CouponOrderLockReq lockReq = CouponOrderLockReq
                 .builder()
                 .orderNo(orderNo)
                 .lockExpireTime(LocalDateTime.now().plusMinutes(LOCK_EXPIRE_MINUTES))
-                .userId(userId)
-                .items(calcItems)
-                .userCouponIds(req.getUserCouponIds())
+                .userId(context.getUserId())
+                .items(context.getCalcItems())
+                .userCouponIds(context.getReq().getUserCouponIds())
                 .build();
         return couponOrderClient.lock(lockReq);
     }
@@ -532,23 +458,21 @@ public class OrderService implements IOrderService {
      * 恢复任务兜底。
      *
      * @param skeleton 骨架
-     * @param userId 用户 ID
+     * @param context 订单上下文
      * @param orderNo 订单号
-     * @param quantities skuId → 数量
      * @param stockReserved 是否已预占库存
      * @param lockedUsages 已锁定的券快照
      */
     private void compensate(
             OrderDraft skeleton,
-            Long userId,
+            OrderContext context,
             String orderNo,
-            Map<Long, Integer> quantities,
             boolean stockReserved,
             List<CouponUsageResult> lockedUsages
     ) {
-        releaseCouponsQuietly(userId, orderNo, lockedUsages);
+        releaseCouponsQuietly(context, orderNo, lockedUsages);
         if (stockReserved) {
-            releaseStockQuietly(orderNo, quantities);
+            releaseStockQuietly(context, orderNo);
         }
         try {
             orderPersistence.markCancelled(skeleton.order().getId());
@@ -560,11 +484,15 @@ public class OrderService implements IOrderService {
     /**
      * 释放已锁定的用户券（尽力而为，幂等）。
      *
-     * @param userId 用户 ID
+     * @param context 订单上下文
      * @param orderNo 订单号
      * @param lockedUsages 已锁定的券快照
      */
-    private void releaseCouponsQuietly(Long userId, String orderNo, List<CouponUsageResult> lockedUsages) {
+    private void releaseCouponsQuietly(
+            OrderContext context,
+            String orderNo,
+            List<CouponUsageResult> lockedUsages
+    ) {
         if (CollUtil.isEmpty(lockedUsages)) {
             return;
         }
@@ -572,7 +500,7 @@ public class OrderService implements IOrderService {
             try {
                 couponOrderClient.release(
                         CouponOrderReleaseReq.builder()
-                                             .userId(userId)
+                                             .userId(context.getUserId())
                                              .orderNo(orderNo)
                                              .userCouponId(usage.getUserCouponId())
                                              .reason(COMPENSATE_REASON)
@@ -587,12 +515,12 @@ public class OrderService implements IOrderService {
     /**
      * 释放预占库存（尽力而为，幂等）。
      *
+     * @param context 订单上下文
      * @param orderNo 订单号
-     * @param quantities skuId → 数量
      */
-    private void releaseStockQuietly(String orderNo, Map<Long, Integer> quantities) {
+    private void releaseStockQuietly(OrderContext context, String orderNo) {
         try {
-            stockClient.release(buildStockOpReq(orderNo, quantities, COMPENSATE_REASON));
+            stockClient.release(buildStockOpReq(orderNo, context.getQuantities(), COMPENSATE_REASON));
         } catch (RuntimeException e) {
             log.warn("Saga 补偿释放库存失败 orderNo={}", orderNo, e);
         }
@@ -623,5 +551,4 @@ public class OrderService implements IOrderService {
                          .reason(reason)
                          .build();
     }
-
 }

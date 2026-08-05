@@ -7,6 +7,10 @@ import java.util.List;
 import java.util.Map;
 
 import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.util.IdUtil;
+import cn.hutool.core.util.StrUtil;
+import cn.hutool.json.JSONUtil;
+import com.baomidou.mybatisplus.core.toolkit.IdWorker;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -19,7 +23,6 @@ import com.cloudmall.coupon.api.response.CouponOrderCalcResp;
 import com.cloudmall.coupon.api.response.CouponSubOrderResult;
 import com.cloudmall.coupon.api.response.CouponUsageResult;
 import com.cloudmall.coupon.enums.CouponOwnerEnum;
-import com.cloudmall.order.api.request.CreateOrderReq;
 import com.cloudmall.order.convert.OrderCouponConverter;
 import com.cloudmall.order.entity.OrderCouponDO;
 import com.cloudmall.order.entity.OrderDO;
@@ -31,6 +34,8 @@ import com.cloudmall.order.mapper.OrderCouponMapper;
 import com.cloudmall.order.mapper.OrderItemMapper;
 import com.cloudmall.order.mapper.OrderMapper;
 import com.cloudmall.order.mapper.OrderSubMapper;
+import com.cloudmall.order.model.OrderContext;
+import com.cloudmall.order.model.OrderCreationResult;
 import com.cloudmall.order.model.OrderDraft;
 import com.cloudmall.product.api.response.SkuResp;
 
@@ -54,33 +59,50 @@ public class OrderPersistenceService {
     private final OrderCouponConverter orderCouponConverter;
 
     /**
-     * 下单骨架：CREATING 父订单与每个店铺一条子订单。
+     * 下单骨架：CREATING 父订单与每个店铺一条子订单。 <p>
+     * 订单号在内部生成，父订单 ID 预生成雪花值以便内存中完成子订单组装， 再统一批量落库，保证同一事务
+     * 内骨架完整提交。
      *
-     * @param userId 用户 ID
-     * @param orderNo 订单号
-     * @param req 下单请求
-     * @param addressSnapshot 地址快照（JSON）
-     * @param shopIds 参与店铺（保序）
+     * @param context 订单上下文
      * @return 骨架
      */
     @Transactional(rollbackFor = Exception.class)
-    public OrderDraft createDraft(
-            Long userId,
-            String orderNo,
-            CreateOrderReq req,
-            String addressSnapshot,
-            List<Long> shopIds
-    ) {
-        OrderDO order = buildCreatingOrder(userId, orderNo, req, addressSnapshot);
-        orderMapper.insert(order);
+    public OrderDraft createDraft(OrderContext context) {
+        OrderCreationResult creationResult = buildOrderCreationResult(context);
+        saveOrderWithSubs(creationResult);
+        return new OrderDraft(creationResult.order(), creationResult.subsByShop());
+    }
+
+    /**
+     * 纯内存构建父订单与子订单，无任何副作用。
+     *
+     * @param context 订单上下文
+     * @return 构建结果
+     */
+    private static OrderCreationResult buildOrderCreationResult(OrderContext context) {
+        String orderNo = genOrderNo();
+        OrderDO order = buildCreatingOrder(context, orderNo);
+        order.setId(IdWorker.getId());
         Map<Long, OrderSubDO> subsByShop = new LinkedHashMap<>();
-        for (int i = 0; i < shopIds.size(); i++) {
-            Long shopId = shopIds.get(i);
-            OrderSubDO sub = buildPendingSubOrder(orderNo, i, order, shopId);
-            orderSubMapper.insert(sub);
-            subsByShop.put(shopId, sub);
+        for (int i = 0; i < context.getShopIds().size(); i++) {
+            Long shopId = context.getShopIds().get(i);
+            subsByShop.put(shopId, buildPendingSubOrder(orderNo, i, order, shopId));
         }
-        return new OrderDraft(order, subsByShop);
+        return new OrderCreationResult(order, subsByShop);
+    }
+
+    /**
+     * 批量持久化父订单与子订单。
+     *
+     * @param creationResult 构建结果
+     */
+    private void saveOrderWithSubs(OrderCreationResult creationResult) {
+        orderMapper.insert(creationResult.order());
+        orderSubMapper.insert(creationResult.subsByShop().values());
+    }
+
+    private static String genOrderNo() {
+        return StrUtil.sub(IdUtil.fastSimpleUUID(), 0, 20);
     }
 
     private static OrderSubDO buildPendingSubOrder(String orderNo, int i, OrderDO order, Long shopId) {
@@ -97,15 +119,10 @@ public class OrderPersistenceService {
                          .build();
     }
 
-    private static OrderDO buildCreatingOrder(
-            Long userId,
-            String orderNo,
-            CreateOrderReq req,
-            String addressSnapshot
-    ) {
+    private static OrderDO buildCreatingOrder(OrderContext context, String orderNo) {
         return OrderDO.builder()
                       .orderNo(orderNo)
-                      .userId(userId)
+                      .userId(context.getUserId())
                       .status(ParentOrderStatusEnum.CREATING)
                       .totalOriginalAmount(BigDecimal.ZERO)
                       .totalShopDiscountAmount(BigDecimal.ZERO)
@@ -113,38 +130,39 @@ public class OrderPersistenceService {
                       .goodsPayableAmount(BigDecimal.ZERO)
                       .freightAmount(BigDecimal.ZERO)
                       .payableAmount(BigDecimal.ZERO)
-                      .addressSnapshot(addressSnapshot)
-                      .remark(req.getRemark())
+                      .addressSnapshot(JSONUtil.toJsonStr(context.getAddress()))
+                      .remark(context.getReq().getRemark())
                       .build();
     }
 
     /**
      * 落库订单金额、明细优惠分摊与券快照，并将父订单迁移为待支付。
      *
-     * @param skeleton 骨架
+     * @param orderDraft 骨架
+     * @param context 订单上下文
      * @param calc 优惠计算/锁定结果
-     * @param skuMap SKU 可信快照
-     * @param quantities skuId → 数量
      */
     @Transactional(rollbackFor = Exception.class)
-    public void finalizeOrder(
-            OrderDraft skeleton,
-            CouponOrderCalcResp calc,
-            Map<Long, SkuResp> skuMap,
-            Map<Long, Integer> quantities
-    ) {
-        OrderDO order = skeleton.order();
-        updateParentAmounts(order.getId(), calc);
+    public void finalizeOrder(OrderDraft orderDraft, OrderContext context, CouponOrderCalcResp calc) {
+        updateParentAmounts(orderDraft.order().getId(), calc);
+        processSubOrders(orderDraft, context, calc);
+        insertOrderCoupons(orderDraft, calc.getUsages());
+        transitionToPendingPayment(orderDraft.order().getId());
+    }
+
+    /**
+     * 按优惠结果处理所有子订单：更新金额并插入商品明细。
+     *
+     * @param orderDraft 骨架
+     * @param context 订单上下文
+     * @param calc 优惠计算/锁定结果
+     */
+    private void processSubOrders(OrderDraft orderDraft, OrderContext context, CouponOrderCalcResp calc) {
         for (CouponSubOrderResult subResult : calc.getSubOrders()) {
-            OrderSubDO sub = skeleton.subsByShop().get(subResult.getShopId());
-            if (sub == null) {
-                continue;
-            }
+            OrderSubDO sub = Asserts.requireNonNull(orderDraft.subsByShop().get(subResult.getShopId()));
             updateSubAmounts(sub.getId(), subResult);
-            insertItems(sub, subResult, skuMap, quantities);
+            insertItems(sub, subResult, context);
         }
-        insertOrderCoupons(skeleton, calc.getUsages());
-        transitionToPendingPayment(order.getId());
     }
 
     /**
@@ -207,18 +225,12 @@ public class OrderPersistenceService {
      *
      * @param sub 子订单
      * @param subResult 子订单优惠结果
-     * @param skuMap SKU 可信快照
-     * @param quantities skuId → 数量
+     * @param context 订单上下文
      */
-    private void insertItems(
-            OrderSubDO sub,
-            CouponSubOrderResult subResult,
-            Map<Long, SkuResp> skuMap,
-            Map<Long, Integer> quantities
-    ) {
+    private void insertItems(OrderSubDO sub, CouponSubOrderResult subResult, OrderContext context) {
         List<OrderItemDO> items = new ArrayList<>();
         for (CouponItemResult itemResult : subResult.getItems()) {
-            SkuResp sku = skuMap.get(itemResult.getSkuId());
+            SkuResp sku = context.getSkuMap().get(itemResult.getSkuId());
             if (sku == null) {
                 continue;
             }
@@ -233,7 +245,7 @@ public class OrderPersistenceService {
                                .productImage(sku.getImage())
                                .specSnapshot(sku.getSpecDesc())
                                .unitPrice(sku.getPrice())
-                               .quantity(quantities.getOrDefault(itemResult.getSkuId(), 1))
+                               .quantity(context.getQuantities().getOrDefault(itemResult.getSkuId(), 1))
                                .originalAmount(itemResult.getOriginalAmount())
                                .shopDiscountAmount(itemResult.getShopDiscountAmount())
                                .platformDiscountAmount(itemResult.getPlatformDiscountAmount())
@@ -249,24 +261,23 @@ public class OrderPersistenceService {
     /**
      * 写入订单优惠关联快照（平台券关联父订单，店铺券关联对应子订单）。
      *
-     * @param skeleton 骨架
+     * @param orderDraft 骨架
      * @param usages 实际使用的券快照
      */
-    private void insertOrderCoupons(OrderDraft skeleton, List<CouponUsageResult> usages) {
+    private void insertOrderCoupons(OrderDraft orderDraft, List<CouponUsageResult> usages) {
         if (CollUtil.isEmpty(usages)) {
             return;
         }
         List<OrderCouponDO> couponDOs = new ArrayList<>();
         for (CouponUsageResult usage : usages) {
-            Long subOrderId = null;
+            OrderSubDO orderSubDO = orderDraft.subsByShop().get(usage.getShopId());
             if (usage.getOwnerType() == CouponOwnerEnum.SHOP) {
-                OrderSubDO sub = skeleton.subsByShop().get(usage.getShopId());
-                subOrderId = sub == null ? null : sub.getId();
+                Asserts.notNull(orderSubDO);
             }
             OrderCouponDO orderCouponDO = orderCouponConverter.toCouponDO(
                     usage,
-                    skeleton.order().getId(),
-                    subOrderId
+                    orderDraft.order().getId(),
+                    orderSubDO.getId()
             );
             couponDOs.add(orderCouponDO);
         }

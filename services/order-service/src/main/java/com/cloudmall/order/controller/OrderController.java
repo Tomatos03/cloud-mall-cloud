@@ -10,7 +10,10 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.cloudmall.common.context.UserContextHolder;
+import com.cloudmall.common.enums.BizError;
 import com.cloudmall.common.model.Result;
+import com.cloudmall.common.utils.Asserts;
 import com.cloudmall.coupon.api.response.CouponOrderCalcResp;
 import com.cloudmall.order.api.request.CreateOrderReq;
 import com.cloudmall.order.api.request.QuoteOrderReq;
@@ -80,14 +83,16 @@ public class OrderController {
     }
 
     /**
-     * 当前用户分页查询自己的父订单。
+     * 当前用户分页查询自己的父订单（userId 从用户上下文注入）。
      *
      * @param req 分页请求
      * @return 父订单分页
      */
     @GetMapping
     public Result<IPage<OrderResp>> page(OrderPageReq req) {
-        return Result.success(orderService.pageUser(req));
+        Long userId = Asserts.requireNonNull(UserContextHolder.getUserId(), BizError.USER_NOT_AUTHENTICATED);
+        req.setUserId(userId);
+        return Result.success(orderService.page(req));
     }
 
     /**
@@ -102,13 +107,13 @@ public class OrderController {
     }
 
     /**
-     * 运营分页查询全量父订单。
+     * 运营分页查询全量父订单（条件由调用方组装，可含 userId 过滤）。
      *
      * @param req 分页请求（可含 userId 过滤）
      * @return 父订单分页
      */
     @GetMapping("/operator")
     public Result<IPage<OrderResp>> operatorPage(OrderPageReq req) {
-        return Result.success(orderService.pageOperator(req));
+        return Result.success(orderService.page(req));
     }
 }

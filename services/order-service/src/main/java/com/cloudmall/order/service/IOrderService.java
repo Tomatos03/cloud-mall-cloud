@@ -45,12 +45,14 @@ public interface IOrderService {
     OrderResp getById(Long id);
 
     /**
-     * 用户分页查询自己的父订单。
+     * 分页查询父订单。 <p>
+     * 查询条件由调用方组装：用户端点需注入当前用户 ID 限制本人订单， 运营端点可传全量条件或不带
+     * userId 查询全部。
      *
      * @param req 分页请求
      * @return 父订单分页
      */
-    IPage<OrderResp> pageUser(OrderPageReq req);
+    IPage<OrderResp> page(OrderPageReq req);
 
     /**
      * 商家分页查询自己店铺的子订单。
@@ -59,12 +61,4 @@ public interface IOrderService {
      * @return 子订单分页
      */
     IPage<OrderSubResp> pageMerchant(OrderSubPageReq req);
-
-    /**
-     * 运营分页查询全量父订单。
-     *
-     * @param req 分页请求
-     * @return 父订单分页
-     */
-    IPage<OrderResp> pageOperator(OrderPageReq req);
 }
