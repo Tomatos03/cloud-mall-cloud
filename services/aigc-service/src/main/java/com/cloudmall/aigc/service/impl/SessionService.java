@@ -10,8 +10,8 @@ import java.util.Map;
 
 import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.util.RandomUtil;
+import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.IdWorker;
-import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import lombok.RequiredArgsConstructor;
 import org.springframework.ai.chat.memory.ChatMemoryRepository;
@@ -132,12 +132,7 @@ public class SessionService implements ISessionService {
     public Map<String, List<SessionHistoryItemResp>> getSessionHistory() {
         Long userId = UserContextHolder.getUserId();
 
-        Page<ChatSessionDO> page = chatSessionMapper.selectPage(
-                new Page<>(1, 30),
-                Wrappers.<ChatSessionDO>lambdaQuery()
-                        .eq(ChatSessionDO::getUserId, userId)
-                        .orderByDesc(ChatSessionDO::getUpdateTime)
-        );
+        IPage<ChatSessionDO> page = chatSessionMapper.selectRecentByUser(new Page<>(1, 30), userId);
         List<ChatSessionDO> sessions = page.getRecords();
 
         LocalDateTime now = LocalDateTime.now();
@@ -200,11 +195,7 @@ public class SessionService implements ISessionService {
      */
     private ChatSessionDO getValidatedSession(String sessionId) {
         ChatSessionDO chatSession = Asserts.requireNonNull(
-                chatSessionMapper.selectOne(
-                        Wrappers.<ChatSessionDO>lambdaQuery()
-                                .eq(ChatSessionDO::getSessionId, sessionId)
-                                .eq(ChatSessionDO::getUserId, UserContextHolder.getUserId())
-                ),
+                chatSessionMapper.selectBySessionIdAndUserId(sessionId, UserContextHolder.getUserId()),
                 BizError.SESSION_NOT_FOUND
         );
         return chatSession;

@@ -1,14 +1,14 @@
 package com.cloudmall.product.mapper;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import org.apache.ibatis.annotations.Mapper;
-import org.apache.ibatis.annotations.Param;
-import org.apache.ibatis.annotations.Select;
-import org.apache.ibatis.annotations.Update;
 
 import com.cloudmall.product.entity.ProductSkuDO;
 import com.cloudmall.product.model.ProductSkuPrice;
@@ -28,19 +28,15 @@ public interface ProductSkuMapper extends BaseMapper<ProductSkuDO> {
      * @param quantity 扣减数量
      * @return 影响行数，0 表示库存不足或 SKU 不存在
      */
-    @Update(
-            """
-            UPDATE cm_product_sku
-            SET stock = stock - #{quantity}
-            WHERE id = #{skuId} AND stock >= #{quantity} AND deleted = 0
-            """
-    )
-    int reserveStock(
-            @Param("skuId")
-            Long skuId,
-            @Param("quantity")
-            Integer quantity
-    );
+    default int reserveStock(Long skuId, Integer quantity) {
+        final String stockSql = "stock = stock - " + quantity;
+        return update(
+                Wrappers.<ProductSkuDO>lambdaUpdate()
+                        .setSql(stockSql)
+                        .eq(ProductSkuDO::getId, skuId)
+                        .ge(ProductSkuDO::getStock, quantity)
+        );
+    }
 
     /**
      * 回补库存（释放/补偿）。
@@ -49,19 +45,12 @@ public interface ProductSkuMapper extends BaseMapper<ProductSkuDO> {
      * @param quantity 回补数量
      * @return 影响行数
      */
-    @Update(
-            """
-            UPDATE cm_product_sku
-            SET stock = stock + #{quantity}
-            WHERE id = #{skuId} AND deleted = 0
-            """
-    )
-    int releaseStock(
-            @Param("skuId")
-            Long skuId,
-            @Param("quantity")
-            Integer quantity
-    );
+    default int releaseStock(Long skuId, Integer quantity) {
+        final String stockSql = "stock = stock + " + quantity;
+        return update(Wrappers.<ProductSkuDO>lambdaUpdate()
+                              .setSql(stockSql)
+                              .eq(ProductSkuDO::getId, skuId));
+    }
 
     /**
      * 查询指定 SPU 下所有 SKU 的最低价格。
@@ -69,11 +58,17 @@ public interface ProductSkuMapper extends BaseMapper<ProductSkuDO> {
      * @param productId SPU ID
      * @return 最低价格，无 SKU 时返回 null
      */
-    @Select("SELECT MIN(price) FROM cm_product_sku WHERE product_id = #{productId} AND deleted = 0")
-    BigDecimal selectLowestPrice(
-            @Param("productId")
-            Long productId
-    );
+    default BigDecimal selectLowestPrice(Long productId) {
+        List<Object> objs = selectObjs(
+                Wrappers.<ProductSkuDO>query()
+                        .select("MIN(price)")
+                        .eq("product_id", productId)
+        );
+        if (objs.isEmpty() || objs.get(0) == null) {
+            return null;
+        }
+        return new BigDecimal(objs.get(0).toString());
+    }
 
     /**
      * 批量查询多个 SPU 下每个 SPU 的最低 SKU 价格。
@@ -81,23 +76,23 @@ public interface ProductSkuMapper extends BaseMapper<ProductSkuDO> {
      * @param productIds SPU ID 集合
      * @return 每个 SPU 的最低价格行
      */
-    @Select(
-            """
-            <script>
-            SELECT product_id AS productId, MIN(price) AS price
-            FROM cm_product_sku
-            WHERE deleted = 0 AND product_id IN
-            <foreach collection="productIds" item="productId" open="(" separator="," close=")">
-                #{productId}
-            </foreach>
-            GROUP BY product_id
-            </script>
-            """
-    )
-    List<ProductSkuPrice> selectLowestPrices(
-            @Param("productIds")
-            Collection<Long> productIds
-    );
+    default List<ProductSkuPrice> selectLowestPrices(Collection<Long> productIds) {
+        List<Map<String, Object>> rows = selectMaps(
+                Wrappers.<ProductSkuDO>query()
+                        .select("product_id AS productId", "MIN(price) AS price")
+                        .in("product_id", productIds)
+                        .groupBy("product_id")
+        );
+        return rows
+                .stream()
+                .map(
+                        row -> new ProductSkuPrice(
+                                ((Number) row.get("productId")).longValue(),
+                                new BigDecimal(row.get("price").toString())
+                        )
+                )
+                .toList();
+    }
 
     /**
      * 查询指定 SPU 下的全部 SKU。
@@ -105,9 +100,24 @@ public interface ProductSkuMapper extends BaseMapper<ProductSkuDO> {
      * @param productId SPU ID
      * @return SKU 列表
      */
-    @Select("SELECT * FROM cm_product_sku WHERE product_id = #{productId} AND deleted = 0")
-    List<ProductSkuDO> selectByProductId(
-            @Param("productId")
-            Long productId
-    );
+    default List<ProductSkuDO> selectByProductId(Long productId) {
+        return selectList(Wrappers.<ProductSkuDO>lambdaQuery().eq(ProductSkuDO::getProductId, productId));
+    }
+
+    /**
+     * 条件增减库存：库存足够时按增量调整，防止扣成负数。
+     *
+     * @param skuId SKU ID
+     * @param quantity 增减量（正数增加，负数扣减）
+     * @return 影响行数，0 表示库存不足或 SKU 不存在
+     */
+    default int updateStock(Long skuId, Integer quantity) {
+        return update(
+                Wrappers.<ProductSkuDO>lambdaUpdate()
+                        .setSql("stock = stock + " + quantity)
+                        .set(ProductSkuDO::getUpdateTime, LocalDateTime.now())
+                        .eq(ProductSkuDO::getId, skuId)
+                        .ge(ProductSkuDO::getStock, -quantity)
+        );
+    }
 }

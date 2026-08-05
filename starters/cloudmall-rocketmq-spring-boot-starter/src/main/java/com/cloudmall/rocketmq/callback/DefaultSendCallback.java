@@ -53,11 +53,20 @@ public class DefaultSendCallback implements SendCallback {
     @Override
     public void onSuccess(SendResult sendResult) {
         if (businessKey != null) {
-            log.info("RocketMQ async send SUCCESS | destination={} | businessKey={} | msgId={} | queue={}",
-                    destination, businessKey, sendResult.getMsgId(), sendResult.getMessageQueue());
+            log.info(
+                    "RocketMQ async send SUCCESS | destination={} | businessKey={} | msgId={} | queue={}",
+                    destination,
+                    businessKey,
+                    sendResult.getMsgId(),
+                    sendResult.getMessageQueue()
+            );
         } else {
-            log.info("RocketMQ async send SUCCESS | destination={} | msgId={} | queue={}",
-                    destination, sendResult.getMsgId(), sendResult.getMessageQueue());
+            log.info(
+                    "RocketMQ async send SUCCESS | destination={} | msgId={} | queue={}",
+                    destination,
+                    sendResult.getMsgId(),
+                    sendResult.getMessageQueue()
+            );
         }
         onSuccessExt(sendResult);
     }
@@ -65,18 +74,28 @@ public class DefaultSendCallback implements SendCallback {
     @Override
     public void onException(Throwable throwable) {
         if (businessKey != null) {
-            log.error("RocketMQ async send FAILED | destination={} | businessKey={} | payloadSummary={} | error={}",
-                    destination, businessKey, payloadSummary, throwable.getMessage(), throwable);
+            log.error(
+                    "RocketMQ async send FAILED | destination={} | businessKey={} | payloadSummary={} | error={}",
+                    destination,
+                    businessKey,
+                    payloadSummary,
+                    throwable.getMessage(),
+                    throwable
+            );
         } else {
-            log.error("RocketMQ async send FAILED | destination={} | payloadSummary={} | error={}",
-                    destination, payloadSummary, throwable.getMessage(), throwable);
+            log.error(
+                    "RocketMQ async send FAILED | destination={} | payloadSummary={} | error={}",
+                    destination,
+                    payloadSummary,
+                    throwable.getMessage(),
+                    throwable
+            );
         }
         onExceptionExt(throwable);
     }
 
     /**
-     * 发送成功扩展点
-     * <p>
+     * 发送成功扩展点 <p>
      * 子类可覆写此方法实现额外的成功处理逻辑（如更新数据库状态、发送通知等）。
      *
      * @param sendResult 发送结果
@@ -86,8 +105,7 @@ public class DefaultSendCallback implements SendCallback {
     }
 
     /**
-     * 发送失败扩展点
-     * <p>
+     * 发送失败扩展点 <p>
      * 子类可覆写此方法实现额外的失败处理逻辑（如本地消息表回滚、告警通知等）。
      *
      * @param throwable 异常信息

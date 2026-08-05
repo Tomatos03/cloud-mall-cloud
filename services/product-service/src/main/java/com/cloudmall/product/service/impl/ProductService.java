@@ -14,9 +14,7 @@ import java.util.stream.Collectors;
 
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.IdUtil;
-import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
-import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import lombok.RequiredArgsConstructor;
 import org.springframework.lang.NonNull;
@@ -134,10 +132,7 @@ public class ProductService implements IProductService {
      */
     @Override
     public SearchDocPageResp searchDocs(long current, long size, LocalDateTime since) {
-        IPage<ProductDO> page = productMapper.selectPage(
-                new Page<>(current, size),
-                buildSearchDocWrapper(since)
-        );
+        IPage<ProductDO> page = productMapper.selectSearchDocs(new Page<>(current, size), since);
 
         List<ProductDO> records = page.getRecords();
         if (CollUtil.isEmpty(records)) {
@@ -182,14 +177,6 @@ public class ProductService implements IProductService {
                                 .current(page.getCurrent())
                                 .size(page.getSize())
                                 .build();
-    }
-
-    private static LambdaQueryWrapper<ProductDO> buildSearchDocWrapper(LocalDateTime since) {
-        LambdaQueryWrapper<ProductDO> wrapper = Wrappers.lambdaQuery();
-        if (since != null) {
-            wrapper.gt(ProductDO::getUpdateTime, since);
-        }
-        return wrapper.orderByAsc(ProductDO::getUpdateTime);
     }
 
     private static Set<Long> collectNonNull(List<ProductDO> records, Function<ProductDO, Long> getter) {

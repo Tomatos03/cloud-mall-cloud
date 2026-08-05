@@ -6,7 +6,6 @@ import java.util.UUID;
 
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.json.JSONUtil;
-import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -97,18 +96,7 @@ public class AuthOutboxService implements IAuthOutboxService {
      * @return 待发布事件列表
      */
     private List<OutboxDO> listDuePending(int batchSize) {
-        Page<OutboxDO> page = outboxMapper.selectPage(
-                new Page<>(1, batchSize),
-                Wrappers.<OutboxDO>lambdaQuery()
-                        .eq(OutboxDO::getPublishStatus, OutboxPublishStatusEnum.PENDING)
-                        .and(
-                                wrapper -> wrapper.isNull(OutboxDO::getNextRetryTime)
-                                                  .or()
-                                                  .le(OutboxDO::getNextRetryTime, LocalDateTime.now())
-                        )
-                        .orderByAsc(OutboxDO::getId)
-        );
-        return page.getRecords();
+        return outboxMapper.selectDuePending(new Page<>(1, batchSize)).getRecords();
     }
 
     /**
@@ -136,13 +124,7 @@ public class AuthOutboxService implements IAuthOutboxService {
      * @param outbox 事件
      */
     private void markPublished(OutboxDO outbox) {
-        outboxMapper.update(
-                Wrappers.<OutboxDO>lambdaUpdate()
-                        .set(OutboxDO::getPublishStatus, OutboxPublishStatusEnum.PUBLISHED)
-                        .set(OutboxDO::getPublishTime, LocalDateTime.now())
-                        .set(OutboxDO::getLastError, null)
-                        .eq(OutboxDO::getId, outbox.getId())
-        );
+        outboxMapper.markPublished(outbox.getId());
     }
 
     /**
@@ -157,16 +139,12 @@ public class AuthOutboxService implements IAuthOutboxService {
         OutboxPublishStatusEnum status = nextRetry >= MAX_RETRY
                 ? OutboxPublishStatusEnum.DEAD
                 : OutboxPublishStatusEnum.PENDING;
-        outboxMapper.update(
-                Wrappers.<OutboxDO>lambdaUpdate()
-                        .set(OutboxDO::getRetryCount, nextRetry)
-                        .set(
-                                OutboxDO::getNextRetryTime,
-                                LocalDateTime.now().plusSeconds(RETRY_BASE_SECONDS * (long) nextRetry)
-                        )
-                        .set(OutboxDO::getLastError, e.getMessage())
-                        .set(OutboxDO::getPublishStatus, status)
-                        .eq(OutboxDO::getId, outbox.getId())
+        outboxMapper.recordFailure(
+                outbox.getId(),
+                nextRetry,
+                LocalDateTime.now().plusSeconds(RETRY_BASE_SECONDS * (long) nextRetry),
+                e.getMessage(),
+                status
         );
     }
 }

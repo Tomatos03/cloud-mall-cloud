@@ -1,9 +1,10 @@
 package com.cloudmall.coupon.mapper;
 
+import java.util.List;
+
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import org.apache.ibatis.annotations.Mapper;
-import org.apache.ibatis.annotations.Param;
-import org.apache.ibatis.annotations.Select;
 
 import com.cloudmall.coupon.entity.UserCouponLogDO;
 import com.cloudmall.coupon.enums.UserCouponOperationTypeEnum;
@@ -23,17 +24,24 @@ public interface UserCouponLogMapper extends BaseMapper<UserCouponLogDO> {
      * @param op 操作类型
      * @return 流水条数
      */
-    @Select(
-            """
-            SELECT COUNT(*)
-            FROM cm_user_coupon_log
-            WHERE event_id = #{eventId} AND operation_type = #{op}
-            """
-    )
-    Long countByEventAndOperation(
-            @Param("eventId")
-            String eventId,
-            @Param("op")
-            UserCouponOperationTypeEnum op
-    );
+    default Long countByEventAndOperation(String eventId, UserCouponOperationTypeEnum op) {
+        return selectCount(
+                Wrappers.<UserCouponLogDO>lambdaQuery()
+                        .eq(UserCouponLogDO::getEventId, eventId)
+                        .eq(UserCouponLogDO::getOperationType, op)
+        );
+    }
+
+    /**
+     * 按模板查询用户券流水（模板为空时查询全量，供统计聚合）。
+     *
+     * @param couponId 模板 ID（可空，空表示全量）
+     * @return 用户券流水列表
+     */
+    default List<UserCouponLogDO> selectByCouponId(Long couponId) {
+        return selectList(
+                Wrappers.<UserCouponLogDO>lambdaQuery()
+                        .eq(couponId != null, UserCouponLogDO::getCouponId, couponId)
+        );
+    }
 }

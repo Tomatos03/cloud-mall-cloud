@@ -5,12 +5,13 @@ import java.util.List;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import org.apache.ibatis.annotations.Mapper;
-import org.apache.ibatis.annotations.Param;
-import org.apache.ibatis.annotations.Select;
-import org.apache.ibatis.annotations.Update;
 
 import com.cloudmall.coupon.entity.CouponDO;
+import com.cloudmall.coupon.enums.CouponOwnerEnum;
+import com.cloudmall.coupon.enums.CouponStatusEnum;
+import com.cloudmall.coupon.enums.IssueChannelEnum;
 import com.cloudmall.coupon.model.req.CouponPageReq;
 
 /**
@@ -39,37 +40,29 @@ public interface CouponMapper extends BaseMapper<CouponDO> {
      * @param now 当前时间
      * @return 模板列表
      */
-    @Select(
-            """
-            SELECT *
-            FROM cm_coupon
-            WHERE status = 'ACTIVE'
-              AND owner_type = 'PLATFORM'
-              AND issue_channel = 'REGISTER_AUTO'
-              AND issue_start_time <= #{now}
-              AND issue_end_time >= #{now}
-              AND deleted = 0
-            """
-    )
-    List<CouponDO> selectRegisterAutoTemplates(
-            @Param("now")
-            LocalDateTime now
-    );
+    default List<CouponDO> selectRegisterAutoTemplates(LocalDateTime now) {
+        return selectList(
+                Wrappers.<CouponDO>lambdaQuery()
+                        .eq(CouponDO::getStatus, CouponStatusEnum.ACTIVE)
+                        .eq(CouponDO::getOwnerType, CouponOwnerEnum.PLATFORM)
+                        .eq(CouponDO::getIssueChannel, IssueChannelEnum.REGISTER_AUTO)
+                        .le(CouponDO::getIssueStartTime, now)
+                        .ge(CouponDO::getIssueEndTime, now)
+        );
+    }
 
     /**
      * 查询公开券中心全部模板，按 ID 升序。
      *
      * @return 模板列表
      */
-    @Select(
-            """
-            SELECT *
-            FROM cm_coupon
-            WHERE issue_channel = 'PUBLIC_CLAIM'
-            ORDER BY id
-            """
-    )
-    List<CouponDO> selectPublicClaimTemplates();
+    default List<CouponDO> selectPublicClaimTemplates() {
+        return selectList(
+                Wrappers.<CouponDO>lambdaQuery()
+                        .eq(CouponDO::getIssueChannel, IssueChannelEnum.PUBLIC_CLAIM)
+                        .orderByAsc(CouponDO::getId)
+        );
+    }
 
     /**
      * 原子递增发行数量（并发领取专用）。 <p>
@@ -79,23 +72,23 @@ public interface CouponMapper extends BaseMapper<CouponDO> {
      * @param couponId 模板 ID
      * @return 影响行数，0 表示模板不可领取或库存不足
      */
-    @Update(
-            """
-            UPDATE cm_coupon
-            SET claimed_count = claimed_count + 1,
-                first_issued_time = COALESCE(first_issued_time, NOW()),
-                update_time = NOW()
-            WHERE id = #{couponId}
-              AND deleted = 0
-              AND status = 'ACTIVE'
-              AND issue_channel = 'PUBLIC_CLAIM'
-              AND issue_start_time <= NOW()
-              AND issue_end_time >= NOW()
-              AND (total_count IS NULL OR claimed_count < total_count)
-            """
-    )
-    int increaseClaimedCount(
-            @Param("couponId")
-            Long couponId
-    );
+    default int increaseClaimedCount(Long couponId) {
+        LocalDateTime now = LocalDateTime.now();
+        return update(
+                Wrappers.<CouponDO>lambdaUpdate()
+                        .setSql("claimed_count = claimed_count + 1")
+                        .setSql("first_issued_time = COALESCE(first_issued_time, NOW())")
+                        .set(CouponDO::getUpdateTime, now)
+                        .eq(CouponDO::getId, couponId)
+                        .eq(CouponDO::getStatus, CouponStatusEnum.ACTIVE)
+                        .eq(CouponDO::getIssueChannel, IssueChannelEnum.PUBLIC_CLAIM)
+                        .le(CouponDO::getIssueStartTime, now)
+                        .ge(CouponDO::getIssueEndTime, now)
+                        .and(
+                                wrapper -> wrapper.isNull(CouponDO::getTotalCount)
+                                                  .or()
+                                                  .apply("claimed_count < total_count")
+                        )
+        );
+    }
 }

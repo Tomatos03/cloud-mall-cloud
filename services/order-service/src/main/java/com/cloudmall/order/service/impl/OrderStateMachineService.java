@@ -1,13 +1,10 @@
 package com.cloudmall.order.service.impl;
 
-import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import com.cloudmall.common.enums.BizError;
 import com.cloudmall.common.utils.Asserts;
-import com.cloudmall.order.entity.OrderDO;
-import com.cloudmall.order.entity.OrderSubDO;
 import com.cloudmall.order.enums.ParentOrderStateTransitions;
 import com.cloudmall.order.enums.ParentOrderStatusEnum;
 import com.cloudmall.order.enums.SubOrderStateTransitions;
@@ -40,12 +37,7 @@ public class OrderStateMachineService implements IOrderStateMachineService {
     @Override
     public void transitionParent(Long orderId, ParentOrderStatusEnum from, ParentOrderStatusEnum to) {
         Asserts.isTrue(canParentTransition(from, to), BizError.INVALID_ORDER_STATUS);
-        int updated = orderMapper.update(
-                Wrappers.<OrderDO>lambdaUpdate()
-                        .set(OrderDO::getStatus, to)
-                        .eq(OrderDO::getId, orderId)
-                        .eq(OrderDO::getStatus, from)
-        );
+        int updated = orderMapper.transitionStatus(orderId, from, to);
         Asserts.isTrue(updated > 0, BizError.INVALID_ORDER_STATUS);
     }
 
@@ -59,12 +51,7 @@ public class OrderStateMachineService implements IOrderStateMachineService {
     @Override
     public void transitionSub(Long subOrderId, SubOrderStatusEnum from, SubOrderStatusEnum to) {
         Asserts.isTrue(canSubTransition(from, to), BizError.INVALID_ORDER_STATUS);
-        int updated = orderSubMapper.update(
-                Wrappers.<OrderSubDO>lambdaUpdate()
-                        .set(OrderSubDO::getStatus, to)
-                        .eq(OrderSubDO::getId, subOrderId)
-                        .eq(OrderSubDO::getStatus, from)
-        );
+        int updated = orderSubMapper.transitionStatus(subOrderId, from, to);
         Asserts.isTrue(updated > 0, BizError.INVALID_ORDER_STATUS);
     }
 

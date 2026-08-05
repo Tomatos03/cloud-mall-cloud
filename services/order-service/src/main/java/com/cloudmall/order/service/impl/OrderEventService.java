@@ -1,6 +1,5 @@
 package com.cloudmall.order.service.impl;
 
-import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -75,16 +74,7 @@ public class OrderEventService implements IOrderEventService {
     @Transactional(rollbackFor = Exception.class)
     public void handleCancel(String orderNo) {
         OrderDO order = requireOrder(orderNo);
-        int updated = orderMapper.update(
-                Wrappers.<OrderDO>lambdaUpdate()
-                        .set(OrderDO::getStatus, ParentOrderStatusEnum.CANCELLED)
-                        .eq(OrderDO::getId, order.getId())
-                        .in(
-                                OrderDO::getStatus,
-                                ParentOrderStatusEnum.CREATING,
-                                ParentOrderStatusEnum.PENDING_PAYMENT
-                        )
-        );
+        int updated = orderMapper.markCancelled(order.getId(), ParentOrderStatusEnum.CANCELLED);
         Asserts.isTrue(updated > 0, BizError.INVALID_ORDER_STATUS);
         orderOutboxService.appendOrderEvent(orderNo, order.getUserId(), OrderTagEnum.CANCELLED, null);
     }
@@ -100,16 +90,7 @@ public class OrderEventService implements IOrderEventService {
     public void handleFullyRefunded(String orderNo, String refundId) {
         Asserts.assertNotBlank(refundId, BizError.INVALID_PARAM);
         OrderDO order = requireOrder(orderNo);
-        int updated = orderMapper.update(
-                Wrappers.<OrderDO>lambdaUpdate()
-                        .set(OrderDO::getStatus, ParentOrderStatusEnum.REFUNDED)
-                        .eq(OrderDO::getId, order.getId())
-                        .in(
-                                OrderDO::getStatus,
-                                ParentOrderStatusEnum.PAID,
-                                ParentOrderStatusEnum.PARTIAL_REFUNDED
-                        )
-        );
+        int updated = orderMapper.markRefunded(order.getId());
         Asserts.isTrue(updated > 0, BizError.INVALID_ORDER_STATUS);
         OrderTagEnum eventType = OrderTagEnum.FULLY_REFUNDED;
         orderOutboxService.appendOrderEvent(orderNo, order.getUserId(), eventType, refundId);
@@ -122,10 +103,7 @@ public class OrderEventService implements IOrderEventService {
      * @return 父订单
      */
     private OrderDO requireOrder(String orderNo) {
-        OrderDO order = Asserts.requireNonNull(
-                orderMapper.selectOne(Wrappers.<OrderDO>lambdaQuery().eq(OrderDO::getOrderNo, orderNo)),
-                BizError.ORDER_NOT_EXIST
-        );
+        OrderDO order = Asserts.requireNonNull(orderMapper.selectByOrderNo(orderNo), BizError.ORDER_NOT_EXIST);
         return order;
     }
 }

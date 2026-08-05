@@ -2,7 +2,6 @@ package com.cloudmall.product.service.impl;
 
 import java.util.List;
 
-import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -32,12 +31,7 @@ public class ProductImageService implements IProductImageService {
      */
     @Override
     public List<ImageResp> listByProductId(Long productId) {
-        List<ProductImageDO> images = productImageMapper.selectList(
-                Wrappers.<ProductImageDO>lambdaQuery()
-                        .eq(ProductImageDO::getProductId, productId)
-                        .orderByDesc(ProductImageDO::getIsMain)
-                        .orderByAsc(ProductImageDO::getSortOrder)
-        );
+        List<ProductImageDO> images = productImageMapper.selectByProductId(productId);
         return imageConverter.toRespList(images);
     }
 }

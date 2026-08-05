@@ -7,7 +7,6 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import cn.hutool.core.collection.CollUtil;
-import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -79,10 +78,7 @@ public class CouponStatsService implements ICouponStatsService {
      * @return 统计响应（不含成本维度）
      */
     private CouponStatsResp aggregate(Long couponId) {
-        List<UserCouponLogDO> logs = userCouponLogMapper.selectList(
-                Wrappers.<UserCouponLogDO>lambdaQuery()
-                        .eq(couponId != null, UserCouponLogDO::getCouponId, couponId)
-        );
+        List<UserCouponLogDO> logs = userCouponLogMapper.selectByCouponId(couponId);
         CouponStatsResp stats = CouponStatsResp.builder()
                                                .issueCount(0L)
                                                .lockedCount(0L)

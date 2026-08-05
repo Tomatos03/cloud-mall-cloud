@@ -4,7 +4,6 @@ import java.util.List;
 
 import cn.hutool.core.collection.CollUtil;
 import com.baomidou.mybatisplus.core.metadata.IPage;
-import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -57,7 +56,7 @@ public class BrandService implements IBrandService {
         if (CollUtil.isEmpty(ids)) {
             return List.of();
         }
-        List<BrandDO> brands = brandMapper.selectList(Wrappers.<BrandDO>lambdaQuery().in(BrandDO::getId, ids));
+        List<BrandDO> brands = brandMapper.selectByIds(ids);
         return brandConverter.toRespList(brands);
     }
 

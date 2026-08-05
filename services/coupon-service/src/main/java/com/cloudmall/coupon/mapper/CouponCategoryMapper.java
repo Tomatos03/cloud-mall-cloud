@@ -3,10 +3,8 @@ package com.cloudmall.coupon.mapper;
 import java.util.List;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
-import org.apache.ibatis.annotations.Delete;
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import org.apache.ibatis.annotations.Mapper;
-import org.apache.ibatis.annotations.Param;
-import org.apache.ibatis.annotations.Select;
 
 import com.cloudmall.coupon.entity.CouponCategoryDO;
 
@@ -24,17 +22,16 @@ public interface CouponCategoryMapper extends BaseMapper<CouponCategoryDO> {
      * @param couponId 模板 ID
      * @return 分类 ID 列表
      */
-    @Select(
-            """
-            SELECT category_id
-            FROM cm_coupon_category
-            WHERE coupon_id = #{couponId}
-            """
-    )
-    List<Long> selectIdsByCouponId(
-            @Param("couponId")
-            Long couponId
-    );
+    default List<Long> selectIdsByCouponId(Long couponId) {
+        List<CouponCategoryDO> categories = selectList(
+                Wrappers.<CouponCategoryDO>lambdaQuery()
+                        .select(CouponCategoryDO::getCategoryId)
+                        .eq(CouponCategoryDO::getCouponId, couponId)
+        );
+        return categories.stream()
+                         .map(CouponCategoryDO::getCategoryId)
+                         .toList();
+    }
 
     /**
      * 统计模板配置的分类数量。
@@ -42,17 +39,11 @@ public interface CouponCategoryMapper extends BaseMapper<CouponCategoryDO> {
      * @param couponId 模板 ID
      * @return 分类数量
      */
-    @Select(
-            """
-            SELECT COUNT(*)
-            FROM cm_coupon_category
-            WHERE coupon_id = #{couponId}
-            """
-    )
-    long countByCouponId(
-            @Param("couponId")
-            Long couponId
-    );
+    default long countByCouponId(Long couponId) {
+        return selectCount(
+                Wrappers.<CouponCategoryDO>lambdaQuery().eq(CouponCategoryDO::getCouponId, couponId)
+        );
+    }
 
     /**
      * 删除模板全部分类范围关联。
@@ -60,14 +51,7 @@ public interface CouponCategoryMapper extends BaseMapper<CouponCategoryDO> {
      * @param couponId 模板 ID
      * @return 影响行数
      */
-    @Delete(
-            """
-            DELETE FROM cm_coupon_category
-            WHERE coupon_id = #{couponId}
-            """
-    )
-    int deleteByCouponId(
-            @Param("couponId")
-            Long couponId
-    );
+    default int deleteByCouponId(Long couponId) {
+        return delete(Wrappers.<CouponCategoryDO>lambdaQuery().eq(CouponCategoryDO::getCouponId, couponId));
+    }
 }

@@ -10,7 +10,6 @@ import java.util.Set;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.metadata.IPage;
-import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import lombok.RequiredArgsConstructor;
 import org.jspecify.annotations.NonNull;
 import org.springframework.stereotype.Service;
@@ -22,7 +21,6 @@ import com.cloudmall.auth.convert.UserConverter;
 import com.cloudmall.auth.entity.ResourceDO;
 import com.cloudmall.auth.entity.UserDO;
 import com.cloudmall.auth.entity.UserRoleDO;
-import com.cloudmall.auth.enums.ResourceTypeEnum;
 import com.cloudmall.auth.mapper.ResourceMapper;
 import com.cloudmall.auth.mapper.UserMapper;
 import com.cloudmall.auth.mapper.UserRoleMapper;
@@ -35,7 +33,6 @@ import com.cloudmall.common.context.UserContextHolder;
 import com.cloudmall.common.enums.BizError;
 import com.cloudmall.common.enums.UserTypeEnum;
 import com.cloudmall.common.utils.Asserts;
-import com.cloudmall.mybatisplus.enums.StatusEnum;
 
 /**
  * 用户服务实现
@@ -59,7 +56,7 @@ public class UserService implements IUserService {
      */
     @Override
     public UserDO findByUsername(String username) {
-        return userMapper.selectOne(Wrappers.<UserDO>lambdaQuery().eq(UserDO::getUsername, username));
+        return userMapper.selectByUsername(username);
     }
 
     /**
@@ -133,12 +130,7 @@ public class UserService implements IUserService {
      * @return 数据列表
      */
     private List<ResourceDO> loadAccessibleUiResources(List<String> userPermissions) {
-        List<ResourceDO> allUiResources = resourceMapper.selectList(
-                Wrappers.<ResourceDO>lambdaQuery()
-                        .in(ResourceDO::getType, ResourceTypeEnum.uiTypeCodes())
-                        .eq(ResourceDO::getEnabled, StatusEnum.ENABLED)
-                        .orderByAsc(ResourceDO::getSort)
-        );
+        List<ResourceDO> allUiResources = resourceMapper.selectEnabledUiResources();
         if (CollUtil.isEmpty(allUiResources)) {
             return Collections.emptyList();
         }
@@ -195,9 +187,7 @@ public class UserService implements IUserService {
      */
     @Override
     public List<Long> getUserRoleIds(Long userId) {
-        List<UserRoleDO> userRoles = userRoleMapper.selectList(
-                Wrappers.<UserRoleDO>lambdaQuery().eq(UserRoleDO::getUserId, userId)
-        );
+        List<UserRoleDO> userRoles = userRoleMapper.selectByUserId(userId);
         return userRoles.stream()
                         .map(UserRoleDO::getRoleId)
                         .toList();

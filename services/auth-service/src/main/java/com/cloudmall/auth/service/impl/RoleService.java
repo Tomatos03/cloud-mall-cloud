@@ -5,7 +5,6 @@ import java.util.List;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.BooleanUtil;
 import com.baomidou.mybatisplus.core.metadata.IPage;
-import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -79,10 +78,8 @@ public class RoleService implements IRoleService {
         RoleDO existing = Asserts.requireNonNull(roleMapper.selectById(roleId));
         Asserts.isTrue(!BooleanUtil.isTrue(existing.getBuiltIn()), BizError.INVALID_PARAM);
 
-        userRoleMapper.delete(Wrappers.<UserRoleDO>lambdaQuery().eq(UserRoleDO::getRoleId, roleId));
-        roleResourceMapper.delete(
-                Wrappers.<RoleResourceDO>lambdaQuery().eq(RoleResourceDO::getRoleId, roleId)
-        );
+        userRoleMapper.deleteByRoleId(roleId);
+        roleResourceMapper.deleteByRoleId(roleId);
         roleMapper.deleteById(roleId);
     }
 
@@ -112,9 +109,7 @@ public class RoleService implements IRoleService {
     public void assignResources(Long roleId, List<Long> resourceIds) {
         Asserts.notNull(roleMapper.selectById(roleId));
 
-        roleResourceMapper.delete(
-                Wrappers.<RoleResourceDO>lambdaQuery().eq(RoleResourceDO::getRoleId, roleId)
-        );
+        roleResourceMapper.deleteByRoleId(roleId);
         if (CollUtil.isNotEmpty(resourceIds)) {
             List<RoleResourceDO> list = resourceIds
                     .stream()
@@ -132,9 +127,7 @@ public class RoleService implements IRoleService {
      */
     @Override
     public List<Long> getRoleResourceIds(Long roleId) {
-        List<RoleResourceDO> roleResources = roleResourceMapper.selectList(
-                Wrappers.<RoleResourceDO>lambdaQuery().eq(RoleResourceDO::getRoleId, roleId)
-        );
+        List<RoleResourceDO> roleResources = roleResourceMapper.selectByRoleId(roleId);
         return roleResources.stream()
                             .map(RoleResourceDO::getResourceId)
                             .toList();
@@ -146,7 +139,7 @@ public class RoleService implements IRoleService {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public void assignRoles(Long userId, List<Long> roleIds) {
-        userRoleMapper.delete(Wrappers.<UserRoleDO>lambdaQuery().eq(UserRoleDO::getUserId, userId));
+        userRoleMapper.deleteByUserId(userId);
         if (CollUtil.isNotEmpty(roleIds)) {
             List<UserRoleDO> list = roleIds
                     .stream()
@@ -165,7 +158,7 @@ public class RoleService implements IRoleService {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public void assignRoleUsers(Long roleId, List<Long> userIds) {
-        userRoleMapper.delete(Wrappers.<UserRoleDO>lambdaQuery().eq(UserRoleDO::getRoleId, roleId));
+        userRoleMapper.deleteByRoleId(roleId);
         if (CollUtil.isNotEmpty(userIds)) {
             List<UserRoleDO> list = userIds
                     .stream()
@@ -183,9 +176,7 @@ public class RoleService implements IRoleService {
      */
     @Override
     public List<Long> getRoleUserIds(Long roleId) {
-        List<UserRoleDO> userRoles = userRoleMapper.selectList(
-                Wrappers.<UserRoleDO>lambdaQuery().eq(UserRoleDO::getRoleId, roleId)
-        );
+        List<UserRoleDO> userRoles = userRoleMapper.selectByRoleId(roleId);
         return userRoles.stream()
                         .map(UserRoleDO::getUserId)
                         .toList();

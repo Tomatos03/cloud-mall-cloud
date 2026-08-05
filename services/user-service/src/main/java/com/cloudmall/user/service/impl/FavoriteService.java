@@ -3,7 +3,6 @@ package com.cloudmall.user.service.impl;
 import java.time.LocalDateTime;
 import java.util.List;
 
-import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -26,11 +25,7 @@ public class FavoriteService implements IFavoriteService {
      */
     @Override
     public boolean toggle(Long userId, Long productId) {
-        FavoriteDO existing = favoriteMapper.selectOne(
-                Wrappers.<FavoriteDO>lambdaQuery()
-                        .eq(FavoriteDO::getUserId, userId)
-                        .eq(FavoriteDO::getProductId, productId)
-        );
+        FavoriteDO existing = favoriteMapper.selectByUserAndProduct(userId, productId);
         if (existing != null) {
             favoriteMapper.deleteById(existing.getId());
             return false;
@@ -53,11 +48,7 @@ public class FavoriteService implements IFavoriteService {
      */
     @Override
     public List<Long> listProductIds(Long userId) {
-        List<FavoriteDO> list = favoriteMapper.selectList(
-                Wrappers.<FavoriteDO>lambdaQuery()
-                        .eq(FavoriteDO::getUserId, userId)
-                        .orderByDesc(FavoriteDO::getCreateTime)
-        );
+        List<FavoriteDO> list = favoriteMapper.listByUserId(userId);
         return list.stream()
                    .map(FavoriteDO::getProductId)
                    .toList();
@@ -72,10 +63,6 @@ public class FavoriteService implements IFavoriteService {
      */
     @Override
     public boolean isFavorited(Long userId, Long productId) {
-        return favoriteMapper.selectCount(
-                Wrappers.<FavoriteDO>lambdaQuery()
-                        .eq(FavoriteDO::getUserId, userId)
-                        .eq(FavoriteDO::getProductId, productId)
-        ) > 0;
+        return favoriteMapper.countByUserAndProduct(userId, productId) > 0;
     }
 }

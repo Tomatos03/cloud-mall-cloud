@@ -4,7 +4,6 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 import cn.hutool.core.collection.CollUtil;
-import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.xxl.job.core.handler.annotation.XxlJob;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -48,14 +47,9 @@ public class OrderTimeoutRecoveryJobHandler {
      */
     @XxlJob("orderTimeoutRecovery")
     public void recoverStuckCreatingOrders(String param) {
-        List<OrderDO> stuck = orderMapper.selectList(
-                Wrappers.<OrderDO>lambdaQuery()
-                        .eq(OrderDO::getStatus, ParentOrderStatusEnum.CREATING)
-                        .lt(
-                                OrderDO::getCreateTime,
-                                LocalDateTime.now().minusMinutes(CREATING_TIMEOUT_MINUTES)
-                        )
-                        .orderByAsc(OrderDO::getId)
+        List<OrderDO> stuck = orderMapper.selectStuckCreatingOrders(
+                ParentOrderStatusEnum.CREATING,
+                LocalDateTime.now().minusMinutes(CREATING_TIMEOUT_MINUTES)
         );
         if (CollUtil.isEmpty(stuck)) {
             return;

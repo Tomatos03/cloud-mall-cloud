@@ -6,7 +6,6 @@ import java.util.UUID;
 
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.json.JSONUtil;
-import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -84,7 +83,7 @@ public class OrderOutboxService implements IOrderOutboxService {
      */
     @Override
     public int publishPending(int batchSize) {
-        List<OrderOutboxDO> pending = listDuePending(batchSize);
+        List<OrderOutboxDO> pending = orderOutboxMapper.listDuePending(new Page<>(1, batchSize)).getRecords();
         if (CollUtil.isEmpty(pending)) {
             return 0;
         }
@@ -92,27 +91,6 @@ public class OrderOutboxService implements IOrderOutboxService {
             publishOne(outbox);
         }
         return pending.size();
-    }
-
-    /**
-     * 查询到期待发布事件（已到重试时间，按创建时间升序）。
-     *
-     * @param batchSize 批次大小
-     * @return 待发布事件列表
-     */
-    private List<OrderOutboxDO> listDuePending(int batchSize) {
-        Page<OrderOutboxDO> page = orderOutboxMapper.selectPage(
-                new Page<>(1, batchSize),
-                Wrappers.<OrderOutboxDO>lambdaQuery()
-                        .eq(OrderOutboxDO::getPublishStatus, OutboxPublishStatusEnum.PENDING)
-                        .and(
-                                wrapper -> wrapper.isNull(OrderOutboxDO::getNextRetryTime)
-                                                  .or()
-                                                  .le(OrderOutboxDO::getNextRetryTime, LocalDateTime.now())
-                        )
-                        .orderByAsc(OrderOutboxDO::getId)
-        );
-        return page.getRecords();
     }
 
     /**
@@ -137,13 +115,7 @@ public class OrderOutboxService implements IOrderOutboxService {
      * @param outbox 事件
      */
     private void markPublished(OrderOutboxDO outbox) {
-        orderOutboxMapper.update(
-                Wrappers.<OrderOutboxDO>lambdaUpdate()
-                        .set(OrderOutboxDO::getPublishStatus, OutboxPublishStatusEnum.PUBLISHED)
-                        .set(OrderOutboxDO::getPublishTime, LocalDateTime.now())
-                        .set(OrderOutboxDO::getLastError, null)
-                        .eq(OrderOutboxDO::getId, outbox.getId())
-        );
+        orderOutboxMapper.markPublished(outbox.getId());
     }
 
     /**
@@ -158,16 +130,12 @@ public class OrderOutboxService implements IOrderOutboxService {
         OutboxPublishStatusEnum status = nextRetry >= MAX_RETRY
                 ? OutboxPublishStatusEnum.DEAD
                 : OutboxPublishStatusEnum.PENDING;
-        orderOutboxMapper.update(
-                Wrappers.<OrderOutboxDO>lambdaUpdate()
-                        .set(OrderOutboxDO::getRetryCount, nextRetry)
-                        .set(
-                                OrderOutboxDO::getNextRetryTime,
-                                LocalDateTime.now().plusSeconds(RETRY_BASE_SECONDS * (long) nextRetry)
-                        )
-                        .set(OrderOutboxDO::getLastError, e.getMessage())
-                        .set(OrderOutboxDO::getPublishStatus, status)
-                        .eq(OrderOutboxDO::getId, outbox.getId())
+        orderOutboxMapper.markFailed(
+                outbox.getId(),
+                nextRetry,
+                LocalDateTime.now().plusSeconds(RETRY_BASE_SECONDS * (long) nextRetry),
+                e.getMessage(),
+                status
         );
     }
 }

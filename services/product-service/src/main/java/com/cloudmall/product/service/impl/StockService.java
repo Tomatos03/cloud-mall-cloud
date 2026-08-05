@@ -4,7 +4,6 @@ import java.util.List;
 
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.ObjectUtil;
-import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Service;
@@ -268,11 +267,7 @@ public class StockService implements IStockService {
      * @param afterStock 操作后库存
      */
     private void updateAfterStock(Long logId, Integer afterStock) {
-        stockOpLogMapper.update(
-                Wrappers.<StockOpLogDO>lambdaUpdate()
-                        .set(StockOpLogDO::getAfterStock, afterStock)
-                        .eq(StockOpLogDO::getId, logId)
-        );
+        stockOpLogMapper.updateAfterStock(logId, afterStock);
     }
 
     /**
@@ -282,11 +277,7 @@ public class StockService implements IStockService {
      * @return 预占流水列表
      */
     private List<StockOpLogDO> selectReserves(String orderNo) {
-        return stockOpLogMapper.selectList(
-                Wrappers.<StockOpLogDO>lambdaQuery()
-                        .eq(StockOpLogDO::getOrderNo, orderNo)
-                        .eq(StockOpLogDO::getOpType, StockOpTypeEnum.RESERVE)
-        );
+        return stockOpLogMapper.selectReservesByOrderNo(orderNo);
     }
 
     /**
@@ -298,12 +289,7 @@ public class StockService implements IStockService {
      * @return true 表示已处理
      */
     private boolean opExists(String orderNo, Long skuId, StockOpTypeEnum opType) {
-        Long count = stockOpLogMapper.selectCount(
-                Wrappers.<StockOpLogDO>lambdaQuery()
-                        .eq(StockOpLogDO::getOrderNo, orderNo)
-                        .eq(skuId != null, StockOpLogDO::getSkuId, skuId)
-                        .eq(StockOpLogDO::getOpType, opType)
-        );
+        Long count = stockOpLogMapper.countByOrderNoAndOpType(orderNo, skuId, opType);
         return count != null && count > 0;
     }
 

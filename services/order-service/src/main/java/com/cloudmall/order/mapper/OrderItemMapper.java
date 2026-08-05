@@ -4,9 +4,8 @@ import java.util.Collection;
 import java.util.List;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import org.apache.ibatis.annotations.Mapper;
-import org.apache.ibatis.annotations.Param;
-import org.apache.ibatis.annotations.Select;
 
 import com.cloudmall.order.entity.OrderItemDO;
 
@@ -24,18 +23,13 @@ public interface OrderItemMapper extends BaseMapper<OrderItemDO> {
      * @param subOrderId 子订单 ID
      * @return 明细列表
      */
-    @Select(
-            """
-            SELECT *
-            FROM cm_order_item
-            WHERE sub_order_id = #{subOrderId} AND deleted = 0
-            ORDER BY id
-            """
-    )
-    List<OrderItemDO> selectBySubOrderId(
-            @Param("subOrderId")
-            Long subOrderId
-    );
+    default List<OrderItemDO> selectBySubOrderId(Long subOrderId) {
+        return selectList(
+                Wrappers.<OrderItemDO>lambdaQuery()
+                        .eq(OrderItemDO::getSubOrderId, subOrderId)
+                        .orderByAsc(OrderItemDO::getId)
+        );
+    }
 
     /**
      * 批量查询多个子订单下的全部明细。
@@ -43,21 +37,11 @@ public interface OrderItemMapper extends BaseMapper<OrderItemDO> {
      * @param subOrderIds 子订单 ID 集合
      * @return 明细列表
      */
-    @Select(
-            """
-            <script>
-            SELECT *
-            FROM cm_order_item
-            WHERE deleted = 0 AND sub_order_id IN
-            <foreach collection="subOrderIds" item="subOrderId" open="(" separator="," close=")">
-                #{subOrderId}
-            </foreach>
-            ORDER BY id
-            </script>
-            """
-    )
-    List<OrderItemDO> selectBySubOrderIds(
-            @Param("subOrderIds")
-            Collection<Long> subOrderIds
-    );
+    default List<OrderItemDO> selectBySubOrderIds(Collection<Long> subOrderIds) {
+        return selectList(
+                Wrappers.<OrderItemDO>lambdaQuery()
+                        .in(OrderItemDO::getSubOrderId, subOrderIds)
+                        .orderByAsc(OrderItemDO::getId)
+        );
+    }
 }

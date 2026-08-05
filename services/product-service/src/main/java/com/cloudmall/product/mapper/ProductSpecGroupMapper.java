@@ -1,6 +1,9 @@
 package com.cloudmall.product.mapper;
 
+import java.util.List;
+
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import org.apache.ibatis.annotations.Mapper;
 
 import com.cloudmall.product.entity.ProductSpecGroupDO;
@@ -12,4 +15,18 @@ import com.cloudmall.product.entity.ProductSpecGroupDO;
  */
 @Mapper
 public interface ProductSpecGroupMapper extends BaseMapper<ProductSpecGroupDO> {
+
+    /**
+     * 查询商品的规格组，按排序值升序。
+     *
+     * @param productId 商品 ID
+     * @return 规格组列表
+     */
+    default List<ProductSpecGroupDO> selectByProductId(Long productId) {
+        return selectList(
+                Wrappers.<ProductSpecGroupDO>lambdaQuery()
+                        .eq(ProductSpecGroupDO::getProductId, productId)
+                        .orderByAsc(ProductSpecGroupDO::getSortOrder)
+        );
+    }
 }

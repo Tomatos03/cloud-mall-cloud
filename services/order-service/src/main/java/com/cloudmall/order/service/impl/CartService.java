@@ -15,7 +15,6 @@ import java.util.stream.Collectors;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.BooleanUtil;
 import cn.hutool.core.util.ObjectUtil;
-import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -89,13 +88,7 @@ public class CartService implements ICartService {
      */
     @Override
     public void updateQuantity(Long userId, CartOperatorReq req) {
-        int updated = cartMapper.update(
-                Wrappers.<CartDO>lambdaUpdate()
-                        .set(CartDO::getQuantity, req.quantity())
-                        .gt(CartDO::getQuantity, 0)
-                        .eq(CartDO::getUserId, userId)
-                        .eq(CartDO::getSkuId, req.skuId())
-        );
+        int updated = cartMapper.updateQuantityIfPositive(userId, req.skuId(), req.quantity());
         Asserts.isTrue(updated > 0, BizError.CART_ITEM_NOT_EXIST);
     }
 
@@ -110,11 +103,7 @@ public class CartService implements ICartService {
         if (CollUtil.isEmpty(skuIds)) {
             return;
         }
-        cartMapper.delete(
-                Wrappers.<CartDO>lambdaQuery()
-                        .eq(CartDO::getUserId, userId)
-                        .in(CartDO::getSkuId, skuIds)
-        );
+        cartMapper.deleteByUserIdAndSkuIds(userId, skuIds);
     }
 
     /**
@@ -125,12 +114,7 @@ public class CartService implements ICartService {
      */
     @Override
     public void selectItems(Long userId, CartSelectReq req) {
-        int updated = cartMapper.update(
-                Wrappers.<CartDO>lambdaUpdate()
-                        .set(CartDO::getSelected, req.getSelected())
-                        .eq(CartDO::getUserId, userId)
-                        .eq(CartDO::getSkuId, req.getSkuId())
-        );
+        int updated = cartMapper.updateSelectedByUserIdAndSkuId(userId, req.getSkuId(), req.getSelected());
         Asserts.isTrue(updated > 0, BizError.CART_ITEM_NOT_EXIST);
     }
 
@@ -143,11 +127,7 @@ public class CartService implements ICartService {
     @Override
     public void selectAll(Long userId, Boolean selected) {
         Asserts.notNull(selected, BizError.INVALID_PARAM);
-        cartMapper.update(
-                Wrappers.<CartDO>lambdaUpdate()
-                        .set(CartDO::getSelected, selected)
-                        .eq(CartDO::getUserId, userId)
-        );
+        cartMapper.updateSelectedByUserId(userId, selected);
     }
 
     /**
@@ -159,12 +139,7 @@ public class CartService implements ICartService {
      */
     @Override
     public void selectShop(Long userId, Long shopId, Boolean selected) {
-        cartMapper.update(
-                Wrappers.<CartDO>lambdaUpdate()
-                        .set(CartDO::getSelected, selected)
-                        .eq(CartDO::getUserId, userId)
-                        .eq(CartDO::getShopId, shopId)
-        );
+        cartMapper.updateSelectedByUserIdAndShopId(userId, shopId, selected);
     }
 
     /**
@@ -196,7 +171,7 @@ public class CartService implements ICartService {
      */
     @Override
     public void clear(Long userId) {
-        cartMapper.delete(Wrappers.<CartDO>lambdaQuery().eq(CartDO::getUserId, userId));
+        cartMapper.deleteByUserId(userId);
     }
 
     /**
@@ -207,11 +182,7 @@ public class CartService implements ICartService {
      * @return 购物车记录，不存在时返回 null
      */
     private CartDO findCartItem(Long userId, Long skuId) {
-        return cartMapper.selectOne(
-                Wrappers.<CartDO>lambdaQuery()
-                        .eq(CartDO::getUserId, userId)
-                        .eq(CartDO::getSkuId, skuId)
-        );
+        return cartMapper.selectByUserIdAndSkuId(userId, skuId);
     }
 
     /**
@@ -226,12 +197,11 @@ public class CartService implements ICartService {
     private Long mergeToExisting(CartDO existing, SkuResp sku, Integer quantity) {
         int newQuantity = existing.getQuantity() + quantity;
         Asserts.isTrue(newQuantity <= MAX_QUANTITY, BizError.CART_LIMIT_EXCEEDED);
-        cartMapper.update(
-                Wrappers.<CartDO>lambdaUpdate()
-                        .set(CartDO::getQuantity, newQuantity)
-                        .set(CartDO::getPrice, sku.getPrice())
-                        .eq(CartDO::getId, existing.getId())
-                        .eq(CartDO::getQuantity, existing.getQuantity() + quantity)
+        cartMapper.mergeQuantityAndPrice(
+                existing.getId(),
+                newQuantity,
+                sku.getPrice(),
+                existing.getQuantity() + quantity
         );
         return existing.getId();
     }
@@ -243,7 +213,7 @@ public class CartService implements ICartService {
      * @throws BizException 处理过程中可能抛出该异常
      */
     private void checkCartCapacity(Long userId) {
-        Long count = cartMapper.selectCount(Wrappers.<CartDO>lambdaQuery().eq(CartDO::getUserId, userId));
+        Long count = cartMapper.countByUserId(userId);
         Asserts.isTrue(count < MAX_ITEMS, BizError.CART_LIMIT_EXCEEDED);
     }
 
@@ -315,19 +285,11 @@ public class CartService implements ICartService {
      */
     @Override
     public List<CartDO> listSelectedItems(Long userId) {
-        return cartMapper.selectList(
-                Wrappers.<CartDO>lambdaQuery()
-                        .eq(CartDO::getUserId, userId)
-                        .eq(CartDO::getSelected, Boolean.TRUE)
-        );
+        return cartMapper.listSelectedByUserId(userId);
     }
 
     private List<CartDO> listCartItems(Long userId) {
-        return cartMapper.selectList(
-                Wrappers.<CartDO>lambdaQuery()
-                        .eq(CartDO::getUserId, userId)
-                        .orderByAsc(CartDO::getCreateTime)
-        );
+        return cartMapper.listByUserId(userId);
     }
 
     /**

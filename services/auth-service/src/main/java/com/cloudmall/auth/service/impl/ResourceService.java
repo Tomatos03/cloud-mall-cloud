@@ -9,7 +9,6 @@ import cn.hutool.core.lang.tree.TreeUtil;
 import cn.hutool.core.util.BooleanUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
-import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -29,7 +28,6 @@ import com.cloudmall.auth.model.resp.ResourceResp;
 import com.cloudmall.auth.service.IResourceService;
 import com.cloudmall.common.enums.BizError;
 import com.cloudmall.common.utils.Asserts;
-import com.cloudmall.mybatisplus.enums.StatusEnum;
 
 /**
  * 资源权限统一服务实现
@@ -55,9 +53,7 @@ public class ResourceService implements IResourceService {
      */
     @Override
     public List<String> getRoleCodes(Long userId) {
-        List<UserRoleDO> userRoles = userRoleMapper.selectList(
-                Wrappers.<UserRoleDO>lambdaQuery().eq(UserRoleDO::getUserId, userId)
-        );
+        List<UserRoleDO> userRoles = userRoleMapper.selectByUserId(userId);
         if (CollUtil.isEmpty(userRoles)) {
             return Collections.emptyList();
         }
@@ -71,9 +67,7 @@ public class ResourceService implements IResourceService {
      */
     @Override
     public List<String> getPermissionCodes(Long userId) {
-        List<UserRoleDO> userRoles = userRoleMapper.selectList(
-                Wrappers.<UserRoleDO>lambdaQuery().eq(UserRoleDO::getUserId, userId)
-        );
+        List<UserRoleDO> userRoles = userRoleMapper.selectByUserId(userId);
         List<Long> roleIds = userRoles.stream()
                                       .map(UserRoleDO::getRoleId)
                                       .toList();
@@ -82,9 +76,7 @@ public class ResourceService implements IResourceService {
             return Collections.emptyList();
         }
 
-        List<RoleResourceDO> roleResources = roleResourceMapper.selectList(
-                Wrappers.<RoleResourceDO>lambdaQuery().in(RoleResourceDO::getRoleId, roleIds)
-        );
+        List<RoleResourceDO> roleResources = roleResourceMapper.selectByRoleIds(roleIds);
         List<Long> resourceIds = roleResources.stream()
                                               .map(RoleResourceDO::getResourceId)
                                               .toList();
@@ -93,11 +85,7 @@ public class ResourceService implements IResourceService {
             return Collections.emptyList();
         }
 
-        List<ResourceDO> resources = resourceMapper.selectList(
-                Wrappers.<ResourceDO>lambdaQuery()
-                        .in(ResourceDO::getId, resourceIds)
-                        .eq(ResourceDO::getEnabled, StatusEnum.ENABLED)
-        );
+        List<ResourceDO> resources = resourceMapper.selectEnabledByIds(resourceIds);
         return resources.stream()
                         .map(ResourceDO::getCode)
                         .distinct()
@@ -138,12 +126,7 @@ public class ResourceService implements IResourceService {
             Asserts.isTrue(ResourceTypeEnum.isValid(type), BizError.INVALID_RESOURCE_TYPE);
         }
 
-        List<ResourceDO> resources = resourceMapper.selectList(
-                Wrappers.<ResourceDO>lambdaQuery()
-                        .eq(type != null, ResourceDO::getType, type)
-                        .eq(ResourceDO::getEnabled, StatusEnum.ENABLED)
-                        .orderByAsc(ResourceDO::getSort)
-        );
+        List<ResourceDO> resources = resourceMapper.selectEnabledByType(type);
         return resourceConverter.toResourceRespList(resources);
     }
 
@@ -200,9 +183,7 @@ public class ResourceService implements IResourceService {
     public void deleteResource(Long resourceId) {
         ResourceDO existing = Asserts.requireNonNull(resourceMapper.selectById(resourceId));
 
-        Long childCount = resourceMapper.selectCount(
-                Wrappers.<ResourceDO>lambdaQuery().eq(ResourceDO::getParentId, resourceId)
-        );
+        Long childCount = resourceMapper.countByParentId(resourceId);
         Asserts.isZero(ObjectUtil.defaultIfNull(childCount, 0L), BizError.INVALID_PARAM);
 
         resourceMapper.deleteById(resourceId);
@@ -213,12 +194,7 @@ public class ResourceService implements IResourceService {
      */
     @Override
     public List<ResourceNodeResp> getFullResourceTree() {
-        List<ResourceDO> allUiResources = resourceMapper.selectList(
-                Wrappers.<ResourceDO>lambdaQuery()
-                        .in(ResourceDO::getType, ResourceTypeEnum.uiTypeCodes())
-                        .eq(ResourceDO::getEnabled, StatusEnum.ENABLED)
-                        .orderByAsc(ResourceDO::getSort)
-        );
+        List<ResourceDO> allUiResources = resourceMapper.selectEnabledUiResources();
         return buildResourceTree(allUiResources);
     }
 

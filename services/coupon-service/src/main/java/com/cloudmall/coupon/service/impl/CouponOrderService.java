@@ -11,7 +11,6 @@ import java.util.Map;
 import java.util.Objects;
 
 import cn.hutool.core.collection.CollUtil;
-import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -36,7 +35,6 @@ import com.cloudmall.coupon.calc.CouponScopeMatcher;
 import com.cloudmall.coupon.convert.CouponOrderConverter;
 import com.cloudmall.coupon.entity.CouponDO;
 import com.cloudmall.coupon.entity.UserCouponDO;
-import com.cloudmall.coupon.enums.UserCouponStatusEnum;
 import com.cloudmall.coupon.mapper.CouponMapper;
 import com.cloudmall.coupon.mapper.UserCouponMapper;
 import com.cloudmall.coupon.service.ICouponOrderService;
@@ -159,11 +157,7 @@ public class CouponOrderService implements ICouponOrderService {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public void revertByOrder(CouponOrderRevertByOrderReq req) {
-        List<UserCouponDO> used = userCouponMapper.selectList(
-                Wrappers.<UserCouponDO>lambdaQuery()
-                        .eq(UserCouponDO::getLockedOrderNo, req.getOrderNo())
-                        .eq(UserCouponDO::getStatus, UserCouponStatusEnum.USED)
-        );
+        List<UserCouponDO> used = userCouponMapper.selectUsedByOrder(req.getOrderNo());
         for (UserCouponDO uc : used) {
             userCouponService.revert(
                     req.getOrderNo(),
@@ -182,11 +176,7 @@ public class CouponOrderService implements ICouponOrderService {
      * @return 已锁定用户券列表
      */
     private List<UserCouponDO> listLockedByOrder(String orderNo) {
-        return userCouponMapper.selectList(
-                Wrappers.<UserCouponDO>lambdaQuery()
-                        .eq(UserCouponDO::getLockedOrderNo, orderNo)
-                        .eq(UserCouponDO::getStatus, UserCouponStatusEnum.LOCKED)
-        );
+        return userCouponMapper.selectLockedByOrder(orderNo);
     }
 
     /**
@@ -352,11 +342,7 @@ public class CouponOrderService implements ICouponOrderService {
      * @param userId 用户 ID
      */
     private void fillCandidates(CouponOrderCalcResp resp, List<CouponCalcItem> items, Long userId) {
-        List<UserCouponDO> available = userCouponMapper.selectList(
-                Wrappers.<UserCouponDO>lambdaQuery()
-                        .eq(UserCouponDO::getUserId, userId)
-                        .eq(UserCouponDO::getStatus, UserCouponStatusEnum.AVAILABLE)
-        );
+        List<UserCouponDO> available = userCouponMapper.selectAvailableByUser(userId);
         List<CouponCandidateResp> candidates = new ArrayList<>();
         List<CalcCoupon> validPlatform = new ArrayList<>();
         Map<Long, List<CalcCoupon>> validShopByShop = new LinkedHashMap<>();
@@ -592,11 +578,7 @@ public class CouponOrderService implements ICouponOrderService {
      * @return true 表示已锁定
      */
     private boolean hasLocked(String orderNo) {
-        Long count = userCouponMapper.selectCount(
-                Wrappers.<UserCouponDO>lambdaQuery()
-                        .eq(UserCouponDO::getLockedOrderNo, orderNo)
-                        .eq(UserCouponDO::getStatus, UserCouponStatusEnum.LOCKED)
-        );
+        Long count = userCouponMapper.countLockedByOrder(orderNo);
         return count != null && count > 0;
     }
 
@@ -607,11 +589,9 @@ public class CouponOrderService implements ICouponOrderService {
      * @return 优惠快照
      */
     private CouponOrderCalcResp rebuildByOrder(CouponOrderLockReq req) {
-        List<UserCouponDO> locked = userCouponMapper.selectList(
-                Wrappers.<UserCouponDO>lambdaQuery()
-                        .eq(UserCouponDO::getUserId, req.getUserId())
-                        .eq(UserCouponDO::getLockedOrderNo, req.getOrderNo())
-                        .eq(UserCouponDO::getStatus, UserCouponStatusEnum.LOCKED)
+        List<UserCouponDO> locked = userCouponMapper.selectLockedByUserAndOrder(
+                req.getUserId(),
+                req.getOrderNo()
         );
         Asserts.notEmpty(locked, BizError.COUPON_LOCK_FAILED);
         CalcCoupon platform = null;

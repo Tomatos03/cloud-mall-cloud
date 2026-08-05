@@ -6,7 +6,6 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import cn.hutool.core.collection.CollUtil;
-import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -37,18 +36,10 @@ public class ProductSpecService implements IProductSpecService {
      */
     @Override
     public List<SpecGroupResp> getSpecGroups(Long productId) {
-        List<ProductSpecGroupDO> groups = productSpecGroupMapper.selectList(
-                Wrappers.<ProductSpecGroupDO>lambdaQuery()
-                        .eq(ProductSpecGroupDO::getProductId, productId)
-                        .orderByAsc(ProductSpecGroupDO::getSortOrder)
-        );
+        List<ProductSpecGroupDO> groups = productSpecGroupMapper.selectByProductId(productId);
         List<SpecGroupResp> responses = new ArrayList<>(groups.size());
         for (ProductSpecGroupDO group : groups) {
-            List<ProductSpecValueDO> values = productSpecValueMapper.selectList(
-                    Wrappers.<ProductSpecValueDO>lambdaQuery()
-                            .eq(ProductSpecValueDO::getGroupId, group.getId())
-                            .orderByAsc(ProductSpecValueDO::getSortOrder)
-            );
+            List<ProductSpecValueDO> values = productSpecValueMapper.selectByGroupId(group.getId());
             responses.add(specGroupConverter.toResp(group, values));
         }
         return responses;
@@ -65,9 +56,7 @@ public class ProductSpecService implements IProductSpecService {
         if (CollUtil.isEmpty(skuIds)) {
             return Map.of();
         }
-        List<ProductSkuSpecDO> specs = productSkuSpecMapper.selectList(
-                Wrappers.<ProductSkuSpecDO>lambdaQuery().in(ProductSkuSpecDO::getSkuId, skuIds)
-        );
+        List<ProductSkuSpecDO> specs = productSkuSpecMapper.selectBySkuIds(skuIds);
         return specs.stream()
                     .collect(
                             Collectors.groupingBy(
@@ -89,11 +78,9 @@ public class ProductSpecService implements IProductSpecService {
         if (CollUtil.isEmpty(specValueIds)) {
             return Map.of();
         }
-        final String skuIdInSql = "SELECT id FROM cm_product_sku WHERE product_id = " + productId;
-        List<ProductSkuSpecDO> specs = productSkuSpecMapper.selectList(
-                Wrappers.<ProductSkuSpecDO>lambdaQuery()
-                        .in(ProductSkuSpecDO::getSpecValueId, specValueIds)
-                        .inSql(ProductSkuSpecDO::getSkuId, skuIdInSql)
+        List<ProductSkuSpecDO> specs = productSkuSpecMapper.selectBySpecValueIdsInProduct(
+                specValueIds,
+                productId
         );
         return specs
                 .stream()

@@ -2,7 +2,6 @@ package com.cloudmall.seckill.service.impl;
 
 import java.math.BigDecimal;
 
-import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -97,12 +96,7 @@ public class SeckillService implements ISeckillService {
      */
     @Override
     public boolean verifyProduct(Long activityId, Long productId) {
-        SeckillProductDO product = productMapper.selectOne(
-                Wrappers.<SeckillProductDO>lambdaQuery()
-                        .eq(SeckillProductDO::getActivityId, activityId)
-                        .eq(SeckillProductDO::getProductId, productId)
-                        .eq(SeckillProductDO::getAuditStatus, "APPROVED")
-        );
+        SeckillProductDO product = productMapper.selectApprovedProduct(activityId, productId);
         return product != null;
     }
 }

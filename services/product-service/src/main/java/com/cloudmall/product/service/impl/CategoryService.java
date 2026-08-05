@@ -9,14 +9,12 @@ import cn.hutool.core.lang.tree.Tree;
 import cn.hutool.core.lang.tree.TreeNode;
 import cn.hutool.core.lang.tree.TreeUtil;
 import cn.hutool.core.util.ObjectUtil;
-import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import com.cloudmall.common.enums.BizError;
 import com.cloudmall.common.exception.BizException;
 import com.cloudmall.common.utils.Asserts;
-import com.cloudmall.mybatisplus.enums.StatusEnum;
 import com.cloudmall.product.api.request.CategoryCreateReq;
 import com.cloudmall.product.api.response.CategoryNodeResp;
 import com.cloudmall.product.api.response.CategoryResp;
@@ -41,11 +39,7 @@ public class CategoryService implements ICategoryService {
      */
     @Override
     public List<CategoryNodeResp> tree() {
-        List<CategoryDO> categoryList = categoryMapper.selectList(
-                Wrappers.<CategoryDO>lambdaQuery()
-                        .eq(CategoryDO::getStatus, StatusEnum.ENABLED)
-                        .orderByAsc(CategoryDO::getSortOrder)
-        );
+        List<CategoryDO> categoryList = categoryMapper.selectEnabledOrdered();
 
         List<TreeNode<Long>> nodeList = categoryList
                 .stream()

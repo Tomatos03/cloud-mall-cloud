@@ -2,7 +2,6 @@ package com.cloudmall.user.service.impl;
 
 import java.util.List;
 
-import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -34,9 +33,7 @@ public class AddressService implements IAddressService {
      */
     @Override
     public List<AddressResp> list(Long userId) {
-        List<AddressDO> list = addressMapper.selectList(
-                Wrappers.<AddressDO>lambdaQuery().eq(AddressDO::getUserId, userId)
-        );
+        List<AddressDO> list = addressMapper.listByUserId(userId);
         return addressConverter.toRespList(list);
     }
 
@@ -63,9 +60,7 @@ public class AddressService implements IAddressService {
      */
     @Override
     public Long create(CreateReq request, Long userId) {
-        long count = addressMapper.selectCount(
-                Wrappers.<AddressDO>lambdaQuery().eq(AddressDO::getUserId, userId)
-        );
+        long count = addressMapper.countByUserId(userId);
         Asserts.isFalse(count >= MAX_ADDRESS_COUNT, BizError.ADDRESS_LIMIT_EXCEEDED);
 
         AddressDO address = addressConverter.toDO(request, userId);

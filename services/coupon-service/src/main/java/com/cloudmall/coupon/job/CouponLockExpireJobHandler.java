@@ -4,7 +4,6 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 import cn.hutool.core.collection.CollUtil;
-import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.xxl.job.core.handler.annotation.XxlJob;
 import lombok.RequiredArgsConstructor;
@@ -12,7 +11,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
 import com.cloudmall.coupon.entity.UserCouponDO;
-import com.cloudmall.coupon.enums.UserCouponStatusEnum;
 import com.cloudmall.coupon.mapper.UserCouponMapper;
 import com.cloudmall.coupon.service.IUserCouponService;
 
@@ -67,15 +65,8 @@ public class CouponLockExpireJobHandler {
      * @return 用户券列表
      */
     private List<UserCouponDO> listExpiredLocks(long pageNo) {
-        Page<UserCouponDO> page = userCouponMapper.selectPage(
-                new Page<>(pageNo, BATCH_SIZE),
-                Wrappers.<UserCouponDO>lambdaQuery()
-                        .eq(UserCouponDO::getStatus, UserCouponStatusEnum.LOCKED)
-                        .isNotNull(UserCouponDO::getLockExpireTime)
-                        .lt(UserCouponDO::getLockExpireTime, LocalDateTime.now())
-                        .orderByAsc(UserCouponDO::getLockExpireTime)
-        );
-        return page.getRecords();
+        return userCouponMapper.selectExpiredLocks(new Page<>(pageNo, BATCH_SIZE), LocalDateTime.now())
+                               .getRecords();
     }
 
     /**

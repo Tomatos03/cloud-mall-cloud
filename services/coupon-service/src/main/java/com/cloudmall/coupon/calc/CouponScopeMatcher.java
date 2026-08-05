@@ -8,17 +8,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import cn.hutool.core.collection.CollUtil;
-import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
 import com.cloudmall.coupon.api.dto.CouponCalcItem;
-import com.cloudmall.coupon.entity.CouponCategoryDO;
 import com.cloudmall.coupon.entity.CouponDO;
-import com.cloudmall.coupon.entity.CouponProductDO;
 import com.cloudmall.coupon.enums.CouponScopeEnum;
 import com.cloudmall.coupon.mapper.CouponCategoryMapper;
 import com.cloudmall.coupon.mapper.CouponProductMapper;
@@ -118,12 +114,7 @@ public class CouponScopeMatcher {
      * @return 商品 ID 集合
      */
     private Set<Long> loadProductIds(Long couponId) {
-        List<CouponProductDO> relations = couponProductMapper.selectList(
-                Wrappers.<CouponProductDO>lambdaQuery().eq(CouponProductDO::getCouponId, couponId)
-        );
-        return relations.stream()
-                        .map(CouponProductDO::getProductId)
-                        .collect(Collectors.toSet());
+        return new HashSet<>(couponProductMapper.selectIdsByCouponId(couponId));
     }
 
     /**
@@ -133,12 +124,7 @@ public class CouponScopeMatcher {
      * @return 分类 ID 集合
      */
     private Set<Long> loadCategoryIds(Long couponId) {
-        List<CouponCategoryDO> relations = couponCategoryMapper.selectList(
-                Wrappers.<CouponCategoryDO>lambdaQuery().eq(CouponCategoryDO::getCouponId, couponId)
-        );
-        return relations.stream()
-                        .map(CouponCategoryDO::getCategoryId)
-                        .collect(Collectors.toSet());
+        return new HashSet<>(couponCategoryMapper.selectIdsByCouponId(couponId));
     }
 
     /**

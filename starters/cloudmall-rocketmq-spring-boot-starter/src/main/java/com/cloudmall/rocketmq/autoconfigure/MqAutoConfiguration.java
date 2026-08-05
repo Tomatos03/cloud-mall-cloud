@@ -1,12 +1,13 @@
 package com.cloudmall.rocketmq.autoconfigure;
 
-import com.cloudmall.rocketmq.producer.MQProducer;
 import org.apache.rocketmq.spring.core.RocketMQTemplate;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
+
+import com.cloudmall.rocketmq.producer.MQProducer;
 
 /**
  * RocketMQ 自动配置
@@ -18,13 +19,20 @@ import org.springframework.context.annotation.Bean;
  */
 @AutoConfiguration
 @ConditionalOnClass(RocketMQTemplate.class)
-@ConditionalOnProperty(prefix = "cloudmall.rocketmq", name = "enabled", havingValue = "true", matchIfMissing = true)
+@ConditionalOnProperty(
+        prefix = "cloudmall.rocketmq",
+        name = "enabled",
+        havingValue = "true",
+        matchIfMissing = true
+)
 public class MqAutoConfiguration {
 
     /**
      * 创建 RocketMQ 通用发送客户端
      *
-     * @param rocketMQTemplate RocketMQ 模板（由 rocketmq-spring-boot-starter 自动配置）
+     * @param rocketMQTemplate RocketMQ 模板（由
+     * rocketmq-spring-boot-starter
+     *                         自动配置）
      * @return RocketMQProducer 实例
      */
     @Bean

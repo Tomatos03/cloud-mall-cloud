@@ -1,6 +1,5 @@
 package com.cloudmall.product.service.impl;
 
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -13,7 +12,6 @@ import java.util.stream.Collectors;
 
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.ObjectUtil;
-import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -69,13 +67,7 @@ public class SkuService implements ISkuService {
         if (quantity == 0) {
             return Boolean.TRUE;
         }
-        int updated = productSkuMapper.update(
-                Wrappers.<ProductSkuDO>lambdaUpdate()
-                        .setSql("stock = stock + " + quantity)
-                        .set(ProductSkuDO::getUpdateTime, LocalDateTime.now())
-                        .eq(ProductSkuDO::getId, skuId)
-                        .ge(ProductSkuDO::getStock, -quantity)
-        );
+        int updated = productSkuMapper.updateStock(skuId, quantity);
         Asserts.isTrue(updated > 0, BizError.STOCK_NOT_ENOUGH);
         return Boolean.TRUE;
     }
@@ -91,9 +83,7 @@ public class SkuService implements ISkuService {
         if (CollUtil.isEmpty(skuIds)) {
             return Collections.emptyList();
         }
-        List<ProductSkuDO> skus = productSkuMapper.selectList(
-                Wrappers.<ProductSkuDO>lambdaQuery().in(ProductSkuDO::getId, skuIds)
-        );
+        List<ProductSkuDO> skus = productSkuMapper.selectByIds(skuIds);
         if (CollUtil.isEmpty(skus)) {
             return Collections.emptyList();
         }
@@ -166,9 +156,7 @@ public class SkuService implements ISkuService {
      * @return skuId -> 规格描述（如 "红色；XL"）
      */
     private Map<Long, String> batchBuildSpecDesc(Set<Long> skuIds) {
-        List<ProductSkuSpecDO> relations = productSkuSpecMapper.selectList(
-                Wrappers.<ProductSkuSpecDO>lambdaQuery().in(ProductSkuSpecDO::getSkuId, skuIds)
-        );
+        List<ProductSkuSpecDO> relations = productSkuSpecMapper.selectBySkuIds(skuIds);
         if (CollUtil.isEmpty(relations)) {
             return Collections.emptyMap();
         }
