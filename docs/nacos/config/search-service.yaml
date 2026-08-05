@@ -1,0 +1,10 @@
+search:
+  elasticsearch:
+    # Elasticsearch 地址
+    uris: http://localhost:9200
+    # 商品搜索索引名
+    index: cm_product
+
+logging:
+  level:
+    com.cloudmall.search: debug

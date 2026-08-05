@@ -91,6 +91,8 @@ services:
   elasticsearch:
     container_name: cm-elasticsearch
     image: docker.elastic.co/elasticsearch/elasticsearch:8.15.5
+    # IK 分词插件：直接挂载 docs/docker/es-plugins/ik（含 plugin-descriptor.properties），
+    # ES 启动时自动扫描加载，无需在线安装；离线包见 es-plugins/elasticsearch-analysis-ik-8.15.5.zip
     environment:
       - discovery.type=single-node
       - xpack.security.enabled=false
@@ -100,6 +102,7 @@ services:
       - "9300:9300"
     volumes:
       - elasticsearch-data:/usr/share/elasticsearch/data
+      - ./es-plugins/ik:/usr/share/elasticsearch/plugins/ik
     healthcheck:
       test: ["CMD-SHELL", "curl -f http://localhost:9200/_cluster/health || exit 1"]
       interval: 10s

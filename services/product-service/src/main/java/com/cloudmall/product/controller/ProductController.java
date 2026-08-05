@@ -1,22 +1,25 @@
 package com.cloudmall.product.controller;
 
-import com.baomidou.mybatisplus.core.metadata.IPage;
+import java.time.LocalDateTime;
+
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.cloudmall.common.model.Result;
 import com.cloudmall.product.api.request.ProductCreateReq;
 import com.cloudmall.product.api.response.ProductDetailResp;
 import com.cloudmall.product.api.response.ProductResp;
+import com.cloudmall.product.api.response.SearchDocPageResp;
 import com.cloudmall.product.application.ProductApp;
 import com.cloudmall.product.model.req.ProductGetReq;
-import com.cloudmall.product.model.req.ProductPageReq;
 import com.cloudmall.product.service.IProductService;
 
 /**
@@ -98,15 +101,25 @@ public class ProductController {
     }
 
     /**
-     * 通用商品列表查询。 <p>
-     * 筛选条件通过 {@link ProductPageReq} 的
-     * {@code @QueryCondition} 注解声明。
+     * 分页拉取商品搜索文档（search-service 数据源）。 <p>
+     * 按 updateTime 升序排列，支持 since 增量游标；包含下架商品（status 透传），
+     * 由消费方决定写入或丢弃。文档不含 sales，避免覆盖 ES 中的销量。
      *
-     * @param req 查询条件
-     * @return 商品列表
+     * @param page 页码，从 1 开始
+     * @param size 每页条数
+     * @param since 增量游标（可选），ISO 日期时间
+     * @return 搜索文档分页结果
      */
-    @GetMapping
-    public Result<IPage<ProductResp>> page(ProductPageReq req) {
-        return Result.success(productService.page(req));
+    @GetMapping("/search-docs")
+    public Result<SearchDocPageResp> searchDocs(
+            @RequestParam(value = "page", defaultValue = "1")
+            long page,
+            @RequestParam(value = "size", defaultValue = "100")
+            long size,
+            @RequestParam(value = "since", required = false)
+            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
+            LocalDateTime since
+    ) {
+        return Result.success(productService.searchDocs(page, size, since));
     }
 }

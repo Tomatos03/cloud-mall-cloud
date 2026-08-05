@@ -2,18 +2,22 @@ package com.cloudmall.product.service.impl;
 
 import java.math.BigDecimal;
 import java.text.Normalizer;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.IdUtil;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import lombok.RequiredArgsConstructor;
 import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Service;
@@ -30,6 +34,8 @@ import com.cloudmall.product.api.request.ProductCreateReq;
 import com.cloudmall.product.api.response.ImageResp;
 import com.cloudmall.product.api.response.ProductDetailResp;
 import com.cloudmall.product.api.response.ProductResp;
+import com.cloudmall.product.api.response.SearchDocPageResp;
+import com.cloudmall.product.api.response.SearchDocResp;
 import com.cloudmall.product.api.response.SpecGroupResp;
 import com.cloudmall.product.convert.ImageConverter;
 import com.cloudmall.product.convert.ProductConverter;
@@ -54,7 +60,6 @@ import com.cloudmall.product.mapper.ProductSpecGroupMapper;
 import com.cloudmall.product.mapper.ProductSpecValueMapper;
 import com.cloudmall.product.model.ProductSkuPrice;
 import com.cloudmall.product.model.req.ProductGetReq;
-import com.cloudmall.product.model.req.ProductPageReq;
 import com.cloudmall.product.service.IProductImageService;
 import com.cloudmall.product.service.IProductService;
 import com.cloudmall.product.service.IProductSpecService;
@@ -115,62 +120,123 @@ public class ProductService implements IProductService {
     }
 
     /**
-     * 分页查询数据。
+     * 分页拉取商品搜索文档。 <p>
+     * 按 updateTime 升序排列以支持增量游标；不过滤商品状态（下架商品 status 透传， 由
+     * 消费方决定写入或丢弃）。文档不含 sales，避免覆盖 ES 中的销量。
      *
-     * @param req 请求参数
-     * @return 分页数据
+     * @param current 页码，从 1 开始
+     * @param size 每页条数
+     * @param since 增量游标（可选），仅返回 updateTime 晚于 since 的商品
+     * @return 搜索文档分页结果
      */
     @Override
-    public IPage<ProductResp> page(ProductPageReq req) {
-        IPage<ProductDO> page = productMapper.selectProductPage(req);
+    public SearchDocPageResp searchDocs(long current, long size, LocalDateTime since) {
+        IPage<ProductDO> page = productMapper.selectPage(
+                new Page<>(current, size),
+                buildSearchDocWrapper(since)
+        );
 
         List<ProductDO> records = page.getRecords();
         if (CollUtil.isEmpty(records)) {
-            return page.convert(productConverter::toResp);
+            return SearchDocPageResp.builder()
+                                    .records(List.of())
+                                    .total(page.getTotal())
+                                    .current(page.getCurrent())
+                                    .size(page.getSize())
+                                    .build();
         }
 
-        // 收集所有关联 ID
-        Set<Long> brandIds = records.stream()
-                                    .map(ProductDO::getBrandId)
-                                    .collect(Collectors.toSet());
-        Set<Long> imageIds = records.stream()
-                                    .map(ProductDO::getImageId)
-                                    .collect(Collectors.toSet());
+        Set<Long> brandIds = collectNonNull(records, ProductDO::getBrandId);
+        Set<Long> categoryIds = collectNonNull(records, ProductDO::getCategoryId);
+        Set<Long> imageIds = collectNonNull(records, ProductDO::getImageId);
         Set<Long> productIds = records.stream()
                                       .map(ProductDO::getId)
                                       .collect(Collectors.toSet());
 
-        // 批量查询品牌
-        Map<Long, BrandDO> brandMap = new HashMap<>();
-        if (CollUtil.isNotEmpty(brandIds)) {
-            List<BrandDO> brands = brandMapper.selectByIds(brandIds);
-            brandMap = brands.stream().collect(Collectors.toMap(BrandDO::getId, Function.identity()));
-        }
-
-        // 批量查询主图
-        Map<Long, ProductImageDO> imageMap = new HashMap<>();
-        if (CollUtil.isNotEmpty(imageIds)) {
-            List<ProductImageDO> images = productImageMapper.selectByIds(imageIds);
-            imageMap = images.stream().collect(Collectors.toMap(ProductImageDO::getId, Function.identity()));
-        }
-
-        // 批量查询每个 SPU 的最低 SKU 价格
+        Map<Long, BrandDO> brandMap = batchQuery(brandIds, brandMapper::selectByIds, BrandDO::getId);
+        Map<Long, CategoryDO> categoryMap = batchQuery(
+                categoryIds,
+                categoryMapper::selectByIds,
+                CategoryDO::getId
+        );
+        Map<Long, ProductImageDO> imageMap = batchQuery(
+                imageIds,
+                productImageMapper::selectByIds,
+                ProductImageDO::getId
+        );
         Map<Long, BigDecimal> lowestPriceMap = productSkuMapper
                 .selectLowestPrices(productIds)
                 .stream()
                 .collect(Collectors.toMap(ProductSkuPrice::productId, ProductSkuPrice::price));
 
-        // 组装响应
-        Map<Long, BrandDO> finalBrandMap = brandMap;
-        Map<Long, ProductImageDO> finalImageMap = imageMap;
-        return page.convert(
-                product -> productConverter.toCompositeResp(
-                        product,
-                        finalBrandMap,
-                        finalImageMap,
-                        lowestPriceMap
-                )
-        );
+        List<SearchDocResp> docs = records
+                .stream()
+                .map(p -> assembleSearchDoc(p, brandMap, categoryMap, imageMap, lowestPriceMap))
+                .toList();
+        return SearchDocPageResp.builder()
+                                .records(docs)
+                                .total(page.getTotal())
+                                .current(page.getCurrent())
+                                .size(page.getSize())
+                                .build();
+    }
+
+    private static LambdaQueryWrapper<ProductDO> buildSearchDocWrapper(LocalDateTime since) {
+        LambdaQueryWrapper<ProductDO> wrapper = Wrappers.lambdaQuery();
+        if (since != null) {
+            wrapper.gt(ProductDO::getUpdateTime, since);
+        }
+        return wrapper.orderByAsc(ProductDO::getUpdateTime);
+    }
+
+    private static Set<Long> collectNonNull(List<ProductDO> records, Function<ProductDO, Long> getter) {
+        return records.stream()
+                      .map(getter)
+                      .filter(Objects::nonNull)
+                      .collect(Collectors.toSet());
+    }
+
+    private static <T> Map<Long, T> batchQuery(
+            Set<Long> ids,
+            Function<Set<Long>, List<T>> query,
+            Function<T, Long> idGetter
+    ) {
+        if (CollUtil.isEmpty(ids)) {
+            return Map.of();
+        }
+        List<T> list = query.apply(ids);
+        if (CollUtil.isEmpty(list)) {
+            return Map.of();
+        }
+        return list.stream().collect(Collectors.toMap(idGetter, Function.identity()));
+    }
+
+    private static SearchDocResp assembleSearchDoc(
+            ProductDO product,
+            Map<Long, BrandDO> brandMap,
+            Map<Long, CategoryDO> categoryMap,
+            Map<Long, ProductImageDO> imageMap,
+            Map<Long, BigDecimal> lowestPriceMap
+    ) {
+        BrandDO brand = brandMap.get(product.getBrandId());
+        CategoryDO category = categoryMap.get(product.getCategoryId());
+        ProductImageDO image = imageMap.get(product.getImageId());
+        return SearchDocResp.builder()
+                            .id(product.getId())
+                            .name(product.getName())
+                            .spuCode(product.getSpuCode())
+                            .description(product.getDescription())
+                            .categoryId(product.getCategoryId())
+                            .categoryName(category != null ? category.getName() : null)
+                            .brandId(product.getBrandId())
+                            .brandName(brand != null ? brand.getName() : null)
+                            .shopId(product.getShopId())
+                            .status(product.getStatus() != null ? product.getStatus().getValue() : null)
+                            .priceMin(lowestPriceMap.get(product.getId()))
+                            .mainImage(image != null ? image.getUrl() : null)
+                            .createTime(product.getCreateTime())
+                            .updateTime(product.getUpdateTime())
+                            .build();
     }
 
     /**

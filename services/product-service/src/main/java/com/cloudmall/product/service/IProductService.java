@@ -1,12 +1,12 @@
 package com.cloudmall.product.service;
 
-import com.baomidou.mybatisplus.core.metadata.IPage;
+import java.time.LocalDateTime;
 
 import com.cloudmall.product.api.request.ProductCreateReq;
 import com.cloudmall.product.api.response.ProductDetailResp;
 import com.cloudmall.product.api.response.ProductResp;
+import com.cloudmall.product.api.response.SearchDocPageResp;
 import com.cloudmall.product.model.req.ProductGetReq;
-import com.cloudmall.product.model.req.ProductPageReq;
 
 /**
  * 商品 SPU 服务接口。
@@ -24,12 +24,16 @@ public interface IProductService {
     ProductResp get(ProductGetReq req);
 
     /**
-     * 查询 SPU 分页列表（含品牌名、主图、最低价等跨表信息）。
+     * 分页拉取商品搜索文档。 <p>
+     * 供 search-service 全量重建 / 定时增量同步使用， 文档组装逻辑仅此一处（SPU +
+     * SKU 最低价 + 分类/品牌名 + 主图）。
      *
-     * @param req 分页 + 筛选条件
-     * @return 商品分页列表
+     * @param current 页码，从 1 开始
+     * @param size 每页条数
+     * @param since 增量游标（可选），仅返回 updateTime 晚于 since 的商品
+     * @return 搜索文档分页结果
      */
-    IPage<ProductResp> page(ProductPageReq req);
+    SearchDocPageResp searchDocs(long current, long size, LocalDateTime since);
 
     /**
      * 创建商品。 <p>

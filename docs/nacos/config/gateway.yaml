@@ -4,6 +4,7 @@ auth:
     - /auth/users
     - /coupons
     - /coupons/*
+    - /search/**
   url-permissions:
     - pattern: "GET:/merchant/**"
       permissions: [coupon:template:view, coupon:stats:view]
@@ -70,6 +71,12 @@ spring:
               filters:
                 - StripPrefix=0
 
+            - id: search-service
+              uri: lb://search-service
+              predicates:
+                - Path=/search/**
+              filters:
+                - StripPrefix=0
       globalcors:
         cors-configurations:
           '[/**]':
