@@ -1,15 +1,14 @@
-package com.cloudmall.consumer.mq;
+package com.cloudmall.consumer.handler;
 
-import java.util.Map;
+import java.util.Set;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
 import com.cloudmall.auth.api.event.UserRegisteredEvent;
-import com.cloudmall.consumer.enums.OperationTypeEnum;
 import com.cloudmall.coupon.api.client.UserCouponInternalClient;
 import com.cloudmall.coupon.api.request.AutoIssueRegisterReq;
-import com.cloudmall.rocketmq.consumer.EventHandler;
+import com.cloudmall.rocketmq.handler.EventHandler;
 
 /**
  * 用户注册自动发券处理器。
@@ -23,15 +22,25 @@ public class RegisterAutoIssueHandler implements EventHandler<UserRegisteredEven
     private final UserCouponInternalClient userCouponInternalClient;
 
     /**
-     * 注册的 tag 映射（注册消息无 tag，使用空串注册键）。
+     * 本处理器服务的 RocketMQ tag 集合。
      *
-     * @return tag 映射
+     * @return tag 集合
      */
     @Override
-    public Map<String, String> tags() {
-        return Map.of("", OperationTypeEnum.REGISTER_AUTO_ISSUE.getCode());
+    public Set<String> tagSet() {
+        return Set.of("UserRegistered");
     }
 
+    /**
+     * 判断事件是否由本处理器处理。
+     *
+     * @param tag 消息 tag
+     * @return true 表示注册事件
+     */
+    @Override
+    public boolean canHandle(String tag) {
+        return tagSet().contains(tag);
+    }
     /**
      * 提取幂等键。
      *

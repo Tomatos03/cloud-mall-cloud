@@ -7,7 +7,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.cloudmall.common.model.Result;
 import com.cloudmall.search.model.RebuildResultResp;
-import com.cloudmall.search.service.ISearchAdminService;
+import com.cloudmall.search.service.ISearchService;
 
 /**
  * 搜索管理 Controller
@@ -21,7 +21,7 @@ import com.cloudmall.search.service.ISearchAdminService;
 @RequestMapping("/search/admin")
 public class SearchAdminController {
 
-    private final ISearchAdminService searchAdminService;
+    private final ISearchService searchService;
 
     /**
      * 全量重建商品索引。
@@ -30,6 +30,6 @@ public class SearchAdminController {
      */
     @PostMapping("/rebuild")
     public Result<RebuildResultResp> rebuild() {
-        return Result.success(searchAdminService.rebuild());
+        return Result.success(searchService.rebuild());
     }
 }

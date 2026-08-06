@@ -24,7 +24,7 @@ import org.springframework.context.annotation.Configuration;
  * @author : Tomatos
  */
 @Configuration
-@EnableConfigurationProperties(SearchProperties.class)
+@EnableConfigurationProperties({SearchProperties.class, SearchSyncProperties.class})
 public class ElasticsearchConfig {
 
     /**

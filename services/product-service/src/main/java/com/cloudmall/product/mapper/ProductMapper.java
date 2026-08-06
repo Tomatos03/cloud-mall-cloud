@@ -1,14 +1,15 @@
 package com.cloudmall.product.mapper;
 
-import java.time.LocalDateTime;
+import java.util.List;
 
+import cn.hutool.core.util.ObjectUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
-import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import org.apache.ibatis.annotations.Mapper;
 
+import com.cloudmall.common.model.CursorReq;
 import com.cloudmall.product.entity.ProductDO;
 import com.cloudmall.product.model.req.ProductGetReq;
 
@@ -33,17 +34,23 @@ public interface ProductMapper extends BaseMapper<ProductDO> {
     }
 
     /**
-     * 分页拉取商品搜索文档（按 updateTime 升序，支持增量游标）。
+     * 游标拉取商品搜索文档，支持 ID 游标与时间游标两种模式。 <p>
+     * 每次查询 querySize 条，由 Service 层据此判断是否还有更多数据。
+     * cursorTime 非空走时间游标（按更新时间升序），否则走 ID 游标（按 ID 升序）。
      *
-     * @param page 分页参数
-     * @param since 增量游标（可选），仅返回 updateTime 晚于 since 的商品
-     * @return 搜索文档分页结果
+     * @param req 游标分页参数（cursor / cursorTime 二选一）
+     * @param querySize 查询条数（含多查的 1 条）
+     * @return 商品记录列表
      */
-    default IPage<ProductDO> selectSearchDocs(Page<ProductDO> page, LocalDateTime since) {
+    default List<ProductDO> selectSearchDocsByCursor(CursorReq req, int querySize) {
         LambdaQueryWrapper<ProductDO> wrapper = Wrappers.lambdaQuery();
-        if (since != null) {
-            wrapper.gt(ProductDO::getUpdateTime, since);
+        if (req.getCursorTime() != null) {
+            wrapper.gt(ProductDO::getUpdateTime, req.getCursorTime());
+            wrapper.orderByAsc(ProductDO::getUpdateTime);
+        } else {
+            wrapper.gt(ProductDO::getId, ObjectUtil.defaultIfNull(req.getCursor(), 0L));
+            wrapper.orderByAsc(ProductDO::getId);
         }
-        return selectPage(page, wrapper.orderByAsc(ProductDO::getUpdateTime));
+        return selectPage(new Page<>(1, querySize), wrapper).getRecords();
     }
 }

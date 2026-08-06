@@ -78,12 +78,13 @@ xxl:
 | `orderTimeoutRecovery` | order-service | FIX_DELAY | 60s | FIRST | SERIAL |
 | `couponLockExpire` | coupon-service | FIX_DELAY | 60s | FIRST | SERIAL |
 | `userCouponExpire` | coupon-service | CRON | `0 */5 * * * ?` | FIRST | SERIAL |
-
+| `searchProductIncrementalSync` | search-service | FIX_DELAY | 60s | FIRST | SERIAL |
+| `searchProductFullRebuild` | search-service | CRON | `0 0 3 * * ?` | FIRST | SERIAL |
 ## 基础设施
 
 - 调度中心：`docker compose` 中 `xxl-job-admin:3.4.2`，宿主端口 `8088`（默认 8080 已被 Nacos 占用），默认账号 `admin/123456`
 - 数据库：`xxl_job` 库由 `docs/sql/xxl_job/tables_xxl_job.sql` 在 mysql 容器首次初始化时创建（挂载为 `03-tables_xxl_job.sql`）；已有 mysql-data 卷的环境需 `docker compose down -v` 重建或手动执行该 SQL
-- 执行器端口映射（与各服务 HTTP 端口尾号对齐，落在 9990 段）：auth-service `9992`、coupon-service `9993`、order-service `9995`
+- 执行器端口映射（与各服务 HTTP 端口尾号对齐，落在 9990 段）：auth-service `9992`、coupon-service `9993`、order-service `9995`、search-service `9999`
 
 ## 注意事项
 

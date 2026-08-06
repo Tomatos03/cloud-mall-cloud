@@ -4,6 +4,42 @@ search:
     uris: http://localhost:9200
     # 商品搜索索引名
     index: cm_product
+  sync:
+    full:
+      # 全量对账任务是否启用
+      enabled: true
+      # 全量对账每页条数
+      page-size: 100
+      # 全量对账最大翻页数，0 表示不限制
+      max-pages: 0
+    incremental:
+      # 增量同步任务是否启用
+      enabled: true
+      # 增量同步每页条数
+      page-size: 100
+      # 增量游标 Redis key
+      cursor-key: search:product:sync-cursor
+      # 游标回退秒数，避免同一 updateTime 边界漏数据
+      cursor-backoff-seconds: 1
+      # 增量同步最大翻页数，0 表示不限制
+      max-pages: 0
+
+xxl:
+  job:
+    executor:
+      app-name: search-service
+      port: 9999
+    auto-register:
+      enabled: true
+      jobs:
+        - handler: searchProductIncrementalSync
+          desc: 商品索引增量同步（MQ 兜底）
+          schedule-type: FIX_DELAY
+          schedule-conf: "60"
+        - handler: searchProductFullRebuild
+          desc: 商品索引全量重建
+          schedule-type: CRON
+          schedule-conf: "0 0 3 * * ?"
 
 logging:
   level:

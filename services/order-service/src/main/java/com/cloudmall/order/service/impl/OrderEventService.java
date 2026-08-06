@@ -57,8 +57,8 @@ public class OrderEventService implements IOrderEventService {
                 OutboxAppendReq.builder()
                                .topic(ORDER_EVENTS_TOPIC)
                                .eventType(OrderTagEnum.PAID.getTag())
-                               .aggregateType("ORDER")
-                               .aggregateId(orderNo)
+                               .bizType("ORDER")
+                               .bizId(orderNo)
                                .event(event)
                                .build()
         );
@@ -86,8 +86,8 @@ public class OrderEventService implements IOrderEventService {
                 OutboxAppendReq.builder()
                                .topic(ORDER_EVENTS_TOPIC)
                                .eventType(OrderTagEnum.TIMEOUT.getTag())
-                               .aggregateType("ORDER")
-                               .aggregateId(orderNo)
+                               .bizType("ORDER")
+                               .bizId(orderNo)
                                .event(event)
                                .build()
         );
@@ -112,8 +112,8 @@ public class OrderEventService implements IOrderEventService {
                 OutboxAppendReq.builder()
                                .topic(ORDER_EVENTS_TOPIC)
                                .eventType(OrderTagEnum.CANCELLED.getTag())
-                               .aggregateType("ORDER")
-                               .aggregateId(orderNo)
+                               .bizType("ORDER")
+                               .bizId(orderNo)
                                .event(event)
                                .build()
         );
@@ -142,8 +142,8 @@ public class OrderEventService implements IOrderEventService {
                 OutboxAppendReq.builder()
                                .topic(ORDER_EVENTS_TOPIC)
                                .eventType(eventType.getTag())
-                               .aggregateType("ORDER")
-                               .aggregateId(orderNo)
+                               .bizType("ORDER")
+                               .bizId(orderNo)
                                .event(event)
                                .build()
         );

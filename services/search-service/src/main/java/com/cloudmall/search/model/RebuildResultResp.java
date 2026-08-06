@@ -24,4 +24,7 @@ public class RebuildResultResp {
 
     /** 清理的 ES 残留文档数（DB 中已不存在的商品） */
     private Long deleted;
+
+    /** 写入失败的文档数（ES bulk 单条失败，未计入 updated） */
+    private Long failed;
 }

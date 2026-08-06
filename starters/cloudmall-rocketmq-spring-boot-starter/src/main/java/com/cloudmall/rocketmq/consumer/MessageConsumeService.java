@@ -1,32 +1,28 @@
-package com.cloudmall.consumer.service.impl;
+package com.cloudmall.rocketmq.consumer;
 
 import java.time.LocalDateTime;
 
-import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DuplicateKeyException;
-import org.springframework.stereotype.Service;
 
-import com.cloudmall.consumer.entity.MessageConsumeRecordDO;
-import com.cloudmall.consumer.enums.ConsumeStatusEnum;
-import com.cloudmall.consumer.mapper.MessageConsumeRecordMapper;
-import com.cloudmall.rocketmq.consumer.IMessageConsumeService;
+import com.cloudmall.rocketmq.entity.MessageConsumeRecordDO;
+import com.cloudmall.rocketmq.enums.ConsumeStatusEnum;
+import com.cloudmall.rocketmq.mapper.MessageConsumeRecordMapper;
 
 /**
- * 消息消费幂等服务实现
+ * 消息消费幂等服务实现（通用）
  * <p>
- * consumer 固定为 consumer-service，operation_type 区分注册发券与订单事件。
+ * consumer 标识由 MqAutoConfiguration 注入（默认取
+ * spring.application.name，可用 cloudmall.rocketmq.consumer 覆盖），
+ * operation_type 词汇由消费方定义。
  *
  * @author : Tomatos
  */
-@Service
 @RequiredArgsConstructor
 public class MessageConsumeService implements IMessageConsumeService {
 
-    /** 消费者标识 */
-    private static final String CONSUMER = "consumer-service";
-
     private final MessageConsumeRecordMapper messageConsumeRecordMapper;
+    private final String consumer;
 
     /**
      * 判断事件是否已消费。
@@ -37,13 +33,7 @@ public class MessageConsumeService implements IMessageConsumeService {
      */
     @Override
     public boolean alreadyConsumed(String eventId, String operationType) {
-        Long count = messageConsumeRecordMapper.selectCount(
-                Wrappers.<MessageConsumeRecordDO>lambdaQuery()
-                        .eq(MessageConsumeRecordDO::getEventId, eventId)
-                        .eq(MessageConsumeRecordDO::getConsumer, CONSUMER)
-                        .eq(MessageConsumeRecordDO::getOperationType, operationType)
-        );
-        return count != null && count > 0;
+        return messageConsumeRecordMapper.existsConsumed(eventId, consumer, operationType);
     }
 
     /**
@@ -56,7 +46,7 @@ public class MessageConsumeService implements IMessageConsumeService {
     public void markConsumed(String eventId, String operationType) {
         MessageConsumeRecordDO record = MessageConsumeRecordDO.builder()
                                                               .eventId(eventId)
-                                                              .consumer(CONSUMER)
+                                                              .consumer(consumer)
                                                               .operationType(operationType)
                                                               .status(ConsumeStatusEnum.CONSUMED)
                                                               .retryCount(0)

@@ -72,6 +72,11 @@ public class UserService implements IUserService {
     public Long register(RegisterReq request) {
         Asserts.isFalse(userMapper.existsByUsername(request.getUsername()), BizError.USER_ALREADY_EXISTS);
         UserDO user = addNewUser(request);
+        userRegisterEvent(user);
+        return user.getId();
+    }
+
+    private void userRegisterEvent(UserDO user) {
         UserRegisteredEvent event = UserRegisteredEvent.builder()
                                                        .userId(user.getId())
                                                        .username(user.getUsername())
@@ -80,12 +85,11 @@ public class UserService implements IUserService {
                 OutboxAppendReq.builder()
                                .topic(USER_REGISTERED_TOPIC)
                                .eventType("UserRegistered")
-                               .aggregateType("USER")
-                               .aggregateId(String.valueOf(user.getId()))
+                               .bizType("USER")
+                               .bizId(String.valueOf(user.getId()))
                                .event(event)
                                .build()
         );
-        return user.getId();
     }
 
     @NonNull

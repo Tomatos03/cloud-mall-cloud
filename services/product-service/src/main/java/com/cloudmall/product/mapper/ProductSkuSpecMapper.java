@@ -3,6 +3,7 @@ package com.cloudmall.product.mapper;
 import java.util.Collection;
 import java.util.List;
 
+import cn.hutool.core.collection.CollUtil;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import org.apache.ibatis.annotations.Mapper;
@@ -25,6 +26,19 @@ public interface ProductSkuSpecMapper extends BaseMapper<ProductSkuSpecDO> {
      */
     default List<ProductSkuSpecDO> selectBySkuIds(Collection<Long> skuIds) {
         return selectList(Wrappers.<ProductSkuSpecDO>lambdaQuery().in(ProductSkuSpecDO::getSkuId, skuIds));
+    }
+
+    /**
+     * 删除多个 SKU 的规格值关联（物理删除，重建关联前清空旧行）。
+     *
+     * @param skuIds SKU ID 集合
+     * @return 删除条数
+     */
+    default int deleteBySkuIds(Collection<Long> skuIds) {
+        if (CollUtil.isEmpty(skuIds)) {
+            return 0;
+        }
+        return delete(Wrappers.<ProductSkuSpecDO>lambdaQuery().in(ProductSkuSpecDO::getSkuId, skuIds));
     }
 
     /**

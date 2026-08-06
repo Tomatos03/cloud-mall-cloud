@@ -30,4 +30,14 @@ public interface ProductImageMapper extends BaseMapper<ProductImageDO> {
                         .orderByAsc(ProductImageDO::getSortOrder)
         );
     }
+
+    /**
+     * 删除商品全部图片（物理删除，重建前清空旧图）。
+     *
+     * @param productId 商品 ID
+     * @return 删除条数
+     */
+    default int deleteByProductId(Long productId) {
+        return delete(Wrappers.<ProductImageDO>lambdaQuery().eq(ProductImageDO::getProductId, productId));
+    }
 }

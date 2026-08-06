@@ -1,7 +1,9 @@
 package com.cloudmall.product.mapper;
 
+import java.util.Collection;
 import java.util.List;
 
+import cn.hutool.core.collection.CollUtil;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import org.apache.ibatis.annotations.Mapper;
@@ -28,5 +30,18 @@ public interface ProductSpecGroupMapper extends BaseMapper<ProductSpecGroupDO> {
                         .eq(ProductSpecGroupDO::getProductId, productId)
                         .orderByAsc(ProductSpecGroupDO::getSortOrder)
         );
+    }
+
+    /**
+     * 按 ID 集合软删除规格组（空集合直接返回 0）。
+     *
+     * @param ids 规格组 ID 集合
+     * @return 删除条数
+     */
+    default int deleteGroups(Collection<Long> ids) {
+        if (CollUtil.isEmpty(ids)) {
+            return 0;
+        }
+        return deleteBatchIds(ids);
     }
 }

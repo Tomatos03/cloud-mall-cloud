@@ -6,6 +6,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
+import cn.hutool.core.collection.CollUtil;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import org.apache.ibatis.annotations.Mapper;
@@ -118,6 +119,23 @@ public interface ProductSkuMapper extends BaseMapper<ProductSkuDO> {
                         .set(ProductSkuDO::getUpdateTime, LocalDateTime.now())
                         .eq(ProductSkuDO::getId, skuId)
                         .ge(ProductSkuDO::getStock, -quantity)
+        );
+    }
+
+    /**
+     * 清空多个 SKU 的规格组合指纹（软删除前释放唯一槽位）。
+     *
+     * @param ids SKU ID 集合
+     * @return 影响行数
+     */
+    default int clearSpecHashByIds(Collection<Long> ids) {
+        if (CollUtil.isEmpty(ids)) {
+            return 0;
+        }
+        return update(
+                Wrappers.<ProductSkuDO>lambdaUpdate()
+                        .set(ProductSkuDO::getSpecHash, null)
+                        .in(ProductSkuDO::getId, ids)
         );
     }
 }

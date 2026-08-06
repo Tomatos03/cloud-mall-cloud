@@ -1,4 +1,4 @@
-package com.cloudmall.consumer.mq;
+package com.cloudmall.consumer.event;
 
 import java.util.List;
 
@@ -7,8 +7,8 @@ import org.springframework.stereotype.Component;
 
 import com.cloudmall.auth.api.event.UserRegisteredEvent;
 import com.cloudmall.rocketmq.consumer.AbstractMessageConsumer;
-import com.cloudmall.rocketmq.consumer.EventHandler;
 import com.cloudmall.rocketmq.consumer.IMessageConsumeService;
+import com.cloudmall.rocketmq.handler.EventHandler;
 
 /**
  * 用户注册事件消费者

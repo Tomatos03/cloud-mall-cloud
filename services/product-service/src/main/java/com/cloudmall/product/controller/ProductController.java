@@ -1,23 +1,24 @@
 package com.cloudmall.product.controller;
 
-import java.time.LocalDateTime;
-
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.cloudmall.common.model.CursorReq;
+import com.cloudmall.common.model.CursorResult;
 import com.cloudmall.common.model.Result;
 import com.cloudmall.product.api.request.ProductCreateReq;
+import com.cloudmall.product.api.request.ProductUpdateReq;
 import com.cloudmall.product.api.response.ProductDetailResp;
+import com.cloudmall.product.api.response.ProductDocResp;
 import com.cloudmall.product.api.response.ProductResp;
-import com.cloudmall.product.api.response.SearchDocPageResp;
 import com.cloudmall.product.application.ProductApp;
 import com.cloudmall.product.model.req.ProductGetReq;
 import com.cloudmall.product.service.IProductService;
@@ -50,6 +51,26 @@ public class ProductController {
             ProductCreateReq req
     ) {
         return Result.success(productApp.create(req));
+    }
+
+    /**
+     * 更新商品（SPU 基本信息 + 规格 + SKU + 图片），并发布 ProductUpdated
+     * 事件。
+     *
+     * @param id SPU ID
+     * @param req 更新请求
+     * @return 操作结果
+     */
+    @PutMapping("/{id}")
+    public Result<Void> update(
+            @PathVariable
+            Long id,
+            @Valid
+            @RequestBody
+            ProductUpdateReq req
+    ) {
+        productService.update(id, req);
+        return Result.success();
     }
 
     /**
@@ -101,25 +122,43 @@ public class ProductController {
     }
 
     /**
-     * 分页拉取商品搜索文档（search-service 数据源）。 <p>
-     * 按 updateTime 升序排列，支持 since 增量游标；包含下架商品（status 透传），
-     * 由消费方决定写入或丢弃。文档不含 sales，避免覆盖 ES 中的销量。
+     * 游标拉取商品搜索文档（供 search-service 全量重建 / 定时增量同步使用）。
      *
-     * @param page 页码，从 1 开始
-     * @param size 每页条数
-     * @param since 增量游标（可选），ISO 日期时间
-     * @return 搜索文档分页结果
+     * @param req 游标分页参数（cursor / cursorTime 二选一，见
+     *            {@link CursorReq}）
+     * @return 游标分页结果
      */
-    @GetMapping("/search-docs")
-    public Result<SearchDocPageResp> searchDocs(
-            @RequestParam(value = "page", defaultValue = "1")
-            long page,
-            @RequestParam(value = "size", defaultValue = "100")
-            long size,
-            @RequestParam(value = "since", required = false)
-            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
-            LocalDateTime since
+    @GetMapping("/docs")
+    public Result<CursorResult<ProductDocResp>> cursorPage(CursorReq req) {
+        return Result.success(productService.cursorPage(req));
+    }
+
+    /**
+     * 按商品 ID 拉取单个搜索文档（供 search-service MQ 增量消费使用）。
+     *
+     * @param id 商品 ID
+     * @return 搜索文档，商品不存在返回 null
+     */
+    @GetMapping("/docs/{id}")
+    public Result<ProductDocResp> searchDoc(
+            @PathVariable
+            Long id
     ) {
-        return Result.success(productService.searchDocs(page, size, since));
+        return Result.success(productService.searchDoc(id));
+    }
+
+    /**
+     * 删除商品（软删除），并发布 ProductDeleted 事件供搜索等下游同步。
+     *
+     * @param id SPU ID
+     * @return 操作结果
+     */
+    @DeleteMapping("/{id}")
+    public Result<Void> delete(
+            @PathVariable
+            Long id
+    ) {
+        productService.delete(id);
+        return Result.success();
     }
 }

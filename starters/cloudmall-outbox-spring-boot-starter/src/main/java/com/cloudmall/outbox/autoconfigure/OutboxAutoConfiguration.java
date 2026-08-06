@@ -35,7 +35,6 @@ import com.cloudmall.rocketmq.producer.MQProducer;
  *
  * @author : Tomatos
  */
-@ConditionalOnClass(OutboxMapper.class)
 @EnableConfigurationProperties(OutboxProperties.class)
 @AutoConfigurationPackage(basePackages = "com.cloudmall.outbox")
 @AutoConfiguration(

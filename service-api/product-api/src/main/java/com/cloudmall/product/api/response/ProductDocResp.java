@@ -9,10 +9,10 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 /**
- * 搜索文档响应
+ * 商品搜索文档响应
  * <p>
  * product-service 提供给 search-service 的商品搜索文档快照
- * （search-docs 接口契约），由 product-service 在查询时组装：
+ * （docs 接口契约），由 product-service 在查询时组装：
  * SPU 字段 + SKU 最低价 + 分类/品牌名称 + 主图 URL。
  * <p>
  * 注意：该文档不包含 sales（销量由 search-service 侧单独维护），
@@ -24,7 +24,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class SearchDocResp {
+public class ProductDocResp {
 
     /** 商品 ID */
     private Long id;

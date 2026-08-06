@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
  * ES 商品文档模型
  * <p>
  * 用于反序列化搜索命中的 ES 文档（含 sales 字段）。
- * 与 {@code SearchDocResp} 的区别：priceMin 为 double（ES 存储类型）、
+ * 与 {@code ProductDocResp} 的区别：priceMin 为 double（ES 存储类型）、
  * 不含组装字段，仅保留列表页展示所需字段。
  *
  * @author : Tomatos

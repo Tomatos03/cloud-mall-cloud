@@ -1,1 +1,2 @@
 com.cloudmall.rocketmq.autoconfigure.MqAutoConfiguration
+com.cloudmall.rocketmq.autoconfigure.MessageConsumeAutoConfiguration

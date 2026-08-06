@@ -14,8 +14,8 @@ import java.util.stream.Collectors;
 
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.IdUtil;
-import com.baomidou.mybatisplus.core.metadata.IPage;
-import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import cn.hutool.core.util.ObjectUtil;
+import cn.hutool.core.util.StrUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Service;
@@ -23,6 +23,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.cloudmall.common.enums.BizError;
 import com.cloudmall.common.exception.BizException;
+import com.cloudmall.common.model.CursorReq;
+import com.cloudmall.common.model.CursorResult;
 import com.cloudmall.common.utils.Asserts;
 import com.cloudmall.outbox.appender.OutboxAppender;
 import com.cloudmall.outbox.model.OutboxAppendReq;
@@ -33,11 +35,11 @@ import com.cloudmall.product.api.model.SkuItem;
 import com.cloudmall.product.api.model.SpecGroupItem;
 import com.cloudmall.product.api.model.SpecValueItem;
 import com.cloudmall.product.api.request.ProductCreateReq;
+import com.cloudmall.product.api.request.ProductUpdateReq;
 import com.cloudmall.product.api.response.ImageResp;
 import com.cloudmall.product.api.response.ProductDetailResp;
+import com.cloudmall.product.api.response.ProductDocResp;
 import com.cloudmall.product.api.response.ProductResp;
-import com.cloudmall.product.api.response.SearchDocPageResp;
-import com.cloudmall.product.api.response.SearchDocResp;
 import com.cloudmall.product.api.response.SpecGroupResp;
 import com.cloudmall.product.convert.ImageConverter;
 import com.cloudmall.product.convert.ProductConverter;
@@ -126,27 +128,29 @@ public class ProductService implements IProductService {
     }
 
     /**
-     * 分页拉取商品搜索文档。 <p>
-     * 按 updateTime 升序排列以支持增量游标；不过滤商品状态（下架商品 status 透传， 由
-     * 消费方决定写入或丢弃）。文档不含 sales，避免覆盖 ES 中的销量。
+     * 游标拉取商品搜索文档，支持 ID 游标与时间游标两种模式。 <p>
+     * 不过滤商品状态（下架商品 status 透传， 由消费方决定写入或丢弃）。文档不含 sales， 避
+     * 免覆盖 ES 中的销量。
      *
-     * @param current 页码，从 1 开始
-     * @param size 每页条数
-     * @param since 增量游标（可选），仅返回 updateTime 晚于 since 的商品
-     * @return 搜索文档分页结果
+     * @param req 游标分页参数（cursor / cursorTime 二选一，见
+     *            {@link CursorReq}）
+     * @return 游标分页结果（两种游标均回填，调用方按模式读取）
      */
     @Override
-    public SearchDocPageResp searchDocs(long current, long size, LocalDateTime since) {
-        IPage<ProductDO> page = productMapper.selectSearchDocs(new Page<>(current, size), since);
-
-        List<ProductDO> records = page.getRecords();
+    public CursorResult<ProductDocResp> cursorPage(CursorReq req) {
+        int size = ObjectUtil.defaultIfNull(req.getSize(), 10);
+        List<ProductDO> records = productMapper.selectSearchDocsByCursor(req, size + 1);
+        boolean hasMore = records.size() > size;
+        if (hasMore) {
+            records = records.subList(0, size);
+        }
         if (CollUtil.isEmpty(records)) {
-            return SearchDocPageResp.builder()
-                                    .records(List.of())
-                                    .total(page.getTotal())
-                                    .current(page.getCurrent())
-                                    .size(page.getSize())
-                                    .build();
+            return CursorResult.<ProductDocResp>builder()
+                               .items(List.of())
+                               .cursor(0L)
+                               .cursorTime(null)
+                               .hasMore(false)
+                               .build();
         }
 
         Set<Long> brandIds = collectNonNull(records, ProductDO::getBrandId);
@@ -172,16 +176,52 @@ public class ProductService implements IProductService {
                 .stream()
                 .collect(Collectors.toMap(ProductSkuPrice::productId, ProductSkuPrice::price));
 
-        List<SearchDocResp> docs = records
+        List<ProductDocResp> docs = records
                 .stream()
                 .map(p -> assembleSearchDoc(p, brandMap, categoryMap, imageMap, lowestPriceMap))
                 .toList();
-        return SearchDocPageResp.builder()
-                                .records(docs)
-                                .total(page.getTotal())
-                                .current(page.getCurrent())
-                                .size(page.getSize())
-                                .build();
+        ProductDO last = records.get(records.size() - 1);
+        Long nextCursor = hasMore ? last.getId() : 0L;
+        LocalDateTime nextCursorTime = hasMore ? last.getUpdateTime() : null;
+        return CursorResult.<ProductDocResp>builder()
+                           .items(docs)
+                           .cursor(nextCursor)
+                           .cursorTime(nextCursorTime)
+                           .hasMore(hasMore)
+                           .build();
+    }
+
+    /**
+     * 按商品 ID 组装单个搜索文档。
+     *
+     * @param id SPU ID
+     * @return 搜索文档，商品不存在返回 null
+     */
+    @Override
+    public ProductDocResp searchDoc(Long id) {
+        ProductDO product = productMapper.selectById(id);
+        if (product == null) {
+            return null;
+        }
+        Set<Long> brandIds = singletonOrEmpty(product.getBrandId());
+        Set<Long> categoryIds = singletonOrEmpty(product.getCategoryId());
+        Set<Long> imageIds = singletonOrEmpty(product.getImageId());
+        BigDecimal lowestPrice = productSkuMapper.selectLowestPrice(id);
+        return assembleSearchDoc(
+                product,
+                batchQuery(brandIds, brandMapper::selectByIds, BrandDO::getId),
+                batchQuery(categoryIds, categoryMapper::selectByIds, CategoryDO::getId),
+                batchQuery(imageIds, productImageMapper::selectByIds, ProductImageDO::getId),
+                singletonMapOrEmpty(id, lowestPrice)
+        );
+    }
+
+    private static Set<Long> singletonOrEmpty(Long value) {
+        return value == null ? Set.of() : Set.of(value);
+    }
+
+    private static <K, V> Map<K, V> singletonMapOrEmpty(K key, V value) {
+        return value == null ? Map.of() : Map.of(key, value);
     }
 
     private static Set<Long> collectNonNull(List<ProductDO> records, Function<ProductDO, Long> getter) {
@@ -206,7 +246,7 @@ public class ProductService implements IProductService {
         return list.stream().collect(Collectors.toMap(idGetter, Function.identity()));
     }
 
-    private static SearchDocResp assembleSearchDoc(
+    private static ProductDocResp assembleSearchDoc(
             ProductDO product,
             Map<Long, BrandDO> brandMap,
             Map<Long, CategoryDO> categoryMap,
@@ -216,22 +256,22 @@ public class ProductService implements IProductService {
         BrandDO brand = brandMap.get(product.getBrandId());
         CategoryDO category = categoryMap.get(product.getCategoryId());
         ProductImageDO image = imageMap.get(product.getImageId());
-        return SearchDocResp.builder()
-                            .id(product.getId())
-                            .name(product.getName())
-                            .spuCode(product.getSpuCode())
-                            .description(product.getDescription())
-                            .categoryId(product.getCategoryId())
-                            .categoryName(category != null ? category.getName() : null)
-                            .brandId(product.getBrandId())
-                            .brandName(brand != null ? brand.getName() : null)
-                            .shopId(product.getShopId())
-                            .status(product.getStatus() != null ? product.getStatus().getValue() : null)
-                            .priceMin(lowestPriceMap.get(product.getId()))
-                            .mainImage(image != null ? image.getUrl() : null)
-                            .createTime(product.getCreateTime())
-                            .updateTime(product.getUpdateTime())
-                            .build();
+        return ProductDocResp.builder()
+                             .id(product.getId())
+                             .name(product.getName())
+                             .spuCode(product.getSpuCode())
+                             .description(product.getDescription())
+                             .categoryId(product.getCategoryId())
+                             .categoryName(category != null ? category.getName() : null)
+                             .brandId(product.getBrandId())
+                             .brandName(brand != null ? brand.getName() : null)
+                             .shopId(product.getShopId())
+                             .status(product.getStatus() != null ? product.getStatus().getValue() : null)
+                             .priceMin(lowestPriceMap.get(product.getId()))
+                             .mainImage(image != null ? image.getUrl() : null)
+                             .createTime(product.getCreateTime())
+                             .updateTime(product.getUpdateTime())
+                             .build();
     }
 
     /**
@@ -243,40 +283,319 @@ public class ProductService implements IProductService {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public Long create(ProductCreateReq req, Long shopId) {
-        validateBrandAndCategory(req);
-        validateSkuTopology(req);
-        validatePrices(req);
+        validateBrandAndCategory(req.getBrandId(), req.getCategoryId());
+        validateSkuTopology(req.getSpecGroups(), req.getSkus());
+        validatePrices(req.getSkus());
 
         ProductDO productDO = saveProductWithImages(req, shopId);
         List<List<Long>> specValueIds = saveSpecs(productDO.getId(), req.getSpecGroups());
         saveSkus(productDO.getId(), req, specValueIds);
-        ProductEvent event = ProductEvent.builder()
-                                         .productId(productDO.getId())
-                                         .spuCode(productDO.getSpuCode())
-                                         .build();
-        outboxAppender.append(
-                OutboxAppendReq.builder()
-                               .topic(PRODUCT_EVENTS_TOPIC)
-                               .eventType(ProductTagEnum.CREATED.getTag())
-                               .aggregateType("PRODUCT")
-                               .aggregateId(String.valueOf(productDO.getId()))
-                               .event(event)
-                               .build()
-        );
+        syncEsEvent(productDO.getId(), productDO, ProductTagEnum.CREATED);
         return productDO.getId();
     }
 
-    private void validateBrandAndCategory(ProductCreateReq req) {
-        Asserts.notNull(brandMapper.selectById(req.getBrandId()), BizError.BRAND_NOT_EXIST);
-        Asserts.notNull(
-                categoryMapper.selectById(req.getCategoryId()),
-                BizError.CATEGORY_NOT_EXIST_OR_NO_ENABLE
+    /**
+     * 更新商品（SPU 基本信息 + 规格 + SKU + 图片），并发布 ProductUpdated
+     * 事件。 <p>
+     * 差异合并语义：按规格组合指纹匹配，已存在 SKU 保留主键/编码/库存， 仅刷新销售字段；新增规格组
+     * 合插入新 SKU。
+     *
+     * @param id SPU ID
+     * @param req 更新请求
+     */
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public void update(Long id, ProductUpdateReq req) {
+        ProductDO product = Asserts.requireNonNull(
+                productMapper.selectById(id),
+                BizError.GOODS_OR_SHOP_NOT_EXIST
         );
+        validateBrandAndCategory(req.getBrandId(), req.getCategoryId());
+        validateSkuTopology(req.getSpecGroups(), req.getSkus());
+        validatePrices(req.getSkus());
+
+        applyBasicFields(product, req);
+        replaceImages(product, req.getImages());
+        List<List<Long>> specValueIds = replaceSpecs(id, req.getSpecGroups());
+        replaceSkus(id, req, specValueIds);
+
+        syncEsEvent(id, product, ProductTagEnum.UPDATED);
+    }
+
+    /**
+     * 发布商品搜索同步事件（事件载荷与消息 tag 均携带事件类型）。
+     *
+     * @param id SPU ID
+     * @param product SPU 实体
+     * @param tagEnum 商品事件类型
+     */
+    private void syncEsEvent(Long id, ProductDO product, ProductTagEnum tagEnum) {
+        ProductEvent event = ProductEvent.builder()
+                                         .productId(id)
+                                         .spuCode(product.getSpuCode())
+                                         .build();
+
+        outboxAppender.append(
+                OutboxAppendReq.builder()
+                               .topic(PRODUCT_EVENTS_TOPIC)
+                               .eventType(tagEnum.getTag())
+                               .bizType("PRODUCT")
+                               .bizId(String.valueOf(id))
+                               .event(event)
+                               .build()
+        );
+    }
+
+    /**
+     * 刷新 SPU 基本信息并落库。
+     *
+     * @param product SPU 实体
+     * @param req 更新请求
+     */
+    private void applyBasicFields(ProductDO product, ProductUpdateReq req) {
+        product.setName(req.getName());
+        product.setDescription(req.getDescription());
+        product.setCategoryId(req.getCategoryId());
+        product.setBrandId(req.getBrandId());
+        productMapper.updateById(product);
+    }
+
+    /**
+     * 全量替换商品图片：物理删除旧图后按请求重建，并刷新主图指针。
+     *
+     * @param product SPU 实体
+     * @param images 图片请求模型列表
+     */
+    private void replaceImages(ProductDO product, List<ImageItem> images) {
+        productImageMapper.deleteByProductId(product.getId());
+        Long imageId = saveImages(images, product.getId());
+        product.setImageId(imageId);
+        productMapper.updateById(product);
+    }
+
+    /**
+     * 差异合并规格组与规格值，返回 [组下标][值下标] -> 规格值主键 的二维映射。 <p>
+     * 按归一化名称匹配：已存在的组/值复用主键并刷新排序，新增则插入； 请求中已不存在的组/值软删除（被保
+     * 留 SKU 引用的值不会进入删除集合）。
+     *
+     * @param productId SPU ID
+     * @param groups 规格组请求模型列表
+     * @return 二维映射，外层下标为规格组序号，内层下标为组内规格值序号
+     */
+    private List<List<Long>> replaceSpecs(Long productId, List<SpecGroupItem> groups) {
+        Map<String, ProductSpecGroupDO> existingGroups = productSpecGroupMapper
+                .selectByProductId(productId)
+                .stream()
+                .collect(Collectors.toMap(g -> normalize(g.getName()), Function.identity()));
+        Set<String> newGroupNames = new HashSet<>();
+        List<List<Long>> specValueIds = new ArrayList<>(groups.size());
+
+        for (int g = 0; g < groups.size(); g++) {
+            SpecGroupItem groupItem = groups.get(g);
+            String groupName = normalize(groupItem.getName());
+            newGroupNames.add(groupName);
+
+            ProductSpecGroupDO group = existingGroups.get(groupName);
+            if (group == null) {
+                group = specGroupConverter.toDO(groupItem, productId);
+                group.setName(groupName);
+                group.setSortOrder(g);
+                productSpecGroupMapper.insert(group);
+            } else {
+                group.setSortOrder(g);
+                productSpecGroupMapper.updateById(group);
+            }
+
+            Map<String, ProductSpecValueDO> existingValues = productSpecValueMapper
+                    .selectByGroupId(group.getId())
+                    .stream()
+                    .collect(Collectors.toMap(v -> normalize(v.getValue()), Function.identity()));
+            Set<String> newValueNames = new HashSet<>();
+            List<Long> idsOfThisGroup = new ArrayList<>(groupItem.getValues().size());
+
+            for (int v = 0; v < groupItem.getValues().size(); v++) {
+                SpecValueItem valueItem = groupItem.getValues().get(v);
+                String valueName = normalize(valueItem.getValue());
+                newValueNames.add(valueName);
+
+                ProductSpecValueDO value = existingValues.get(valueName);
+                if (value == null) {
+                    value = specValueConverter.toDO(valueItem, group.getId());
+                    value.setValue(valueName);
+                    value.setSortOrder(v);
+                    productSpecValueMapper.insert(value);
+                } else {
+                    value.setSortOrder(v);
+                    if (StrUtil.isNotBlank(valueItem.getImage())) {
+                        value.setImage(valueItem.getImage());
+                    }
+                    productSpecValueMapper.updateById(value);
+                }
+                idsOfThisGroup.add(value.getId());
+            }
+
+            deleteOrphanValues(existingValues, newValueNames);
+            specValueIds.add(idsOfThisGroup);
+        }
+
+        deleteOrphanGroups(existingGroups, newGroupNames);
+        return specValueIds;
+    }
+
+    /**
+     * 软删除请求中已不存在的规格值。
+     *
+     * @param existingValues 更新前组内规格值，按归一化名称索引
+     * @param newValueNames 请求中的规格值名称集合
+     */
+    private void deleteOrphanValues(Map<String, ProductSpecValueDO> existingValues, Set<String> newValueNames) {
+        Set<Long> orphanIds = existingValues.entrySet()
+                                            .stream()
+                                            .filter(entry -> !newValueNames.contains(entry.getKey()))
+                                            .map(entry -> entry.getValue().getId())
+                                            .collect(Collectors.toSet());
+        productSpecValueMapper.deleteValues(orphanIds);
+    }
+
+    /**
+     * 软删除请求中已不存在的规格组。
+     *
+     * @param existingGroups 更新前规格组，按归一化名称索引
+     * @param newGroupNames 请求中的规格组名称集合
+     */
+    private void deleteOrphanGroups(Map<String, ProductSpecGroupDO> existingGroups, Set<String> newGroupNames) {
+        Set<Long> orphanIds = existingGroups.entrySet()
+                                            .stream()
+                                            .filter(entry -> !newGroupNames.contains(entry.getKey()))
+                                            .map(entry -> entry.getValue().getId())
+                                            .collect(Collectors.toSet());
+        productSpecGroupMapper.deleteGroups(orphanIds);
+    }
+
+    /**
+     * 差异合并 SKU 及 SKU-规格值关联表。 <p>
+     * 按规格组合指纹匹配：已存在 SKU 保留主键/编码/库存，仅刷新价格等销售字段； 新增组合插入新
+     * SKU（库存取请求值）。旧 SKU 的关联行物理删除后按新组合重建， 请求中已不存在的 SKU 软删
+     * 除。
+     *
+     * @param productId SPU ID
+     * @param req 更新请求
+     * @param specValueIds 规格值主键的二维映射
+     */
+    private void replaceSkus(Long productId, ProductUpdateReq req, List<List<Long>> specValueIds) {
+        List<SpecGroupItem> groups = req.getSpecGroups();
+        List<ProductSkuDO> existingSkus = productSkuMapper.selectByProductId(productId);
+        Map<String, ProductSkuDO> existingByHash = existingSkus
+                .stream()
+                .filter(s -> StrUtil.isNotBlank(s.getSpecHash()))
+                .collect(Collectors.toMap(ProductSkuDO::getSpecHash, Function.identity()));
+
+        List<ProductSkuDO> newSkus = new ArrayList<>();
+        List<ProductSkuSpecDO> relations = new ArrayList<>();
+
+        for (SkuItem skuItem : req.getSkus()) {
+            List<Long> realIds = resolveSpecValueIds(groups, skuItem, specValueIds);
+            String hash = specHash(realIds);
+
+            ProductSkuDO existing = existingByHash.get(hash);
+            ProductSkuDO sku;
+            if (existing != null) {
+                existing.setPrice(skuItem.getPrice());
+                existing.setMarketPrice(skuItem.getMarketPrice());
+                existing.setWeight(skuItem.getWeight());
+                existing.setImage(skuItem.getImage());
+                productSkuMapper.updateById(existing);
+                sku = existing;
+            } else {
+                sku = skuConverter.toDO(
+                        skuItem,
+                        productId,
+                        String.format("SKU%s", IdUtil.getSnowflakeNextIdStr())
+                );
+                sku.setSpecHash(hash);
+                productSkuMapper.insert(sku);
+            }
+            newSkus.add(sku);
+
+            for (Long specValueId : realIds) {
+                relations.add(ProductSkuSpecDO.builder()
+                                              .skuId(sku.getId())
+                                              .specValueId(specValueId)
+                                              .build());
+            }
+        }
+
+        rewriteSkuSpecRelations(existingSkus, relations);
+        softDeleteRemovedSkus(existingSkus, newSkus);
+    }
+
+    /**
+     * 重建 SKU-规格值关联：物理删除旧 SKU 的全部关联行后批量写入新关联。
+     *
+     * @param existingSkus 更新前 SKU 列表
+     * @param relations 新关联行列表
+     */
+    private void rewriteSkuSpecRelations(List<ProductSkuDO> existingSkus, List<ProductSkuSpecDO> relations) {
+        List<Long> oldSkuIds = existingSkus.stream()
+                                           .map(ProductSkuDO::getId)
+                                           .toList();
+        productSkuSpecMapper.deleteBySkuIds(oldSkuIds);
+        productSkuSpecMapper.insert(relations);
+    }
+
+    /**
+     * 软删除请求中已不存在的 SKU。
+     *
+     * @param existingSkus 更新前 SKU 列表
+     * @param newSkus 更新后的 SKU 列表（含保留与新增）
+     */
+    private void softDeleteRemovedSkus(List<ProductSkuDO> existingSkus, List<ProductSkuDO> newSkus) {
+        Set<String> newHashes = newSkus.stream()
+                                       .map(ProductSkuDO::getSpecHash)
+                                       .collect(Collectors.toSet());
+        List<Long> removedIds = existingSkus.stream()
+                                            .filter(s -> !newHashes.contains(s.getSpecHash()))
+                                            .map(ProductSkuDO::getId)
+                                            .toList();
+        if (CollUtil.isEmpty(removedIds)) {
+            return;
+        }
+        // 清空 spec_hash 释放 uk_product_spec 唯一槽位，避免该组合后续被重新添加时撞软删除行
+        productSkuMapper.clearSpecHashByIds(removedIds);
+        productSkuMapper.deleteByIds(removedIds);
+    }
+
+    /**
+     * 删除商品（软删除），并发布 ProductDeleted 事件。
+     *
+     * @param id SPU ID
+     */
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public void delete(Long id) {
+        ProductDO product = Asserts.requireNonNull(
+                productMapper.selectById(id),
+                BizError.GOODS_OR_SHOP_NOT_EXIST
+        );
+        Asserts.isTrue(productMapper.deleteById(id) > 0, BizError.SPU_DELETE_FAILED);
+
+        syncEsEvent(id, product, ProductTagEnum.DELETED);
+    }
+
+    /**
+     * 校验品牌与分类存在。
+     *
+     * @param brandId 品牌 ID
+     * @param categoryId 分类 ID
+     */
+    private void validateBrandAndCategory(Long brandId, Long categoryId) {
+        Asserts.notNull(brandMapper.selectById(brandId), BizError.BRAND_NOT_EXIST);
+        Asserts.notNull(categoryMapper.selectById(categoryId), BizError.CATEGORY_NOT_EXIST_OR_NO_ENABLE);
     }
 
     private ProductDO saveProductWithImages(ProductCreateReq req, Long shopId) {
         ProductDO product = saveProduct(req, shopId);
-        Long imageId = saveImages(req, product.getId());
+        Long imageId = saveImages(req.getImages(), product.getId());
         product.setImageId(imageId);
         productMapper.updateById(product);
         return product;
@@ -294,12 +613,11 @@ public class ProductService implements IProductService {
      * 落商品图片，返回主图 ID。 <p>
      * 主图与排序均按下标推导：首张为主图，sortOrder 取下标。
      *
-     * @param req 创建请求
+     * @param images 图片请求模型列表
      * @param productId SPU ID
      * @return 主图（首张图片）的 ID
      */
-    private Long saveImages(ProductCreateReq req, Long productId) {
-        List<ImageItem> images = req.getImages();
+    private Long saveImages(List<ImageItem> images, Long productId) {
         List<ProductImageDO> imageDOList = new ArrayList<>(images.size());
         for (int i = 0; i < images.size(); i++) {
             ProductImageDO image = imageConverter.toDO(images.get(i), productId);
@@ -363,13 +681,7 @@ public class ProductService implements IProductService {
         List<ProductSkuSpecDO> relations = new ArrayList<>();
 
         for (SkuItem skuItem : req.getSkus()) {
-            // specValues -> 规格值主键
-            List<Long> realIds = new ArrayList<>(groups.size());
-            for (int g = 0; g < groups.size(); g++) {
-                String target = normalize(skuItem.getSpecValues().get(g));
-                int v = indexOfValue(groups.get(g).getValues(), target);
-                realIds.add(specValueIds.get(g).get(v));
-            }
+            List<Long> realIds = resolveSpecValueIds(groups, skuItem, specValueIds);
 
             ProductSkuDO sku = skuConverter.toDO(
                     skuItem,
@@ -390,6 +702,30 @@ public class ProductService implements IProductService {
         }
         // 关联表无自增 ID 需要回填，可以安全批量写入
         productSkuSpecMapper.insert(relations);
+    }
+
+    /**
+     * 把 SKU 的规格值名称翻译成规格值主键。 <p>
+     * 第 g 位的值只在第 g 个规格组的候选里匹配，跨组引用已在
+     * {@link #validateSkuTopology} 拦下。
+     *
+     * @param groups 规格组请求模型列表
+     * @param skuItem SKU 请求模型
+     * @param specValueIds 规格值主键的二维映射
+     * @return 该 SKU 关联的规格值主键列表
+     */
+    private List<Long> resolveSpecValueIds(
+            List<SpecGroupItem> groups,
+            SkuItem skuItem,
+            List<List<Long>> specValueIds
+    ) {
+        List<Long> realIds = new ArrayList<>(groups.size());
+        for (int g = 0; g < groups.size(); g++) {
+            String target = normalize(skuItem.getSpecValues().get(g));
+            int v = indexOfValue(groups.get(g).getValues(), target);
+            realIds.add(specValueIds.get(g).get(v));
+        }
+        return realIds;
     }
 
     /**
@@ -417,12 +753,10 @@ public class ProductService implements IProductService {
      * 按组隔离查找是这里的关键：{@code ["M", "L"]} 这种请求里，"M" 虽是合法规格值但
      * 属于尺码组， 第 0 位只在颜色组的候选里查，因此查不到而被拒绝。
      *
-     * @param req 创建请求
-     * @throws BizException 处理过程中可能抛出该异常
+     * @param groups 规格组请求模型列表
+     * @param skus SKU 请求模型列表
      */
-    private void validateSkuTopology(ProductCreateReq req) {
-        List<SpecGroupItem> groups = req.getSpecGroups();
-
+    private void validateSkuTopology(List<SpecGroupItem> groups, List<SkuItem> skus) {
         // 组名不重复、组内规格值不重复
         Set<String> groupNames = new HashSet<>();
         for (SpecGroupItem group : groups) {
@@ -434,7 +768,7 @@ public class ProductService implements IProductService {
         }
 
         Set<List<String>> seen = new HashSet<>();
-        for (SkuItem sku : req.getSkus()) {
+        for (SkuItem sku : skus) {
             List<String> specValues = sku.getSpecValues();
 
             // 每个规格组恰好一个值
@@ -460,17 +794,15 @@ public class ProductService implements IProductService {
     /**
      * 校验 SKU 价格。市场价存在时，售价不得高于市场价。
      *
-     * @param req 创建请求
-     * @throws BizException 处理过程中可能抛出该异常
+     * @param skus SKU 请求模型列表
      */
-    private void validatePrices(ProductCreateReq req) {
-        for (SkuItem sku : req.getSkus()) {
+    private void validatePrices(List<SkuItem> skus) {
+        for (SkuItem sku : skus) {
             if (sku.getMarketPrice() != null) {
                 Asserts.isTrue(sku.getPrice().compareTo(sku.getMarketPrice()) <= 0, BizError.INVALID_PARAM);
             }
         }
     }
-
     /**
      * 归一化文本，用于规格组名与规格值的匹配和落库。 <p>
      * 全角转半角（NFKC）+ 去首尾空白 + 折叠内部连续空白， 避免 "红 色" / "Ｓ" 这类写法

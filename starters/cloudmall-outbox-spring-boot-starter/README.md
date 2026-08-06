@@ -17,8 +17,8 @@ outboxAppender.append(
         OutboxAppendReq.builder()
                        .topic(ORDER_EVENTS_TOPIC)
                        .eventType(OrderTagEnum.PAID.getTag())
-                       .aggregateType("ORDER")
-                       .aggregateId(orderNo)
+                       .bizType("ORDER")
+                       .bizId(orderNo)
                        .event(event)
                        .build()
 );

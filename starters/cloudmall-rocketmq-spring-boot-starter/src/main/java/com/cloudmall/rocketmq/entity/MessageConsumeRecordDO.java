@@ -1,4 +1,4 @@
-package com.cloudmall.consumer.entity;
+package com.cloudmall.rocketmq.entity;
 
 import java.time.LocalDateTime;
 
@@ -11,7 +11,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import com.cloudmall.consumer.enums.ConsumeStatusEnum;
+import com.cloudmall.rocketmq.enums.ConsumeStatusEnum;
 
 /**
  * 消息消费幂等记录实体
@@ -35,7 +35,7 @@ public class MessageConsumeRecordDO {
     /** 事件 ID */
     private String eventId;
 
-    /** 消费者（如 consumer-service） */
+    /** 消费者（如 search-service） */
     private String consumer;
 
     /** 消费操作类型 */

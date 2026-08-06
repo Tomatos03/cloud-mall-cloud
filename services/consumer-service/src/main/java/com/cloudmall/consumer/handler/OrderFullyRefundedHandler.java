@@ -1,17 +1,16 @@
-package com.cloudmall.consumer.mq;
+package com.cloudmall.consumer.handler;
 
-import java.util.Map;
+import java.util.Set;
 
 import cn.hutool.core.util.StrUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
-import com.cloudmall.consumer.enums.OperationTypeEnum;
 import com.cloudmall.coupon.api.client.CouponOrderClient;
 import com.cloudmall.coupon.api.request.CouponOrderRevertByOrderReq;
 import com.cloudmall.order.api.event.OrderEvent;
 import com.cloudmall.order.api.event.OrderTagEnum;
-import com.cloudmall.rocketmq.consumer.EventHandler;
+import com.cloudmall.rocketmq.handler.EventHandler;
 
 /**
  * 订单全额退款处理器：回退订单下全部已核销用户券。
@@ -25,15 +24,25 @@ public class OrderFullyRefundedHandler implements EventHandler<OrderEvent> {
     private final CouponOrderClient couponOrderClient;
 
     /**
-     * 注册的 tag 映射。
+     * 本处理器服务的 RocketMQ tag 集合。
      *
-     * @return tag 映射
+     * @return tag 集合
      */
     @Override
-    public Map<String, String> tags() {
-        return Map.of(OrderTagEnum.FULLY_REFUNDED.getTag(), OperationTypeEnum.ORDER_REFUNDED.getCode());
+    public Set<String> tagSet() {
+        return Set.of(OrderTagEnum.FULLY_REFUNDED.getTag());
     }
 
+    /**
+     * 判断事件是否由本处理器处理。
+     *
+     * @param tag 消息 tag
+     * @return true 表示全额退款事件
+     */
+    @Override
+    public boolean canHandle(String tag) {
+        return tagSet().contains(tag);
+    }
     /**
      * 提取幂等键。
      *

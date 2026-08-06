@@ -25,11 +25,11 @@ public class OutboxAppendReq {
     /** 事件类型（同时作为 RocketMQ tag） */
     private String eventType;
 
-    /** 聚合类型（如 ORDER） */
-    private String aggregateType;
+    /** 业务类型（如 ORDER） */
+    private String bizType;
 
-    /** 聚合 ID（如父订单号） */
-    private String aggregateId;
+    /** 业务 ID（如父订单号） */
+    private String bizId;
 
     /** 事件对象（需含 eventId 字段，由追加器生成并注入） */
     private Object event;

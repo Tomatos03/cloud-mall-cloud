@@ -114,18 +114,13 @@ public interface OutboxMapper extends BaseMapper<OutboxDO> {
      * 各行的退避时间与死信判定基于自身的新重试次数（SQL 表达式计算）， 与逐行
      * {@link #markFailed} 语义等价，但整批一次 UPDATE。
      *
-     * @param ids              记录 ID 列表
-     * @param lastError        最后错误信息
-     * @param maxRetry         最大重试次数（超过进入死信）
+     * @param ids 记录 ID 列表
+     * @param lastError 最后错误信息
+     * @param maxRetry 最大重试次数（超过进入死信）
      * @param retryBaseSeconds 初始重试间隔秒数（指数退避）
      * @return 影响行数
      */
-    default int markFailedBatch(
-            Collection<Long> ids,
-            String lastError,
-            int maxRetry,
-            int retryBaseSeconds
-    ) {
+    default int markFailedBatch(Collection<Long> ids, String lastError, int maxRetry, int retryBaseSeconds) {
         if (CollUtil.isEmpty(ids)) {
             return 0;
         }

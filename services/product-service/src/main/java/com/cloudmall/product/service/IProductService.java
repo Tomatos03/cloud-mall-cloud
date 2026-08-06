@@ -1,11 +1,12 @@
 package com.cloudmall.product.service;
 
-import java.time.LocalDateTime;
-
+import com.cloudmall.common.model.CursorReq;
+import com.cloudmall.common.model.CursorResult;
 import com.cloudmall.product.api.request.ProductCreateReq;
+import com.cloudmall.product.api.request.ProductUpdateReq;
 import com.cloudmall.product.api.response.ProductDetailResp;
+import com.cloudmall.product.api.response.ProductDocResp;
 import com.cloudmall.product.api.response.ProductResp;
-import com.cloudmall.product.api.response.SearchDocPageResp;
 import com.cloudmall.product.model.req.ProductGetReq;
 
 /**
@@ -24,16 +25,26 @@ public interface IProductService {
     ProductResp get(ProductGetReq req);
 
     /**
-     * 分页拉取商品搜索文档。 <p>
+     * 游标拉取商品搜索文档。 <p>
      * 供 search-service 全量重建 / 定时增量同步使用， 文档组装逻辑仅此一处（SPU +
      * SKU 最低价 + 分类/品牌名 + 主图）。
      *
-     * @param current 页码，从 1 开始
-     * @param size 每页条数
-     * @param since 增量游标（可选），仅返回 updateTime 晚于 since 的商品
-     * @return 搜索文档分页结果
+     * @param req 游标分页参数（cursor / cursorTime 二选一，见
+     *            {@link CursorReq}）
+     * @return 游标分页结果
      */
-    SearchDocPageResp searchDocs(long current, long size, LocalDateTime since);
+    CursorResult<ProductDocResp> cursorPage(CursorReq req);
+
+    /**
+     * 按商品 ID 组装单个搜索文档。 <p>
+     * 供 search-service MQ 增量消费（
+     * ProductCreated/ProductUpdated）拉取完整文档， 组装逻辑与
+     * {@link #cursorPage} 保持一致。
+     *
+     * @param id SPU ID
+     * @return 搜索文档，商品不存在返回 null
+     */
+    ProductDocResp searchDoc(Long id);
 
     /**
      * 创建商品。 <p>
@@ -46,6 +57,24 @@ public interface IProductService {
      * @return 新建 SPU ID
      */
     Long create(ProductCreateReq req, Long shopId);
+
+    /**
+     * 更新商品（SPU 基本信息 + 规格 + SKU + 图片），并发布 ProductUpdated
+     * 事件。 <p>
+     * 差异合并语义：按规格组合指纹匹配，已存在 SKU 保留主键/编码/库存， 仅刷新销售字段；新增规格组
+     * 合插入新 SKU。
+     *
+     * @param id SPU ID
+     * @param req 更新请求
+     */
+    void update(Long id, ProductUpdateReq req);
+
+    /**
+     * 删除商品（软删除），并发布 ProductDeleted 事件。
+     *
+     * @param id SPU ID
+     */
+    void delete(Long id);
 
     /**
      * 查询 SPU 完整详情（含品牌、图片、SKU、规格）。

@@ -8,7 +8,7 @@ import org.springframework.cloud.openfeign.EnableFeignClients;
  * 商品搜索服务启动类。
  * <p>
  * 基于 Elasticsearch 提供 C 端商品搜索/浏览列表能力，
- * 通过 product-service 的 search-docs 接口拉取商品文档同步到 ES。
+ * 通过 product-service 的 docs 接口拉取商品文档同步到 ES。
  *
  * @author : Tomatos
  */

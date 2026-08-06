@@ -1,16 +1,15 @@
-package com.cloudmall.consumer.mq;
+package com.cloudmall.consumer.handler;
 
-import java.util.Map;
+import java.util.Set;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
-import com.cloudmall.consumer.enums.OperationTypeEnum;
 import com.cloudmall.coupon.api.client.CouponOrderClient;
 import com.cloudmall.coupon.api.request.CouponOrderReleaseByOrderReq;
 import com.cloudmall.order.api.event.OrderEvent;
 import com.cloudmall.order.api.event.OrderTagEnum;
-import com.cloudmall.rocketmq.consumer.EventHandler;
+import com.cloudmall.rocketmq.handler.EventHandler;
 
 /**
  * 订单释放处理器：超时/取消共享同一动作，注册两个 tag。
@@ -24,20 +23,25 @@ public class OrderReleaseHandler implements EventHandler<OrderEvent> {
     private final CouponOrderClient couponOrderClient;
 
     /**
-     * 注册的 tag 映射。
+     * 本处理器服务的 RocketMQ tag 集合。
      *
-     * @return tag 映射
+     * @return tag 集合
      */
     @Override
-    public Map<String, String> tags() {
-        return Map.of(
-                OrderTagEnum.TIMEOUT.getTag(),
-                OperationTypeEnum.ORDER_TIMEOUT.getCode(),
-                OrderTagEnum.CANCELLED.getTag(),
-                OperationTypeEnum.ORDER_CANCELLED.getCode()
-        );
+    public Set<String> tagSet() {
+        return Set.of(OrderTagEnum.TIMEOUT.getTag(), OrderTagEnum.CANCELLED.getTag());
     }
 
+    /**
+     * 判断事件是否由本处理器处理。
+     *
+     * @param tag 消息 tag
+     * @return true 表示超时或取消事件
+     */
+    @Override
+    public boolean canHandle(String tag) {
+        return tagSet().contains(tag);
+    }
     /**
      * 提取幂等键。
      *

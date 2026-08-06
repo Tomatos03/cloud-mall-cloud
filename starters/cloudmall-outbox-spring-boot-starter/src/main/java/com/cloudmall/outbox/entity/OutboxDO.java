@@ -41,11 +41,11 @@ public class OutboxDO {
     /** 目标 RocketMQ Topic */
     private String topic;
 
-    /** 聚合类型（如 ORDER） */
-    private String aggregateType;
+    /** 业务类型（如 ORDER） */
+    private String bizType;
 
-    /** 聚合 ID（如父订单号） */
-    private String aggregateId;
+    /** 业务 ID（如父订单号） */
+    private String bizId;
 
     /** 事件类型（同时作为 RocketMQ tag） */
     private String eventType;

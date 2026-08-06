@@ -2,9 +2,12 @@ package com.cloudmall.search.service.impl;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 
+import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.StrUtil;
 import co.elastic.clients.elasticsearch.ElasticsearchClient;
 import co.elastic.clients.elasticsearch._types.SortOptions;
@@ -24,13 +27,20 @@ import org.springframework.stereotype.Service;
 
 import com.cloudmall.common.enums.BizError;
 import com.cloudmall.common.exception.BizException;
+import com.cloudmall.common.model.CursorReq;
+import com.cloudmall.common.model.CursorResult;
+import com.cloudmall.product.api.client.ProductClient;
+import com.cloudmall.product.api.response.ProductDocResp;
 import com.cloudmall.search.api.request.SearchProductReq;
 import com.cloudmall.search.api.response.FacetItemResp;
 import com.cloudmall.search.api.response.SearchFacetsResp;
 import com.cloudmall.search.api.response.SearchProductResp;
 import com.cloudmall.search.api.response.SearchResultResp;
 import com.cloudmall.search.config.SearchProperties;
+import com.cloudmall.search.config.SearchSyncProperties;
+import com.cloudmall.search.index.ProductIndexRepository;
 import com.cloudmall.search.model.ProductHit;
+import com.cloudmall.search.model.RebuildResultResp;
 import com.cloudmall.search.service.ISearchService;
 
 /**
@@ -52,7 +62,9 @@ public class SearchService implements ISearchService {
 
     private final ElasticsearchClient client;
     private final SearchProperties props;
-
+    private final ProductClient productClient;
+    private final ProductIndexRepository productIndexRepository;
+    private final SearchSyncProperties syncProps;
     /**
      * 搜索商品。
      *
@@ -68,6 +80,70 @@ public class SearchService implements ISearchService {
         SearchRequest searchRequest = buildSearchRequest(req, from, size);
         SearchResponse<ProductHit> response = execute(searchRequest);
         return assembleResult(response, page, size);
+    }
+
+    /**
+     * 清理 ES 中 DB 已不存在的残留文档。
+     *
+     * @param dbIds DB 中现存商品 ID 集合
+     * @return 删除条数
+     */
+    private long deleteStaleDocs(Set<Long> dbIds) {
+        Set<Long> esIds = productIndexRepository.fetchAllIds();
+        esIds.removeAll(dbIds);
+        return productIndexRepository.deleteByIds(esIds);
+    }
+
+    /**
+     * 全量重建商品索引。
+     *
+     * @return 重建统计结果
+     */
+    @Override
+    public RebuildResultResp rebuild() {
+        SearchSyncProperties.FullSync full = syncProps.getFull();
+        long total = 0;
+        long updated = 0;
+        long failed = 0;
+        Set<Long> dbIds = new HashSet<>();
+
+        long cursor = 0;
+        long pages = 0;
+        while (true) {
+            if (full.getMaxPages() > 0 && pages >= full.getMaxPages()) {
+                log.warn("全量重建达到最大翻页数上限 maxPages={}，提前结束", full.getMaxPages());
+                break;
+            }
+            CursorResult<ProductDocResp> result = productClient.cursorPage(
+                    CursorReq.builder()
+                             .cursor(cursor)
+                             .size(full.getPageSize())
+                             .build()
+            );
+            List<ProductDocResp> records = result.getItems();
+            if (CollUtil.isEmpty(records)) {
+                break;
+            }
+            total += records.size();
+            long batchUpdated = productIndexRepository.upsertBatch(records);
+            updated += batchUpdated;
+            failed += records.size() - batchUpdated;
+            records.forEach(r -> dbIds.add(r.getId()));
+            if (!result.getHasMore()) {
+                break;
+            }
+            cursor = result.getCursor();
+            pages++;
+        }
+
+        long deleted = deleteStaleDocs(dbIds);
+        log.info("全量重建完成 total={} updated={} deleted={} failed={}", total, updated, deleted, failed);
+        return RebuildResultResp.builder()
+                                .total(total)
+                                .updated(updated)
+                                .deleted(deleted)
+                                .failed(failed)
+                                .build();
     }
 
     private SearchRequest buildSearchRequest(SearchProductReq req, int from, int size) {
