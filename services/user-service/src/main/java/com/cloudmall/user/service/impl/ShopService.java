@@ -29,7 +29,7 @@ public class ShopService implements IShopService {
      */
     @Override
     public ShopResp get(ShopGetReq req) {
-        ShopDO shop = shopMapper.selectOne(req.buildLambdaWrapper());
+        ShopDO shop = shopMapper.selectByReq(req);
         return shopConverter.toResp(shop);
     }
 

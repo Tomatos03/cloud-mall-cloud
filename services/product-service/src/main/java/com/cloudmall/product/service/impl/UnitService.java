@@ -52,7 +52,7 @@ public class UnitService implements IUnitService {
      */
     @Override
     public IPage<UnitResp> page(UnitPageReq req) {
-        IPage<UnitDO> page = unitMapper.selectPage(req, req.buildLambdaWrapper());
+        IPage<UnitDO> page = unitMapper.selectUnitPage(req);
         return page.convert(unitConverter::toResp);
     }
 

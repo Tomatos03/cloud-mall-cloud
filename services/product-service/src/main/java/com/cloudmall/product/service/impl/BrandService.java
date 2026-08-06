@@ -68,7 +68,7 @@ public class BrandService implements IBrandService {
      */
     @Override
     public IPage<BrandResp> page(BrandPageReq req) {
-        IPage<BrandDO> page = brandMapper.selectPage(req, req.buildLambdaWrapper());
+        IPage<BrandDO> page = brandMapper.selectBrandPage(req);
         return page.convert(brandConverter::toResp);
     }
 

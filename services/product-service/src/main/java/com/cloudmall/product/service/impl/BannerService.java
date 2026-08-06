@@ -29,7 +29,7 @@ public class BannerService implements IBannerService {
      */
     @Override
     public List<BannerResp> list(BannerReq req) {
-        List<BannerDO> list = bannerMapper.selectList(req.buildLambdaWrapper());
+        List<BannerDO> list = bannerMapper.selectByReq(req);
         return bannerConverter.toRespList(list);
     }
 
@@ -41,7 +41,7 @@ public class BannerService implements IBannerService {
      */
     @Override
     public IPage<BannerResp> page(BannerPageReq req) {
-        IPage<BannerDO> page = bannerMapper.selectPage(req, req.buildLambdaWrapper());
+        IPage<BannerDO> page = bannerMapper.selectBannerPage(req);
         return page.convert(bannerConverter::toResp);
     }
 }

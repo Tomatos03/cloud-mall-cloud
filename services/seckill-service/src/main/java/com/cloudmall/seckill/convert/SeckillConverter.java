@@ -2,17 +2,51 @@ package com.cloudmall.seckill.convert;
 
 import org.mapstruct.Mapper;
 
+import com.cloudmall.seckill.api.response.ActivityDetailResp;
 import com.cloudmall.seckill.api.response.ActivityResp;
+import com.cloudmall.seckill.api.response.SeckillOrderResp;
+import com.cloudmall.seckill.api.response.SeckillProductResp;
 import com.cloudmall.seckill.entity.SeckillActivityDO;
+import com.cloudmall.seckill.entity.SeckillOrderDO;
+import com.cloudmall.seckill.entity.SeckillProductDO;
 
+/**
+ * 秒杀模块转换器
+ *
+ * @author : Tomatos
+ */
 @Mapper(componentModel = "spring")
 public interface SeckillConverter {
 
     /**
-     * 转换对象数据。
+     * 活动实体转为列表视图响应。
      *
-     * @param activity 秒杀活动实体
-     * @return 处理结果
+     * @param activity 活动实体
+     * @return 活动响应
      */
-    ActivityResp toResp(SeckillActivityDO activity);
+    ActivityResp toActivityResp(SeckillActivityDO activity);
+
+    /**
+     * 活动实体转为详情视图响应（不含商品）。
+     *
+     * @param activity 活动实体
+     * @return 活动详情响应
+     */
+    ActivityDetailResp toActivityDetailResp(SeckillActivityDO activity);
+
+    /**
+     * 秒杀商品实体转为响应。
+     *
+     * @param product 秒杀商品实体
+     * @return 秒杀商品响应
+     */
+    SeckillProductResp toSeckillProductResp(SeckillProductDO product);
+
+    /**
+     * 秒杀单实体转为订单响应。
+     *
+     * @param order 秒杀单实体
+     * @return 秒杀订单响应
+     */
+    SeckillOrderResp toSeckillOrderResp(SeckillOrderDO order);
 }

@@ -97,7 +97,7 @@ public class RoleService implements IRoleService {
      */
     @Override
     public IPage<RoleResp> pageRoles(RolePageReq req) {
-        IPage<RoleDO> page = roleMapper.selectPage(req, req.buildLambdaWrapper());
+        IPage<RoleDO> page = roleMapper.selectRolePage(req);
         return page.convert(roleConverter::toRoleResp);
     }
 

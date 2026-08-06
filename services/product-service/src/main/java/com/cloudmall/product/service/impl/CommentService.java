@@ -31,7 +31,7 @@ public class CommentService implements ICommentService {
      */
     @Override
     public IPage<CommentResp> page(CommentPageReq req) {
-        IPage<CommentDO> page = commentMapper.selectPage(req, req.buildLambdaWrapper());
+        IPage<CommentDO> page = commentMapper.selectCommentPage(req);
         return page.convert(commentConverter::toResp);
     }
 

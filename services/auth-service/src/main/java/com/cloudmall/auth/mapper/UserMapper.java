@@ -1,13 +1,26 @@
 package com.cloudmall.auth.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import org.apache.ibatis.annotations.Mapper;
 
 import com.cloudmall.auth.entity.UserDO;
+import com.cloudmall.auth.model.req.UserPageReq;
 
 @Mapper
 public interface UserMapper extends BaseMapper<UserDO> {
+
+    /**
+     * 分页查询用户（条件由 {@link UserPageReq} 的 @QueryCondition 注
+     * 解声明）。
+     *
+     * @param req 分页 + 筛选条件
+     * @return 用户分页数据
+     */
+    default IPage<UserDO> selectUserPage(UserPageReq req) {
+        return selectPage(req, req.buildLambdaWrapper());
+    }
 
     /**
      * 按用户名查询用户，软删除过滤由 @TableLogic 自动处理。

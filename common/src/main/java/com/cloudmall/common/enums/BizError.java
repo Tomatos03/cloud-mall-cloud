@@ -179,6 +179,8 @@ public enum BizError {
     AUDIT_NOT_EXIST(90016, "审核批次不存在"),
     AUDIT_ITEM_NOT_FOUND(90017, "审核项目不存在"),
     AUDITOR_NOT_FOUND(90018, "审核器未找到"),
+    AUDIT_ALREADY_PENDING(90019, "该对象已有待审核记录"),
+    AUDIT_TARGET_STATUS_CONFLICT(90020, "审核对象当前状态不允许审核"),
 
     // 秒杀相关错误码 (92xxx)
     SECKILL_ACTIVITY_NOT_EXIST(92000, "秒杀活动不存在"),
@@ -213,6 +215,14 @@ public enum BizError {
     ITEMS_EMPTY(92029, "商品列表不能为空，至少需要1个商品"),
     SECKILL_GOODS_NOT_FOUND(92030, "秒杀商品不存在"),
     SECKILL_REPEAT_ORDER(92031, "同一商品不可重复秒杀"),
+    SECKILL_ACTIVITY_ALREADY_PUBLISHED(92032, "活动已发布，不能重复发布"),
+    SECKILL_ACTIVITY_NOT_PUBLISHABLE(92033, "当前状态不可发布"),
+    SECKILL_ACTIVITY_NOT_CANCELLABLE(92034, "当前状态不可取消"),
+    SECKILL_PRODUCT_NOT_SUBMITTABLE(92035, "活动状态不允许提交商品"),
+    SECKILL_ADDRESS_REQUIRED(92036, "抢购必须选择收货地址"),
+    SECKILL_ORDER_TIMEOUT_CANCEL_FAILED(92037, "秒杀单超时取消失败"),
+    ACTIVITY_START_TIME_MUST_BE_ON_THE_HOUR(92038, "秒杀活动开始时间必须为整点"),
+    ACTIVITY_MAX_PRODUCTS_INVALID(92039, "活动最大商品数必须在1到500之间"),
 
     // 优惠券相关错误码 (93xxx)
     COUPON_NOT_EXIST(93000, "优惠券不存在"),

@@ -453,6 +453,7 @@ CREATE TABLE IF NOT EXISTS cm_order (
     freight_amount             decimal(18,2) NOT NULL DEFAULT 0.00 comment '运费金额',
     payable_amount             decimal(18,2) NOT NULL DEFAULT 0.00 comment '最终应付金额(商品应付加运费)',
     status                     varchar(20)   NOT NULL DEFAULT 'CREATING' comment '订单状态(CREATING=创建中 PENDING_PAYMENT=待支付 PAID=已支付 TIMEOUT=超时关闭 CANCELLED=已取消 PARTIAL_REFUNDED=部分退款 REFUNDED=已全额退款)',
+    order_type                 varchar(20)   NOT NULL DEFAULT 'NORMAL' comment '订单类型(NORMAL=普通订单 SECKILL=秒杀订单)',
     address_snapshot           text          DEFAULT NULL comment '收货地址快照(JSON)',
     remark                     varchar(500)  DEFAULT NULL comment '订单备注',
     create_time                datetime      DEFAULT NULL comment '创建时间',
@@ -553,36 +554,88 @@ CREATE TABLE IF NOT EXISTS cm_cart (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 comment '购物车表';
 
 -- ============================================================
+-- 审核模块 (通用审核单)
+-- ============================================================
+
+-- 通用审核单（biz_type 区分审核对象类型，当前用于秒杀商品审核）
+CREATE TABLE IF NOT EXISTS cm_audit_record (
+    id           bigint       NOT NULL AUTO_INCREMENT comment '审核单ID',
+    biz_type     varchar(40)  NOT NULL comment '审核对象类型(SECKILL_PRODUCT=秒杀商品)',
+    biz_id       bigint       NOT NULL comment '审核对象ID',
+    submitter_id bigint       DEFAULT NULL comment '提交人用户ID',
+    auditor_id   bigint       DEFAULT NULL comment '审核人用户ID',
+    status       varchar(20)  NOT NULL DEFAULT 'PENDING' comment '审核状态(PENDING=待审核 APPROVED=已通过 REJECTED=已驳回 WITHDRAWN=已撤回)',
+    audit_remark varchar(200) DEFAULT NULL comment '审核意见/驳回原因',
+    extra_info   json         DEFAULT NULL comment '扩展信息(提交时快照)',
+    create_time  datetime     DEFAULT NULL comment '创建时间',
+    update_time  datetime     DEFAULT NULL comment '更新时间',
+    deleted      tinyint(1)   NOT NULL DEFAULT 0 comment '是否删除(0=否 1=是)',
+    PRIMARY KEY (id),
+    KEY idx_biz (biz_type, biz_id, status)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 comment '通用审核单表';
+
+-- ============================================================
 -- 秒杀模块 (seckill)
 -- ============================================================
 
+-- 秒杀活动（运营排期，发布=开放商家报名，报名截止=start_time）
 CREATE TABLE IF NOT EXISTS cm_seckill_activity (
-    id          bigint       NOT NULL AUTO_INCREMENT comment '秒杀活动ID',
-    name        varchar(200) NOT NULL comment '活动名称',
-    start_time  datetime     NOT NULL comment '活动开始时间',
-    end_time    datetime     NOT NULL comment '活动结束时间',
-    status      varchar(20)  DEFAULT 'DRAFT' comment '活动状态(DRAFT=草稿 PENDING=待审核 APPROVED=已通过 REJECTED=已驳回 FINISHED=已结束)',
-    create_user bigint       DEFAULT NULL comment '创建人用户ID',
-    create_time datetime     DEFAULT NULL comment '创建时间',
-    update_time datetime     DEFAULT NULL comment '更新时间',
-    deleted     tinyint      DEFAULT '0' comment '是否删除(0=否 1=是)',
-    PRIMARY KEY (id)
+    id           bigint       NOT NULL AUTO_INCREMENT comment '秒杀活动ID',
+    name         varchar(200) NOT NULL comment '活动名称',
+    description  varchar(500) DEFAULT NULL comment '活动描述',
+    start_time   datetime     NOT NULL comment '活动开始时间(创建时须晚于当前24小时)',
+    end_time     datetime     NOT NULL comment '活动结束时间(固定为开始时间加1小时)',
+    max_products int          NOT NULL DEFAULT 50 comment '每活动最大商品数(创建时可配1~500,默认50)',
+    status       varchar(20)  NOT NULL DEFAULT 'DRAFT' comment '活动状态(DRAFT=草稿 PUBLISHED=报名中 RUNNING=进行中 FINISHED=已结束 CANCELLED=已取消)',
+    create_user  bigint       DEFAULT NULL comment '创建人用户ID',
+    publish_user bigint       DEFAULT NULL comment '发布人用户ID',
+    publish_time datetime     DEFAULT NULL comment '发布时间',
+    create_time  datetime     DEFAULT NULL comment '创建时间',
+    update_time  datetime     DEFAULT NULL comment '更新时间',
+    deleted      tinyint(1)   NOT NULL DEFAULT 0 comment '是否删除(0=否 1=是)',
+    PRIMARY KEY (id),
+    KEY idx_status_start (status, start_time)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 comment '秒杀活动表';
 
+-- 秒杀商品（商家按SKU报名，运营审核；秒杀库存为独立池，不接入 cm_stock_op_log）
 CREATE TABLE IF NOT EXISTS cm_seckill_product (
     id            bigint        NOT NULL AUTO_INCREMENT comment '秒杀商品ID',
     activity_id   bigint        NOT NULL comment '所属活动ID',
-    product_id      bigint        NOT NULL comment '商品ID',
+    product_id    bigint        NOT NULL comment '商品SPU ID(冗余)',
+    sku_id        bigint        NOT NULL comment 'SKU ID(下单粒度)',
+    shop_id       bigint        NOT NULL comment '店铺ID(冗余)',
     seckill_price decimal(10,2) NOT NULL comment '秒杀价格',
-    stock         int           DEFAULT '0' comment '秒杀库存',
-    sold_count    int           DEFAULT '0' comment '已售数量',
-    audit_status  varchar(20)   DEFAULT 'PENDING' comment '审核状态(PENDING=待审核 APPROVED=已通过 REJECTED=已驳回)',
-    create_time datetime    DEFAULT NULL comment '创建时间',
-    update_time datetime    DEFAULT NULL comment '更新时间',
-    deleted    tinyint      DEFAULT '0' comment '是否删除(0=否 1=是)',
+    stock         int           NOT NULL DEFAULT 0 comment '秒杀库存(运行时权威在Redis，支付确认时落库扣减)',
+    sold_count    int           NOT NULL DEFAULT 0 comment '已确认售出数量',
+    audit_status  varchar(20)   NOT NULL DEFAULT 'PENDING' comment '审核状态(PENDING=待审核 APPROVED=已通过 REJECTED=已驳回)',
+    create_time   datetime      DEFAULT NULL comment '创建时间',
+    update_time   datetime      DEFAULT NULL comment '更新时间',
+    deleted       tinyint(1)    NOT NULL DEFAULT 0 comment '是否删除(0=否 1=是)',
     PRIMARY KEY (id),
-    KEY idx_activity (activity_id)
+    UNIQUE KEY uk_activity_sku (activity_id, sku_id),
+    KEY idx_activity (activity_id),
+    KEY idx_shop (shop_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 comment '秒杀商品表';
+
+-- 秒杀购买记录（唯一键权威保证一人一单，异步建真实订单）
+CREATE TABLE IF NOT EXISTS cm_seckill_order (
+    id            bigint        NOT NULL comment '秒杀单ID(雪花)',
+    activity_id   bigint        NOT NULL comment '活动ID',
+    product_id    bigint        NOT NULL comment '商品SPU ID(冗余)',
+    sku_id        bigint        NOT NULL comment 'SKU ID',
+    user_id       bigint        NOT NULL comment '购买用户ID',
+    quantity      int           NOT NULL DEFAULT 1 comment '购买数量(固定1)',
+    seckill_price decimal(10,2) NOT NULL comment '成交价快照',
+    order_no      varchar(64)   DEFAULT NULL comment '真实订单号(抢购时预生成)',
+    status        varchar(20)   NOT NULL DEFAULT 'PENDING_PAYMENT' comment '秒杀单状态(PENDING_PAYMENT=待支付 PAID=已支付 CANCELLED=已取消 REFUNDED=已退款)',
+    create_time   datetime      DEFAULT NULL comment '创建时间',
+    update_time   datetime      DEFAULT NULL comment '更新时间',
+    deleted       tinyint(1)    NOT NULL DEFAULT 0 comment '是否删除(0=否 1=是)',
+    PRIMARY KEY (id),
+    UNIQUE KEY uk_activity_sku_user (activity_id, sku_id, user_id),
+    KEY idx_user (user_id),
+    KEY idx_order_no (order_no)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 comment '秒杀购买记录表';
 
 -- ============================================================
 -- 库存模块 (product) — 普通商品库存预占/释放流水
@@ -677,6 +730,14 @@ INSERT INTO cm_resource (id, code, name, type) VALUES
     (33, 'user:delete',                     '用户删除',                          'api'),
     (40, 'shop:manage',                    '店铺管理',                          'api'),
     (50, 'seckill:manage',                  '秒杀管理',                          'api'),
+    (51, 'seckill:activity:create',         '秒杀活动创建',                      'api'),
+    (52, 'seckill:activity:publish',        '秒杀活动发布',                      'api'),
+    (53, 'seckill:activity:cancel',         '秒杀活动取消',                      'api'),
+    (54, 'seckill:activity:view',           '秒杀活动查询',                      'api'),
+    (55, 'seckill:product:submit',          '秒杀商品提交',                      'api'),
+    (56, 'seckill:product:audit',           '秒杀商品审核',                      'api'),
+    (57, 'seckill:product:view',            '秒杀商品查询',                      'api'),
+    (58, 'seckill:order:view',              '秒杀订单查询',                      'api'),
     (60, 'coupon:manage',                   '优惠券管理',                        'api'),
     (61, 'coupon:template:create',          '优惠券模板创建',                    'api'),
     (62, 'coupon:template:view',            '优惠券模板查询',                    'api'),
@@ -696,6 +757,8 @@ INSERT INTO cm_role_resource (role_id, resource_id) VALUES
     (1, 30), (1, 31), (1, 32), (1, 33),
     (1, 40),
     (1, 50),
+    (1, 51), (1, 52), (1, 53), (1, 54),
+    (1, 55), (1, 56), (1, 57), (1, 58),
     (1, 60),
     (1, 61), (1, 62), (1, 63), (1, 64), (1, 65), (1, 66),
     (1, 67), (1, 68), (1, 69);

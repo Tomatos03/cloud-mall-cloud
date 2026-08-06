@@ -77,6 +77,24 @@ DISABLED(0, "关闭"),
 ENABLED(1, "开启");
 ```
 
+### 分页请求与 LIMIT
+
+分页搜索请求必须继承 starter 提供的 `PageReq<T>`（`com.cloudmall.mybatisplus.model.PageReq`），
+查询条件通过 `@QueryCondition` 注解声明，由 `buildLambdaWrapper()` 自动生成。
+
+| 禁止写法 | 必须使用 |
+|----------|----------|
+| req 手写 `private Integer page; private Integer pageSize;` | `class XxxPageReq extends PageReq<XxxDO>` + `@QueryCondition` 字段 |
+| Service 构造分页 `Wrapper` 传给 Mapper | Service 只传 req，Mapper `default` 方法内 `req.buildLambdaWrapper()` |
+
+`LIMIT` 子句一律使用 `LimitEnum`（`LimitEnum.TWO_HUNDRED.getSql()` 等常量或 `LimitEnum.of(n)`），
+禁止手写 `.last("LIMIT ...")` 字符串拼接。
+
+| 禁止写法 | 必须使用 |
+|----------|----------|
+| `.last("LIMIT " + limit)` | `.last(LimitEnum.of(limit))` |
+| `.last("LIMIT 200")` | `.last(LimitEnum.TWO_HUNDRED.getSql())` |
+
 ### 手写 SQL 常量抽取
 
 使用 `inSql` 且 SQL 片段**包含变量拼接**时，禁止在参数位内联拼接 SQL 字符串表达式。必须先抽取为方法体内紧邻使用处之上的 `final` 局部变量（camelCase，命名见「命名」），再作为参数传入。纯字面量（不含变量拼接）的 `inSql` 可豁免。

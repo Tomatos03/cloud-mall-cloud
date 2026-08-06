@@ -6,6 +6,8 @@ auth:
     - /coupons/*
     - /search/**
     - /chat/ws
+    - GET:/seckill/activities
+    - GET:/seckill/activities/*
   url-permissions:
     - pattern: "GET:/merchant/**"
       permissions: [coupon:template:view, coupon:stats:view]
@@ -25,6 +27,22 @@ auth:
       permissions: [coupon:stats:view]
     - pattern: "/operator/**"
       permissions: [coupon:user:view, coupon:user:revoke, coupon:manage]
+    - pattern: "GET:/seckill/merchant/**"
+      permissions: [seckill:product:view]
+    - pattern: "POST:/seckill/activities/*/products"
+      permissions: [seckill:product:submit]
+    - pattern: "PATCH:/seckill/activities/*/products/*"
+      permissions: [seckill:product:audit]
+    - pattern: "POST:/seckill/activities/*/publish"
+      permissions: [seckill:activity:publish]
+    - pattern: "POST:/seckill/activities/*/cancel"
+      permissions: [seckill:activity:cancel]
+    - pattern: "POST:/seckill/activities"
+      permissions: [seckill:activity:create]
+    - pattern: "PATCH:/seckill/activities/*"
+      permissions: [seckill:activity:create]
+    - pattern: "GET:/seckill/operator/**"
+      permissions: [seckill:activity:view, seckill:product:view]
 
 spring:
   cloud:

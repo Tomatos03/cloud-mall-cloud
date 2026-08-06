@@ -114,7 +114,7 @@ public class UserService implements IUserService {
      */
     @Override
     public IPage<UserInfoResp> pageUserInfos(UserPageReq req) {
-        IPage<UserDO> page = userMapper.selectPage(req, req.buildLambdaWrapper());
+        IPage<UserDO> page = userMapper.selectUserPage(req);
         return page.convert(userConverter::toResp);
     }
 

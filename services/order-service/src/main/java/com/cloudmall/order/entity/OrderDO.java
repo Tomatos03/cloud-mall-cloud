@@ -13,6 +13,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import com.cloudmall.order.enums.OrderTypeEnum;
 import com.cloudmall.order.enums.ParentOrderStatusEnum;
 
 /**
@@ -59,6 +60,9 @@ public class OrderDO {
 
     /** 订单状态 */
     private ParentOrderStatusEnum status;
+
+    /** 订单类型（普通/秒杀） */
+    private OrderTypeEnum orderType;
 
     /** 收货地址快照（JSON） */
     private String addressSnapshot;

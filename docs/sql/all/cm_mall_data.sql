@@ -513,26 +513,51 @@ INSERT INTO cm_cart (id, user_id, shop_id, product_id, sku_id, product_name, pro
 ALTER TABLE cm_cart AUTO_INCREMENT = 1000;
 
 -- ============================================================
--- 秒杀活动
+-- 秒杀活动（时长固定1小时；DRAFT/PUBLISHED 满足开始时间晚于当前24小时）
 -- ============================================================
-INSERT INTO cm_seckill_activity (id, name, start_time, end_time, status, create_user) VALUES
-(1, '618数码狂欢节',            NOW(), DATE_ADD(NOW(), INTERVAL 7 DAY),  'APPROVED', 2),
-(2, '暑期清凉特卖',             DATE_ADD(NOW(), INTERVAL 10 DAY), DATE_ADD(NOW(), INTERVAL 17 DAY), 'PENDING', 2),
-(3, '618服饰专场（已结束）',    DATE_SUB(NOW(), INTERVAL 30 DAY), DATE_SUB(NOW(), INTERVAL 23 DAY), 'FINISHED', 3);
+INSERT INTO cm_seckill_activity (id, name, description, start_time, end_time, status, create_user, publish_user, publish_time) VALUES
+(1, '618数码狂欢节',         '数码爆品限时秒杀，先到先得', DATE_SUB(NOW(), INTERVAL 30 MINUTE), DATE_ADD(NOW(), INTERVAL 30 MINUTE), 'RUNNING',   1, 1, DATE_SUB(NOW(), INTERVAL 10 DAY)),
+(2, '暑期清凉特卖',           '夏日服饰食品专场报名中',     DATE_ADD(NOW(), INTERVAL 2 DAY),     DATE_ADD(NOW(), INTERVAL 2 DAY) + INTERVAL 1 HOUR, 'PUBLISHED', 1, 1, NOW()),
+(3, '618服饰专场（已结束）', '春季服饰清仓',               DATE_SUB(NOW(), INTERVAL 30 DAY),    DATE_SUB(NOW(), INTERVAL 30 DAY) + INTERVAL 1 HOUR, 'FINISHED',  1, 1, DATE_SUB(NOW(), INTERVAL 40 DAY)),
+(4, '中秋食品专场',           '运营排期中，尚未开放报名',   DATE_ADD(NOW(), INTERVAL 5 DAY),     DATE_ADD(NOW(), INTERVAL 5 DAY) + INTERVAL 1 HOUR,  'DRAFT',     1, NULL, NULL);
 
 ALTER TABLE cm_seckill_activity AUTO_INCREMENT = 100;
 
 -- ============================================================
--- 秒杀商品（表名与 schema 对齐：cm_seckill_product）
+-- 秒杀商品（按 SKU 报名，冗余 product_id / shop_id；秒杀价低于 SKU 原价）
 -- ============================================================
-INSERT INTO cm_seckill_product (id, activity_id, product_id, seckill_price, stock, sold_count, audit_status) VALUES
-(1, 1, 1, 5999.00,  10, 3, 'APPROVED'),
-(2, 1, 4, 2499.00,  20, 5, 'APPROVED'),
-(3, 1, 7, 69.90,    50, 12, 'APPROVED'),
-(4, 3, 5, 299.00,   30, 28, 'APPROVED'),
-(5, 3, 6, 199.00,   40, 35, 'APPROVED');
+INSERT INTO cm_seckill_product (id, activity_id, product_id, sku_id, shop_id, seckill_price, stock, sold_count, audit_status) VALUES
+-- 活动1（RUNNING）：数码专场
+(1, 1, 1, 1,  1, 5999.00, 10, 3,  'APPROVED'),
+(2, 1, 4, 9,  1, 2499.00, 20, 5,  'APPROVED'),
+(3, 1, 7, 16, 3, 69.90,   50, 12, 'APPROVED'),
+-- 活动2（PUBLISHED 报名期）：待审 + 已审 + 驳回各一条
+(4, 2, 5, 13, 2, 299.00,  30, 0,  'PENDING'),
+(5, 2, 6, 15, 2, 199.00,  40, 0,  'APPROVED'),
+(6, 2, 8, 17, 3, 49.90,   60, 0,  'REJECTED'),
+-- 活动3（FINISHED）：历史数据
+(7, 3, 5, 12, 2, 299.00,  30, 28, 'APPROVED'),
+(8, 3, 6, 15, 2, 199.00,  40, 35, 'APPROVED');
 
 ALTER TABLE cm_seckill_product AUTO_INCREMENT = 100;
+
+-- ============================================================
+-- 通用审核单（当前仅秒杀商品审核场景）
+-- ============================================================
+INSERT INTO cm_audit_record (id, biz_type, biz_id, submitter_id, auditor_id, status, audit_remark, extra_info) VALUES
+(1, 'SECKILL_PRODUCT', 4, 3, NULL, 'PENDING',  NULL,               '{"skuId":13,"seckillPrice":299.00,"stock":30}'),
+(2, 'SECKILL_PRODUCT', 5, 3, 1,    'APPROVED', '价格与库存符合要求', '{"skuId":15,"seckillPrice":199.00,"stock":40}'),
+(3, 'SECKILL_PRODUCT', 6, 6, 1,    'REJECTED', '秒杀力度不足，请调整价格', '{"skuId":17,"seckillPrice":49.90,"stock":60}');
+
+ALTER TABLE cm_audit_record AUTO_INCREMENT = 100;
+
+-- ============================================================
+-- 秒杀购买记录（一人一单，order_no 为秒杀侧预生成的真实订单号）
+-- ============================================================
+INSERT INTO cm_seckill_order (id, activity_id, product_id, sku_id, user_id, quantity, seckill_price, order_no, status) VALUES
+(1, 1, 1, 1,  4, 1, 5999.00, 'SK202507010000001', 'PAID'),
+(2, 1, 4, 9,  5, 1, 2499.00, 'SK202507010000002', 'PENDING_PAYMENT'),
+(3, 3, 5, 12, 4, 1, 299.00,  'SK202506010000003', 'CANCELLED');
 
 -- ============================================================
 -- AI 聊天会话（示例）

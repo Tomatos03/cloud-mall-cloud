@@ -12,18 +12,34 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+/**
+ * 秒杀商品实体
+ *
+ * @author : Tomatos
+ */
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
 @TableName("cm_seckill_product")
 public class SeckillProductDO {
+
     private Long id;
+
     private Long activityId;
+
     private Long productId;
+
+    private Long skuId;
+
+    private Long shopId;
+
     private BigDecimal seckillPrice;
+
     private Integer stock;
+
     private Integer soldCount;
+
     private String auditStatus;
 
     @TableField(fill = FieldFill.INSERT)
