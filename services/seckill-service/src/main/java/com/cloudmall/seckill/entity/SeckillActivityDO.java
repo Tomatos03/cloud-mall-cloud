@@ -38,9 +38,9 @@ public class SeckillActivityDO {
 
     private String status;
 
-    private Long createUser;
+    private Long createUserId;
 
-    private Long publishUser;
+    private Long publishUserId;
 
     private LocalDateTime publishTime;
 

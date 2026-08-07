@@ -515,7 +515,7 @@ ALTER TABLE cm_cart AUTO_INCREMENT = 1000;
 -- ============================================================
 -- 秒杀活动（时长固定1小时；DRAFT/PUBLISHED 满足开始时间晚于当前24小时）
 -- ============================================================
-INSERT INTO cm_seckill_activity (id, name, description, start_time, end_time, status, create_user, publish_user, publish_time) VALUES
+INSERT INTO cm_seckill_activity (id, name, description, start_time, end_time, status, create_user_id, publish_user_id, publish_time) VALUES
 (1, '618数码狂欢节',         '数码爆品限时秒杀，先到先得', DATE_SUB(NOW(), INTERVAL 30 MINUTE), DATE_ADD(NOW(), INTERVAL 30 MINUTE), 'RUNNING',   1, 1, DATE_SUB(NOW(), INTERVAL 10 DAY)),
 (2, '暑期清凉特卖',           '夏日服饰食品专场报名中',     DATE_ADD(NOW(), INTERVAL 2 DAY),     DATE_ADD(NOW(), INTERVAL 2 DAY) + INTERVAL 1 HOUR, 'PUBLISHED', 1, 1, NOW()),
 (3, '618服饰专场（已结束）', '春季服饰清仓',               DATE_SUB(NOW(), INTERVAL 30 DAY),    DATE_SUB(NOW(), INTERVAL 30 DAY) + INTERVAL 1 HOUR, 'FINISHED',  1, 1, DATE_SUB(NOW(), INTERVAL 40 DAY)),

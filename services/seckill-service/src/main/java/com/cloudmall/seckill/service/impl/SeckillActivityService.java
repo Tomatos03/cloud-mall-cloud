@@ -179,7 +179,7 @@ public class SeckillActivityService implements ISeckillActivityService {
         );
 
         activity.setStatus(SeckillActivityStatusEnum.PUBLISHED.getCode());
-        activity.setPublishUser(publishUserId);
+        activity.setPublishUserId(publishUserId);
         activity.setPublishTime(LocalDateTime.now());
 
         activityMapper.updateById(activity);

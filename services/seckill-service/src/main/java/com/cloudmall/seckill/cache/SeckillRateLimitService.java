@@ -35,7 +35,7 @@ public class SeckillRateLimitService {
     public void checkRate(Long userId) {
         // 黑名单拦截
         Boolean inBlacklist = stringRedisTemplate.hasKey("seckill:blacklist:" + userId);
-        Asserts.isFalse(Boolean.TRUE.equals(inBlacklist), BizError.SECKILL_RATE_LIMIT_EXCEEDED);
+        Asserts.isFalse(inBlacklist, BizError.SECKILL_RATE_LIMIT_EXCEEDED);
 
         // 计数
         String key = "seckill:rate:" + userId;

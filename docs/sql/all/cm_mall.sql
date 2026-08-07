@@ -580,19 +580,19 @@ CREATE TABLE IF NOT EXISTS cm_audit_record (
 
 -- 秒杀活动（运营排期，发布=开放商家报名，报名截止=start_time）
 CREATE TABLE IF NOT EXISTS cm_seckill_activity (
-    id           bigint       NOT NULL AUTO_INCREMENT comment '秒杀活动ID',
-    name         varchar(200) NOT NULL comment '活动名称',
-    description  varchar(500) DEFAULT NULL comment '活动描述',
-    start_time   datetime     NOT NULL comment '活动开始时间(创建时须晚于当前24小时)',
-    end_time     datetime     NOT NULL comment '活动结束时间(固定为开始时间加1小时)',
-    max_products int          NOT NULL DEFAULT 50 comment '每活动最大商品数(创建时可配1~500,默认50)',
-    status       varchar(20)  NOT NULL DEFAULT 'DRAFT' comment '活动状态(DRAFT=草稿 PUBLISHED=报名中 RUNNING=进行中 FINISHED=已结束 CANCELLED=已取消)',
-    create_user  bigint       DEFAULT NULL comment '创建人用户ID',
-    publish_user bigint       DEFAULT NULL comment '发布人用户ID',
-    publish_time datetime     DEFAULT NULL comment '发布时间',
-    create_time  datetime     DEFAULT NULL comment '创建时间',
-    update_time  datetime     DEFAULT NULL comment '更新时间',
-    deleted      tinyint(1)   NOT NULL DEFAULT 0 comment '是否删除(0=否 1=是)',
+    id             bigint       NOT NULL AUTO_INCREMENT comment '秒杀活动ID',
+    name           varchar(200) NOT NULL comment '活动名称',
+    description    varchar(500) DEFAULT NULL comment '活动描述',
+    start_time     datetime     NOT NULL comment '活动开始时间(创建时须晚于当前24小时)',
+    end_time       datetime     NOT NULL comment '活动结束时间(固定为开始时间加1小时)',
+    max_products   int          NOT NULL DEFAULT 50 comment '每活动最大商品数(创建时可配1~500,默认50)',
+    status         varchar(20)  NOT NULL DEFAULT 'DRAFT' comment '活动状态(DRAFT=草稿 PUBLISHED=报名中 RUNNING=进行中 FINISHED=已结束 CANCELLED=已取消)',
+    create_user_id bigint       DEFAULT NULL comment '创建人用户ID',
+    publish_user_id bigint      DEFAULT NULL comment '发布人用户ID',
+    publish_time   datetime     DEFAULT NULL comment '发布时间',
+    create_time    datetime     DEFAULT NULL comment '创建时间',
+    update_time    datetime     DEFAULT NULL comment '更新时间',
+    deleted        tinyint(1)   NOT NULL DEFAULT 0 comment '是否删除(0=否 1=是)',
     PRIMARY KEY (id),
     KEY idx_status_start (status, start_time)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 comment '秒杀活动表';

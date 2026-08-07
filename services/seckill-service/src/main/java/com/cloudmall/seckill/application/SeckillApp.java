@@ -38,20 +38,20 @@ public class SeckillApp {
     private final SkuClient skuClient;
 
     /**
-     * 创建活动草稿（从登录态取 createUser）。
+     * 创建活动草稿（从登录态取 createUserId）。
      *
      * @param req 创建请求
      * @return 新活动 ID
      */
     public Long createActivity(ActivityCreateReq req) {
-        Long createUser = UserContextHolder.getUserId();
+        Long createUserId = UserContextHolder.getUserId();
 
         SeckillActivityDO activity = SeckillActivityDO.builder()
                                                       .name(req.getName())
                                                       .description(req.getDescription())
                                                       .startTime(req.getStartTime())
                                                       .maxProducts(req.getMaxProducts())
-                                                      .createUser(createUser)
+                                                      .createUserId(createUserId)
                                                       .build();
         return activityService.createDraft(activity);
     }
@@ -73,13 +73,13 @@ public class SeckillApp {
     }
 
     /**
-     * 发布活动（从登录态取 publishUser）。
+     * 发布活动（从登录态取 publishUserId）。
      *
      * @param id 活动 ID
      */
     public void publishActivity(Long id) {
-        Long publishUser = UserContextHolder.getUserId();
-        activityService.publish(id, publishUser);
+        Long publishUserId = UserContextHolder.getUserId();
+        activityService.publish(id, publishUserId);
     }
 
     /**
