@@ -37,6 +37,11 @@
 
 - 使用 Hutool `CollectionUtil.isEmpty()` / `CollectionUtil.isNotEmpty()`，禁止手写 `== null || .isEmpty()`。
 
+### 条件校验
+
+- 使用 `Asserts` 断言，禁止手写 `if (x) { throw new BizException(...) }`。
+- 缺少断言方法时先扩展 `Asserts`。
+
 ### 实体与 DTO
 
 - 注解固定为 `@Data @Builder @NoArgsConstructor @AllArgsConstructor`，统一使用 builder 构建，禁止 `new` 后逐字段 setter 赋值。

@@ -173,7 +173,7 @@ public class Asserts {
      * @param errorCode 对象相等时抛出的错误码
      * @throws BizException 当两个对象相等时抛出
      */
-    public static void assertNotEqual(Object obj1, Object obj2, BizError errorCode) {
+    public static void notEqual(Object obj1, Object obj2, BizError errorCode) {
         if (Objects.equals(obj1, obj2)) {
             throw new BizException(errorCode);
         }

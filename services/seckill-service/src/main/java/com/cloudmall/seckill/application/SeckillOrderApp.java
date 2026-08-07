@@ -94,12 +94,9 @@ public class SeckillOrderApp {
                 FIXED_QUANTITY,
                 ttlSeconds
         );
-        if (code == null || code == CODE_REPEAT) {
-            throw new BizException(BizError.SECKILL_REPEAT_ORDER);
-        }
-        if (code == CODE_NO_STOCK) {
-            throw new BizException(BizError.SECKILL_STOCK_INSUFFICIENT);
-        }
+        Asserts.notNull(code, BizError.SECKILL_REPEAT_ORDER);
+        Asserts.notEqual(code, CODE_REPEAT, BizError.SECKILL_REPEAT_ORDER);
+        Asserts.notEqual(code, CODE_NO_STOCK, BizError.SECKILL_STOCK_INSUFFICIENT);
 
         SeckillOrderDO order = SeckillOrderDO.builder()
                                              .activityId(req.getActivityId())
