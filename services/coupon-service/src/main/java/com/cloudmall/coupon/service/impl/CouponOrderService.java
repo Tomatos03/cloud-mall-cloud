@@ -85,7 +85,6 @@ public class CouponOrderService implements ICouponOrderService {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public CouponOrderCalcResp lock(CouponOrderLockReq req) {
-        Asserts.assertNotBlank(req.getOrderNo(), BizError.INVALID_PARAM);
         if (hasLocked(req.getOrderNo())) {
             return rebuildByOrder(req);
         }

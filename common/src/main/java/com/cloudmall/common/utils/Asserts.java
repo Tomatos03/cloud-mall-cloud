@@ -126,32 +126,6 @@ public class Asserts {
     }
 
     /**
-     * 断言对象为空，如果不为空则抛出业务异常
-     *
-     * @param obj 待验证的对象
-     * @param errorCode 对象不为空时抛出的错误码
-     * @throws BizException 当对象不为空时抛出
-     */
-    public static void assertNull(Object obj, BizError errorCode) {
-        if (obj != null) {
-            throw new BizException(errorCode);
-        }
-    }
-
-    /**
-     * 断言字符串不为空且不为空字符串，如果为空则抛出业务异常
-     *
-     * @param str 待验证的字符串
-     * @param errorCode 字符串为空或空字符串时抛出的错误码
-     * @throws BizException 当字符串为空或空字符串时抛出
-     */
-    public static void assertNotBlank(String str, BizError errorCode) {
-        if (str == null || str.trim().isEmpty()) {
-            throw new BizException(errorCode);
-        }
-    }
-
-    /**
      * 断言两个对象相等，如果不相等则抛出业务异常
      *
      * @param obj1 第一个对象
@@ -276,13 +250,16 @@ public class Asserts {
     }
 
     /**
-     * 断言字符串不为空白，否则抛出业务异常。
+     * 断言字符串不为空且不为空字符串，如果为空则抛出业务异常
      *
-     * @param str 待校验字符串
-     * @param errorCode 错误码
+     * @param str 待验证的字符串
+     * @param errorCode 字符串为空或空字符串时抛出的错误码
+     * @throws BizException 当字符串为空或空字符串时抛出
      */
     public static void notBlank(String str, BizError errorCode) {
-        assertNotBlank(str, errorCode);
+        if (str == null || str.trim().isEmpty()) {
+            throw new BizException(errorCode);
+        }
     }
 
     /**

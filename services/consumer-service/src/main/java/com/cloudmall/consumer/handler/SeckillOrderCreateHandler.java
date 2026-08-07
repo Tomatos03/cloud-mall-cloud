@@ -1,13 +1,16 @@
 package com.cloudmall.consumer.handler;
 
+import java.util.List;
 import java.util.Set;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
-import com.cloudmall.order.api.client.SeckillOrderClient;
-import com.cloudmall.order.api.request.SeckillOrderCreateReq;
+import com.cloudmall.order.api.client.OrderClient;
+import com.cloudmall.order.api.enums.CheckoutTypeEnum;
+import com.cloudmall.order.api.model.OrderItemReq;
+import com.cloudmall.order.api.request.CreateOrderReq;
 import com.cloudmall.rocketmq.handler.EventHandler;
 import com.cloudmall.seckill.api.event.SeckillOrderCreateEvent;
 import com.cloudmall.seckill.api.event.SeckillTagEnum;
@@ -15,7 +18,7 @@ import com.cloudmall.seckill.api.event.SeckillTagEnum;
 /**
  * 秒杀建单处理器
  * <p>
- * 消费抢购事件后调 order-service 内部接口建真实订单，
+ * 消费抢购事件后调 order-service 统一建单接口建真实订单，
  * 订单号由秒杀侧预生成，order-service 按 uk_order_no 幂等。
  *
  * @author : Tomatos
@@ -25,7 +28,7 @@ import com.cloudmall.seckill.api.event.SeckillTagEnum;
 @RequiredArgsConstructor
 public class SeckillOrderCreateHandler implements EventHandler<SeckillOrderCreateEvent> {
 
-    private final SeckillOrderClient seckillOrderClient;
+    private final OrderClient orderClient;
 
     /**
      * 本处理器服务的 RocketMQ tag 集合。
@@ -66,16 +69,21 @@ public class SeckillOrderCreateHandler implements EventHandler<SeckillOrderCreat
      */
     @Override
     public void handle(SeckillOrderCreateEvent event) {
-        seckillOrderClient.createSeckillOrder(
-                SeckillOrderCreateReq.builder()
-                                     .orderNo(event.getOrderNo())
-                                     .userId(event.getUserId())
-                                     .addressId(event.getAddressId())
-                                     .skuId(event.getSkuId())
-                                     .productId(event.getProductId())
-                                     .seckillPrice(event.getSeckillPrice())
-                                     .quantity(event.getQuantity())
-                                     .build()
+        orderClient.createOrder(
+                CheckoutTypeEnum.SECKILL,
+                CreateOrderReq
+                        .builder()
+                        .orderNo(event.getOrderNo())
+                        .addressId(event.getAddressId())
+                        .items(
+                                List.of(
+                                        OrderItemReq.builder()
+                                                    .skuId(event.getSkuId())
+                                                    .quantity(event.getQuantity())
+                                                    .build()
+                                )
+                        )
+                        .build()
         );
         log.info("秒杀真实订单已创建 orderNo={}", event.getOrderNo());
     }

@@ -3,7 +3,6 @@ package com.cloudmall.seckill.service.impl;
 import java.time.LocalDateTime;
 import java.util.List;
 
-import cn.hutool.core.util.IdUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -18,7 +17,6 @@ import com.cloudmall.seckill.api.event.SeckillTagEnum;
 import com.cloudmall.seckill.api.response.SeckillOrderResp;
 import com.cloudmall.seckill.convert.SeckillConverter;
 import com.cloudmall.seckill.entity.SeckillOrderDO;
-import com.cloudmall.seckill.enums.SeckillOrderStatusEnum;
 import com.cloudmall.seckill.mapper.SeckillOrderMapper;
 import com.cloudmall.seckill.mapper.SeckillProductMapper;
 import com.cloudmall.seckill.service.ISeckillOrderService;
@@ -61,11 +59,6 @@ public class SeckillOrderService implements ISeckillOrderService {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public void createWithEvent(SeckillOrderDO order, Long addressId) {
-        // 预生成订单号：SK + 雪花，作为 cm_order.uk_order_no 的幂等键
-        order.setOrderNo("SK" + IdUtil.getSnowflakeNextIdStr());
-        order.setStatus(SeckillOrderStatusEnum.PENDING_PAYMENT.getCode());
-        order.setQuantity(1);
-
         // 唯一键 uk_activity_sku_user 冲突时抛 DuplicateKeyException，由编排层回补 Redis
         orderMapper.insert(order);
 

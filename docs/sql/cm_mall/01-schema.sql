@@ -453,7 +453,7 @@ CREATE TABLE IF NOT EXISTS cm_order (
     freight_amount             decimal(18,2) NOT NULL DEFAULT 0.00 comment '运费金额',
     payable_amount             decimal(18,2) NOT NULL DEFAULT 0.00 comment '最终应付金额(商品应付加运费)',
     status                     varchar(20)   NOT NULL DEFAULT 'CREATING' comment '订单状态(CREATING=创建中 PENDING_PAYMENT=待支付 PAID=已支付 TIMEOUT=超时关闭 CANCELLED=已取消 PARTIAL_REFUNDED=部分退款 REFUNDED=已全额退款)',
-    order_type                 varchar(20)   NOT NULL DEFAULT 'NORMAL' comment '订单类型(NORMAL=普通订单 SECKILL=秒杀订单)',
+    order_type                 varchar(20)   NOT NULL DEFAULT 'CART' comment '订单类型(CART=购物车结算 DIRECT=直接购买 SECKILL=秒杀结算)',
     address_snapshot           text          DEFAULT NULL comment '收货地址快照(JSON)',
     remark                     varchar(500)  DEFAULT NULL comment '订单备注',
     create_time                datetime      DEFAULT NULL comment '创建时间',

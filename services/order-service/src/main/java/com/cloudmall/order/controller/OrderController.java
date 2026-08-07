@@ -15,6 +15,7 @@ import com.cloudmall.common.enums.BizError;
 import com.cloudmall.common.model.Result;
 import com.cloudmall.common.utils.Asserts;
 import com.cloudmall.coupon.api.response.CouponOrderCalcResp;
+import com.cloudmall.order.api.enums.CheckoutTypeEnum;
 import com.cloudmall.order.api.request.CreateOrderReq;
 import com.cloudmall.order.api.request.QuoteOrderReq;
 import com.cloudmall.order.api.response.OrderResp;
@@ -41,18 +42,22 @@ public class OrderController {
     private final OrderApp orderApp;
 
     /**
-     * 创建订单（跨店结算 Saga）。
+     * 创建订单（统一建单入口，按路径参数中的结算类型分发购物车结算/直接购买结算/秒杀结算）。
      *
+     * @param checkoutType 结算类型
      * @param req 下单请求
      * @return 父订单详情
      */
-    @PostMapping
-    public Result<OrderResp> create(
+    @PostMapping("/{checkoutType}")
+    public Result<String> create(
+            @PathVariable
+            CheckoutTypeEnum checkoutType,
             @RequestBody
             @Valid
             CreateOrderReq req
     ) {
-        return Result.success(orderApp.create(req));
+        Long userId = UserContextHolder.getUserId();
+        return Result.success(orderApp.create(checkoutType, userId, req));
     }
 
     /**

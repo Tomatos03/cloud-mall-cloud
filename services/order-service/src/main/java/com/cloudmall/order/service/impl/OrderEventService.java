@@ -128,7 +128,7 @@ public class OrderEventService implements IOrderEventService {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public void handleFullyRefunded(String orderNo, String refundId) {
-        Asserts.assertNotBlank(refundId, BizError.INVALID_PARAM);
+        Asserts.notBlank(refundId, BizError.INVALID_PARAM);
         OrderDO order = requireOrder(orderNo);
         int updated = orderMapper.markRefunded(order.getId());
         Asserts.isTrue(updated > 0, BizError.INVALID_ORDER_STATUS);

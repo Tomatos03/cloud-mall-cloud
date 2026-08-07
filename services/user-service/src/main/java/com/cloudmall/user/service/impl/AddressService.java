@@ -38,16 +38,15 @@ public class AddressService implements IAddressService {
     }
 
     /**
-     * 获取相关数据。
+     * 获取用户指定收货地址（不存在或不属于该用户时返回 null）。
      *
-     * @param id 对象标识
-     * @return 处理结果
-     * @throws BizException 处理过程中可能抛出该异常
+     * @param id 地址 ID
+     * @param userId 用户 ID
+     * @return 地址响应
      */
     @Override
-    public AddressResp getById(Long id) {
-        AddressDO address = Asserts.requireNonNull(addressMapper.selectById(id));
-        return addressConverter.toResp(address);
+    public AddressResp getById(Long id, Long userId) {
+        return addressConverter.toResp(addressMapper.selectByIdAndUserId(id, userId));
     }
 
     /**

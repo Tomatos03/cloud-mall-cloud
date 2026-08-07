@@ -7,7 +7,6 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import org.apache.ibatis.annotations.Mapper;
 
-import com.cloudmall.coupon.api.response.CouponSubOrderResult;
 import com.cloudmall.order.entity.OrderSubDO;
 import com.cloudmall.order.enums.SubOrderStatusEnum;
 import com.cloudmall.order.model.req.OrderSubPageReq;
@@ -43,25 +42,6 @@ public interface OrderSubMapper extends BaseMapper<OrderSubDO> {
                 Wrappers.<OrderSubDO>lambdaQuery()
                         .eq(OrderSubDO::getParentOrderId, parentOrderId)
                         .orderByAsc(OrderSubDO::getId)
-        );
-    }
-
-    /**
-     * 更新子订单金额。
-     *
-     * @param subOrderId 子订单 ID
-     * @param result 子订单优惠结果
-     * @return 影响行数
-     */
-    default int updateSubAmounts(Long subOrderId, CouponSubOrderResult result) {
-        return update(
-                Wrappers.<OrderSubDO>lambdaUpdate()
-                        .set(OrderSubDO::getOriginalAmount, result.getOriginalAmount())
-                        .set(OrderSubDO::getShopDiscountAmount, result.getShopDiscountAmount())
-                        .set(OrderSubDO::getPlatformDiscountAmount, result.getPlatformDiscountAmount())
-                        .set(OrderSubDO::getPayableAmount, result.getPayableAmount())
-                        .set(OrderSubDO::getMerchantSettlementAmount, result.getPayableAmount())
-                        .eq(OrderSubDO::getId, subOrderId)
         );
     }
 

@@ -30,4 +30,19 @@ public interface AddressMapper extends BaseMapper<AddressDO> {
     default Long countByUserId(Long userId) {
         return selectCount(Wrappers.<AddressDO>lambdaQuery().eq(AddressDO::getUserId, userId));
     }
+
+    /**
+     * 查询用户指定收货地址（归属校验）。
+     *
+     * @param id 地址 ID
+     * @param userId 用户 ID
+     * @return 收货地址，不存在或不属于该用户时返回 null
+     */
+    default AddressDO selectByIdAndUserId(Long id, Long userId) {
+        return selectOne(
+                Wrappers.<AddressDO>lambdaQuery()
+                        .eq(AddressDO::getId, id)
+                        .eq(AddressDO::getUserId, userId)
+        );
+    }
 }

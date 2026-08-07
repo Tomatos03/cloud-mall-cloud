@@ -5,6 +5,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 import cn.hutool.core.collection.CollectionUtil;
+import cn.hutool.core.util.IdUtil;
 import cn.hutool.core.util.StrUtil;
 import com.alibaba.csp.sentinel.annotation.SentinelResource;
 import lombok.RequiredArgsConstructor;
@@ -25,6 +26,7 @@ import com.cloudmall.seckill.cache.SeckillRateLimitService;
 import com.cloudmall.seckill.entity.SeckillActivityDO;
 import com.cloudmall.seckill.entity.SeckillOrderDO;
 import com.cloudmall.seckill.entity.SeckillProductDO;
+import com.cloudmall.seckill.enums.SeckillOrderStatusEnum;
 import com.cloudmall.seckill.enums.SeckillPurchaseResultEnum;
 import com.cloudmall.seckill.handler.SeckillBlockHandlers;
 import com.cloudmall.seckill.service.ISeckillActivityService;
@@ -99,13 +101,8 @@ public class SeckillOrderApp {
         Asserts.notEqual(result, SeckillPurchaseResultEnum.REPEAT, BizError.SECKILL_REPEAT_ORDER);
         Asserts.notEqual(result, SeckillPurchaseResultEnum.NO_STOCK, BizError.SECKILL_STOCK_INSUFFICIENT);
 
-        SeckillOrderDO order = SeckillOrderDO.builder()
-                                             .activityId(req.getActivityId())
-                                             .productId(product.getProductId())
-                                             .skuId(req.getSkuId())
-                                             .userId(userId)
-                                             .seckillPrice(product.getSeckillPrice())
-                                             .build();
+        SeckillOrderDO order = buildSeckillOrder(req, product, userId);
+
         try {
             orderService.createWithEvent(order, req.getAddressId());
         } catch (DuplicateKeyException e) {
@@ -120,6 +117,23 @@ public class SeckillOrderApp {
                            .orderNo(order.getOrderNo())
                            .status(order.getStatus())
                            .build();
+    }
+
+    private static SeckillOrderDO buildSeckillOrder(
+            SeckillPurchaseReq req,
+            SeckillProductDO product,
+            Long userId
+    ) {
+        return SeckillOrderDO.builder()
+                             .orderNo("SK" + IdUtil.getSnowflakeNextIdStr())
+                             .status(SeckillOrderStatusEnum.PENDING_PAYMENT.getCode())
+                             .activityId(req.getActivityId())
+                             .productId(product.getProductId())
+                             .skuId(req.getSkuId())
+                             .userId(userId)
+                             .seckillPrice(product.getSeckillPrice())
+                             .quantity(FIXED_QUANTITY)
+                             .build();
     }
 
     /**

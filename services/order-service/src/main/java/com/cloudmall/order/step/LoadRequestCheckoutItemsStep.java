@@ -1,0 +1,46 @@
+package com.cloudmall.order.step;
+
+import java.util.LinkedHashMap;
+import java.util.Map;
+
+import org.springframework.stereotype.Component;
+
+import com.cloudmall.common.enums.BizError;
+import com.cloudmall.common.utils.Asserts;
+import com.cloudmall.order.api.model.OrderItemReq;
+import com.cloudmall.order.model.CheckoutContext;
+
+/**
+ * 请求结算项加载步骤：校验下单明细 SKU 不重复且数量合法，组装为 skuId → 下单数量写入 context。
+ *
+ * @author : Tomatos
+ */
+@Component
+public class LoadRequestCheckoutItemsStep implements CheckoutStep {
+
+    /**
+     * 步骤名称。
+     *
+     * @return 请求结算项加载
+     */
+    @Override
+    public CheckoutStepEnum name() {
+        return CheckoutStepEnum.LOAD_REQUEST_CHECKOUT_ITEMS;
+    }
+
+    /**
+     * 执行步骤。
+     *
+     * @param ctx 订单上下文
+     */
+    @Override
+    public void process(CheckoutContext ctx) {
+        Map<Long, Integer> checkoutItems = new LinkedHashMap<>();
+        for (OrderItemReq item : ctx.getReq().getItems()) {
+            Asserts.isFalse(checkoutItems.containsKey(item.getSkuId()), BizError.INVALID_PARAM);
+            Asserts.greaterThan(item.getQuantity(), 0, BizError.INVALID_PARAM);
+            checkoutItems.put(item.getSkuId(), item.getQuantity());
+        }
+        ctx.setCheckoutItems(checkoutItems);
+    }
+}

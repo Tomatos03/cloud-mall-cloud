@@ -117,7 +117,7 @@ public class UserCouponService implements IUserCouponService {
     @Transactional(rollbackFor = Exception.class)
     public List<UserCouponResp> autoIssueForRegister(Long userId, String eventId) {
         Asserts.notNull(userId, BizError.INVALID_PARAM);
-        Asserts.assertNotBlank(eventId, BizError.INVALID_PARAM);
+        Asserts.notBlank(eventId, BizError.INVALID_PARAM);
         List<UserCouponDO> issued = userCouponMapper.selectByUserAndEvent(userId, eventId);
         if (CollUtil.isNotEmpty(issued)) {
             return userCouponConverter.toRespList(issued);
@@ -277,7 +277,7 @@ public class UserCouponService implements IUserCouponService {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public void lock(String orderNo, Long userId, Long userCouponId, LocalDateTime lockExpireTime) {
-        Asserts.assertNotBlank(orderNo, BizError.INVALID_PARAM);
+        Asserts.notBlank(orderNo, BizError.INVALID_PARAM);
         Asserts.notNull(userId, BizError.INVALID_PARAM);
         Asserts.notNull(userCouponId, BizError.INVALID_PARAM);
         String eventId = orderNo + ":" + userCouponId + ":LOCK";
@@ -318,7 +318,7 @@ public class UserCouponService implements IUserCouponService {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public void commit(String orderNo, Long userId, Long userCouponId) {
-        Asserts.assertNotBlank(orderNo, BizError.INVALID_PARAM);
+        Asserts.notBlank(orderNo, BizError.INVALID_PARAM);
         Asserts.notNull(userId, BizError.INVALID_PARAM);
         Asserts.notNull(userCouponId, BizError.INVALID_PARAM);
         String eventId = orderNo + ":" + userCouponId + ":COMMIT";
@@ -359,7 +359,7 @@ public class UserCouponService implements IUserCouponService {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public void release(String orderNo, Long userId, Long userCouponId, String reason) {
-        Asserts.assertNotBlank(orderNo, BizError.INVALID_PARAM);
+        Asserts.notBlank(orderNo, BizError.INVALID_PARAM);
         Asserts.notNull(userId, BizError.INVALID_PARAM);
         Asserts.notNull(userCouponId, BizError.INVALID_PARAM);
         String eventId = orderNo + ":" + userCouponId + ":RELEASE";
@@ -404,8 +404,8 @@ public class UserCouponService implements IUserCouponService {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public void revert(String orderNo, Long userId, Long userCouponId, String refundId, String reason) {
-        Asserts.assertNotBlank(orderNo, BizError.INVALID_PARAM);
-        Asserts.assertNotBlank(refundId, BizError.INVALID_PARAM);
+        Asserts.notBlank(orderNo, BizError.INVALID_PARAM);
+        Asserts.notBlank(refundId, BizError.INVALID_PARAM);
         Asserts.notNull(userId, BizError.INVALID_PARAM);
         Asserts.notNull(userCouponId, BizError.INVALID_PARAM);
         String eventId = orderNo + ":" + refundId + ":" + userCouponId + ":REVERT";

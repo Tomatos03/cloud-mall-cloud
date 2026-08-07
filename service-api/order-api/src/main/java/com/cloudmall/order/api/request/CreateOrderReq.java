@@ -15,9 +15,10 @@ import com.cloudmall.order.api.model.OrderItemReq;
 /**
  * 创建订单请求
  * <p>
- * 用户端只提交购物车选中 SKU、用户券选择、地址和备注。
- * userId、价格、商品名称、店铺、分类、优惠金额等一律由服务端从上下文与可信快照组装，
- * 不接受客户端提交。
+ * 三条建单链路共用：购物车结算、直接购买、秒杀建单，结算类型通过路径参数传递。
+ * 普通与直接购买只提交 SKU 与数量、用户券选择、地址和备注；
+ * userId、价格、商品名称、店铺、分类、优惠金额等一律由服务端从上下文与可信快照组装。
+ * 秒杀由 consumer-service 内部调用，携带 orderNo，其余建单信息从秒杀单快照推断。
  *
  * @author : Tomatos
  */
@@ -27,7 +28,7 @@ import com.cloudmall.order.api.model.OrderItemReq;
 @AllArgsConstructor
 public class CreateOrderReq {
 
-    /** 下单商品明细（购物车选中项） */
+    /** 下单商品明细 */
     @Valid
     @NotEmpty
     private List<OrderItemReq> items;
@@ -41,4 +42,7 @@ public class CreateOrderReq {
 
     /** 订单备注 */
     private String remark;
+
+    /** 订单号（仅秒杀，由秒杀侧预生成，uk_order_no 幂等键） */
+    private String orderNo;
 }

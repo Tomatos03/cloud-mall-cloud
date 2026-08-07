@@ -1,6 +1,5 @@
 package com.cloudmall.order.model;
 
-import java.util.List;
 import java.util.Map;
 
 import lombok.AllArgsConstructor;
@@ -8,8 +7,9 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import com.cloudmall.coupon.api.dto.CouponCalcItem;
+import com.cloudmall.order.api.enums.CheckoutTypeEnum;
 import com.cloudmall.order.api.request.CreateOrderReq;
+import com.cloudmall.order.entity.OrderDO;
 import com.cloudmall.product.api.response.SkuResp;
 import com.cloudmall.user.api.response.AddressResp;
 
@@ -22,10 +22,13 @@ import com.cloudmall.user.api.response.AddressResp;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class OrderContext {
+public class CheckoutContext {
 
     /** 当前登录用户 ID */
     private Long userId;
+
+    /** 结算类型（策略分发依据，落库 order_type） */
+    private CheckoutTypeEnum checkoutType;
 
     /** 下单请求 */
     private CreateOrderReq req;
@@ -33,15 +36,12 @@ public class OrderContext {
     /** 收货地址 */
     private AddressResp address;
 
-    /** skuId → 数量 */
-    private Map<Long, Integer> quantities;
+    /** 结算商品项：key 为 SKU ID，value 为该 SKU 的下单商品数量 */
+    private Map<Long, Integer> checkoutItems;
 
-    /** SKU 可信快照 */
+    /** SKU 可信快照：key 为 SKU ID，value 为对应 SKU 快照 */
     private Map<Long, SkuResp> skuMap;
 
-    /** 可信商品明细 */
-    private List<CouponCalcItem> calcItems;
-
-    /** 参与店铺（保序） */
-    private List<Long> shopIds;
+    /** 最终父订单（落库步骤写入） */
+    private OrderDO order;
 }

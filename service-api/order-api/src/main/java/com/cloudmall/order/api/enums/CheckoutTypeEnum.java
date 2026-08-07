@@ -1,4 +1,4 @@
-package com.cloudmall.order.enums;
+package com.cloudmall.order.api.enums;
 
 import java.util.Arrays;
 
@@ -7,41 +7,44 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 
 /**
- * 订单类型枚举
+ * 结算类型枚举
  * <p>
- * 对应 cm_order.order_type 列。秒杀单跳过购物车、优惠券与普通库存预占，
- * 由 seckill-service 预生成订单号后经内部接口建单。
+ * 对应 cm_order.order_type 列，同时是统一建单接口路径参数的分发依据：
+ * CART 为购物车结算，DIRECT 为直接购买，SECKILL 为秒杀建单。
  *
  * @author : Tomatos
  */
 @Getter
 @AllArgsConstructor
-public enum OrderTypeEnum {
-    /** 普通订单 */
-    NORMAL("NORMAL", "普通订单"),
+public enum CheckoutTypeEnum {
+    /** 购物车结算 */
+    CART("CART", "购物车结算"),
 
-    /** 秒杀订单 */
-    SECKILL("SECKILL", "秒杀订单");
+    /** 直接购买结算 */
+    DIRECT("DIRECT", "直接购买结算"),
+
+    /** 秒杀结算 */
+    SECKILL("SECKILL", "秒杀结算");
     /** 数据库存储值 */
     @EnumValue
     private final String code;
     /** 类型描述 */
     private final String desc;
     /**
-     * 根据编码查找订单类型。
+     * 根据编码查找结算类型。
      *
      * @param code 类型编码，如 "SECKILL"
-     * @return 匹配的订单类型
+     * @return 匹配的结算类型
      * @throws IllegalArgumentException 编码非法或为 null 时抛出
      */
-    public static OrderTypeEnum fromCode(String code) {
+    public static CheckoutTypeEnum fromCode(String code) {
         return Arrays
                 .stream(values())
                 .filter(t -> t.code.equals(code))
                 .findFirst()
                 .orElseThrow(
                         () -> new IllegalArgumentException(
-                                "Invalid order type: '" + code + "', valid values: "
+                                "Invalid checkout type: '" + code + "', valid values: "
                                         + Arrays.toString(values())
                         )
                 );

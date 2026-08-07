@@ -29,6 +29,10 @@
 - Service 接口命名 `I*Service`（如 `IAuthService`），实现去掉 `I` 前缀（`AuthService`）。
 - 分页查询方法命名 `page*`，Controller 方法名与 Service 保持一致。
 
+### 枚举
+
+- 业务枚举必须带 `desc` 字段描述枚举作用（如 `CheckoutStepEnum.LOAD_SKUS("SKU 加载")`），禁止无 `desc` 的裸枚举。
+
 ### Controller
 
 - 方法参数 ≥ 4 个时必须封装为对应的 `xxxReq` 对象，禁止逐一声明 `@RequestParam`。

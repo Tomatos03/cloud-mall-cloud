@@ -2,6 +2,7 @@ package com.cloudmall.user.controller;
 
 import java.util.List;
 
+import cn.hutool.core.util.ObjectUtil;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -11,6 +12,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.cloudmall.common.context.UserContextHolder;
@@ -40,17 +42,21 @@ public class AddressController {
     }
 
     /**
-     * 获取相关数据。
+     * 获取指定收货地址（内部调用可传 userId，用户端缺省取登录态）。
      *
-     * @param id 对象标识
-     * @return 处理结果
+     * @param id 地址 ID
+     * @param userId 用户 ID（可选）
+     * @return 处理结果，不存在或不属于该用户时返回 null
      */
     @GetMapping("/{id}")
     public Result<AddressResp> getById(
             @PathVariable
-            Long id
+            Long id,
+            @RequestParam(required = false)
+            Long userId
     ) {
-        return Result.success(addressService.getById(id));
+        Long ownerId = ObjectUtil.defaultIfNull(userId, UserContextHolder.getUserId());
+        return Result.success(addressService.getById(id, ownerId));
     }
 
     /**
