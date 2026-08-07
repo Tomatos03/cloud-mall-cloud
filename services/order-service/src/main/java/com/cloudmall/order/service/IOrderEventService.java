@@ -1,5 +1,7 @@
 package com.cloudmall.order.service;
 
+import java.math.BigDecimal;
+
 /**
  * 订单事件服务
  * <p>
@@ -13,11 +15,12 @@ package com.cloudmall.order.service;
 public interface IOrderEventService {
 
     /**
-     * 支付成功：PENDING_PAYMENT → PAID。
+     * 支付成功：校验回调金额后 PENDING_PAYMENT → PAID。
      *
      * @param orderNo 父订单号
+     * @param payAmount 第三方回调支付金额
      */
-    void handlePaid(String orderNo);
+    void handlePaid(String orderNo, BigDecimal payAmount);
 
     /**
      * 支付超时：PENDING_PAYMENT → TIMEOUT。
@@ -34,10 +37,11 @@ public interface IOrderEventService {
     void handleCancel(String orderNo);
 
     /**
-     * 全额退款：PAID/PARTIAL_REFUNDED → REFUNDED。
+     * 全额退款：校验回调金额后 PAID/PARTIAL_REFUNDED → REFUNDED。
      *
      * @param orderNo 父订单号
      * @param refundId 退款单 ID
+     * @param refundAmount 第三方回调退款金额
      */
-    void handleFullyRefunded(String orderNo, String refundId);
+    void handleFullyRefunded(String orderNo, String refundId, BigDecimal refundAmount);
 }

@@ -44,7 +44,7 @@ public class InternalOrderController {
             @Valid
             OrderEventReq req
     ) {
-        orderEventService.handlePaid(req.getOrderNo());
+        orderEventService.handlePaid(req.getOrderNo(), req.getPayAmount());
         return Result.success();
     }
 
@@ -92,7 +92,7 @@ public class InternalOrderController {
             @Valid
             OrderEventReq req
     ) {
-        orderEventService.handleFullyRefunded(req.getOrderNo(), req.getRefundId());
+        orderEventService.handleFullyRefunded(req.getOrderNo(), req.getRefundId(), req.getRefundAmount());
         return Result.success();
     }
 

@@ -89,6 +89,8 @@ public enum BizError {
     ORDER_STATUS_NOT_PAID(50014, "订单状态不是待发货，无法发货"),
     ORDER_STATUS_NOT_CREATED(50015, "订单状态不是待支付，无法取消"),
     ORDER_STATUS_NOT_FINISHED(50017, "订单未完成，无法进行此操作"),
+    ORDER_PAY_AMOUNT_MISMATCH(50026, "支付回调金额与订单应付金额不一致"),
+    ORDER_REFUND_AMOUNT_MISMATCH(50027, "退款回调金额与订单应付金额不一致"),
 
     // 订单评价相关
     ORDER_NO_COMMENT(50016, "订单无买家评价，无法回复"),
