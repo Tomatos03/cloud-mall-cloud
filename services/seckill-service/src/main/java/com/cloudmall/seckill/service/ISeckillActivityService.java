@@ -4,6 +4,8 @@ import java.util.List;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
 
+import com.cloudmall.seckill.api.request.ActivityCreateReq;
+import com.cloudmall.seckill.api.request.ActivityUpdateReq;
 import com.cloudmall.seckill.api.response.ActivityDetailResp;
 import com.cloudmall.seckill.api.response.ActivityResp;
 import com.cloudmall.seckill.entity.SeckillActivityDO;
@@ -23,20 +25,20 @@ public interface ISeckillActivityService {
      * 服务端自动推导 endTime（startTime + 1小时）、校验 startTime >=
      * now+24h。
      *
-     * @param activity 活动实体（name、description、startTime 必填
-     *                 ）
+     * @param createUserId 创建人用户 ID
+     * @param req 创建请求（name、description、startTime 必填）
      * @return 新活动 ID
      */
-    Long createDraft(SeckillActivityDO activity);
+    Long createDraft(Long createUserId, ActivityCreateReq req);
 
     /**
      * 编辑活动（仅 DRAFT 可全改；PUBLISHED 仅可改文案 name/description）
      * 。
      *
      * @param id 活动 ID
-     * @param activity 编辑内容
+     * @param req 编辑请求
      */
-    void update(Long id, SeckillActivityDO activity);
+    void update(Long id, ActivityUpdateReq req);
 
     /**
      * 发布活动：DRAFT → PUBLISHED，开放商家报名。 <p>

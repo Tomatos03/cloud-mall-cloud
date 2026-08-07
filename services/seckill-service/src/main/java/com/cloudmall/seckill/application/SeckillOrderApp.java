@@ -4,6 +4,8 @@ import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import cn.hutool.core.collection.CollectionUtil;
+import cn.hutool.core.util.StrUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DuplicateKeyException;
@@ -22,7 +24,6 @@ import com.cloudmall.seckill.cache.SeckillRateLimitService;
 import com.cloudmall.seckill.entity.SeckillActivityDO;
 import com.cloudmall.seckill.entity.SeckillOrderDO;
 import com.cloudmall.seckill.entity.SeckillProductDO;
-import com.cloudmall.seckill.enums.SeckillActivityStatusEnum;
 import com.cloudmall.seckill.service.ISeckillActivityService;
 import com.cloudmall.seckill.service.ISeckillOrderService;
 import com.cloudmall.seckill.service.ISeckillProductService;
@@ -74,12 +75,9 @@ public class SeckillOrderApp {
         // 活动必须存在且处于进行中窗口
         SeckillActivityDO activity = activityService.getById(req.getActivityId());
         LocalDateTime now = LocalDateTime.now();
-        Asserts.isTrue(
-                SeckillActivityStatusEnum.RUNNING.getCode().equals(activity.getStatus()),
-                BizError.INVALID_ACTIVITY_STATUS
-        );
-        Asserts.isTrue(!now.isBefore(activity.getStartTime()), BizError.SECKILL_NOT_STARTED);
-        Asserts.isTrue(now.isBefore(activity.getEndTime()), BizError.SECKILL_ALREADY_ENDED);
+        Asserts.isTrue(activity.isRunning(), BizError.INVALID_ACTIVITY_STATUS);
+        Asserts.isTrue(activity.isStarted(now), BizError.SECKILL_NOT_STARTED);
+        Asserts.isTrue(activity.isNotEnded(now), BizError.SECKILL_ALREADY_ENDED);
 
         // 商品必须属于该活动且已审核通过
         SeckillProductDO product = Asserts.requireNonNull(
@@ -140,7 +138,7 @@ public class SeckillOrderApp {
             log.error("扫描超时秒杀单失败", e);
             return;
         }
-        if (timeoutOrders.isEmpty()) {
+        if (CollectionUtil.isEmpty(timeoutOrders)) {
             return;
         }
 
@@ -171,7 +169,7 @@ public class SeckillOrderApp {
      * @param orderNo 真实订单号
      */
     private void cancelRealOrder(String orderNo) {
-        if (orderNo == null || orderNo.isBlank()) {
+        if (StrUtil.isBlank(orderNo)) {
             return;
         }
         try {

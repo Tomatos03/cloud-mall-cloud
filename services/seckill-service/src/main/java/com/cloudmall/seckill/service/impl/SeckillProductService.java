@@ -2,8 +2,8 @@ package com.cloudmall.seckill.service.impl;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.stream.Collectors;
 
+import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.json.JSONUtil;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import lombok.RequiredArgsConstructor;
@@ -19,7 +19,6 @@ import com.cloudmall.seckill.entity.SeckillActivityDO;
 import com.cloudmall.seckill.entity.SeckillProductDO;
 import com.cloudmall.seckill.enums.AuditBizTypeEnum;
 import com.cloudmall.seckill.enums.AuditStatusEnum;
-import com.cloudmall.seckill.enums.SeckillActivityStatusEnum;
 import com.cloudmall.seckill.enums.SeckillProductAuditStatusEnum;
 import com.cloudmall.seckill.mapper.AuditRecordMapper;
 import com.cloudmall.seckill.mapper.SeckillActivityMapper;
@@ -40,7 +39,7 @@ import com.cloudmall.seckill.service.ISeckillProductService;
 public class SeckillProductService implements ISeckillProductService {
 
     /** 每个活动最多可报名的商品数（活动未配置时的兜底默认值） */
-    private static final long DEFAULT_MAX_PRODUCTS_PER_ACTIVITY = 50;
+    private static final int DEFAULT_MAX_PRODUCTS_PER_ACTIVITY = 50;
 
     private final SeckillProductMapper productMapper;
     private final SeckillActivityMapper activityMapper;
@@ -56,14 +55,8 @@ public class SeckillProductService implements ISeckillProductService {
         );
 
         // 仅 PUBLISHED 且未开始（报名截止 = start_time）的活动可提交
-        Asserts.isTrue(
-                SeckillActivityStatusEnum.PUBLISHED.getCode().equals(activity.getStatus()),
-                BizError.SECKILL_PRODUCT_NOT_SUBMITTABLE
-        );
-        Asserts.isTrue(
-                activity.getStartTime().isAfter(LocalDateTime.now()),
-                BizError.SECKILL_PRODUCT_NOT_SUBMITTABLE
-        );
+        Asserts.isTrue(activity.isPublished(), BizError.SECKILL_PRODUCT_NOT_SUBMITTABLE);
+        Asserts.isTrue(activity.isNotStarted(LocalDateTime.now()), BizError.SECKILL_PRODUCT_NOT_SUBMITTABLE);
 
         // 同活动同 SKU 唯一
         Long existing = productMapper.countByActivityAndSku(product.getActivityId(), product.getSkuId());
@@ -71,9 +64,10 @@ public class SeckillProductService implements ISeckillProductService {
 
         // 每活动商品数上限（创建活动时配置，未配置兜底 50）
         Long count = productMapper.countByActivityId(product.getActivityId());
-        long maxProducts = activity.getMaxProducts() == null
-                ? DEFAULT_MAX_PRODUCTS_PER_ACTIVITY
-                : activity.getMaxProducts();
+        int maxProducts = ObjectUtil.defaultIfNull(
+                activity.getMaxProducts(),
+                DEFAULT_MAX_PRODUCTS_PER_ACTIVITY
+        );
         Asserts.isTrue(count == null || count < maxProducts, BizError.ACTIVITY_MAX_ITEMS_REACHED);
 
         product.setAuditStatus(SeckillProductAuditStatusEnum.PENDING.getCode());
@@ -156,10 +150,8 @@ public class SeckillProductService implements ISeckillProductService {
      */
     @Override
     public List<SeckillProductResp> listByShopId(Long shopId) {
-        return productMapper.listByShopId(shopId)
-                            .stream()
-                            .map(seckillConverter::toSeckillProductResp)
-                            .collect(Collectors.toList());
+        List<SeckillProductDO> products = productMapper.listByShopId(shopId);
+        return seckillConverter.toSeckillProductRespList(products);
     }
 
     /**

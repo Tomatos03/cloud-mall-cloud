@@ -1,5 +1,7 @@
 package com.cloudmall.seckill.convert;
 
+import java.util.List;
+
 import org.mapstruct.Mapper;
 
 import com.cloudmall.seckill.api.response.ActivityDetailResp;
@@ -27,6 +29,14 @@ public interface SeckillConverter {
     ActivityResp toActivityResp(SeckillActivityDO activity);
 
     /**
+     * 活动实体列表转为列表视图响应。
+     *
+     * @param activities 活动实体列表
+     * @return 活动响应列表
+     */
+    List<ActivityResp> toActivityRespList(List<SeckillActivityDO> activities);
+
+    /**
      * 活动实体转为详情视图响应（不含商品）。
      *
      * @param activity 活动实体
@@ -43,10 +53,26 @@ public interface SeckillConverter {
     SeckillProductResp toSeckillProductResp(SeckillProductDO product);
 
     /**
+     * 秒杀商品实体列表转为响应列表。
+     *
+     * @param products 秒杀商品实体列表
+     * @return 秒杀商品响应列表
+     */
+    List<SeckillProductResp> toSeckillProductRespList(List<SeckillProductDO> products);
+
+    /**
      * 秒杀单实体转为订单响应。
      *
      * @param order 秒杀单实体
      * @return 秒杀订单响应
      */
     SeckillOrderResp toSeckillOrderResp(SeckillOrderDO order);
+
+    /**
+     * 秒杀单实体列表转为订单响应列表。
+     *
+     * @param orders 秒杀单实体列表
+     * @return 秒杀订单响应列表
+     */
+    List<SeckillOrderResp> toSeckillOrderRespList(List<SeckillOrderDO> orders);
 }

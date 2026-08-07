@@ -11,21 +11,16 @@ import com.cloudmall.common.utils.Asserts;
 import com.cloudmall.mybatisplus.enums.StatusEnum;
 import com.cloudmall.product.api.client.SkuClient;
 import com.cloudmall.product.api.response.SkuResp;
-import com.cloudmall.seckill.api.request.ActivityCreateReq;
-import com.cloudmall.seckill.api.request.ActivityProductAuditReq;
 import com.cloudmall.seckill.api.request.ActivityProductSubmitReq;
-import com.cloudmall.seckill.api.request.ActivityUpdateReq;
-import com.cloudmall.seckill.entity.SeckillActivityDO;
 import com.cloudmall.seckill.entity.SeckillProductDO;
-import com.cloudmall.seckill.service.ISeckillActivityService;
 import com.cloudmall.seckill.service.ISeckillProductService;
 
 /**
- * 秒杀活动与商品编排层
+ * 秒杀商品提交编排层
  * <p>
- * 负责上下文解析、远程校验与参数组装：活动创建/编辑/发布/取消取登录态；
- * 商品提交前经 product-service 取 SKU 可信快照，解析 productId / shopId 并校验价格与库存，
- * 避免客户端伪造归属与原价。
+ * 商家提交秒杀商品前经 product-service 取 SKU 可信快照，解析 productId / shopId
+ * 并校验价格与库存，避免客户端伪造归属与原价。仅涉及远程调用的编排保留在此，
+ * 纯本地转发由 Controller 直接调用 Service。
  *
  * @author : Tomatos
  */
@@ -33,63 +28,8 @@ import com.cloudmall.seckill.service.ISeckillProductService;
 @RequiredArgsConstructor
 public class SeckillApp {
 
-    private final ISeckillActivityService activityService;
     private final ISeckillProductService productService;
     private final SkuClient skuClient;
-
-    /**
-     * 创建活动草稿（从登录态取 createUserId）。
-     *
-     * @param req 创建请求
-     * @return 新活动 ID
-     */
-    public Long createActivity(ActivityCreateReq req) {
-        Long createUserId = UserContextHolder.getUserId();
-
-        SeckillActivityDO activity = SeckillActivityDO.builder()
-                                                      .name(req.getName())
-                                                      .description(req.getDescription())
-                                                      .startTime(req.getStartTime())
-                                                      .maxProducts(req.getMaxProducts())
-                                                      .createUserId(createUserId)
-                                                      .build();
-        return activityService.createDraft(activity);
-    }
-
-    /**
-     * 编辑活动。
-     *
-     * @param id 活动 ID
-     * @param req 编辑请求
-     */
-    public void updateActivity(Long id, ActivityUpdateReq req) {
-        SeckillActivityDO update = SeckillActivityDO.builder()
-                                                    .name(req.getName())
-                                                    .description(req.getDescription())
-                                                    .startTime(req.getStartTime())
-                                                    .maxProducts(req.getMaxProducts())
-                                                    .build();
-        activityService.update(id, update);
-    }
-
-    /**
-     * 发布活动（从登录态取 publishUserId）。
-     *
-     * @param id 活动 ID
-     */
-    public void publishActivity(Long id) {
-        Long publishUserId = UserContextHolder.getUserId();
-        activityService.publish(id, publishUserId);
-    }
-
-    /**
-     * 取消活动。
-     *
-     * @param id 活动 ID
-     */
-    public void cancelActivity(Long id) {
-        activityService.cancel(id);
-    }
 
     /**
      * 商家提交秒杀商品。
@@ -128,15 +68,5 @@ public class SeckillApp {
                                                    .stock(req.getStock())
                                                    .build();
         return productService.submit(product, UserContextHolder.getUserId());
-    }
-
-    /**
-     * 运营审核秒杀商品（审核人取自登录态）。
-     *
-     * @param productId 秒杀商品 ID
-     * @param req 审核请求
-     */
-    public void auditProduct(Long productId, ActivityProductAuditReq req) {
-        productService.audit(productId, req.isApproved(), req.getAuditRemark(), UserContextHolder.getUserId());
     }
 }

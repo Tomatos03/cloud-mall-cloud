@@ -2,7 +2,6 @@ package com.cloudmall.seckill.service.impl;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import cn.hutool.core.util.IdUtil;
 import lombok.RequiredArgsConstructor;
@@ -168,9 +167,7 @@ public class SeckillOrderService implements ISeckillOrderService {
      */
     @Override
     public List<SeckillOrderResp> listByUserId(Long userId) {
-        return orderMapper.listByUserId(userId)
-                          .stream()
-                          .map(seckillConverter::toSeckillOrderResp)
-                          .collect(Collectors.toList());
+        List<SeckillOrderDO> orders = orderMapper.listByUserId(userId);
+        return seckillConverter.toSeckillOrderRespList(orders);
     }
 }
