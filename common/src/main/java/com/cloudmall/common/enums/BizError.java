@@ -18,6 +18,7 @@ public enum BizError {
     DATA_NOT_FOUND(1002, "数据不存在"),
     SERVICE_UNAVAILABLE(1003, "服务暂不可用"),
     GATEWAY_TIMEOUT(1004, "请求超时，请稍后重试"),
+    FLOW_CONTROL_BLOCKED(1005, "系统繁忙，请稍后再试"),
 
     // 用户认证相关错误码 (10xxx)
     USERNAME_OR_PASSWORD_ERROR(10000, "用户名或密码错误"),

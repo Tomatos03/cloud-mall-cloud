@@ -8,7 +8,6 @@ import org.springframework.stereotype.Component;
 import com.cloudmall.common.context.UserContextHolder;
 import com.cloudmall.common.enums.BizError;
 import com.cloudmall.common.utils.Asserts;
-import com.cloudmall.mybatisplus.enums.StatusEnum;
 import com.cloudmall.product.api.client.SkuClient;
 import com.cloudmall.product.api.response.SkuResp;
 import com.cloudmall.seckill.api.request.ActivityProductSubmitReq;
@@ -43,7 +42,6 @@ public class SeckillApp {
         Asserts.notEmpty(skus, BizError.PRODUCT_NOT_FOUND);
 
         SkuResp sku = skus.get(0);
-        Asserts.isTrue(StatusEnum.ENABLED.equals(sku.getStatus()), BizError.PRODUCT_NOT_ACTIVE);
 
         // SKU 必须属于当前商家店铺，防止越权替他人店铺报名
         Long shopId = UserContextHolder.getShopId();

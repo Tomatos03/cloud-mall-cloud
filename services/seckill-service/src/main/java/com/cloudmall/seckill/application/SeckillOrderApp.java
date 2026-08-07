@@ -6,6 +6,7 @@ import java.util.List;
 
 import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.util.StrUtil;
+import com.alibaba.csp.sentinel.annotation.SentinelResource;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DuplicateKeyException;
@@ -24,6 +25,7 @@ import com.cloudmall.seckill.cache.SeckillRateLimitService;
 import com.cloudmall.seckill.entity.SeckillActivityDO;
 import com.cloudmall.seckill.entity.SeckillOrderDO;
 import com.cloudmall.seckill.entity.SeckillProductDO;
+import com.cloudmall.seckill.handler.SeckillBlockHandlers;
 import com.cloudmall.seckill.service.ISeckillActivityService;
 import com.cloudmall.seckill.service.ISeckillOrderService;
 import com.cloudmall.seckill.service.ISeckillProductService;
@@ -64,6 +66,11 @@ public class SeckillOrderApp {
      * @param req 抢购请求
      * @return 受理结果（秒杀单 ID + 预生成订单号）
      */
+    @SentinelResource(
+            value = "seckill:purchase",
+            blockHandler = "purchaseBlock",
+            blockHandlerClass = SeckillBlockHandlers.class
+    )
     public PurchaseResp purchase(SeckillPurchaseReq req) {
         Long userId = UserContextHolder.getUserId();
         Asserts.notNull(userId, BizError.USER_NOT_AUTHENTICATED);

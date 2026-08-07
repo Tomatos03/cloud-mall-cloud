@@ -9,9 +9,9 @@ services:
       - "3306:3306"
     volumes:
       - mysql-data:/var/lib/mysql
-      - ../sql/all/cm_mall.sql:/docker-entrypoint-initdb.d/01-cm_mall.sql:ro
-      - ../sql/all/cm_mall_data.sql:/docker-entrypoint-initdb.d/02-cm_mall_data.sql:ro
-      - ../sql/xxl_job/tables_xxl_job.sql:/docker-entrypoint-initdb.d/03-tables_xxl_job.sql:ro
+      - ../sql/cm_mall/01-schema.sql:/docker-entrypoint-initdb.d/01-schema.sql:ro
+      - ../sql/cm_mall/02-seed.sql:/docker-entrypoint-initdb.d/02-seed.sql:ro
+      - ../sql/xxl_job/01-schema.sql:/docker-entrypoint-initdb.d/03-xxl_job-schema.sql:ro
     healthcheck:
       test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
       interval: 10s
@@ -48,6 +48,12 @@ services:
       - ./sh/sync-nacos-config.sh:/sync.sh:ro
     entrypoint: ["/bin/sh", "/sync.sh", "nacos"]
     restart: "no"
+
+  sentinel-dashboard:
+    container_name: cm-sentinel-dashboard
+    image: bladex/sentinel-dashboard:1.8.9
+    ports:
+      - "8858:8858"
 
   nginx:
     container_name: cm-nginx
@@ -116,7 +122,8 @@ services:
       mysql:
         condition: service_healthy
     environment:
-      # xxl_job 库由 mysql init 脚本 03-tables_xxl_job.sql 创建；
+      # xxl_job 库及表结构由 MySQL 首次初始化时执行 docs/sql/xxl_job/01-schema.sql 创建
+      # （容器内挂载为 03-xxl_job-schema.sql）；已有 mysql-data 卷的环境需手动执行该脚本
       # accessToken 必须与 common.yaml 中 xxl.job.access-token 一致
       PARAMS: "--server.port=8080 --spring.datasource.url=jdbc:mysql://mysql:3306/xxl_job?useUnicode=true&characterEncoding=UTF-8&serverTimezone=Asia/Shanghai --spring.datasource.username=root --spring.datasource.password=root --xxl.job.accessToken=cloudmall-xxl-job"
     ports:

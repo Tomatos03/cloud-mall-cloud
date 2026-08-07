@@ -46,6 +46,18 @@ auth:
 
 spring:
   cloud:
+    sentinel:
+      transport:
+        dashboard: localhost:8858
+        port: 8719
+      datasource:
+        flow:
+          nacos:
+            server-addr: localhost:8848
+            dataId: gateway-flow-rules
+            groupId: DEFAULT_GROUP
+            data-type: json
+            rule-type: gw-flow
     gateway:
       server:
         webflux:

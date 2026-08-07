@@ -19,12 +19,12 @@ import com.cloudmall.seckill.api.response.ActivityResp;
 import com.cloudmall.seckill.convert.SeckillConverter;
 import com.cloudmall.seckill.entity.SeckillActivityDO;
 import com.cloudmall.seckill.entity.SeckillProductDO;
-import com.cloudmall.seckill.enums.SeckillActivityStateTransitions;
 import com.cloudmall.seckill.enums.SeckillActivityStatusEnum;
 import com.cloudmall.seckill.mapper.SeckillActivityMapper;
 import com.cloudmall.seckill.mapper.SeckillProductMapper;
 import com.cloudmall.seckill.model.req.SeckillActivityPageReq;
 import com.cloudmall.seckill.service.ISeckillActivityService;
+import com.cloudmall.seckill.statemachine.SeckillActivityStateTransitions;
 
 /**
  * 秒杀活动领域服务实现

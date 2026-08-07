@@ -1,8 +1,10 @@
-package com.cloudmall.seckill.enums;
+package com.cloudmall.seckill.statemachine;
 
 import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
+
+import com.cloudmall.seckill.enums.SeckillActivityStatusEnum;
 
 /**
  * 秒杀活动状态迁移表

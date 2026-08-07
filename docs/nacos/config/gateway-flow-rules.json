@@ -1,0 +1,10 @@
+[
+  {
+    "resource": "/seckill/**",
+    "resourceMode": 1,
+    "grade": 1,
+    "count": 200,
+    "intervalSec": 1,
+    "controlBehavior": 0
+  }
+]

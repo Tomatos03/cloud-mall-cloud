@@ -1,7 +1,10 @@
 package com.cloudmall.product.mapper;
 
+import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 
+import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.ObjectUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
@@ -10,6 +13,7 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import org.apache.ibatis.annotations.Mapper;
 
 import com.cloudmall.common.model.CursorReq;
+import com.cloudmall.mybatisplus.enums.StatusEnum;
 import com.cloudmall.product.entity.ProductDO;
 import com.cloudmall.product.model.req.ProductGetReq;
 
@@ -31,6 +35,23 @@ public interface ProductMapper extends BaseMapper<ProductDO> {
      */
     default ProductDO selectByGetReq(ProductGetReq req) {
         return selectOne(req.buildLambdaWrapper());
+    }
+
+    /**
+     * 按 ID 批量查询已上架商品。
+     *
+     * @param ids SPU ID 集合
+     * @return 已上架商品列表
+     */
+    default List<ProductDO> selectEnabledByIds(Collection<Long> ids) {
+        if (CollUtil.isEmpty(ids)) {
+            return Collections.emptyList();
+        }
+        return selectList(
+                Wrappers.<ProductDO>lambdaQuery()
+                        .in(ProductDO::getId, ids)
+                        .eq(ProductDO::getStatus, StatusEnum.ENABLED)
+        );
     }
 
     /**

@@ -1,2 +1,24 @@
 mybatis-plus:
   type-aliases-package: com.cloudmall.seckill.entity
+
+spring:
+  cloud:
+    sentinel:
+      transport:
+        dashboard: localhost:8858
+        port: 8719
+      datasource:
+        flow:
+          nacos:
+            server-addr: localhost:8848
+            dataId: seckill-service-flow-rules
+            groupId: DEFAULT_GROUP
+            data-type: json
+            rule-type: flow
+        degrade:
+          nacos:
+            server-addr: localhost:8848
+            dataId: seckill-service-degrade-rules
+            groupId: DEFAULT_GROUP
+            data-type: json
+            rule-type: degrade

@@ -19,7 +19,6 @@ import org.springframework.transaction.annotation.Transactional;
 import com.cloudmall.common.enums.BizError;
 import com.cloudmall.common.exception.BizException;
 import com.cloudmall.common.utils.Asserts;
-import com.cloudmall.mybatisplus.enums.StatusEnum;
 import com.cloudmall.product.api.response.SkuResp;
 import com.cloudmall.product.convert.SkuConverter;
 import com.cloudmall.product.entity.ProductDO;
@@ -88,11 +87,11 @@ public class SkuService implements ISkuService {
             return Collections.emptyList();
         }
 
-        // 批量查询商品（取店铺 ID 与上下架状态）
+        // 批量查询已上架商品（取店铺 ID）
         Set<Long> productIds = skus.stream()
                                    .map(ProductSkuDO::getProductId)
                                    .collect(Collectors.toSet());
-        List<ProductDO> products = productMapper.selectByIds(productIds);
+        List<ProductDO> products = productMapper.selectEnabledByIds(productIds);
         Map<Long, ProductDO> productMap = products.stream()
                                                   .collect(
                                                           Collectors.toMap(
@@ -110,7 +109,7 @@ public class SkuService implements ISkuService {
         List<SkuResp> respList = new ArrayList<>(skus.size());
         for (ProductSkuDO sku : skus) {
             ProductDO product = productMap.get(sku.getProductId());
-            if (product == null || product.getStatus() != StatusEnum.ENABLED) {
+            if (product == null) {
                 continue;
             }
             SkuResp resp = skuConverter.toResp(sku);
