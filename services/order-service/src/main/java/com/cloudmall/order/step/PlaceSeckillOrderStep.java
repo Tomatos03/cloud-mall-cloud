@@ -23,7 +23,7 @@ import com.cloudmall.order.mapper.OrderMapper;
 import com.cloudmall.order.mapper.OrderSubMapper;
 import com.cloudmall.order.model.CheckoutContext;
 import com.cloudmall.product.api.response.SkuResp;
-import com.cloudmall.seckill.api.client.SeckillOrderClient;
+import com.cloudmall.seckill.api.client.InternalSeckillClient;
 import com.cloudmall.seckill.api.response.SeckillOrderResp;
 
 /**
@@ -42,7 +42,7 @@ public class PlaceSeckillOrderStep implements CheckoutStep {
     private final OrderMapper orderMapper;
     private final OrderSubMapper orderSubMapper;
     private final OrderItemMapper orderItemMapper;
-    private final SeckillOrderClient seckillOrderClient;
+    private final InternalSeckillClient internalSeckillClient;
 
     /**
      * 步骤名称。
@@ -90,7 +90,7 @@ public class PlaceSeckillOrderStep implements CheckoutStep {
      * @return 秒杀单快照
      */
     private SeckillOrderResp requireSeckillOrder(String orderNo) {
-        return Asserts.requireNonNull(seckillOrderClient.getByOrderNo(orderNo), BizError.INVALID_PARAM);
+        return Asserts.requireNonNull(internalSeckillClient.getByOrderNo(orderNo), BizError.INVALID_PARAM);
     }
 
     /**

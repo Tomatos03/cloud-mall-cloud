@@ -17,7 +17,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class OrderItemReq {
+public class OrderItem {
 
     /** SKU ID */
     @NotNull

@@ -17,7 +17,7 @@ import com.cloudmall.common.context.UserContextHolder;
 import com.cloudmall.common.enums.BizError;
 import com.cloudmall.common.exception.BizException;
 import com.cloudmall.common.utils.Asserts;
-import com.cloudmall.order.api.client.OrderEventClient;
+import com.cloudmall.order.api.client.InternalOrderClient;
 import com.cloudmall.order.api.request.OrderEventReq;
 import com.cloudmall.seckill.api.request.SeckillPurchaseReq;
 import com.cloudmall.seckill.api.response.PurchaseResp;
@@ -55,7 +55,7 @@ public class SeckillOrderApp {
     private final ISeckillOrderService orderService;
     private final SeckillCacheService cacheService;
     private final SeckillRateLimitService rateLimitService;
-    private final OrderEventClient orderEventClient;
+    private final InternalOrderClient internalOrderClient;
 
     /**
      * 抢购（用户身份取自登录态，不接受客户端传入）。
@@ -185,9 +185,9 @@ public class SeckillOrderApp {
             return;
         }
         try {
-            orderEventClient.cancel(OrderEventReq.builder()
-                                                 .orderNo(orderNo)
-                                                 .build());
+            internalOrderClient.cancel(OrderEventReq.builder()
+                                                    .orderNo(orderNo)
+                                                    .build());
         } catch (Exception e) {
             log.warn("取消真实订单失败，等待下轮补偿 orderNo={}", orderNo, e);
         }

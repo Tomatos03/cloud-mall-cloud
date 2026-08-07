@@ -9,7 +9,7 @@ import org.springframework.stereotype.Component;
 import com.cloudmall.product.api.event.ProductEvent;
 import com.cloudmall.product.api.event.ProductTagEnum;
 import com.cloudmall.rocketmq.handler.EventHandler;
-import com.cloudmall.search.api.client.SearchIndexClient;
+import com.cloudmall.search.api.client.InternalSearchClient;
 
 /**
  * 商品删除处理器：经 search-service 从 ES 删除对应文档（幂等，文档不存在时忽略）。
@@ -21,7 +21,7 @@ import com.cloudmall.search.api.client.SearchIndexClient;
 @RequiredArgsConstructor
 public class ProductDeleteHandler implements EventHandler<ProductEvent> {
 
-    private final SearchIndexClient searchIndexClient;
+    private final InternalSearchClient internalSearchClient;
 
     /**
      * 本处理器服务的 RocketMQ tag 集合。
@@ -62,7 +62,7 @@ public class ProductDeleteHandler implements EventHandler<ProductEvent> {
      */
     @Override
     public void handle(ProductEvent event) {
-        searchIndexClient.deleteById(event.getProductId());
+        internalSearchClient.deleteById(event.getProductId());
         log.debug("商品索引删除完成 productId={}", event.getProductId());
     }
 }

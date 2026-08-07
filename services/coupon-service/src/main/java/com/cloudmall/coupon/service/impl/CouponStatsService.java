@@ -20,7 +20,7 @@ import com.cloudmall.coupon.enums.UserCouponOperationTypeEnum;
 import com.cloudmall.coupon.mapper.CouponMapper;
 import com.cloudmall.coupon.mapper.UserCouponLogMapper;
 import com.cloudmall.coupon.service.ICouponStatsService;
-import com.cloudmall.order.api.client.OrderStatsClient;
+import com.cloudmall.order.api.client.InternalOrderClient;
 import com.cloudmall.order.api.response.CouponUsageStatsResp;
 
 /**
@@ -36,7 +36,7 @@ public class CouponStatsService implements ICouponStatsService {
 
     private final CouponMapper couponMapper;
     private final UserCouponLogMapper userCouponLogMapper;
-    private final OrderStatsClient orderStatsClient;
+    private final InternalOrderClient internalOrderClient;
 
     /**
      * 统计指定模板的发行、核销与补贴。
@@ -54,7 +54,7 @@ public class CouponStatsService implements ICouponStatsService {
         CouponStatsResp stats = aggregate(couponId);
         stats.setCouponId(coupon.getId());
         stats.setName(coupon.getName());
-        fillUsageStats(stats, orderStatsClient.usageByCoupon(couponId));
+        fillUsageStats(stats, internalOrderClient.usageByCoupon(couponId));
         return stats;
     }
 
@@ -67,7 +67,7 @@ public class CouponStatsService implements ICouponStatsService {
     public CouponStatsResp overview() {
         Asserts.isTrue(UserContextHolder.isAdmin(), BizError.COUPON_OPERATION_NOT_ALLOWED);
         CouponStatsResp stats = aggregate(null);
-        fillUsageStats(stats, orderStatsClient.usageOverview());
+        fillUsageStats(stats, internalOrderClient.usageOverview());
         return stats;
     }
 

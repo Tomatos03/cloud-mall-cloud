@@ -11,6 +11,8 @@ paths: "**/*.java"
 ## FeignClient 一致性
 
 Controller 端点变更（路径、方法、参数）必须同步更新 FeignClient。禁止不一致。
+- 内部接口基路径统一为 `/internal/{服务名}`（模块短名，如 `order`、`coupon`、`product`、`seckill`、`search`），FeignClient 的 `path` 必须与 Controller 基路径保持一致。
+- 内部接口 Feign 客户端类名统一为 `Internal{服务名}Client`（如 `InternalOrderClient`），`contextId` 使用 `internal{服务名}Client`；对外客户端保持 `{业务}Client` 命名，禁止混入内部端点。
 
 ## 返回与异常
 

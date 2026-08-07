@@ -21,8 +21,8 @@ import com.cloudmall.search.index.ProductIndexRepository;
  */
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/internal/search-index")
-public class SearchIndexInternalController {
+@RequestMapping("/internal/search")
+public class InternalSearchController {
 
     private final ProductIndexRepository indexRepository;
 

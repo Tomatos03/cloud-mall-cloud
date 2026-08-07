@@ -8,16 +8,15 @@ import org.springframework.web.bind.annotation.RequestBody;
 import com.cloudmall.product.api.response.ProductDocResp;
 
 /**
- * 搜索索引协同 Feign 客户端
+ * 搜索内部 Feign 客户端
  * <p>
- * 内部接口，仅供消费服务通过 Feign 调用；不加入网关对外路由。
- * ES 索引的写入/删除归属 search-service，本客户端把商品事件处理
- * 落到 search-service 完成索引更新。
+ * 内部接口统一收敛于 InternalSearchClient（/internal/search），
+ * 承接 ES 商品索引的写入/删除（索引归属权在 search-service），仅供服务间 Feign 调用。
  *
  * @author : Tomatos
  */
-@FeignClient(name = "search-service", contextId = "searchIndexClient", path = "/internal/search-index")
-public interface SearchIndexClient {
+@FeignClient(name = "search-service", contextId = "internalSearchClient", path = "/internal/search")
+public interface InternalSearchClient {
 
     /**
      * 增量写入单个搜索文档（不存在则新建，字段级更新不覆盖销量）。

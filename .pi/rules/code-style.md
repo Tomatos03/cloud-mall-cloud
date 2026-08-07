@@ -10,11 +10,20 @@ paths: "**/*.java"
 | Service 接口 | `I*Service` | `IAuthService` |
 | Service 实现 | `*Service`（去掉 `I` 前缀） | `AuthService` |
 | 分页查询方法 | `page*` | `pageUserInfos` |
+| 内部接口 Feign 客户端 | `Internal{服务名}Client`（`contextId` 为 `internal{服务名}Client`） | `InternalOrderClient` |
 
 ## Controller
 
 - 方法命名与 Service 保持一致（分页方法使用 `page*`）
 - 方法参数超过 **3 个**（即 ≥ 4 个）时，必须封装为对应的 `xxxReq` 对象，禁止逐一声明 `@RequestParam`
+- 内部接口端点基路径统一为 `/internal/{服务名}`（服务名取模块短名，如 `order`、`coupon`、`product`、`seckill`、`search`），禁止用业务子路径作为基路径
+- 内部接口 Controller 类名统一为 `Internal{服务名}Controller`（如 `InternalOrderController`），禁止 `XxxInternalController` 命名
+- 同一服务的内部接口合并为单个 `Internal{服务名}Controller`，方法级路径保持不变；对应 FeignClient 的 `path` 必须与 Controller 基路径一致
+
+| 禁止写法 | 必须使用 |
+|----------|----------|
+| `@RequestMapping("/internal/order-events")` | `@RequestMapping("/internal/order")` |
+| `class OrderEventController` | `class InternalOrderController` |
 
 ## 集合判空
 

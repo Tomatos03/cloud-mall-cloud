@@ -12,7 +12,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
-import com.cloudmall.coupon.api.client.CouponOrderClient;
+import com.cloudmall.coupon.api.client.InternalCouponClient;
 import com.cloudmall.coupon.api.dto.CouponCalcItem;
 import com.cloudmall.coupon.api.request.CouponOrderLockReq;
 import com.cloudmall.coupon.api.request.CouponOrderReleaseReq;
@@ -21,7 +21,7 @@ import com.cloudmall.coupon.api.response.CouponUsageResult;
 import com.cloudmall.order.entity.OrderDO;
 import com.cloudmall.order.model.CheckoutContext;
 import com.cloudmall.order.service.impl.OrderService;
-import com.cloudmall.product.api.client.StockClient;
+import com.cloudmall.product.api.client.InternalProductClient;
 import com.cloudmall.product.api.request.StockOpReq;
 import com.cloudmall.product.api.request.StockReserveItem;
 import com.cloudmall.product.api.response.SkuResp;
@@ -49,8 +49,8 @@ public class PlacePreOrderStep implements CheckoutStep {
     private static final String COMPENSATE_REASON = "下单失败补偿释放";
 
     private final OrderService orderService;
-    private final StockClient stockClient;
-    private final CouponOrderClient couponOrderClient;
+    private final InternalProductClient internalProductClient;
+    private final InternalCouponClient internalCouponClient;
 
     /**
      * 步骤名称。
@@ -74,7 +74,7 @@ public class PlacePreOrderStep implements CheckoutStep {
         boolean stockReserved = false;
         List<CouponUsageResult> lockedUsages = Collections.emptyList();
         try {
-            stockClient.reserve(buildStockOpReq(orderNo, ctx.getCheckoutItems(), RESERVE_REASON));
+            internalProductClient.reserve(buildStockOpReq(orderNo, ctx.getCheckoutItems(), RESERVE_REASON));
             stockReserved = true;
             CouponOrderCalcResp calc = lockCoupons(ctx, orderNo);
             lockedUsages = calc.getUsages();
@@ -103,7 +103,7 @@ public class PlacePreOrderStep implements CheckoutStep {
                 .items(buildCalcItems(context.getCheckoutItems(), context.getSkuMap()))
                 .userCouponIds(context.getReq().getUserCouponIds())
                 .build();
-        return couponOrderClient.lock(lockReq);
+        return internalCouponClient.lock(lockReq);
     }
 
     /**
@@ -181,7 +181,7 @@ public class PlacePreOrderStep implements CheckoutStep {
         }
         for (CouponUsageResult usage : lockedUsages) {
             try {
-                couponOrderClient.release(
+                internalCouponClient.release(
                         CouponOrderReleaseReq.builder()
                                              .userId(context.getUserId())
                                              .orderNo(orderNo)
@@ -203,7 +203,9 @@ public class PlacePreOrderStep implements CheckoutStep {
      */
     private void releaseStockQuietly(CheckoutContext context, String orderNo) {
         try {
-            stockClient.release(buildStockOpReq(orderNo, context.getCheckoutItems(), COMPENSATE_REASON));
+            internalProductClient.release(
+                    buildStockOpReq(orderNo, context.getCheckoutItems(), COMPENSATE_REASON)
+            );
         } catch (RuntimeException e) {
             log.warn("Saga 补偿释放库存失败 orderNo={}", orderNo, e);
         }

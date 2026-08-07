@@ -7,7 +7,7 @@ import org.springframework.stereotype.Component;
 
 import com.cloudmall.common.enums.BizError;
 import com.cloudmall.common.utils.Asserts;
-import com.cloudmall.order.api.model.OrderItemReq;
+import com.cloudmall.order.api.model.OrderItem;
 import com.cloudmall.order.model.CheckoutContext;
 
 /**
@@ -36,7 +36,7 @@ public class LoadRequestCheckoutItemsStep implements CheckoutStep {
     @Override
     public void process(CheckoutContext ctx) {
         Map<Long, Integer> checkoutItems = new LinkedHashMap<>();
-        for (OrderItemReq item : ctx.getReq().getItems()) {
+        for (OrderItem item : ctx.getReq().getItems()) {
             Asserts.isFalse(checkoutItems.containsKey(item.getSkuId()), BizError.INVALID_PARAM);
             Asserts.greaterThan(item.getQuantity(), 0, BizError.INVALID_PARAM);
             checkoutItems.put(item.getSkuId(), item.getQuantity());

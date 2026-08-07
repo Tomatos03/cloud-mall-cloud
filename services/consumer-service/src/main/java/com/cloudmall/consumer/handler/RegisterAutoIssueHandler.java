@@ -6,7 +6,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
 import com.cloudmall.auth.api.event.UserRegisteredEvent;
-import com.cloudmall.coupon.api.client.UserCouponInternalClient;
+import com.cloudmall.coupon.api.client.InternalCouponClient;
 import com.cloudmall.coupon.api.request.AutoIssueRegisterReq;
 import com.cloudmall.rocketmq.handler.EventHandler;
 
@@ -19,7 +19,7 @@ import com.cloudmall.rocketmq.handler.EventHandler;
 @RequiredArgsConstructor
 public class RegisterAutoIssueHandler implements EventHandler<UserRegisteredEvent> {
 
-    private final UserCouponInternalClient userCouponInternalClient;
+    private final InternalCouponClient internalCouponClient;
 
     /**
      * 本处理器服务的 RocketMQ tag 集合。
@@ -59,7 +59,7 @@ public class RegisterAutoIssueHandler implements EventHandler<UserRegisteredEven
      */
     @Override
     public void handle(UserRegisteredEvent event) {
-        userCouponInternalClient.autoIssueForRegister(
+        internalCouponClient.autoIssueForRegister(
                 AutoIssueRegisterReq.builder()
                                     .userId(event.getUserId())
                                     .eventId(event.getEventId())

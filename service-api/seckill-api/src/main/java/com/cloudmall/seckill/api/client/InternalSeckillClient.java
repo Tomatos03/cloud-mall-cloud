@@ -10,14 +10,15 @@ import com.cloudmall.seckill.api.request.SeckillConfirmPaidReq;
 import com.cloudmall.seckill.api.response.SeckillOrderResp;
 
 /**
- * 秒杀单内部 Feign 客户端
+ * 秒杀内部 Feign 客户端
  * <p>
- * 供 consumer-service 在订单支付成功后回调秒杀侧确认，以及对账查询。
+ * 内部接口统一收敛于 InternalSeckillClient（/internal/seckill），
+ * 覆盖支付成功确认、对账查询与活动商品审核校验，仅供服务间 Feign 调用。
  *
  * @author : Tomatos
  */
-@FeignClient(name = "seckill-service", contextId = "seckillOrderClient", path = "/internal/seckill")
-public interface SeckillOrderClient {
+@FeignClient(name = "seckill-service", contextId = "internalSeckillClient", path = "/internal/seckill")
+public interface InternalSeckillClient {
 
     /**
      * 支付成功确认：秒杀单置 PAID 并落库扣减秒杀池（幂等）。
@@ -36,9 +37,24 @@ public interface SeckillOrderClient {
      * @param orderNo 真实订单号
      * @return 秒杀单响应
      */
-    @GetMapping("/orders/by-order-no/{orderNo}")
+    @GetMapping("/orders/{orderNo}")
     SeckillOrderResp getByOrderNo(
             @PathVariable("orderNo")
             String orderNo
+    );
+
+    /**
+     * 校验活动下的秒杀商品是否已审核通过。
+     *
+     * @param activityId 活动 ID
+     * @param productId 秒杀商品 ID
+     * @return 已审核通过返回 true
+     */
+    @GetMapping("/activities/{activityId}/products/{productId}/verification")
+    Boolean verifyProduct(
+            @PathVariable("activityId")
+            Long activityId,
+            @PathVariable("productId")
+            Long productId
     );
 }

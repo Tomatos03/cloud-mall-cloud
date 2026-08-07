@@ -9,13 +9,13 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
-import com.cloudmall.coupon.api.client.CouponOrderClient;
+import com.cloudmall.coupon.api.client.InternalCouponClient;
 import com.cloudmall.coupon.api.request.CouponOrderReleaseByOrderReq;
 import com.cloudmall.order.entity.OrderDO;
 import com.cloudmall.order.enums.ParentOrderStatusEnum;
 import com.cloudmall.order.mapper.OrderMapper;
 import com.cloudmall.order.service.impl.OrderService;
-import com.cloudmall.product.api.client.StockClient;
+import com.cloudmall.product.api.client.InternalProductClient;
 import com.cloudmall.product.api.request.StockReleaseByOrderReq;
 
 /**
@@ -37,8 +37,8 @@ public class OrderTimeoutRecoveryJobHandler {
 
     private final OrderMapper orderMapper;
     private final OrderService orderService;
-    private final CouponOrderClient couponOrderClient;
-    private final StockClient stockClient;
+    private final InternalCouponClient internalCouponClient;
+    private final InternalProductClient internalProductClient;
 
     /**
      * 周期扫描并恢复创建中超时订单。
@@ -65,7 +65,7 @@ public class OrderTimeoutRecoveryJobHandler {
     private void recoverOne(OrderDO order) {
         String orderNo = order.getOrderNo();
         try {
-            couponOrderClient.releaseByOrder(
+            internalCouponClient.releaseByOrder(
                     CouponOrderReleaseByOrderReq.builder()
                                                 .userId(order.getUserId())
                                                 .orderNo(orderNo)
@@ -75,9 +75,9 @@ public class OrderTimeoutRecoveryJobHandler {
             log.warn("超时恢复释放用户券失败 orderNo={}", orderNo, e);
         }
         try {
-            stockClient.releaseByOrder(StockReleaseByOrderReq.builder()
-                                                             .orderNo(orderNo)
-                                                             .build());
+            internalProductClient.releaseByOrder(StockReleaseByOrderReq.builder()
+                                                                       .orderNo(orderNo)
+                                                                       .build());
         } catch (RuntimeException e) {
             log.warn("超时恢复释放库存失败 orderNo={}", orderNo, e);
         }

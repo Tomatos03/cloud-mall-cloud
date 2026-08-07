@@ -27,7 +27,7 @@ import com.cloudmall.seckill.service.ISeckillProductService;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/internal/seckill")
-public class SeckillInternalController {
+public class InternalSeckillController {
 
     private final ISeckillOrderService orderService;
     private final ISeckillProductService productService;
@@ -54,7 +54,7 @@ public class SeckillInternalController {
      * @param orderNo 真实订单号
      * @return 秒杀单响应
      */
-    @GetMapping("/orders/by-order-no/{orderNo}")
+    @GetMapping("/orders/{orderNo}")
     public Result<SeckillOrderResp> getByOrderNo(
             @PathVariable
             String orderNo

@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.cloudmall.common.model.Result;
+import com.cloudmall.coupon.api.request.AutoIssueRegisterReq;
 import com.cloudmall.coupon.api.request.CouponOrderCommitByOrderReq;
 import com.cloudmall.coupon.api.request.CouponOrderCommitReq;
 import com.cloudmall.coupon.api.request.CouponOrderLockReq;
@@ -18,20 +19,39 @@ import com.cloudmall.coupon.api.request.CouponOrderRevertByOrderReq;
 import com.cloudmall.coupon.api.request.CouponOrderRevertReq;
 import com.cloudmall.coupon.api.response.CouponOrderCalcResp;
 import com.cloudmall.coupon.service.ICouponOrderService;
+import com.cloudmall.coupon.service.IUserCouponService;
 
 /**
- * 优惠券订单协同内部接口
+ * 优惠券内部接口
  * <p>
- * 仅供 order-service 通过 Feign 调用，不加入网关对外路由。
+ * 内部服务端点统一使用 /internal/coupon，仅供服务间 Feign 调用，不加入网关对外路由。
+ * 用户券协同（自动发放）与订单协同（试算/锁定/核销/释放/回退）统一收敛于此。
  *
  * @author : Tomatos
  */
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/internal/coupon-orders")
-public class CouponOrderController {
+@RequestMapping("/internal/coupon")
+public class InternalCouponController {
 
     private final ICouponOrderService couponOrderService;
+    private final IUserCouponService userCouponService;
+
+    /**
+     * 注册自动发放新人券（按事件 ID 幂等）。
+     *
+     * @param req 发券请求
+     * @return 处理结果
+     */
+    @PostMapping("/auto-issue-register")
+    public Result<Void> autoIssueForRegister(
+            @RequestBody
+            @Valid
+            AutoIssueRegisterReq req
+    ) {
+        userCouponService.autoIssueForRegister(req.getUserId(), req.getEventId());
+        return Result.success();
+    }
 
     /**
      * 无副作用试算。

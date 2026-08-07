@@ -11,13 +11,13 @@ import com.cloudmall.product.api.event.ProductEvent;
 import com.cloudmall.product.api.event.ProductTagEnum;
 import com.cloudmall.product.api.response.ProductDocResp;
 import com.cloudmall.rocketmq.handler.EventHandler;
-import com.cloudmall.search.api.client.SearchIndexClient;
+import com.cloudmall.search.api.client.InternalSearchClient;
 
 /**
  * 商品创建/更新处理器：拉取完整搜索文档并写入 ES。
  * <p>
  * 文档组装唯一属于 product-service，本处理器经 ProductClient 拉取；
- * ES 写入经 SearchIndexClient 委托给 search-service；
+ * ES 写入经 InternalSearchClient 委托给 search-service；
  * 若商品已不存在（先删除后消费），则清理 ES 残留文档，保证最终一致。
  *
  * @author : Tomatos
@@ -28,7 +28,7 @@ import com.cloudmall.search.api.client.SearchIndexClient;
 public class ProductUpsertHandler implements EventHandler<ProductEvent> {
 
     private final ProductClient productClient;
-    private final SearchIndexClient searchIndexClient;
+    private final InternalSearchClient internalSearchClient;
 
     /**
      * 本处理器服务的 RocketMQ tag 集合（创建/更新共用写入动作）。
@@ -72,10 +72,10 @@ public class ProductUpsertHandler implements EventHandler<ProductEvent> {
         ProductDocResp doc = productClient.searchDoc(event.getProductId());
         if (doc == null) {
             log.warn("商品文档不存在，清理 ES 残留 productId={} eventId={}", event.getProductId(), event.getEventId());
-            searchIndexClient.deleteById(event.getProductId());
+            internalSearchClient.deleteById(event.getProductId());
             return;
         }
-        searchIndexClient.upsert(doc);
+        internalSearchClient.upsert(doc);
         log.debug("商品索引写入完成 productId={}", event.getProductId());
     }
 }

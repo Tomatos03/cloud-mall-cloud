@@ -14,12 +14,12 @@ import org.springframework.stereotype.Service;
 import com.cloudmall.common.context.UserContextHolder;
 import com.cloudmall.common.enums.BizError;
 import com.cloudmall.common.utils.Asserts;
-import com.cloudmall.coupon.api.client.CouponOrderClient;
+import com.cloudmall.coupon.api.client.InternalCouponClient;
 import com.cloudmall.coupon.api.dto.CouponCalcItem;
 import com.cloudmall.coupon.api.request.CouponOrderQuoteReq;
 import com.cloudmall.coupon.api.response.CouponOrderCalcResp;
 import com.cloudmall.order.api.enums.CheckoutTypeEnum;
-import com.cloudmall.order.api.model.OrderItemReq;
+import com.cloudmall.order.api.model.OrderItem;
 import com.cloudmall.order.api.request.CreateOrderReq;
 import com.cloudmall.order.api.request.QuoteOrderReq;
 import com.cloudmall.product.api.client.SkuClient;
@@ -39,7 +39,7 @@ import com.cloudmall.product.api.response.SkuResp;
 public class OrderApp {
 
     private final CheckoutPipeline checkoutPipeline;
-    private final CouponOrderClient couponOrderClient;
+    private final InternalCouponClient internalCouponClient;
     private final SkuClient skuClient;
 
     /**
@@ -63,13 +63,13 @@ public class OrderApp {
     public CouponOrderCalcResp quote(QuoteOrderReq req) {
         Long userId = Asserts.requireNonNull(UserContextHolder.getUserId(), BizError.USER_NOT_AUTHENTICATED);
         Map<Long, Integer> quantities = new LinkedHashMap<>();
-        for (OrderItemReq item : req.getItems()) {
+        for (OrderItem item : req.getItems()) {
             Asserts.isFalse(quantities.containsKey(item.getSkuId()), BizError.INVALID_PARAM);
             quantities.put(item.getSkuId(), item.getQuantity());
         }
         Map<Long, SkuResp> skuMap = requireAvailableSkus(quantities);
         List<CouponCalcItem> calcItems = buildCalcItems(quantities, skuMap);
-        return couponOrderClient.quote(
+        return internalCouponClient.quote(
                 CouponOrderQuoteReq.builder()
                                    .userId(userId)
                                    .items(calcItems)

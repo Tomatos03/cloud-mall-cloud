@@ -37,6 +37,13 @@
 
 - 方法参数 ≥ 4 个时必须封装为对应的 `xxxReq` 对象，禁止逐一声明 `@RequestParam`。
 
+### 内部接口
+
+- 内部服务端点基路径统一为 `/internal/{服务名}`，服务名取模块短名（如 `order`、`coupon`、`product`、`seckill`、`search`），禁止使用业务路径（如 `/internal/order-events`）。
+- 内部接口 Controller 类名统一为 `Internal{服务名}Controller`（如 `InternalOrderController`），禁止 `XxxInternalController` 命名。
+- 内部接口 Feign 客户端类名统一为 `Internal{服务名}Client`（如 `InternalOrderClient`），`contextId` 为 `internal{服务名}Client`（如 `internalOrderClient`）。
+- 同一服务的内部接口合并到同一个 `Internal{服务名}Controller` 与 `Internal{服务名}Client`，方法级路径保持不变；FeignClient 的 `path` 必须与 Controller 基路径一致。
+
 ### 集合判空
 
 - 使用 Hutool `CollectionUtil.isEmpty()` / `CollectionUtil.isNotEmpty()`，禁止手写 `== null || .isEmpty()`。

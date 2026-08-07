@@ -8,7 +8,7 @@ import org.springframework.stereotype.Component;
 
 import com.cloudmall.order.api.event.OrderTagEnum;
 import com.cloudmall.rocketmq.handler.EventHandler;
-import com.cloudmall.seckill.api.client.SeckillOrderClient;
+import com.cloudmall.seckill.api.client.InternalSeckillClient;
 import com.cloudmall.seckill.api.event.SeckillPaidEvent;
 import com.cloudmall.seckill.api.request.SeckillConfirmPaidReq;
 
@@ -28,7 +28,7 @@ public class SeckillOrderPaidHandler implements EventHandler<SeckillPaidEvent> {
     /** 秒杀订单号前缀 */
     private static final String SECKILL_ORDER_NO_PREFIX = "SK";
 
-    private final SeckillOrderClient seckillOrderClient;
+    private final InternalSeckillClient internalSeckillClient;
 
     /**
      * 本处理器服务的 RocketMQ tag 集合。
@@ -73,9 +73,9 @@ public class SeckillOrderPaidHandler implements EventHandler<SeckillPaidEvent> {
         if (orderNo == null || !orderNo.startsWith(SECKILL_ORDER_NO_PREFIX)) {
             return;
         }
-        seckillOrderClient.confirmPaid(SeckillConfirmPaidReq.builder()
-                                                            .orderNo(orderNo)
-                                                            .build());
+        internalSeckillClient.confirmPaid(SeckillConfirmPaidReq.builder()
+                                                               .orderNo(orderNo)
+                                                               .build());
         log.info("秒杀单支付确认已回调 orderNo={}", orderNo);
     }
 }

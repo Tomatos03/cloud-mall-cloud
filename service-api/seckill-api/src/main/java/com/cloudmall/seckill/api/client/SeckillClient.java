@@ -7,9 +7,9 @@ import org.springframework.web.bind.annotation.PathVariable;
 import com.cloudmall.seckill.api.response.ActivityDetailResp;
 
 /**
- * 秒杀服务 Feign 客户端
+ * 秒杀对外 Feign 客户端
  * <p>
- * 两类端点前缀不同（对外 /seckill、内部 /internal/seckill），故不设 path 公共前缀。
+ * 仅暴露对外 /seckill 端点；内部端点见 InternalSeckillClient。
  *
  * @author : Tomatos
  */
@@ -28,18 +28,4 @@ public interface SeckillClient {
             Long id
     );
 
-    /**
-     * 校验活动下的商品是否已审核通过。
-     *
-     * @param activityId 活动 ID
-     * @param productId 秒杀商品 ID
-     * @return 已审核通过返回 true
-     */
-    @GetMapping("/internal/seckill/activities/{activityId}/products/{productId}/verification")
-    Boolean verifyProduct(
-            @PathVariable("activityId")
-            Long activityId,
-            @PathVariable("productId")
-            Long productId
-    );
 }

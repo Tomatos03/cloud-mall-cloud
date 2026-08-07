@@ -23,8 +23,8 @@ import com.cloudmall.product.service.IStockService;
  */
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/internal/stock")
-public class StockController {
+@RequestMapping("/internal/product")
+public class InternalProductController {
 
     private final IStockService stockService;
 

@@ -5,7 +5,7 @@ import java.util.Set;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
-import com.cloudmall.coupon.api.client.CouponOrderClient;
+import com.cloudmall.coupon.api.client.InternalCouponClient;
 import com.cloudmall.coupon.api.request.CouponOrderCommitByOrderReq;
 import com.cloudmall.order.api.event.OrderEvent;
 import com.cloudmall.order.api.event.OrderTagEnum;
@@ -20,7 +20,7 @@ import com.cloudmall.rocketmq.handler.EventHandler;
 @RequiredArgsConstructor
 public class OrderPaidHandler implements EventHandler<OrderEvent> {
 
-    private final CouponOrderClient couponOrderClient;
+    private final InternalCouponClient internalCouponClient;
 
     /**
      * 本处理器服务的 RocketMQ tag 集合。
@@ -60,7 +60,7 @@ public class OrderPaidHandler implements EventHandler<OrderEvent> {
      */
     @Override
     public void handle(OrderEvent event) {
-        couponOrderClient.commitByOrder(
+        internalCouponClient.commitByOrder(
                 CouponOrderCommitByOrderReq.builder()
                                            .orderNo(event.getOrderNo())
                                            .build()

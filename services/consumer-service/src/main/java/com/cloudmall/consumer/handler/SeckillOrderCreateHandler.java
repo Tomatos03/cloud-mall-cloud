@@ -9,7 +9,7 @@ import org.springframework.stereotype.Component;
 
 import com.cloudmall.order.api.client.OrderClient;
 import com.cloudmall.order.api.enums.CheckoutTypeEnum;
-import com.cloudmall.order.api.model.OrderItemReq;
+import com.cloudmall.order.api.model.OrderItem;
 import com.cloudmall.order.api.request.CreateOrderReq;
 import com.cloudmall.rocketmq.handler.EventHandler;
 import com.cloudmall.seckill.api.event.SeckillOrderCreateEvent;
@@ -77,10 +77,10 @@ public class SeckillOrderCreateHandler implements EventHandler<SeckillOrderCreat
                         .addressId(event.getAddressId())
                         .items(
                                 List.of(
-                                        OrderItemReq.builder()
-                                                    .skuId(event.getSkuId())
-                                                    .quantity(event.getQuantity())
-                                                    .build()
+                                        OrderItem.builder()
+                                                 .skuId(event.getSkuId())
+                                                 .quantity(event.getQuantity())
+                                                 .build()
                                 )
                         )
                         .build()
