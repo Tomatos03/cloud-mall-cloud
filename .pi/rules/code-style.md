@@ -18,7 +18,7 @@ paths: "**/*.java"
 
 ## 集合判空
 
-使用 Hutool 的 `CollUtil.isEmpty()` / `CollUtil.isNotEmpty()` 判断集合，禁止手写 `== null || .isEmpty()`。
+使用 Hutool 的 `CollectionUtil.isEmpty()` / `CollectionUtil.isNotEmpty()` 判断集合，禁止手写 `== null || .isEmpty()`。
 
 ## 实体与 DTO
 
@@ -210,14 +210,6 @@ resp.setItems(orderItemConverter.toItemRespList(items));
 ### 枚举查找
 
 按 code 查找枚举使用 `Arrays.stream().filter().findFirst().orElseThrow()`，禁止 for 循环；code 为 null 或未命中时抛 `IllegalArgumentException`。
-
-### Bean 属性拷贝
-
-将源对象非 null 属性拷贝到目标对象时，使用 `BeanUtil.copyProperties(source, target, CopyOptions.create().setIgnoreNullValue(true))`，禁止逐字段手写 `if (xx != null) { target.setXx(source.getXx()); }`。
-
-| 禁止写法 | 必须使用 |
-|----------|----------|
-| 逐字段 `if (x != null) setX()` | `BeanUtil.copyProperties(src, tgt, CopyOptions.create().setIgnoreNullValue(true))` |
 
 ## 多行布尔条件
 

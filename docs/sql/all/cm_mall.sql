@@ -787,13 +787,13 @@ CREATE TABLE IF NOT EXISTS cm_chat_session (
 CREATE TABLE IF NOT EXISTS cm_im_session (
     id          bigint       NOT NULL AUTO_INCREMENT comment '会话ID',
     buyer_id    bigint       NOT NULL comment '买家用户ID',
-    agent_id    bigint       NOT NULL comment '商家用户ID',
+    merchant_id bigint       NOT NULL comment '商家用户ID',
     create_time datetime     DEFAULT NULL comment '创建时间',
     update_time datetime     DEFAULT NULL comment '更新时间',
     deleted     tinyint(1)   DEFAULT '0' comment '是否删除(0=否 1=是)',
     PRIMARY KEY (id),
-    UNIQUE KEY uk_buyer_agent (buyer_id, agent_id),
-    KEY idx_agent_id (agent_id)
+    UNIQUE KEY uk_buyer_merchant (buyer_id, merchant_id),
+    KEY idx_merchant_id (merchant_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 comment '买家商家聊天会话表';
 
 CREATE TABLE IF NOT EXISTS cm_im_message (

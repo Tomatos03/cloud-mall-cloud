@@ -14,6 +14,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import com.cloudmall.im.enums.MessageTypeEnum;
+
 /**
  * 买家商家聊天消息实体
  *
@@ -40,8 +42,8 @@ public class ChatMessageDO implements Serializable {
     /** 消息内容（文本或图片URL） */
     private String content;
 
-    /** 消息类型（text/image） */
-    private String type;
+    /** 消息类型 */
+    private MessageTypeEnum type;
 
     /** 是否已读（0=否 1=是） */
     private Boolean isRead;

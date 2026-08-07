@@ -1,5 +1,7 @@
 package com.cloudmall.im.convert;
 
+import java.util.List;
+
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
@@ -24,4 +26,12 @@ public interface ChatMessageConverter {
     @Mapping(target = "time", source = "createTime")
     @Mapping(target = "userId", source = "senderId")
     MessageResp toResp(ChatMessageDO message);
+
+    /**
+     * 将消息实体列表转换为响应对象列表。
+     *
+     * @param messages 消息实体列表
+     * @return 响应对象列表
+     */
+    List<MessageResp> toRespList(List<ChatMessageDO> messages);
 }

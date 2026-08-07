@@ -1,17 +1,17 @@
 package com.cloudmall.im.application;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
-import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import com.cloudmall.auth.api.client.UserClient;
 import com.cloudmall.auth.api.response.UserInfoResp;
 import com.cloudmall.common.enums.BizError;
+import com.cloudmall.common.model.CursorResult;
 import com.cloudmall.common.utils.Asserts;
 import com.cloudmall.im.entity.ChatMessageDO;
 import com.cloudmall.im.entity.ChatSessionDO;
-import com.cloudmall.im.model.req.MessagePageReq;
+import com.cloudmall.im.model.req.MessageCursorReq;
 import com.cloudmall.im.model.req.SessionPageReq;
 import com.cloudmall.im.model.resp.ChatSessionResp;
 import com.cloudmall.im.model.resp.CreateSessionResp;
@@ -43,14 +43,11 @@ public class ChatAppService implements IChatAppService {
         Asserts.notNull(buyerId, BizError.NO_PERMISSION);
         ShopResp shop = Asserts.requireNonNull(shopClient.getById(storeId), BizError.STORE_NOT_EXIST);
 
-        ChatSessionDO session = chatSessionService.lambdaQuery()
-                                                  .eq(ChatSessionDO::getBuyerId, buyerId)
-                                                  .eq(ChatSessionDO::getAgentId, shop.getUserId())
-                                                  .one();
+        ChatSessionDO session = chatSessionService.selectByBuyerAndMerchant(buyerId, shop.getUserId());
         if (session == null) {
             session = ChatSessionDO.builder()
                                    .buyerId(buyerId)
-                                   .agentId(shop.getUserId())
+                                   .merchantId(shop.getUserId())
                                    .build();
             chatSessionService.save(session);
         }
@@ -61,32 +58,20 @@ public class ChatAppService implements IChatAppService {
 
     @Override
     public IPage<ChatSessionResp> pageChatSession(Long currentUserId, SessionPageReq req) {
-        IPage<ChatSessionDO> page = chatSessionService
-                .lambdaQuery()
-                .and(
-                        w -> w.eq(ChatSessionDO::getBuyerId, currentUserId)
-                              .or()
-                              .eq(ChatSessionDO::getAgentId, currentUserId)
-                )
-                .orderByDesc(ChatSessionDO::getCreateTime)
-                .page(new Page<>(req.getPage(), req.getPageSize()));
+        IPage<ChatSessionDO> page = chatSessionService.pageByMember(currentUserId, req);
         return page.convert(session -> toSessionResp(session, currentUserId));
     }
 
     @Override
-    public IPage<MessageResp> pageMessageHistory(Long currentUserId, MessagePageReq req) {
+    public CursorResult<MessageResp> cursorMessageHistory(Long currentUserId, MessageCursorReq req) {
         requireMember(req.getSessionId(), currentUserId);
-        return chatMessageService.pageMessageHistory(req);
+        return chatMessageService.cursorMessageHistory(req);
     }
 
     @Override
     public void markReadForChatSession(Long currentUserId, Long sessionId) {
         requireMember(sessionId, currentUserId);
-        chatMessageService.lambdaUpdate()
-                          .eq(ChatMessageDO::getSessionId, sessionId)
-                          .ne(ChatMessageDO::getSenderId, currentUserId)
-                          .set(ChatMessageDO::getIsRead, true)
-                          .update();
+        chatMessageService.markRead(sessionId, currentUserId);
     }
 
     /**
@@ -102,8 +87,7 @@ public class ChatAppService implements IChatAppService {
                 BizError.CONVERSATION_NOT_EXIST
         );
         Asserts.isTrue(
-                currentUserId != null
-                        && (currentUserId.equals(session.getBuyerId()) || currentUserId.equals(session.getAgentId())),
+                currentUserId != null && session.isMember(currentUserId),
                 BizError.CONVERSATION_NOT_MEMBER
         );
         return session;
@@ -114,7 +98,7 @@ public class ChatAppService implements IChatAppService {
      */
     private ChatSessionResp toSessionResp(ChatSessionDO session, Long currentUserId) {
         Long otherId = currentUserId.equals(session.getBuyerId())
-                ? session.getAgentId()
+                ? session.getMerchantId()
                 : session.getBuyerId();
         UserInfoResp other = userClient.getById(otherId);
         ChatMessageDO lastMessage = chatMessageService.getLastMessage(session.getId());

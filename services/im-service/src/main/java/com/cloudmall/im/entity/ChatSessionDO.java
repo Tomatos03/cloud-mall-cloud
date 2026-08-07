@@ -35,7 +35,7 @@ public class ChatSessionDO implements Serializable {
     private Long buyerId;
 
     /** 商家用户ID */
-    private Long agentId;
+    private Long merchantId;
 
     @TableField(fill = FieldFill.INSERT)
     private LocalDateTime createTime;
@@ -45,4 +45,14 @@ public class ChatSessionDO implements Serializable {
 
     @TableLogic
     private Boolean deleted;
+
+    /**
+     * 判断用户是否为会话成员。
+     *
+     * @param userId 用户ID
+     * @return true 表示用户是买家或商家成员
+     */
+    public boolean isMember(Long userId) {
+        return userId.equals(buyerId) || userId.equals(merchantId);
+    }
 }

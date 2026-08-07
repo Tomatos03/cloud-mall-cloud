@@ -22,14 +22,54 @@
 
 - Java code formatting is handled by the `jstyle` CLI using `jstyle.toml` (4-space indent, 110-char line width); run `jstyle format` to format the code.
 - 每次修改文件之后，必须在项目工作空间根目录执行一次格式化命令（`jstyle format`）。
-- Service interfaces are named `I*Service` (e.g., `IAuthService`); implementations drop the `I` prefix (`AuthService`).
-- Pagination methods are named `page*`.
-- Entities and DTOs use `@Data @Builder @NoArgsConstructor @AllArgsConstructor` and builder construction.
-- Use Hutool `CollUtil.isEmpty()`/`isNotEmpty()` for collection checks and `Wrappers.lambdaQuery()` for MyBatis-Plus queries.
-- 分页搜索请求一律继承 starter 提供的 `PageReq<T>`，配合 `@QueryCondition` 注解声明查询条件，禁止手写 `page`/`pageSize` 字段或手工构建分页条件。
-- 分页调用链保持简单：Service 只把 req 传给 Mapper 的 `default` 方法，条件由 Mapper 内部 `req.buildLambdaWrapper()` 构建，Service 层不接触 `Wrapper`。
-- `LIMIT` 子句一律使用 `LimitEnum`（常量或 `LimitEnum.of(n)`），禁止手写 `.last("LIMIT ...")` 字符串。
-- Full conventions live in `.pi/rules/code-style.md`.
+- 以下为精简规范，完整示例与说明见 `.pi/rules/code-style.md`（规范原文保留）。
+
+### 命名
+
+- Service 接口命名 `I*Service`（如 `IAuthService`），实现去掉 `I` 前缀（`AuthService`）。
+- 分页查询方法命名 `page*`，Controller 方法名与 Service 保持一致。
+
+### Controller
+
+- 方法参数 ≥ 4 个时必须封装为对应的 `xxxReq` 对象，禁止逐一声明 `@RequestParam`。
+
+### 集合判空
+
+- 使用 Hutool `CollectionUtil.isEmpty()` / `CollectionUtil.isNotEmpty()`，禁止手写 `== null || .isEmpty()`。
+
+### 实体与 DTO
+
+- 注解固定为 `@Data @Builder @NoArgsConstructor @AllArgsConstructor`，统一使用 builder 构建，禁止 `new` 后逐字段 setter 赋值。
+- 注解写在字段定义上方，禁止写在泛型参数旁（如 `List<@Valid Xxx>`）。
+- 允许纯谓词方法（`is*` / `has*` / `can*`）：只读自身字段与入参、无副作用、不依赖 mapper 或上下文；落位见「多行布尔条件」。
+
+### 注释
+
+- 注释用文字描述，禁止数字序号（`1.`、`2.`）标记步骤；禁止 `=` / `-` 分隔线注释；用 Javadoc、空行或提取私有方法组织代码。
+
+### MyBatis-Plus
+
+- 使用 `Wrappers.lambdaQuery()` / `Wrappers.lambdaUpdate()`，禁止 `new LambdaQueryWrapper<>()`；更新使用单参数版本 `update(Wrappers.lambdaUpdate()...)`。
+- 对 `status`、`enable` 等字段构造条件必须使用业务枚举（`*Enum`，如 `StatusEnum.ENABLED`），禁止魔数或布尔值。
+- 分页搜索请求继承 `PageReq<T>` + `@QueryCondition`，禁止手写 `page` / `pageSize`；Service 只把 req 传给 Mapper `default` 方法，条件由 `req.buildLambdaWrapper()` 构建，Service 层不接触 `Wrapper`。
+- `LIMIT` 一律使用 `LimitEnum`（`LimitEnum.of(n)` 或常量），禁止手写 `.last("LIMIT ...")`。
+- 含变量拼接的 `inSql` / `setSql` 必须先抽为方法体内紧邻使用处的 `final` 局部变量再传入；动态值优先用 `set(实体::getXxx, value)`。
+- Mapper 禁止注解脚本 SQL（`@Select` / `@Insert` / `@Update` / `@Delete` 及 Provider 系列），一律 `default` 方法 + Wrapper，逐行表达式用 `setSql`。
+
+### 查询与转换分离
+
+- Service 中查询（mapper）与转换（converter）分步书写，禁止嵌套在同一表达式；批量转换调用 converter 的 `toXxxList`，禁止手写 `stream().map(converter::toXxx)`。
+
+### 工具方法
+
+- 优先用 Hutool 替代三元表达式：`ObjectUtil.defaultIfNull`、`BooleanUtil.isTrue/isFalse`、`StrUtil.isBlank`。
+- 按 code 查找枚举用 `Arrays.stream().filter().findFirst().orElseThrow()`，code 为 null 或未命中抛 `IllegalArgumentException`。
+
+### 多行布尔条件
+
+- 换行续排（行首 `||` / `&&`）的复合条件必须抽取为具名谓词方法，禁止在 `if` / `Asserts` 中裸写。
+- 落位：实体字段 → 实体谓词（`uc.isOverdue()`）；Req/DTO 字段 → DTO 谓词；跨对象 → 主实体 + 上下文参数（`template.isNotStarted(now)`）；纯外部校验 → Service 私有方法。
+- 等价抽取不翻转语义（bug 单独修复）；正面命名，取反在调用处（`!uc.isOverdue()`）；纯函数无副作用。
 
 ## Testing Guidelines
 

@@ -7,6 +7,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import com.cloudmall.im.enums.MessageTypeEnum;
+
 /**
  * WebSocket 发送消息请求
  *
@@ -17,7 +19,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class MessageDTO {
+public class MessageReq {
 
     /** 会话ID */
     @NotNull(message = "会话ID不能为空")
@@ -27,7 +29,7 @@ public class MessageDTO {
     @NotBlank(message = "消息内容不能为空")
     private String content;
 
-    /** 消息类型（text/image） */
-    @NotBlank(message = "消息类型不能为空")
-    private String type;
+    /** 消息类型 */
+    @NotNull(message = "消息类型不能为空")
+    private MessageTypeEnum type;
 }

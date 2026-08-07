@@ -1,10 +1,10 @@
 package com.cloudmall.im.service;
 
-import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.service.IService;
 
+import com.cloudmall.common.model.CursorResult;
 import com.cloudmall.im.entity.ChatMessageDO;
-import com.cloudmall.im.model.req.MessagePageReq;
+import com.cloudmall.im.model.req.MessageCursorReq;
 import com.cloudmall.im.model.resp.MessageResp;
 
 /**
@@ -16,12 +16,12 @@ import com.cloudmall.im.model.resp.MessageResp;
 public interface IChatMessageService extends IService<ChatMessageDO> {
 
     /**
-     * 分页获取会话历史消息（倒序分页，第 1 页为最新一页）。
+     * 游标分页获取会话消息历史（ID 游标，第一页为最新消息）。
      *
-     * @param req 分页查询请求
-     * @return 消息分页数据
+     * @param req 游标查询请求
+     * @return 消息游标分页数据
      */
-    IPage<MessageResp> pageMessageHistory(MessagePageReq req);
+    CursorResult<MessageResp> cursorMessageHistory(MessageCursorReq req);
 
     /**
      * 获取会话最后一条消息。
@@ -39,4 +39,13 @@ public interface IChatMessageService extends IService<ChatMessageDO> {
      * @return 未读消息数
      */
     Long countUnread(Long sessionId, Long currentUserId);
+
+    /**
+     * 将会话中他人发送的消息标记为已读。
+     *
+     * @param sessionId 会话ID
+     * @param excludeSenderId 排除的发送者（当前用户自己）
+     * @return 更新的记录数
+     */
+    int markRead(Long sessionId, Long excludeSenderId);
 }

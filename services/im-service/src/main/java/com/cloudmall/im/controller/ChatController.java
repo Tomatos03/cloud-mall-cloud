@@ -12,9 +12,10 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.cloudmall.common.context.UserContextHolder;
+import com.cloudmall.common.model.CursorResult;
 import com.cloudmall.common.model.Result;
 import com.cloudmall.im.application.IChatAppService;
-import com.cloudmall.im.model.req.MessagePageReq;
+import com.cloudmall.im.model.req.MessageCursorReq;
 import com.cloudmall.im.model.req.SessionPageReq;
 import com.cloudmall.im.model.resp.ChatSessionResp;
 import com.cloudmall.im.model.resp.CreateSessionResp;
@@ -62,24 +63,20 @@ public class ChatController {
     }
 
     /**
-     * 获取指定会话的消息历史（第 1 页为最新一页）。
+     * 获取指定会话的消息历史（ID 游标分页，第一页为最新消息）。
      *
      * @param sessionId 会话ID
-     * @param req 分页请求
-     * @return 消息分页数据
+     * @param req 游标查询请求
+     * @return 消息游标分页数据
      */
     @GetMapping("/sessions/{sessionId}/messages")
-    public Result<IPage<MessageResp>> getMessageHistory(
+    public Result<CursorResult<MessageResp>> getMessageHistory(
             @PathVariable
             Long sessionId,
-            @Valid
-            SessionPageReq req
+            MessageCursorReq req
     ) {
-        MessagePageReq messageReq = new MessagePageReq();
-        messageReq.setSessionId(sessionId);
-        messageReq.setPage(req.getPage());
-        messageReq.setPageSize(req.getPageSize());
-        return Result.success(chatAppService.pageMessageHistory(UserContextHolder.getUserId(), messageReq));
+        req.setSessionId(sessionId);
+        return Result.success(chatAppService.cursorMessageHistory(UserContextHolder.getUserId(), req));
     }
 
     /**

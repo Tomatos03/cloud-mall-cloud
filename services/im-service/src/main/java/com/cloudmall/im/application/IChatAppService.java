@@ -2,7 +2,8 @@ package com.cloudmall.im.application;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
 
-import com.cloudmall.im.model.req.MessagePageReq;
+import com.cloudmall.common.model.CursorResult;
+import com.cloudmall.im.model.req.MessageCursorReq;
 import com.cloudmall.im.model.req.SessionPageReq;
 import com.cloudmall.im.model.resp.ChatSessionResp;
 import com.cloudmall.im.model.resp.CreateSessionResp;
@@ -35,13 +36,13 @@ public interface IChatAppService {
     IPage<ChatSessionResp> pageChatSession(Long currentUserId, SessionPageReq req);
 
     /**
-     * 分页获取会话消息历史（当前用户必须是会话成员）。
+     * 游标分页获取会话消息历史（当前用户必须是会话成员）。
      *
      * @param currentUserId 当前用户ID
-     * @param req 分页请求
-     * @return 消息分页数据
+     * @param req 游标查询请求
+     * @return 消息游标分页数据
      */
-    IPage<MessageResp> pageMessageHistory(Long currentUserId, MessagePageReq req);
+    CursorResult<MessageResp> cursorMessageHistory(Long currentUserId, MessageCursorReq req);
 
     /**
      * 将会话中对方发送的消息标记为已读。
