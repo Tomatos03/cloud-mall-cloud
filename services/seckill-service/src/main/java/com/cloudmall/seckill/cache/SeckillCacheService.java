@@ -2,12 +2,15 @@ package com.cloudmall.seckill.cache;
 
 import java.util.List;
 
+import cn.hutool.core.util.ObjectUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.data.redis.core.script.RedisScript;
 import org.springframework.stereotype.Service;
+
+import com.cloudmall.seckill.enums.SeckillPurchaseResultEnum;
 
 /**
  * 秒杀缓存服务
@@ -56,17 +59,27 @@ public class SeckillCacheService {
      * @param userId 用户 ID
      * @param quantity 购买数量（固定 1）
      * @param ttlSeconds 一人一单标记 TTL
-     * @return 1=成功，-2=已抢购，-3=库存不足
+     * @return 抢购结果枚举（SUCCESS=成功，REPEAT=已抢购，NO_STOCK=库存不足
+     *         ）
      */
-    public Long purchase(Long activityId, Long skuId, Long userId, int quantity, long ttlSeconds) {
+    public SeckillPurchaseResultEnum purchase(
+            Long activityId,
+            Long skuId,
+            Long userId,
+            int quantity,
+            long ttlSeconds
+    ) {
         String stockKey = STOCK_KEY_PREFIX + activityId + ":" + skuId;
         String userKey = USER_FLAG_PREFIX + activityId + ":" + skuId + ":" + userId;
 
-        return stringRedisTemplate.execute(
+        Long code = stringRedisTemplate.execute(
                 LUA_PURCHASE,
                 List.of(stockKey, userKey),
                 String.valueOf(quantity),
                 String.valueOf(ttlSeconds)
+        );
+        return SeckillPurchaseResultEnum.fromCode(
+                ObjectUtil.defaultIfNull(code, SeckillPurchaseResultEnum.REPEAT.getCode())
         );
     }
 

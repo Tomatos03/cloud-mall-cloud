@@ -25,6 +25,7 @@ import com.cloudmall.seckill.cache.SeckillRateLimitService;
 import com.cloudmall.seckill.entity.SeckillActivityDO;
 import com.cloudmall.seckill.entity.SeckillOrderDO;
 import com.cloudmall.seckill.entity.SeckillProductDO;
+import com.cloudmall.seckill.enums.SeckillPurchaseResultEnum;
 import com.cloudmall.seckill.handler.SeckillBlockHandlers;
 import com.cloudmall.seckill.service.ISeckillActivityService;
 import com.cloudmall.seckill.service.ISeckillOrderService;
@@ -46,12 +47,6 @@ public class SeckillOrderApp {
 
     /** 固定限购数量 */
     private static final int FIXED_QUANTITY = 1;
-
-    /** Lua 返回码：已抢购过 */
-    private static final long CODE_REPEAT = -2L;
-
-    /** Lua 返回码：库存不足 */
-    private static final long CODE_NO_STOCK = -3L;
 
     private final ISeckillActivityService activityService;
     private final ISeckillProductService productService;
@@ -94,16 +89,15 @@ public class SeckillOrderApp {
 
         // 一人一单标记 TTL 取到活动结束时刻
         long ttlSeconds = Math.max(Duration.between(now, activity.getEndTime()).getSeconds(), 1);
-        Long code = cacheService.purchase(
+        SeckillPurchaseResultEnum result = cacheService.purchase(
                 req.getActivityId(),
                 req.getSkuId(),
                 userId,
                 FIXED_QUANTITY,
                 ttlSeconds
         );
-        Asserts.notNull(code, BizError.SECKILL_REPEAT_ORDER);
-        Asserts.notEqual(code, CODE_REPEAT, BizError.SECKILL_REPEAT_ORDER);
-        Asserts.notEqual(code, CODE_NO_STOCK, BizError.SECKILL_STOCK_INSUFFICIENT);
+        Asserts.notEqual(result, SeckillPurchaseResultEnum.REPEAT, BizError.SECKILL_REPEAT_ORDER);
+        Asserts.notEqual(result, SeckillPurchaseResultEnum.NO_STOCK, BizError.SECKILL_STOCK_INSUFFICIENT);
 
         SeckillOrderDO order = SeckillOrderDO.builder()
                                              .activityId(req.getActivityId())
