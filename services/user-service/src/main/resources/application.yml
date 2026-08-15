@@ -4,6 +4,9 @@ server:
 spring:
   application:
     name: user-service
+  autoconfigure:
+    exclude:
+      - org.springframework.boot.autoconfigure.security.servlet.UserDetailsServiceAutoConfiguration
   cloud:
     nacos:
       discovery:

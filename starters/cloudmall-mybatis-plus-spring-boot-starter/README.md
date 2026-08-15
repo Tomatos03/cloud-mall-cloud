@@ -34,7 +34,7 @@ public class UserPageReq extends PageReq<UserDO> {
 
 ```java
 @Override
-public IPage<UserInfoResp> pageUserInfos(UserPageReq req) {
+public IPage<UserResp> pageUser(UserPageReq req) {
     return userMapper.selectPage(req, req.buildLambdaWrapper())
                      .convert(userConverter::toResp);
 }
@@ -219,7 +219,7 @@ public class GoodsListReq extends ConditionReq<GoodsDO> {
 
 ```java
 @Override
-public IPage<UserInfoResp> pageUserInfos(UserPageReq req) {
+public IPage<UserResp> pageUser(UserPageReq req) {
     var wrapper = req.buildLambdaWrapper();
     // enabled → deleted 值反转，注解无法直接表达
     if (req.getEnabled() != null) {
@@ -239,5 +239,3 @@ var wrapper = req.buildLambdaWrapper();
 wrapper.and(w -> w.eq(UserDO::getUsername, "admin")
                   .or().eq(UserDO::getPhone, phone));
 ```
-
-

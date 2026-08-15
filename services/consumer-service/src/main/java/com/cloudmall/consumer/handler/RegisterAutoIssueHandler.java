@@ -5,10 +5,10 @@ import java.util.Set;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
-import com.cloudmall.auth.api.event.UserRegisteredEvent;
 import com.cloudmall.coupon.api.client.InternalCouponClient;
 import com.cloudmall.coupon.api.request.AutoIssueRegisterReq;
 import com.cloudmall.rocketmq.handler.EventHandler;
+import com.cloudmall.user.api.event.UserRegisteredEvent;
 
 /**
  * 用户注册自动发券处理器。

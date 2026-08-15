@@ -83,16 +83,17 @@ docker compose -f docs/docker/compose.yaml restart nacos-init
 ```
 浏览器 / 客户端
   └─ http://localhost:80
-       ├─ /auth/**、/user/**、/coupon/**、/seckill/** ... → host.docker.internal:8079（宿主机 Gateway）→ 各微服务
-       ├─ /chat/**（REST + WebSocket）                    → host.docker.internal:8079（Gateway，含 WS 升级头）
-       └─ /（前端）                                       → host.docker.internal:5173（Vite Dev Server，含 HMR WS）
+       ├─ /users/**、/addresses/**、/product/**、/orders/** ...   → host.docker.internal:9000（宿主机 Gateway）→ 各微服务
+       ├─ /chat/**（REST + WebSocket）                            → host.docker.internal:9000（Gateway，含 WS 升级头）
+       └─ /（前端）                                               → host.docker.internal:9090（web 主商城 Vite Dev Server，含 HMR WS）
 ```
 
 `nginx/conf.d/default.conf` 中：
 
-- API 路由前缀与 Gateway 的 Nacos 路由定义对齐（auth、user、coupon、goods、category、banner、comment、favorites、unit、seckill、order、cart、skus）。
-- `/chat/` 单独配置 `Upgrade` / `Connection` 头以支持 WebSocket（`/chat/ws?token=xxx`）。
-- 根路径转发到 Vite Dev Server，`/` 与 HMR WebSocket 共用升级配置。
+- 前端三个应用（web/manager/merchant）共用同一套后端 API，API baseURL 统一为 `http://localhost`，由网关按路径前缀分发，无需应用前缀。
+- API 前缀与 Gateway 的 Nacos 路由定义对齐（users、roles、resources、addresses、shops、favorites、coupons、merchant、operator、product、categories、banners、brands、comments、units、skus、seckill、orders、carts、search）。
+- `/chat/` 单独配置 `Upgrade` / `Connection` 头以支持 WebSocket（`/chat/ws?token=xxx`），并延长 `proxy_read_timeout` 保证长连接不被掐断。
+- 根路径转发到 web 主商城 Vite Dev Server（9090），`/` 与 HMR WebSocket 共用升级配置。
 
 `host.docker.internal` 由 compose 的 `extra_hosts` 显式声明为 `host-gateway`，Linux 与 Docker Desktop 均可使用。
 
@@ -108,7 +109,11 @@ docker compose -f docs/docker/compose.yaml restart nacos-init
 
 ### nginx 转发不到宿主机服务
 
-确认宿主机服务确实在监听，且端口与 `nginx/conf.d/default.conf` 一致（当前 API 指向 8079；Gateway 若在 IDE 中以其他端口启动，如 `application.yml` 中的 9000，需统一两处端口）。
+确认宿主机服务确实在监听，且端口与 `nginx/conf.d/default.conf` 一致（当前 Gateway 指向 9000，即 `gateway/src/main/resources/application.yml` 中的 `server.port`；若 Gateway 在 IDE 中以其他端口启动，需统一两处端口）。
+
+### 修改网关路由/白名单后不生效
+
+`docs/nacos/config/gateway.yaml` 修改后需同步到 Nacos（`./docs/docker/sh/sync-nacos-config.sh localhost docs/nacos/config` 或重启 `nacos-init`）。路由随 Nacos 配置热刷新（`refreshEnabled=true`）；但**白名单绑定在 AuthProperties（无 @RefreshScope），必须重启 gateway 才生效**。
 
 ### 端口被占用
 

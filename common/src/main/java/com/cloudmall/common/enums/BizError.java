@@ -32,6 +32,7 @@ public enum BizError {
     NO_MANAGE_PERMISSION(10007, "无管理端访问权限"),
     NOT_MERCHANT(10008, "您还不是商家，请先申请入驻"),
     INVALID_CLIENT_TYPE(10009, "无效的客户端类型"),
+    USER_TYPE_MISMATCH(10010, "用户类型不匹配"),
 
     // 商品分类相关错误码 (20xxx)
     STOCK_NOT_ENOUGH(21000, "库存不足"),

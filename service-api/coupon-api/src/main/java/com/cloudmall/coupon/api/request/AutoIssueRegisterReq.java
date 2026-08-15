@@ -10,7 +10,7 @@ import lombok.NoArgsConstructor;
 /**
  * 注册自动发券请求
  * <p>
- * 内部接口，由消费服务消费 auth-service 注册事件后调用，按事件 ID 幂等发放新人券。
+ * 内部接口，由消费服务消费 user-service 注册事件后调用，按事件 ID 幂等发放新人券。
  *
  * @author : Tomatos
  */

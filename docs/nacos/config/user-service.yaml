@@ -1,3 +1,20 @@
 mybatis-plus:
   mapper-locations: classpath:mapper/**/*.xml
   type-aliases-package: com.cloudmall.user.entity
+
+xxl:
+  job:
+    executor:
+      app-name: user-service
+      port: 9992
+    auto-register:
+      enabled: true
+      jobs:
+        - handler: outboxPublish
+          desc: Outbox事件发布
+          schedule-type: FIX_DELAY
+          schedule-conf: "5"
+        - handler: outboxCleanup
+          desc: Outbox已发布记录清理
+          schedule-type: CRON
+          schedule-conf: "0 0 3 * * ?"

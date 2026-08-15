@@ -1,7 +1,7 @@
 auth:
   whitelist:
-    - /auth/sessions
-    - /auth/users
+    - POST:/users/login
+    - POST:/users/register
     - /coupons
     - /coupons/*
     - /search/**
@@ -62,17 +62,10 @@ spring:
       server:
         webflux:
           routes:
-            - id: auth-service
-              uri: lb://auth-service
-              predicates:
-                - Path=/auth/**
-              filters:
-                - StripPrefix=0
-
             - id: user-service
               uri: lb://user-service
               predicates:
-                - Path=/user/**,/favorites/**
+                - Path=/users/**,/roles/**,/resources/**,/addresses/**,/shops/**,/favorites/**
               filters:
                 - StripPrefix=0
 
@@ -86,7 +79,7 @@ spring:
             - id: product-service
               uri: lb://product-service
               predicates:
-                - Path=/product/**,/category/**,/banner/**,/comment/**,/unit/**,/skus/**
+                - Path=/product/**,/categories/**,/banners/**,/brands/**,/comments/**,/units/**,/skus/**
               filters:
                 - StripPrefix=0
 
@@ -98,7 +91,7 @@ spring:
             - id: order-service
               uri: lb://order-service
               predicates:
-                - Path=/order/**,/cart/**
+                - Path=/orders/**,/carts/**
               filters:
                 - StripPrefix=0
 

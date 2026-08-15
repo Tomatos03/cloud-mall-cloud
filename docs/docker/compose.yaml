@@ -29,13 +29,16 @@ services:
     image: nacos/nacos-server:v3.0.3
     environment:
       MODE: standalone
+      # 容器内网络接口枚举失败时（docker daemon 升级后常见，InetUtils.refreshIp NPE）
+      # 显式指定本机 IP 保证 standalone 启动成功
+      NACOS_IP: "127.0.0.1"
       NACOS_AUTH_TOKEN: "TR21j0whe7UlQPISxv+TiuU3M5CS8HPKXRCuxNlbQrw="
       NACOS_AUTH_IDENTITY_KEY: nacos
       NACOS_AUTH_IDENTITY_VALUE: nacos
     ports:
       - "8848:8848"
       - "9848:9848"
-      - "8080:8080"
+      # v3 控制台/API 均走 8848；8080 与本地 jenkins 冲突，不再映射
 
   nacos-init:
     container_name: cm-nacos-init

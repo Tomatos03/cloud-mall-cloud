@@ -4,8 +4,6 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import com.cloudmall.auth.api.client.UserClient;
-import com.cloudmall.auth.api.response.UserInfoResp;
 import com.cloudmall.common.enums.BizError;
 import com.cloudmall.common.model.CursorResult;
 import com.cloudmall.common.utils.Asserts;
@@ -19,7 +17,9 @@ import com.cloudmall.im.model.resp.MessageResp;
 import com.cloudmall.im.service.IChatMessageService;
 import com.cloudmall.im.service.IChatSessionService;
 import com.cloudmall.user.api.client.ShopClient;
+import com.cloudmall.user.api.client.UserClient;
 import com.cloudmall.user.api.response.ShopResp;
+import com.cloudmall.user.api.response.UserResp;
 
 /**
  * 聊天应用服务实现
@@ -100,7 +100,7 @@ public class ChatAppService implements IChatAppService {
         Long otherId = currentUserId.equals(session.getBuyerId())
                 ? session.getMerchantId()
                 : session.getBuyerId();
-        UserInfoResp other = userClient.getById(otherId);
+        UserResp other = userClient.getById(otherId);
         ChatMessageDO lastMessage = chatMessageService.getLastMessage(session.getId());
 
         return ChatSessionResp.builder()

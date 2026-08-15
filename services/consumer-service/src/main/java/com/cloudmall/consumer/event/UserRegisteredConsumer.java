@@ -5,15 +5,15 @@ import java.util.List;
 import org.apache.rocketmq.spring.annotation.RocketMQMessageListener;
 import org.springframework.stereotype.Component;
 
-import com.cloudmall.auth.api.event.UserRegisteredEvent;
 import com.cloudmall.rocketmq.consumer.AbstractMessageConsumer;
 import com.cloudmall.rocketmq.consumer.IMessageConsumeService;
 import com.cloudmall.rocketmq.handler.EventHandler;
+import com.cloudmall.user.api.event.UserRegisteredEvent;
 
 /**
  * 用户注册事件消费者
  * <p>
- * 消费 auth-service 发布的 UserRegistered，分发到注册自动发券处理器。
+ * 消费 user-service 发布的 UserRegistered，分发到注册自动发券处理器。
  *
  * @author : Tomatos
  */

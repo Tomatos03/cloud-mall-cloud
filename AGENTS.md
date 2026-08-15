@@ -5,7 +5,7 @@
 ## Project Structure & Module Organization
 
 - `common/` — shared utilities and cross-service domain objects.
-- `service-api/` — Feign client contracts, one module per service (`auth-api`, `order-api`, etc.).
+- `service-api/` — Feign client contracts, one module per service (`user-api`, `order-api`, etc.).
 - `gateway/` — Spring Cloud Gateway entry point for routing and authentication.
 - `starters/` — reusable Spring Boot starters (`cloudmall-jwt-spring-boot-starter`, `cloudmall-mybatis-plus-spring-boot-starter`, ...).
 - `services/` — business services (`order-service`, `product-service`, ...), layered per module: `controller`, `service`/`impl`, `mapper`, `entity`, `model/req` and `model/resp`, `convert` (MapStruct), `enums`, `application`, `job`.

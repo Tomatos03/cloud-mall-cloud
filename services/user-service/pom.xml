@@ -22,8 +22,32 @@
             <artifactId>cloudmall-common-spring-boot-starter</artifactId>
         </dependency>
         <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-security</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-validation</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.cloudmall</groupId>
+            <artifactId>cloudmall-jwt-spring-boot-starter</artifactId>
+        </dependency>
+        <dependency>
             <groupId>com.cloudmall</groupId>
             <artifactId>cloudmall-feign-spring-boot-starter</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.cloudmall</groupId>
+            <artifactId>cloudmall-outbox-spring-boot-starter</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.cloudmall</groupId>
+            <artifactId>cloudmall-rocketmq-spring-boot-starter</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.cloudmall</groupId>
+            <artifactId>cloudmall-xxl-job-spring-boot-starter</artifactId>
         </dependency>
         <dependency>
             <groupId>com.alibaba.cloud</groupId>
@@ -42,6 +66,10 @@
             <groupId>com.baomidou</groupId>
             <artifactId>mybatis-plus-spring-boot3-starter</artifactId>
             <version>${mybatis-plus-version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.cloudmall</groupId>
+            <artifactId>common</artifactId>
         </dependency>
         <dependency>
             <groupId>org.mapstruct</groupId>

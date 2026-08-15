@@ -36,7 +36,7 @@ import com.cloudmall.rocketmq.producer.MQProducer;
  * @author : Tomatos
  */
 @EnableConfigurationProperties(OutboxProperties.class)
-@AutoConfigurationPackage(basePackages = "com.cloudmall.outbox")
+@AutoConfigurationPackage(basePackages = "com.cloudmall.outbox.mapper")
 @AutoConfiguration(
         beforeName = "com.baomidou.mybatisplus.autoconfigure.MybatisPlusAutoConfiguration",
         afterName = "com.cloudmall.rocketmq.autoconfigure.MqAutoConfiguration"
@@ -44,14 +44,18 @@ import com.cloudmall.rocketmq.producer.MQProducer;
 public class OutboxAutoConfiguration {
 
     /**
-     * 创建事件追加器。
+     * 创建事件追加器。 <p>
+     * 注意：不能在此处使用
+     * {@code @ConditionalOnBean(OutboxMapper.class)}—— 条
+     * 件在配置类解析时评估，而 OutboxMapper 由 MyBatis 扫描器（BDRPP）在之后才
+     * 注册， 条件必然失败。改为直接构造器注入，实例化时扫描已完成。
      *
      * @param outboxMapper 通用 Outbox Mapper
      * @param environment 环境（读取 spring.application.name）
      * @return 事件追加器
      */
     @Bean
-    @ConditionalOnBean(OutboxMapper.class)
+    @SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection")
     public OutboxAppender outboxAppender(OutboxMapper outboxMapper, Environment environment) {
         return new OutboxAppender(outboxMapper, appName(environment));
     }
@@ -83,7 +87,7 @@ public class OutboxAutoConfiguration {
      * @return 通用分发器
      */
     @Bean
-    @ConditionalOnBean(OutboxMapper.class)
+    @SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection")
     public OutboxDispatcher outboxDispatcher(
             OutboxMapper outboxMapper,
             OutboxPublisher publisher,
