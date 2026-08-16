@@ -42,9 +42,9 @@ public class GatewaySecurityConfig {
      */
     @Bean
     public SecurityWebFilterChain filterChain(
-            ServerHttpSecurity http,
-            JwtAuthenticationWebFilter jwtAuthenticationWebFilter,
-            RbacReactiveAuthorizationManager rbacAuthorizationManager
+        ServerHttpSecurity http,
+        JwtAuthenticationWebFilter jwtAuthenticationWebFilter,
+        RbacReactiveAuthorizationManager rbacAuthorizationManager
     ) {
 
         return http

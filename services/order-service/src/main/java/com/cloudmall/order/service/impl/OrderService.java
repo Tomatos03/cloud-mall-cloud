@@ -289,9 +289,9 @@ public class OrderService implements IOrderService {
      * @param context 订单上下文
      */
     private void insertItemsForSubs(
-            Map<Long, OrderSubDO> subsByShop,
-            CouponOrderCalcResp calc,
-            CheckoutContext context
+        Map<Long, OrderSubDO> subsByShop,
+        CouponOrderCalcResp calc,
+        CheckoutContext context
     ) {
         for (CouponSubOrderResult subResult : calc.getSubOrders()) {
             OrderSubDO sub = Asserts.requireNonNull(subsByShop.get(subResult.getShopId()));
@@ -365,9 +365,9 @@ public class OrderService implements IOrderService {
      * @param usages 实际使用的券快照
      */
     private void insertOrderCoupons(
-            OrderDO order,
-            Map<Long, OrderSubDO> subsByShop,
-            List<CouponUsageResult> usages
+        OrderDO order,
+        Map<Long, OrderSubDO> subsByShop,
+        List<CouponUsageResult> usages
     ) {
         if (CollUtil.isEmpty(usages)) {
             return;

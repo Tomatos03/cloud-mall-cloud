@@ -25,8 +25,5 @@ public interface UserClient {
      * @return 用户信息
      */
     @GetMapping("/{id}")
-    UserResp getById(
-            @PathVariable("id")
-            Long id
-    );
+    UserResp getById(@PathVariable("id") Long id);
 }

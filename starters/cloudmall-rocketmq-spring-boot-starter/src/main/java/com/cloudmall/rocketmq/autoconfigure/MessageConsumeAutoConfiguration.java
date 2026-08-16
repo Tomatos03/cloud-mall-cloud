@@ -48,7 +48,7 @@ public class MessageConsumeAutoConfiguration {
      */
     @Bean
     public MapperFactoryBean<MessageConsumeRecordMapper> messageConsumeRecordMapper(
-            SqlSessionFactory sqlSessionFactory
+        SqlSessionFactory sqlSessionFactory
     ) {
         MapperFactoryBean<MessageConsumeRecordMapper> factoryBean = new MapperFactoryBean<>(
                 MessageConsumeRecordMapper.class
@@ -72,9 +72,9 @@ public class MessageConsumeAutoConfiguration {
     @Bean
     @ConditionalOnMissingBean(IMessageConsumeService.class)
     public MessageConsumeService messageConsumeService(
-            MessageConsumeRecordMapper messageConsumeRecordMapper,
-            MqProperties properties,
-            Environment environment
+        MessageConsumeRecordMapper messageConsumeRecordMapper,
+        MqProperties properties,
+        Environment environment
     ) {
         String consumer = StrUtil.blankToDefault(properties.getConsumer(), appName(environment));
         return new MessageConsumeService(messageConsumeRecordMapper, consumer);

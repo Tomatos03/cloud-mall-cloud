@@ -20,10 +20,7 @@ public interface ProductClient {
      * @return 处理结果
      */
     @GetMapping("/{id}")
-    ProductResp getById(
-            @PathVariable("id")
-            Long id
-    );
+    ProductResp getById(@PathVariable("id") Long id);
 
     /**
      * 获取相关数据。
@@ -32,10 +29,7 @@ public interface ProductClient {
      * @return 处理结果
      */
     @GetMapping("/spu/{spu}")
-    ProductResp getBySpu(
-            @PathVariable("spu")
-            String spu
-    );
+    ProductResp getBySpu(@PathVariable("spu") String spu);
 
     /**
      * 游标拉取商品搜索文档（供 search-service 全量重建 / 定时增量同步使用）。
@@ -45,10 +39,7 @@ public interface ProductClient {
      * @return 游标分页结果
      */
     @GetMapping("/docs")
-    CursorResult<ProductDocResp> cursorPage(
-            @SpringQueryMap
-            CursorReq req
-    );
+    CursorResult<ProductDocResp> cursorPage(@SpringQueryMap CursorReq req);
 
     /**
      * 按商品 ID 拉取单个搜索文档（供 search-service MQ 增量消费使用）。
@@ -57,8 +48,5 @@ public interface ProductClient {
      * @return 搜索文档，商品不存在返回 null
      */
     @GetMapping("/docs/{id}")
-    ProductDocResp searchDoc(
-            @PathVariable("id")
-            Long id
-    );
+    ProductDocResp searchDoc(@PathVariable("id") Long id);
 }

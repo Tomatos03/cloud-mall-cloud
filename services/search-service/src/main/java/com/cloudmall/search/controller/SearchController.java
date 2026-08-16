@@ -32,10 +32,7 @@ public class SearchController {
      * @return 搜索分页结果
      */
     @GetMapping("/products")
-    public Result<SearchResultResp> search(
-            @Valid
-            SearchProductReq req
-    ) {
+    public Result<SearchResultResp> search(@Valid SearchProductReq req) {
         return Result.success(searchService.search(req));
     }
 }

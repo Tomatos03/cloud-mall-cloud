@@ -57,11 +57,7 @@ public class MerchantCouponController {
      * @return 新模板 ID
      */
     @PostMapping
-    public Result<Long> create(
-            @RequestBody
-            @Valid
-            CouponReq req
-    ) {
+    public Result<Long> create(@RequestBody @Valid CouponReq req) {
         req.setOwnerType(CouponOwnerEnum.SHOP);
         return Result.success(couponTemplateApp.createDraft(req));
     }
@@ -74,13 +70,7 @@ public class MerchantCouponController {
      * @return 处理结果
      */
     @PutMapping("/{id}")
-    public Result<Void> update(
-            @PathVariable
-            Long id,
-            @RequestBody
-            @Valid
-            CouponReq req
-    ) {
+    public Result<Void> update(@PathVariable Long id, @RequestBody @Valid CouponReq req) {
         couponTemplateApp.updateDraft(id, req);
         return Result.success();
     }
@@ -92,10 +82,7 @@ public class MerchantCouponController {
      * @return 处理结果
      */
     @PostMapping("/{id}/publish")
-    public Result<Void> publish(
-            @PathVariable
-            Long id
-    ) {
+    public Result<Void> publish(@PathVariable Long id) {
         couponTemplateService.publish(id);
         return Result.success();
     }
@@ -107,10 +94,7 @@ public class MerchantCouponController {
      * @return 处理结果
      */
     @PostMapping("/{id}/pause")
-    public Result<Void> pause(
-            @PathVariable
-            Long id
-    ) {
+    public Result<Void> pause(@PathVariable Long id) {
         couponTemplateService.pause(id);
         return Result.success();
     }
@@ -122,10 +106,7 @@ public class MerchantCouponController {
      * @return 处理结果
      */
     @PostMapping("/{id}/end")
-    public Result<Void> end(
-            @PathVariable
-            Long id
-    ) {
+    public Result<Void> end(@PathVariable Long id) {
         couponTemplateService.end(id);
         return Result.success();
     }
@@ -137,10 +118,7 @@ public class MerchantCouponController {
      * @return 处理结果
      */
     @DeleteMapping("/{id}")
-    public Result<Void> delete(
-            @PathVariable
-            Long id
-    ) {
+    public Result<Void> delete(@PathVariable Long id) {
         couponTemplateService.deleteDraft(id);
         return Result.success();
     }
@@ -152,10 +130,7 @@ public class MerchantCouponController {
      * @return 模板统计
      */
     @GetMapping("/{id}/stats")
-    public Result<CouponStatsResp> stats(
-            @PathVariable
-            Long id
-    ) {
+    public Result<CouponStatsResp> stats(@PathVariable Long id) {
         return Result.success(couponStatsService.statsByCoupon(id));
     }
 }

@@ -35,11 +35,7 @@ public class InternalProductController {
      * @return 处理结果
      */
     @PostMapping("/reserve")
-    public Result<Void> reserve(
-            @RequestBody
-            @Valid
-            StockOpReq req
-    ) {
+    public Result<Void> reserve(@RequestBody @Valid StockOpReq req) {
         stockService.reserve(req);
         return Result.success();
     }
@@ -51,11 +47,7 @@ public class InternalProductController {
      * @return 处理结果
      */
     @PostMapping("/confirm")
-    public Result<Void> confirm(
-            @RequestBody
-            @Valid
-            StockConfirmReq req
-    ) {
+    public Result<Void> confirm(@RequestBody @Valid StockConfirmReq req) {
         stockService.confirm(req);
         return Result.success();
     }
@@ -67,11 +59,7 @@ public class InternalProductController {
      * @return 处理结果
      */
     @PostMapping("/release")
-    public Result<Void> release(
-            @RequestBody
-            @Valid
-            StockOpReq req
-    ) {
+    public Result<Void> release(@RequestBody @Valid StockOpReq req) {
         stockService.release(req);
         return Result.success();
     }
@@ -83,11 +71,7 @@ public class InternalProductController {
      * @return 处理结果
      */
     @PostMapping("/compensate")
-    public Result<Void> compensate(
-            @RequestBody
-            @Valid
-            StockOpReq req
-    ) {
+    public Result<Void> compensate(@RequestBody @Valid StockOpReq req) {
         stockService.compensate(req);
         return Result.success();
     }
@@ -99,11 +83,7 @@ public class InternalProductController {
      * @return 处理结果
      */
     @PostMapping("/release-by-order")
-    public Result<Void> releaseByOrder(
-            @RequestBody
-            @Valid
-            StockReleaseByOrderReq req
-    ) {
+    public Result<Void> releaseByOrder(@RequestBody @Valid StockReleaseByOrderReq req) {
         stockService.releaseByOrder(req.getOrderNo());
         return Result.success();
     }

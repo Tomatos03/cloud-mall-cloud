@@ -25,11 +25,11 @@ public enum CouponEnum {
     FULL_REDUCTION("FULL_REDUCTION", "满减") {
         @Override
         public BigDecimal calcDiscount(
-                BigDecimal applicableAmount,
-                BigDecimal discountAmount,
-                BigDecimal discountRate,
-                int scale,
-                RoundingMode rounding
+            BigDecimal applicableAmount,
+            BigDecimal discountAmount,
+            BigDecimal discountRate,
+            int scale,
+            RoundingMode rounding
         ) {
             return minAmount(applicableAmount, discountAmount);
         }
@@ -39,11 +39,11 @@ public enum CouponEnum {
     DISCOUNT("DISCOUNT", "折扣") {
         @Override
         public BigDecimal calcDiscount(
-                BigDecimal applicableAmount,
-                BigDecimal discountAmount,
-                BigDecimal discountRate,
-                int scale,
-                RoundingMode rounding
+            BigDecimal applicableAmount,
+            BigDecimal discountAmount,
+            BigDecimal discountRate,
+            int scale,
+            RoundingMode rounding
         ) {
             return applicableAmount.multiply(discountRate).setScale(scale, rounding);
         }
@@ -53,11 +53,11 @@ public enum CouponEnum {
     CASH("CASH", "立减") {
         @Override
         public BigDecimal calcDiscount(
-                BigDecimal applicableAmount,
-                BigDecimal discountAmount,
-                BigDecimal discountRate,
-                int scale,
-                RoundingMode rounding
+            BigDecimal applicableAmount,
+            BigDecimal discountAmount,
+            BigDecimal discountRate,
+            int scale,
+            RoundingMode rounding
         ) {
             return minAmount(applicableAmount, discountAmount);
         }
@@ -79,11 +79,11 @@ public enum CouponEnum {
      * @return 优惠金额
      */
     public abstract BigDecimal calcDiscount(
-            BigDecimal applicableAmount,
-            BigDecimal discountAmount,
-            BigDecimal discountRate,
-            int scale,
-            RoundingMode rounding
+        BigDecimal applicableAmount,
+        BigDecimal discountAmount,
+        BigDecimal discountRate,
+        int scale,
+        RoundingMode rounding
     );
     /**
      * 取适用金额与固定优惠金额的较小值（优惠不超过应付金额）。

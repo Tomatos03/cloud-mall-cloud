@@ -365,10 +365,10 @@ public class CouponTemplateService implements ICouponTemplateService {
      * @param categoryIds 分类 ID 列表
      */
     private void saveScope(
-            Long couponId,
-            CouponScopeEnum scopeType,
-            List<Long> productIds,
-            List<Long> categoryIds
+        Long couponId,
+        CouponScopeEnum scopeType,
+        List<Long> productIds,
+        List<Long> categoryIds
     ) {
         if (scopeType == CouponScopeEnum.PRODUCT) {
             couponProductMapper.deleteByCouponId(couponId);
@@ -442,12 +442,12 @@ public class CouponTemplateService implements ICouponTemplateService {
      * @param reason 原因
      */
     private void appendOperationLog(
-            CouponDO coupon,
-            CouponStatusEnum from,
-            CouponStatusEnum to,
-            CouponOperationActionEnum action,
-            String summary,
-            String reason
+        CouponDO coupon,
+        CouponStatusEnum from,
+        CouponStatusEnum to,
+        CouponOperationActionEnum action,
+        String summary,
+        String reason
     ) {
         couponOperationLogMapper.insert(
                 couponOperationLogConverter.toLog(coupon, from, to, action, summary, reason)

@@ -26,10 +26,7 @@ public interface InternalSeckillClient {
      * @param req 确认请求
      */
     @PostMapping("/confirm-paid")
-    void confirmPaid(
-            @RequestBody
-            SeckillConfirmPaidReq req
-    );
+    void confirmPaid(@RequestBody SeckillConfirmPaidReq req);
 
     /**
      * 按真实订单号查询秒杀单。
@@ -38,10 +35,7 @@ public interface InternalSeckillClient {
      * @return 秒杀单响应
      */
     @GetMapping("/orders/{orderNo}")
-    SeckillOrderResp getByOrderNo(
-            @PathVariable("orderNo")
-            String orderNo
-    );
+    SeckillOrderResp getByOrderNo(@PathVariable("orderNo") String orderNo);
 
     /**
      * 校验活动下的秒杀商品是否已审核通过。
@@ -52,9 +46,9 @@ public interface InternalSeckillClient {
      */
     @GetMapping("/activities/{activityId}/products/{productId}/verification")
     Boolean verifyProduct(
-            @PathVariable("activityId")
-            Long activityId,
-            @PathVariable("productId")
-            Long productId
+        @PathVariable("activityId")
+        Long activityId,
+        @PathVariable("productId")
+        Long productId
     );
 }

@@ -50,10 +50,7 @@ public class CategoryController {
      * @return 处理结果
      */
     @GetMapping("/{id}")
-    public Result<CategoryResp> getById(
-            @PathVariable
-            Long id
-    ) {
+    public Result<CategoryResp> getById(@PathVariable Long id) {
         return Result.success(categoryService.getById(id));
     }
 
@@ -64,10 +61,7 @@ public class CategoryController {
      * @return 分类响应列表
      */
     @PostMapping("/batch")
-    public Result<List<CategoryResp>> batch(
-            @RequestBody
-            List<Long> ids
-    ) {
+    public Result<List<CategoryResp>> batch(@RequestBody List<Long> ids) {
         return Result.success(categoryService.getByIds(ids));
     }
 
@@ -78,10 +72,7 @@ public class CategoryController {
      * @return 处理结果
      */
     @PostMapping
-    public Result<Void> create(
-            @RequestBody
-            CategoryCreateReq req
-    ) {
+    public Result<Void> create(@RequestBody CategoryCreateReq req) {
         categoryService.create(req);
         return Result.success();
     }

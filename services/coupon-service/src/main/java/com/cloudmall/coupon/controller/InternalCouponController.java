@@ -44,11 +44,7 @@ public class InternalCouponController {
      * @return 处理结果
      */
     @PostMapping("/auto-issue-register")
-    public Result<Void> autoIssueForRegister(
-            @RequestBody
-            @Valid
-            AutoIssueRegisterReq req
-    ) {
+    public Result<Void> autoIssueForRegister(@RequestBody @Valid AutoIssueRegisterReq req) {
         userCouponService.autoIssueForRegister(req.getUserId(), req.getEventId());
         return Result.success();
     }
@@ -60,11 +56,7 @@ public class InternalCouponController {
      * @return 优惠快照
      */
     @PostMapping("/quote")
-    public Result<CouponOrderCalcResp> quote(
-            @RequestBody
-            @Valid
-            CouponOrderQuoteReq req
-    ) {
+    public Result<CouponOrderCalcResp> quote(@RequestBody @Valid CouponOrderQuoteReq req) {
         return Result.success(couponOrderService.quote(req));
     }
 
@@ -75,11 +67,7 @@ public class InternalCouponController {
      * @return 优惠快照
      */
     @PostMapping("/lock")
-    public Result<CouponOrderCalcResp> lock(
-            @RequestBody
-            @Valid
-            CouponOrderLockReq req
-    ) {
+    public Result<CouponOrderCalcResp> lock(@RequestBody @Valid CouponOrderLockReq req) {
         return Result.success(couponOrderService.lock(req));
     }
 
@@ -90,11 +78,7 @@ public class InternalCouponController {
      * @return 处理结果
      */
     @PostMapping("/commit")
-    public Result<Void> commit(
-            @RequestBody
-            @Valid
-            CouponOrderCommitReq req
-    ) {
+    public Result<Void> commit(@RequestBody @Valid CouponOrderCommitReq req) {
         couponOrderService.commit(req);
         return Result.success();
     }
@@ -106,11 +90,7 @@ public class InternalCouponController {
      * @return 处理结果
      */
     @PostMapping("/release")
-    public Result<Void> release(
-            @RequestBody
-            @Valid
-            CouponOrderReleaseReq req
-    ) {
+    public Result<Void> release(@RequestBody @Valid CouponOrderReleaseReq req) {
         couponOrderService.release(req);
         return Result.success();
     }
@@ -122,11 +102,7 @@ public class InternalCouponController {
      * @return 处理结果
      */
     @PostMapping("/revert")
-    public Result<Void> revert(
-            @RequestBody
-            @Valid
-            CouponOrderRevertReq req
-    ) {
+    public Result<Void> revert(@RequestBody @Valid CouponOrderRevertReq req) {
         couponOrderService.revert(req);
         return Result.success();
     }
@@ -138,11 +114,7 @@ public class InternalCouponController {
      * @return 处理结果
      */
     @PostMapping("/release-by-order")
-    public Result<Void> releaseByOrder(
-            @RequestBody
-            @Valid
-            CouponOrderReleaseByOrderReq req
-    ) {
+    public Result<Void> releaseByOrder(@RequestBody @Valid CouponOrderReleaseByOrderReq req) {
         couponOrderService.releaseByOrder(req);
         return Result.success();
     }
@@ -154,11 +126,7 @@ public class InternalCouponController {
      * @return 处理结果
      */
     @PostMapping("/commit-by-order")
-    public Result<Void> commitByOrder(
-            @RequestBody
-            @Valid
-            CouponOrderCommitByOrderReq req
-    ) {
+    public Result<Void> commitByOrder(@RequestBody @Valid CouponOrderCommitByOrderReq req) {
         couponOrderService.commitByOrder(req);
         return Result.success();
     }
@@ -170,11 +138,7 @@ public class InternalCouponController {
      * @return 处理结果
      */
     @PostMapping("/revert-by-order")
-    public Result<Void> revertByOrder(
-            @RequestBody
-            @Valid
-            CouponOrderRevertByOrderReq req
-    ) {
+    public Result<Void> revertByOrder(@RequestBody @Valid CouponOrderRevertByOrderReq req) {
         couponOrderService.revertByOrder(req);
         return Result.success();
     }

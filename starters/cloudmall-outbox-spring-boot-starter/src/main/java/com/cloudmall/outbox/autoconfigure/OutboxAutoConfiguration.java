@@ -89,10 +89,10 @@ public class OutboxAutoConfiguration {
     @Bean
     @SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection")
     public OutboxDispatcher outboxDispatcher(
-            OutboxMapper outboxMapper,
-            OutboxPublisher publisher,
-            OutboxProperties properties,
-            Environment environment
+        OutboxMapper outboxMapper,
+        OutboxPublisher publisher,
+        OutboxProperties properties,
+        Environment environment
     ) {
         return new OutboxDispatcher(outboxMapper, publisher, appName(environment), properties);
     }

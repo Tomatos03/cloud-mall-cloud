@@ -39,11 +39,7 @@ public class ChatController {
      * @return SSE 事件流
      */
     @PostMapping(produces = MediaType.TEXT_EVENT_STREAM_VALUE)
-    public Flux<ChatResp> chat(
-            @Valid
-            @RequestBody
-            ChatReq req
-    ) {
+    public Flux<ChatResp> chat(@Valid @RequestBody ChatReq req) {
         return chatService.chat(req);
     }
 
@@ -54,11 +50,7 @@ public class ChatController {
      * @return AI 回复的完整文本内容
      */
     @PostMapping("/text")
-    public Result<String> chatText(
-            @Valid
-            @RequestBody
-            ChatReq req
-    ) {
+    public Result<String> chatText(@Valid @RequestBody ChatReq req) {
         return Result.success(chatService.chatText(req));
     }
 
@@ -81,10 +73,7 @@ public class ChatController {
      * @return 处理结果
      */
     @PostMapping("/{sessionId}/stop")
-    public Result<Void> stop(
-            @PathVariable
-            String sessionId
-    ) {
+    public Result<Void> stop(@PathVariable String sessionId) {
         chatService.stop(sessionId);
         return Result.success();
     }

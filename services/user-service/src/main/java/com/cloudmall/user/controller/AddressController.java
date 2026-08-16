@@ -49,12 +49,7 @@ public class AddressController {
      * @return 处理结果，不存在或不属于该用户时返回 null
      */
     @GetMapping("/{id}")
-    public Result<AddressResp> getById(
-            @PathVariable
-            Long id,
-            @RequestParam(required = false)
-            Long userId
-    ) {
+    public Result<AddressResp> getById(@PathVariable Long id, @RequestParam(required = false) Long userId) {
         Long ownerId = ObjectUtil.defaultIfNull(userId, UserContextHolder.getUserId());
         return Result.success(addressService.getById(id, ownerId));
     }
@@ -66,11 +61,7 @@ public class AddressController {
      * @return 处理结果
      */
     @PostMapping
-    public Result<Long> create(
-            @RequestBody
-            @Valid
-            CreateReq request
-    ) {
+    public Result<Long> create(@RequestBody @Valid CreateReq request) {
         return Result.success(addressService.create(request, UserContextHolder.getUserId()));
     }
 
@@ -82,13 +73,7 @@ public class AddressController {
      * @return 处理结果
      */
     @PutMapping("/{id}")
-    public Result<Void> update(
-            @PathVariable
-            Long id,
-            @RequestBody
-            @Valid
-            AddressUpdateReq request
-    ) {
+    public Result<Void> update(@PathVariable Long id, @RequestBody @Valid AddressUpdateReq request) {
         request.setId(id);
         addressService.update(request);
         return Result.success(null);
@@ -101,10 +86,7 @@ public class AddressController {
      * @return 处理结果
      */
     @DeleteMapping
-    public Result<Void> delete(
-            @RequestBody
-            List<Long> ids
-    ) {
+    public Result<Void> delete(@RequestBody List<Long> ids) {
         addressService.delete(ids);
         return Result.success(null);
     }

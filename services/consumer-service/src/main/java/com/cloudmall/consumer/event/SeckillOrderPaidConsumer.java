@@ -35,8 +35,8 @@ public class SeckillOrderPaidConsumer extends AbstractMessageConsumer<SeckillPai
      * @param handlers 秒杀支付事件处理器
      */
     public SeckillOrderPaidConsumer(
-            IMessageConsumeService consumeService,
-            List<EventHandler<SeckillPaidEvent>> handlers
+        IMessageConsumeService consumeService,
+        List<EventHandler<SeckillPaidEvent>> handlers
     ) {
         super(consumeService, handlers, SeckillPaidEvent.class);
     }

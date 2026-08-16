@@ -276,9 +276,9 @@ public class CouponOrderService implements ICouponOrderService {
      * @return 计算券列表
      */
     private List<CalcCoupon> resolveSelectedShops(
-            Long userId,
-            Map<Long, Long> shopUserCouponIds,
-            List<CouponCalcItem> items
+        Long userId,
+        Map<Long, Long> shopUserCouponIds,
+        List<CouponCalcItem> items
     ) {
         if (CollUtil.isEmpty(shopUserCouponIds)) {
             return Collections.emptyList();
@@ -376,10 +376,10 @@ public class CouponOrderService implements ICouponOrderService {
      * @return 候选券
      */
     private CouponCandidateResp toCandidate(
-            UserCouponDO uc,
-            CalcCoupon calcCoupon,
-            BigDecimal applicableAmount,
-            boolean valid
+        UserCouponDO uc,
+        CalcCoupon calcCoupon,
+        BigDecimal applicableAmount,
+        boolean valid
     ) {
         String invalidReason = null;
         if (!valid) {
@@ -415,9 +415,9 @@ public class CouponOrderService implements ICouponOrderService {
      * @return 推荐 userCouponId 列表（可空表示不使用券）
      */
     private List<Long> recommend(
-            List<CalcCoupon> validPlatform,
-            Map<Long, List<CalcCoupon>> validShopByShop,
-            List<CouponCalcItem> items
+        List<CalcCoupon> validPlatform,
+        Map<Long, List<CalcCoupon>> validShopByShop,
+        List<CouponCalcItem> items
     ) {
         List<List<CalcCoupon>> layers = buildLayers(validPlatform, validShopByShop);
         BigDecimal bestPayable = sumLineAmount(items);
@@ -464,8 +464,8 @@ public class CouponOrderService implements ICouponOrderService {
      * @return 推荐组合层级，每层首元素为 null（表示该层不使用券）
      */
     private List<List<CalcCoupon>> buildLayers(
-            List<CalcCoupon> validPlatform,
-            Map<Long, List<CalcCoupon>> validShopByShop
+        List<CalcCoupon> validPlatform,
+        Map<Long, List<CalcCoupon>> validShopByShop
     ) {
         List<List<CalcCoupon>> layers = new ArrayList<>();
         layers.add(withNullOption(validPlatform));

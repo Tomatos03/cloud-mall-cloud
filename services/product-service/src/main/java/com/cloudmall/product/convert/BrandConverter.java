@@ -63,9 +63,5 @@ public interface BrandConverter {
     @Mapping(target = "createTime", ignore = true)
     @Mapping(target = "updateTime", ignore = true)
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
-    void merge(
-            @MappingTarget
-            BrandDO brand,
-            BrandUpdateReq req
-    );
+    void merge(@MappingTarget BrandDO brand, BrandUpdateReq req);
 }

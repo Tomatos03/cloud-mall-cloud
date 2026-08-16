@@ -124,11 +124,11 @@ public class StockService implements IStockService {
      * @param deduct true 表示扣减，false 表示回补
      */
     private void applyOp(
-            StockOpReq req,
-            StockReserveItem item,
-            StockOpTypeEnum opType,
-            StockOpSourceEnum source,
-            boolean deduct
+        StockOpReq req,
+        StockReserveItem item,
+        StockOpTypeEnum opType,
+        StockOpSourceEnum source,
+        boolean deduct
     ) {
         if (opExists(req.getOrderNo(), item.getSkuId(), opType)) {
             return;
@@ -216,17 +216,17 @@ public class StockService implements IStockService {
      * @return 流水实体（已处理返回 null）
      */
     private StockOpLogDO insertLog(
-            String orderNo,
-            Long skuId,
-            Long productId,
-            Long shopId,
-            StockOpTypeEnum opType,
-            Integer quantity,
-            Integer beforeStock,
-            Integer afterStock,
-            StockOpSourceEnum source,
-            Long operatorId,
-            String reason
+        String orderNo,
+        Long skuId,
+        Long productId,
+        Long shopId,
+        StockOpTypeEnum opType,
+        Integer quantity,
+        Integer beforeStock,
+        Integer afterStock,
+        StockOpSourceEnum source,
+        Long operatorId,
+        String reason
     ) {
         StockOpLogDO log = stockOpConverter.toLog(
                 orderNo,

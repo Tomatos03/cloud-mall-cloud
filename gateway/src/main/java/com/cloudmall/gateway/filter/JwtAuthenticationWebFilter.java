@@ -93,9 +93,9 @@ public class JwtAuthenticationWebFilter implements WebFilter {
      * @return 处理完成的 Mono
      */
     private Mono<Void> handleAuthenticated(
-            ServerWebExchange exchange,
-            WebFilterChain chain,
-            UserContext userContext
+        ServerWebExchange exchange,
+        WebFilterChain chain,
+        UserContext userContext
     ) {
 
         List<SimpleGrantedAuthority> authorities = buildAuthorities(userContext);

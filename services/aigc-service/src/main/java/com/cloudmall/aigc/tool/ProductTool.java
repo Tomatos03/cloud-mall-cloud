@@ -33,9 +33,9 @@ public class ProductTool {
      */
     @Tool(description = "根据商品SPU编号查询商品详情，返回商品名称、价格、分类、品牌、描述等完整信息")
     public ProductResp getProductBySpu(
-            @ToolParam(description = "商品SPU编号")
-            String spu,
-            ToolContext toolContext
+        @ToolParam(description = "商品SPU编号")
+        String spu,
+        ToolContext toolContext
     ) {
         ProductResp product = productClient.getBySpu(spu);
         if (product == null) {

@@ -94,10 +94,10 @@ public class GatewayExceptionHandler implements ErrorWebExceptionHandler {
      * @return 处理结果
      */
     private Mono<Void> writeJsonResponse(
-            ServerHttpResponse response,
-            HttpStatus httpStatus,
-            int businessCode,
-            String message
+        ServerHttpResponse response,
+        HttpStatus httpStatus,
+        int businessCode,
+        String message
     ) {
         response.setStatusCode(httpStatus);
         response.getHeaders().setContentType(MediaType.APPLICATION_JSON);

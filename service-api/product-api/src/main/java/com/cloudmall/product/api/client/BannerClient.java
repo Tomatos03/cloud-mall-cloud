@@ -33,9 +33,9 @@ public interface BannerClient {
      */
     @GetMapping("/page")
     Page<BannerResp> page(
-            @RequestParam(value = "current", defaultValue = "1")
-            long current,
-            @RequestParam(value = "size", defaultValue = "10")
-            long size
+        @RequestParam(value = "current", defaultValue = "1")
+        long current,
+        @RequestParam(value = "size", defaultValue = "10")
+        long size
     );
 }

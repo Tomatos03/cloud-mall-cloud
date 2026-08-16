@@ -64,11 +64,11 @@ public interface CouponOperationLogConverter {
             expression = "java(com.cloudmall.common.context.UserContextHolder.isMerchant() ? com.cloudmall.coupon.enums.CouponOperatorEnum.MERCHANT : com.cloudmall.coupon.enums.CouponOperatorEnum.OPERATOR)"
     )
     CouponOperationLogDO toLog(
-            CouponDO coupon,
-            CouponStatusEnum from,
-            CouponStatusEnum to,
-            CouponOperationActionEnum action,
-            String summary,
-            String reason
+        CouponDO coupon,
+        CouponStatusEnum from,
+        CouponStatusEnum to,
+        CouponOperationActionEnum action,
+        String summary,
+        String reason
     );
 }

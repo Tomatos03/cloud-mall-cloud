@@ -43,10 +43,7 @@ public class SessionController {
      * @return 会话信息（含 sessionId、标题、描述、热门话题列表）
      */
     @PostMapping
-    public Result<CreateSessionResp> createSession(
-            @RequestParam(defaultValue = "3")
-            int topicCount
-    ) {
+    public Result<CreateSessionResp> createSession(@RequestParam(defaultValue = "3") int topicCount) {
         return Result.success(sessionService.createSession(topicCount));
     }
 
@@ -57,10 +54,7 @@ public class SessionController {
      * @return 热门话题列表
      */
     @GetMapping("/hot-topics")
-    public Result<List<HotTopicResp>> getHotTopics(
-            @RequestParam(defaultValue = "3")
-            int topicCount
-    ) {
+    public Result<List<HotTopicResp>> getHotTopics(@RequestParam(defaultValue = "3") int topicCount) {
         return Result.success(sessionService.getHotTopics(topicCount));
     }
 
@@ -71,10 +65,7 @@ public class SessionController {
      * @return 消息列表（仅 USER 和 ASSISTANT 类型）
      */
     @GetMapping("/{sessionId}/messages")
-    public Result<List<ChatMessageResp>> getSessionMessages(
-            @PathVariable
-            String sessionId
-    ) {
+    public Result<List<ChatMessageResp>> getSessionMessages(@PathVariable String sessionId) {
         return Result.success(sessionService.getSessionMessages(sessionId));
     }
 
@@ -95,10 +86,7 @@ public class SessionController {
      * @return 操作结果
      */
     @DeleteMapping("/{sessionId}")
-    public Result<Void> deleteSession(
-            @PathVariable
-            String sessionId
-    ) {
+    public Result<Void> deleteSession(@PathVariable String sessionId) {
         sessionService.deleteSession(sessionId);
         return Result.success();
     }
@@ -112,11 +100,11 @@ public class SessionController {
      */
     @PatchMapping("/{sessionId}")
     public Result<Void> updateSession(
-            @PathVariable
-            String sessionId,
-            @Valid
-            @RequestBody
-            SessionUpdateReq req
+        @PathVariable
+        String sessionId,
+        @Valid
+        @RequestBody
+        SessionUpdateReq req
     ) {
         sessionService.updateSessionTitle(sessionId, req.getTitle());
         return Result.success();

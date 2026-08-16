@@ -24,10 +24,7 @@ public interface InternalSearchClient {
      * @param doc 搜索文档
      */
     @PostMapping("/upsert")
-    void upsert(
-            @RequestBody
-            ProductDocResp doc
-    );
+    void upsert(@RequestBody ProductDocResp doc);
 
     /**
      * 按商品 ID 删除搜索文档（幂等，文档不存在时忽略）。
@@ -35,8 +32,5 @@ public interface InternalSearchClient {
      * @param id 商品 ID
      */
     @PostMapping("/delete/{id}")
-    void deleteById(
-            @PathVariable("id")
-            Long id
-    );
+    void deleteById(@PathVariable("id") Long id);
 }

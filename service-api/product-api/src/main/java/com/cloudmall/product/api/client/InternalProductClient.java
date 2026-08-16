@@ -25,10 +25,7 @@ public interface InternalProductClient {
      * @param req 预占请求
      */
     @PostMapping("/reserve")
-    void reserve(
-            @RequestBody
-            StockOpReq req
-    );
+    void reserve(@RequestBody StockOpReq req);
 
     /**
      * 支付确认（不改库存）。
@@ -36,10 +33,7 @@ public interface InternalProductClient {
      * @param req 确认请求
      */
     @PostMapping("/confirm")
-    void confirm(
-            @RequestBody
-            StockConfirmReq req
-    );
+    void confirm(@RequestBody StockConfirmReq req);
 
     /**
      * 释放库存。
@@ -47,10 +41,7 @@ public interface InternalProductClient {
      * @param req 释放请求
      */
     @PostMapping("/release")
-    void release(
-            @RequestBody
-            StockOpReq req
-    );
+    void release(@RequestBody StockOpReq req);
 
     /**
      * 补偿释放。
@@ -58,10 +49,7 @@ public interface InternalProductClient {
      * @param req 补偿请求
      */
     @PostMapping("/compensate")
-    void compensate(
-            @RequestBody
-            StockOpReq req
-    );
+    void compensate(@RequestBody StockOpReq req);
 
     /**
      * 按订单释放全部预占库存。
@@ -69,8 +57,5 @@ public interface InternalProductClient {
      * @param req 释放请求
      */
     @PostMapping("/release-by-order")
-    void releaseByOrder(
-            @RequestBody
-            StockReleaseByOrderReq req
-    );
+    void releaseByOrder(@RequestBody StockReleaseByOrderReq req);
 }

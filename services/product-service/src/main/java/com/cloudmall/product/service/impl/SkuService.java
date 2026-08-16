@@ -206,9 +206,9 @@ public class SkuService implements ISkuService {
      * @return 规格描述，如 "红色；XL"
      */
     private String buildSpecDesc(
-            List<ProductSkuSpecDO> relations,
-            Map<Long, ProductSpecValueDO> valueMap,
-            Map<Long, ProductSpecGroupDO> groupMap
+        List<ProductSkuSpecDO> relations,
+        Map<Long, ProductSpecValueDO> valueMap,
+        Map<Long, ProductSpecGroupDO> groupMap
     ) {
         return relations
                 .stream()
@@ -232,9 +232,9 @@ public class SkuService implements ISkuService {
      * @return 规格组排序值，数据缺失时按 0 处理
      */
     private int specValueSort(
-            ProductSkuSpecDO relation,
-            Map<Long, ProductSpecValueDO> valueMap,
-            Map<Long, ProductSpecGroupDO> groupMap
+        ProductSkuSpecDO relation,
+        Map<Long, ProductSpecValueDO> valueMap,
+        Map<Long, ProductSpecGroupDO> groupMap
     ) {
         ProductSpecValueDO value = valueMap.get(relation.getSpecValueId());
         if (value == null) {

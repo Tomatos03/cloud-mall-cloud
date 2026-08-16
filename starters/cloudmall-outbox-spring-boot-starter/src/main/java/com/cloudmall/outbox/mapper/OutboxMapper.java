@@ -73,11 +73,11 @@ public interface OutboxMapper extends BaseMapper<OutboxDO> {
      * @return 影响行数
      */
     default int markFailed(
-            Long id,
-            Integer retryCount,
-            LocalDateTime nextRetryTime,
-            String lastError,
-            OutboxPublishStatusEnum status
+        Long id,
+        Integer retryCount,
+        LocalDateTime nextRetryTime,
+        String lastError,
+        OutboxPublishStatusEnum status
     ) {
         return update(
                 Wrappers.<OutboxDO>lambdaUpdate()

@@ -39,13 +39,13 @@ public abstract class AbstractAgent implements Agent {
      * @param messageChatMemoryAdvisor 聊天记忆顾问
      */
     protected AbstractAgent(
-            AgentPromptLoader promptLoader,
-            ChatClient.Builder chatClientBuilder,
-            GeneratingSessionManager generatingSessionManager,
-            ChatMemoryRepository chatMemoryRepository,
-            ISessionService sessionService,
-            AgentToolRegistry toolRegistry,
-            MessageChatMemoryAdvisor messageChatMemoryAdvisor
+        AgentPromptLoader promptLoader,
+        ChatClient.Builder chatClientBuilder,
+        GeneratingSessionManager generatingSessionManager,
+        ChatMemoryRepository chatMemoryRepository,
+        ISessionService sessionService,
+        AgentToolRegistry toolRegistry,
+        MessageChatMemoryAdvisor messageChatMemoryAdvisor
     ) {
         this.generatingSessionManager = generatingSessionManager;
         this.chatMemoryRepository = chatMemoryRepository;

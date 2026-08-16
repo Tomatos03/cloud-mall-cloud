@@ -46,9 +46,5 @@ public interface ResourceConverter {
     @Mapping(target = "deleted", ignore = true)
     @Mapping(target = "createTime", ignore = true)
     @Mapping(target = "updateTime", ignore = true)
-    void updateEntity(
-            ResourceReq req,
-            @MappingTarget
-            ResourceDO existing
-    );
+    void updateEntity(ResourceReq req, @MappingTarget ResourceDO existing);
 }

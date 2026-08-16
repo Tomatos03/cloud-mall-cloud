@@ -120,9 +120,9 @@ public class SeckillOrderApp {
     }
 
     private static SeckillOrderDO buildSeckillOrder(
-            SeckillPurchaseReq req,
-            SeckillProductDO product,
-            Long userId
+        SeckillPurchaseReq req,
+        SeckillProductDO product,
+        Long userId
     ) {
         return SeckillOrderDO.builder()
                              .orderNo("SK" + IdUtil.getSnowflakeNextIdStr())

@@ -39,11 +39,7 @@ public class InternalOrderController {
      * @return 处理结果
      */
     @PostMapping("/paid")
-    public Result<Void> paid(
-            @RequestBody
-            @Valid
-            OrderEventReq req
-    ) {
+    public Result<Void> paid(@RequestBody @Valid OrderEventReq req) {
         orderEventService.handlePaid(req.getOrderNo(), req.getPayAmount());
         return Result.success();
     }
@@ -55,11 +51,7 @@ public class InternalOrderController {
      * @return 处理结果
      */
     @PostMapping("/timeout")
-    public Result<Void> timeout(
-            @RequestBody
-            @Valid
-            OrderEventReq req
-    ) {
+    public Result<Void> timeout(@RequestBody @Valid OrderEventReq req) {
         orderEventService.handleTimeout(req.getOrderNo());
         return Result.success();
     }
@@ -71,11 +63,7 @@ public class InternalOrderController {
      * @return 处理结果
      */
     @PostMapping("/cancel")
-    public Result<Void> cancel(
-            @RequestBody
-            @Valid
-            OrderEventReq req
-    ) {
+    public Result<Void> cancel(@RequestBody @Valid OrderEventReq req) {
         orderEventService.handleCancel(req.getOrderNo());
         return Result.success();
     }
@@ -87,11 +75,7 @@ public class InternalOrderController {
      * @return 处理结果
      */
     @PostMapping("/refund")
-    public Result<Void> refund(
-            @RequestBody
-            @Valid
-            OrderEventReq req
-    ) {
+    public Result<Void> refund(@RequestBody @Valid OrderEventReq req) {
         orderEventService.handleFullyRefunded(req.getOrderNo(), req.getRefundId(), req.getRefundAmount());
         return Result.success();
     }
@@ -103,10 +87,7 @@ public class InternalOrderController {
      * @return 使用统计
      */
     @GetMapping("/coupon-usage")
-    public Result<CouponUsageStatsResp> usageByCoupon(
-            @RequestParam("couponId")
-            Long couponId
-    ) {
+    public Result<CouponUsageStatsResp> usageByCoupon(@RequestParam("couponId") Long couponId) {
         return Result.success(orderStatsService.usageByCoupon(couponId));
     }
 

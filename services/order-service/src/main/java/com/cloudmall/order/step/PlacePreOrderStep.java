@@ -114,8 +114,8 @@ public class PlacePreOrderStep implements CheckoutStep {
      * @return 商品明细列表
      */
     private static List<CouponCalcItem> buildCalcItems(
-            Map<Long, Integer> checkoutItems,
-            Map<Long, SkuResp> skuMap
+        Map<Long, Integer> checkoutItems,
+        Map<Long, SkuResp> skuMap
     ) {
         List<CouponCalcItem> items = new ArrayList<>();
         for (Map.Entry<Long, Integer> entry : checkoutItems.entrySet()) {
@@ -147,11 +147,11 @@ public class PlacePreOrderStep implements CheckoutStep {
      * @param lockedUsages 已锁定的券快照
      */
     private void compensate(
-            OrderDO order,
-            CheckoutContext context,
-            String orderNo,
-            boolean stockReserved,
-            List<CouponUsageResult> lockedUsages
+        OrderDO order,
+        CheckoutContext context,
+        String orderNo,
+        boolean stockReserved,
+        List<CouponUsageResult> lockedUsages
     ) {
         releaseCouponsQuietly(context, orderNo, lockedUsages);
         if (stockReserved) {
@@ -172,9 +172,9 @@ public class PlacePreOrderStep implements CheckoutStep {
      * @param lockedUsages 已锁定的券快照
      */
     private void releaseCouponsQuietly(
-            CheckoutContext context,
-            String orderNo,
-            List<CouponUsageResult> lockedUsages
+        CheckoutContext context,
+        String orderNo,
+        List<CouponUsageResult> lockedUsages
     ) {
         if (CollUtil.isEmpty(lockedUsages)) {
             return;

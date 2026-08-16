@@ -80,13 +80,13 @@ public interface UserCouponConverter {
             expression = "java(source == com.cloudmall.coupon.enums.IssuedSourceEnum.REGISTER_AUTO ? eventId : null)"
     )
     UserCouponDO toIssue(
-            CouponDO template,
-            Long userId,
-            IssuedSourceEnum source,
-            String eventId,
-            LocalDateTime now,
-            LocalDateTime effective,
-            LocalDateTime expire
+        CouponDO template,
+        Long userId,
+        IssuedSourceEnum source,
+        String eventId,
+        LocalDateTime now,
+        LocalDateTime effective,
+        LocalDateTime expire
     );
 
 }

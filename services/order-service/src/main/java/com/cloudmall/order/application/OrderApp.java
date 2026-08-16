@@ -110,8 +110,8 @@ public class OrderApp {
      * @return 商品明细列表
      */
     private static List<CouponCalcItem> buildCalcItems(
-            Map<Long, Integer> quantities,
-            Map<Long, SkuResp> skuMap
+        Map<Long, Integer> quantities,
+        Map<Long, SkuResp> skuMap
     ) {
         List<CouponCalcItem> items = new ArrayList<>();
         for (Map.Entry<Long, Integer> entry : quantities.entrySet()) {

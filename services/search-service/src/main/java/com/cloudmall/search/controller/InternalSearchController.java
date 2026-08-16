@@ -33,10 +33,7 @@ public class InternalSearchController {
      * @return 处理结果
      */
     @PostMapping("/upsert")
-    public Result<Void> upsert(
-            @RequestBody
-            ProductDocResp doc
-    ) {
+    public Result<Void> upsert(@RequestBody ProductDocResp doc) {
         indexRepository.upsert(doc);
         return Result.success();
     }
@@ -48,10 +45,7 @@ public class InternalSearchController {
      * @return 处理结果
      */
     @PostMapping("/delete/{id}")
-    public Result<Void> deleteById(
-            @PathVariable("id")
-            Long id
-    ) {
+    public Result<Void> deleteById(@PathVariable("id") Long id) {
         indexRepository.deleteById(id);
         return Result.success();
     }

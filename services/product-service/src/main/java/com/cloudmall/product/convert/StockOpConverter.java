@@ -35,16 +35,16 @@ public interface StockOpConverter {
      */
     @Mapping(target = "id", ignore = true)
     StockOpLogDO toLog(
-            String orderNo,
-            Long skuId,
-            Long productId,
-            Long shopId,
-            StockOpTypeEnum opType,
-            Integer quantity,
-            Integer beforeStock,
-            Integer afterStock,
-            StockOpSourceEnum source,
-            Long operatorId,
-            String reason
+        String orderNo,
+        Long skuId,
+        Long productId,
+        Long shopId,
+        StockOpTypeEnum opType,
+        Integer quantity,
+        Integer beforeStock,
+        Integer afterStock,
+        StockOpSourceEnum source,
+        Long operatorId,
+        String reason
     );
 }

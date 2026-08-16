@@ -50,9 +50,9 @@ public class CouponCalculator {
      * @return 优惠快照
      */
     public CouponOrderCalcResp calculate(
-            List<CouponCalcItem> allItems,
-            CalcCoupon platformCoupon,
-            List<CalcCoupon> shopCoupons
+        List<CouponCalcItem> allItems,
+        CalcCoupon platformCoupon,
+        List<CalcCoupon> shopCoupons
     ) {
         Map<Long, Integer> skuIndex = buildSkuIndex(allItems);
         BigDecimal[] shopDiscount = new BigDecimal[allItems.size()];
@@ -120,9 +120,9 @@ public class CouponCalculator {
      * @return 合计
      */
     private BigDecimal sumBaseAmount(
-            List<CouponCalcItem> items,
-            Map<Long, Integer> skuIndex,
-            BigDecimal[] shopDiscount
+        List<CouponCalcItem> items,
+        Map<Long, Integer> skuIndex,
+        BigDecimal[] shopDiscount
     ) {
         if (CollUtil.isEmpty(items)) {
             return BigDecimal.ZERO;
@@ -172,10 +172,10 @@ public class CouponCalculator {
      * @param target 累加目标数组
      */
     private void allocateAndAdd(
-            BigDecimal total,
-            List<CouponCalcItem> items,
-            Map<Long, Integer> skuIndex,
-            BigDecimal[] target
+        BigDecimal total,
+        List<CouponCalcItem> items,
+        Map<Long, Integer> skuIndex,
+        BigDecimal[] target
     ) {
         List<BigDecimal> amounts = items.stream()
                                         .map(CouponCalcItem::getLineAmount)
@@ -197,10 +197,10 @@ public class CouponCalculator {
      * @param target 明细平台优惠数组
      */
     private void allocatePlatformDiscount(
-            BigDecimal total,
-            List<CouponCalcItem> applicable,
-            Map<Long, Integer> skuIndex,
-            BigDecimal[] target
+        BigDecimal total,
+        List<CouponCalcItem> applicable,
+        Map<Long, Integer> skuIndex,
+        BigDecimal[] target
     ) {
         Map<Long, List<CouponCalcItem>> byShop = groupByShop(applicable);
         List<Long> shopIds = new ArrayList<>(byShop.keySet());
@@ -276,11 +276,11 @@ public class CouponCalculator {
      * @return 优惠快照
      */
     private CouponOrderCalcResp buildResp(
-            List<CouponCalcItem> allItems,
-            Map<Long, Integer> skuIndex,
-            BigDecimal[] shopDiscount,
-            BigDecimal[] platformDiscount,
-            List<CouponUsageResult> usages
+        List<CouponCalcItem> allItems,
+        Map<Long, Integer> skuIndex,
+        BigDecimal[] shopDiscount,
+        BigDecimal[] platformDiscount,
+        List<CouponUsageResult> usages
     ) {
         List<CouponItemResult> itemResults = new ArrayList<>();
         for (CouponCalcItem item : allItems) {

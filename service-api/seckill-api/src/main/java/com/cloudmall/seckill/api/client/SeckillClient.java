@@ -28,10 +28,7 @@ public interface SeckillClient {
      * @return 活动详情
      */
     @GetMapping("/seckill/activities/{id}")
-    ActivityDetailResp getActivity(
-            @PathVariable("id")
-            Long id
-    );
+    ActivityDetailResp getActivity(@PathVariable("id") Long id);
 
     /**
      * 查询当前整点场次的进行中活动（含已审核商品）。

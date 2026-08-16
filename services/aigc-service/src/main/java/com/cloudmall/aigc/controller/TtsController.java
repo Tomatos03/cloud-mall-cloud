@@ -43,11 +43,7 @@ public class TtsController {
      * @return MP3 音频字节数组
      */
     @PostMapping(produces = MediaType.APPLICATION_OCTET_STREAM_VALUE)
-    public byte[] synthesize(
-            @Valid
-            @RequestBody
-            TtsReq req
-    ) {
+    public byte[] synthesize(@Valid @RequestBody TtsReq req) {
         return ttsService.synthesize(req);
     }
 
@@ -59,11 +55,7 @@ public class TtsController {
      * @return 包含 Base64 音频、格式和大小的响应
      */
     @PostMapping("/base64")
-    public Result<TtsResp> synthesizeAsBase64(
-            @Valid
-            @RequestBody
-            TtsReq req
-    ) {
+    public Result<TtsResp> synthesizeAsBase64(@Valid @RequestBody TtsReq req) {
         return Result.success(ttsService.synthesizeAsBase64(req));
     }
 
@@ -75,11 +67,7 @@ public class TtsController {
      * @return SSE 流，每个 chunk 包含一段音频字节
      */
     @PostMapping(value = "/stream", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
-    public Flux<byte[]> stream(
-            @Valid
-            @RequestBody
-            TtsReq req
-    ) {
+    public Flux<byte[]> stream(@Valid @RequestBody TtsReq req) {
         return ttsService.stream(req);
     }
 }

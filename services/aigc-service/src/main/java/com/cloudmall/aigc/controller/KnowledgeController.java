@@ -42,11 +42,7 @@ public class KnowledgeController {
      * @return 文档 ID
      */
     @PostMapping("/documents")
-    public Result<String> uploadDocument(
-            @Valid
-            @RequestBody
-            KnowledgeUploadReq req
-    ) {
+    public Result<String> uploadDocument(@Valid @RequestBody KnowledgeUploadReq req) {
         String documentId = knowledgeService.uploadDocument(req.getContent(), req.getMetadata());
         return Result.success(documentId);
     }
@@ -63,10 +59,10 @@ public class KnowledgeController {
      */
     @PostMapping("/documents/file")
     public Result<List<String>> uploadFile(
-            @RequestParam("files")
-            List<MultipartFile> files,
-            @RequestParam(value = "category", required = false)
-            String category
+        @RequestParam("files")
+        List<MultipartFile> files,
+        @RequestParam(value = "category", required = false)
+        String category
     ) throws IOException {
         return Result.success(knowledgeService.uploadFiles(files, category));
     }
@@ -78,10 +74,7 @@ public class KnowledgeController {
      * @return 操作结果
      */
     @DeleteMapping("/documents/{id}")
-    public Result<Void> deleteDocument(
-            @PathVariable
-            String id
-    ) {
+    public Result<Void> deleteDocument(@PathVariable String id) {
         knowledgeService.deleteDocument(id);
         return Result.success();
     }
@@ -95,10 +88,10 @@ public class KnowledgeController {
      */
     @GetMapping("/search")
     public Result<List<Document>> searchDocuments(
-            @RequestParam
-            String query,
-            @RequestParam(defaultValue = "3")
-            int topK
+        @RequestParam
+        String query,
+        @RequestParam(defaultValue = "3")
+        int topK
     ) {
         return Result.success(knowledgeService.searchDocuments(query, topK));
     }

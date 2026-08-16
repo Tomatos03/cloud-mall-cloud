@@ -33,10 +33,7 @@ public interface InternalCouponClient {
      * @param req 发券请求
      */
     @PostMapping("/auto-issue-register")
-    void autoIssueForRegister(
-            @RequestBody
-            AutoIssueRegisterReq req
-    );
+    void autoIssueForRegister(@RequestBody AutoIssueRegisterReq req);
 
     /**
      * 无副作用试算。
@@ -45,10 +42,7 @@ public interface InternalCouponClient {
      * @return 优惠快照
      */
     @PostMapping("/quote")
-    CouponOrderCalcResp quote(
-            @RequestBody
-            CouponOrderQuoteReq req
-    );
+    CouponOrderCalcResp quote(@RequestBody CouponOrderQuoteReq req);
 
     /**
      * 重新计算并锁定用户券。
@@ -57,10 +51,7 @@ public interface InternalCouponClient {
      * @return 优惠快照（含实际使用的券快照）
      */
     @PostMapping("/lock")
-    CouponOrderCalcResp lock(
-            @RequestBody
-            CouponOrderLockReq req
-    );
+    CouponOrderCalcResp lock(@RequestBody CouponOrderLockReq req);
 
     /**
      * 支付成功核销。
@@ -68,10 +59,7 @@ public interface InternalCouponClient {
      * @param req 核销请求
      */
     @PostMapping("/commit")
-    void commit(
-            @RequestBody
-            CouponOrderCommitReq req
-    );
+    void commit(@RequestBody CouponOrderCommitReq req);
 
     /**
      * 取消/超时释放。
@@ -79,10 +67,7 @@ public interface InternalCouponClient {
      * @param req 释放请求
      */
     @PostMapping("/release")
-    void release(
-            @RequestBody
-            CouponOrderReleaseReq req
-    );
+    void release(@RequestBody CouponOrderReleaseReq req);
 
     /**
      * 全额退款回退。
@@ -90,10 +75,7 @@ public interface InternalCouponClient {
      * @param req 回退请求
      */
     @PostMapping("/revert")
-    void revert(
-            @RequestBody
-            CouponOrderRevertReq req
-    );
+    void revert(@RequestBody CouponOrderRevertReq req);
 
     /**
      * 按订单释放全部已锁定用户券。
@@ -101,10 +83,7 @@ public interface InternalCouponClient {
      * @param req 释放请求
      */
     @PostMapping("/release-by-order")
-    void releaseByOrder(
-            @RequestBody
-            CouponOrderReleaseByOrderReq req
-    );
+    void releaseByOrder(@RequestBody CouponOrderReleaseByOrderReq req);
 
     /**
      * 按订单核销全部已锁定用户券。
@@ -112,10 +91,7 @@ public interface InternalCouponClient {
      * @param req 核销请求
      */
     @PostMapping("/commit-by-order")
-    void commitByOrder(
-            @RequestBody
-            CouponOrderCommitByOrderReq req
-    );
+    void commitByOrder(@RequestBody CouponOrderCommitByOrderReq req);
 
     /**
      * 按订单回退全部已核销用户券。
@@ -123,8 +99,5 @@ public interface InternalCouponClient {
      * @param req 回退请求
      */
     @PostMapping("/revert-by-order")
-    void revertByOrder(
-            @RequestBody
-            CouponOrderRevertByOrderReq req
-    );
+    void revertByOrder(@RequestBody CouponOrderRevertByOrderReq req);
 }

@@ -21,10 +21,7 @@ public interface ShopClient {
      * @return 处理结果
      */
     @GetMapping
-    ShopResp getByUserId(
-            @RequestParam("userId")
-            Long userId
-    );
+    ShopResp getByUserId(@RequestParam("userId") Long userId);
 
     /**
      * 获取相关数据。
@@ -33,10 +30,7 @@ public interface ShopClient {
      * @return 处理结果
      */
     @GetMapping("/{id}")
-    ShopResp getById(
-            @PathVariable("id")
-            Long id
-    );
+    ShopResp getById(@PathVariable("id") Long id);
 
     /**
      * 获取相关数据。
@@ -54,8 +48,5 @@ public interface ShopClient {
      * @return 店铺信息列表
      */
     @PostMapping("/batch-query")
-    List<ShopResp> listByIds(
-            @RequestBody
-            List<Long> shopIds
-    );
+    List<ShopResp> listByIds(@RequestBody List<Long> shopIds);
 }

@@ -41,11 +41,7 @@ public class CartController {
      * @return 处理结果
      */
     @PostMapping
-    public Result<Long> add(
-            @Valid
-            @RequestBody
-            CartOperatorReq req
-    ) {
+    public Result<Long> add(@Valid @RequestBody CartOperatorReq req) {
         Long userId = UserContextHolder.getUserId();
         return Result.success(cartService.addToCart(userId, req));
     }
@@ -58,12 +54,7 @@ public class CartController {
      * @return 处理结果
      */
     @PutMapping("/sku/{skuId}")
-    public Result<Void> updateQuantity(
-            @PathVariable
-            Long skuId,
-            @RequestParam
-            Integer quantity
-    ) {
+    public Result<Void> updateQuantity(@PathVariable Long skuId, @RequestParam Integer quantity) {
         CartOperatorReq cartOperatorReq = new CartOperatorReq().skuId(skuId).quantity(quantity);
         cartService.updateQuantity(UserContextHolder.getUserId(), cartOperatorReq);
         return Result.success(null);
@@ -76,10 +67,7 @@ public class CartController {
      * @return 处理结果
      */
     @DeleteMapping("/skus")
-    public Result<Void> removeItem(
-            @RequestBody
-            List<Long> skuIds
-    ) {
+    public Result<Void> removeItem(@RequestBody List<Long> skuIds) {
         cartService.removeItems(UserContextHolder.getUserId(), skuIds);
         return Result.success(null);
     }
@@ -91,11 +79,7 @@ public class CartController {
      * @return 处理结果
      */
     @PutMapping("/selection")
-    public Result<Void> selectItems(
-            @Valid
-            @RequestBody
-            CartSelectReq req
-    ) {
+    public Result<Void> selectItems(@Valid @RequestBody CartSelectReq req) {
         cartService.selectItems(UserContextHolder.getUserId(), req);
         return Result.success(null);
     }
@@ -107,10 +91,7 @@ public class CartController {
      * @return 处理结果
      */
     @PutMapping("/selection/all")
-    public Result<Void> selectAll(
-            @RequestParam
-            Boolean selected
-    ) {
+    public Result<Void> selectAll(@RequestParam Boolean selected) {
         cartService.selectAll(UserContextHolder.getUserId(), selected);
         return Result.success(null);
     }
@@ -124,12 +105,12 @@ public class CartController {
      */
     @PutMapping("/selection/shop/{shopId}")
     public Result<Void> selectShop(
-            @PathVariable
-            @NotNull
-            Long shopId,
-            @RequestParam
-            @NotNull
-            Boolean selected
+        @PathVariable
+        @NotNull
+        Long shopId,
+        @RequestParam
+        @NotNull
+        Boolean selected
     ) {
         cartService.selectShop(UserContextHolder.getUserId(), shopId, selected);
         return Result.success(null);

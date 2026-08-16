@@ -38,9 +38,9 @@ public class UserContextFilter extends OncePerRequestFilter {
      */
     @Override
     protected void doFilterInternal(
-            HttpServletRequest request,
-            HttpServletResponse response,
-            FilterChain chain
+        HttpServletRequest request,
+        HttpServletResponse response,
+        FilterChain chain
     ) throws ServletException, IOException {
         String header = request.getHeader(X_AUTH_USER);
         initUserContext(header);

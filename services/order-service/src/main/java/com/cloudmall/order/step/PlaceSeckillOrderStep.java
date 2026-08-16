@@ -130,10 +130,10 @@ public class PlaceSeckillOrderStep implements CheckoutStep {
      * @param amount 应付金额
      */
     private void insertSubAndItem(
-            OrderDO order,
-            SeckillOrderResp seckillOrder,
-            CheckoutContext ctx,
-            BigDecimal amount
+        OrderDO order,
+        SeckillOrderResp seckillOrder,
+        CheckoutContext ctx,
+        BigDecimal amount
     ) {
         SkuResp sku = ctx.getSkuMap().get(seckillOrder.getSkuId());
         OrderSubDO sub = buildSubOrder(order, sku.getShopId(), amount);
@@ -163,9 +163,9 @@ public class PlaceSeckillOrderStep implements CheckoutStep {
      * @return 父订单实体
      */
     private static OrderDO buildOrder(
-            SeckillOrderResp seckillOrder,
-            BigDecimal amount,
-            String addressSnapshot
+        SeckillOrderResp seckillOrder,
+        BigDecimal amount,
+        String addressSnapshot
     ) {
         return OrderDO.builder()
                       .id(IdWorker.getId())
@@ -217,11 +217,11 @@ public class PlaceSeckillOrderStep implements CheckoutStep {
      * @return 明细实体
      */
     private static OrderItemDO buildOrderItem(
-            SeckillOrderResp seckillOrder,
-            SkuResp sku,
-            Integer quantity,
-            Long subOrderId,
-            BigDecimal amount
+        SeckillOrderResp seckillOrder,
+        SkuResp sku,
+        Integer quantity,
+        Long subOrderId,
+        BigDecimal amount
     ) {
         return OrderItemDO.builder()
                           .subOrderId(subOrderId)

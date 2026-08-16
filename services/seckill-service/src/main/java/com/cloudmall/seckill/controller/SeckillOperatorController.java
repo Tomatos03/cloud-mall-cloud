@@ -47,11 +47,7 @@ public class SeckillOperatorController {
      * @return 新活动 ID
      */
     @PostMapping("/activities")
-    public Result<Long> createActivity(
-            @Valid
-            @RequestBody
-            ActivityCreateReq req
-    ) {
+    public Result<Long> createActivity(@Valid @RequestBody ActivityCreateReq req) {
         Long createUserId = Asserts.requireNonNull(
                 UserContextHolder.getUserId(),
                 BizError.USER_NOT_AUTHENTICATED
@@ -67,12 +63,7 @@ public class SeckillOperatorController {
      * @return 处理结果
      */
     @PatchMapping("/activities/{id}")
-    public Result<Void> updateActivity(
-            @PathVariable
-            Long id,
-            @RequestBody
-            ActivityUpdateReq req
-    ) {
+    public Result<Void> updateActivity(@PathVariable Long id, @RequestBody ActivityUpdateReq req) {
         activityService.update(id, req);
         return Result.success(null);
     }
@@ -84,10 +75,7 @@ public class SeckillOperatorController {
      * @return 处理结果
      */
     @PostMapping("/activities/{id}/publish")
-    public Result<Void> publishActivity(
-            @PathVariable
-            Long id
-    ) {
+    public Result<Void> publishActivity(@PathVariable Long id) {
         Long publishUserId = Asserts.requireNonNull(
                 UserContextHolder.getUserId(),
                 BizError.USER_NOT_AUTHENTICATED
@@ -103,10 +91,7 @@ public class SeckillOperatorController {
      * @return 处理结果
      */
     @PostMapping("/activities/{id}/cancel")
-    public Result<Void> cancelActivity(
-            @PathVariable
-            Long id
-    ) {
+    public Result<Void> cancelActivity(@PathVariable Long id) {
         activityService.cancel(id);
         return Result.success(null);
     }
@@ -143,12 +128,12 @@ public class SeckillOperatorController {
      */
     @PatchMapping("/activities/{activityId}/products/{productId}")
     public Result<Void> auditProduct(
-            @PathVariable
-            Long activityId,
-            @PathVariable
-            Long productId,
-            @RequestBody
-            ActivityProductAuditReq req
+        @PathVariable
+        Long activityId,
+        @PathVariable
+        Long productId,
+        @RequestBody
+        ActivityProductAuditReq req
     ) {
         Long auditorId = Asserts.requireNonNull(
                 UserContextHolder.getUserId(),

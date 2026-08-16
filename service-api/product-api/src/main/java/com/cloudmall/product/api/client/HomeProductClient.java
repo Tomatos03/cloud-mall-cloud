@@ -35,9 +35,9 @@ public interface HomeProductClient {
      */
     @GetMapping
     List<ProductDocResp> listByCategory(
-            @RequestParam("categoryIds")
-            Set<Long> categoryIds,
-            @RequestParam(value = "limit", defaultValue = "10")
-            Integer limit
+        @RequestParam("categoryIds")
+        Set<Long> categoryIds,
+        @RequestParam(value = "limit", defaultValue = "10")
+        Integer limit
     );
 }

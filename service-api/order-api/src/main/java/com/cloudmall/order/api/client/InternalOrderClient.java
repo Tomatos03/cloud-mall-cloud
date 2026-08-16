@@ -26,10 +26,7 @@ public interface InternalOrderClient {
      * @param req 事件请求
      */
     @PostMapping("/paid")
-    void paid(
-            @RequestBody
-            OrderEventReq req
-    );
+    void paid(@RequestBody OrderEventReq req);
 
     /**
      * 支付超时关闭。
@@ -37,10 +34,7 @@ public interface InternalOrderClient {
      * @param req 事件请求
      */
     @PostMapping("/timeout")
-    void timeout(
-            @RequestBody
-            OrderEventReq req
-    );
+    void timeout(@RequestBody OrderEventReq req);
 
     /**
      * 取消订单（幂等）。
@@ -48,10 +42,7 @@ public interface InternalOrderClient {
      * @param req 事件请求
      */
     @PostMapping("/cancel")
-    void cancel(
-            @RequestBody
-            OrderEventReq req
-    );
+    void cancel(@RequestBody OrderEventReq req);
 
     /**
      * 查询单模板订单使用统计。
@@ -60,10 +51,7 @@ public interface InternalOrderClient {
      * @return 使用订单数与补贴金额
      */
     @GetMapping("/coupon-usage")
-    CouponUsageStatsResp usageByCoupon(
-            @RequestParam("couponId")
-            Long couponId
-    );
+    CouponUsageStatsResp usageByCoupon(@RequestParam("couponId") Long couponId);
 
     /**
      * 查询全局订单使用统计。

@@ -68,10 +68,10 @@ public interface ProductConverter {
      * @return 组装后的商品列表响应
      */
     default ProductResp toCompositeResp(
-            ProductDO product,
-            Map<Long, BrandDO> brandMap,
-            Map<Long, ProductImageDO> imageMap,
-            Map<Long, BigDecimal> lowestPriceMap
+        ProductDO product,
+        Map<Long, BrandDO> brandMap,
+        Map<Long, ProductImageDO> imageMap,
+        Map<Long, BigDecimal> lowestPriceMap
     ) {
         ProductResp resp = toResp(product);
         if (brandMap != null && product.getBrandId() != null) {
@@ -114,11 +114,11 @@ public interface ProductConverter {
     @Mapping(target = "categoryId", source = "product.categoryId")
     @Mapping(target = "description", source = "product.description")
     ProductDetailResp toDetailResp(
-            ProductDO product,
-            BrandDO brand,
-            List<ImageResp> images,
-            List<ProductSkuDO> skus,
-            List<SpecGroupResp> specGroups
+        ProductDO product,
+        BrandDO brand,
+        List<ImageResp> images,
+        List<ProductSkuDO> skus,
+        List<SpecGroupResp> specGroups
     );
 
 }

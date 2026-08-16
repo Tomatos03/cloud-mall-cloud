@@ -50,9 +50,5 @@ public interface AddressConverter {
      * @param address 地址实体
      */
     @Mapping(target = "id", ignore = true)
-    void updateEntity(
-            AddressUpdateReq req,
-            @MappingTarget
-            AddressDO address
-    );
+    void updateEntity(AddressUpdateReq req, @MappingTarget AddressDO address);
 }

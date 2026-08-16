@@ -58,10 +58,7 @@ public class SeckillUserController {
      * @return 活动详情
      */
     @GetMapping("/activities/{id}")
-    public Result<ActivityDetailResp> getActivityDetail(
-            @PathVariable
-            Long id
-    ) {
+    public Result<ActivityDetailResp> getActivityDetail(@PathVariable Long id) {
         return Result.success(activityService.getActivityDetail(id));
     }
 
@@ -82,11 +79,7 @@ public class SeckillUserController {
      * @return 受理结果
      */
     @PostMapping("/purchase")
-    public Result<PurchaseResp> purchase(
-            @Valid
-            @RequestBody
-            SeckillPurchaseReq req
-    ) {
+    public Result<PurchaseResp> purchase(@Valid @RequestBody SeckillPurchaseReq req) {
         return Result.success(seckillOrderApp.purchase(req));
     }
 

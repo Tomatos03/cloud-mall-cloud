@@ -56,10 +56,7 @@ public class ResourceController {
      * @return 资源列表
      */
     @GetMapping
-    public Result<List<ResourceResp>> listResources(
-            @RequestParam(required = false)
-            String type
-    ) {
+    public Result<List<ResourceResp>> listResources(@RequestParam(required = false) String type) {
         return Result.success(resourceService.listResources(type));
     }
 
@@ -70,10 +67,7 @@ public class ResourceController {
      * @return 资源信息
      */
     @GetMapping("/{id}")
-    public Result<ResourceResp> getResource(
-            @PathVariable
-            Long id
-    ) {
+    public Result<ResourceResp> getResource(@PathVariable Long id) {
         return Result.success(resourceService.getResource(id));
     }
 
@@ -84,10 +78,7 @@ public class ResourceController {
      * @return 新资源 ID
      */
     @PostMapping
-    public Result<Long> createResource(
-            @RequestBody
-            ResourceReq req
-    ) {
+    public Result<Long> createResource(@RequestBody ResourceReq req) {
         return Result.success(resourceService.createResource(req));
     }
 
@@ -99,12 +90,7 @@ public class ResourceController {
      * @return 处理结果
      */
     @PutMapping("/{id}")
-    public Result<Void> updateResource(
-            @PathVariable
-            Long id,
-            @RequestBody
-            ResourceReq req
-    ) {
+    public Result<Void> updateResource(@PathVariable Long id, @RequestBody ResourceReq req) {
         resourceService.updateResource(id, req);
         return Result.success();
     }
@@ -116,10 +102,7 @@ public class ResourceController {
      * @return 处理结果
      */
     @DeleteMapping("/{id}")
-    public Result<Void> deleteResource(
-            @PathVariable
-            Long id
-    ) {
+    public Result<Void> deleteResource(@PathVariable Long id) {
         resourceService.deleteResource(id);
         return Result.success();
     }

@@ -63,10 +63,7 @@ public class CouponController {
      * @return 模板详情
      */
     @GetMapping("/{id}")
-    public Result<CouponResp> getById(
-            @PathVariable
-            Long id
-    ) {
+    public Result<CouponResp> getById(@PathVariable Long id) {
         return Result.success(userCouponService.getPublicCoupon(id, UserContextHolder.getUserId()));
     }
 
@@ -77,10 +74,7 @@ public class CouponController {
      * @return 用户券
      */
     @PostMapping("/{id}/claim")
-    public Result<UserCouponResp> claim(
-            @PathVariable
-            Long id
-    ) {
+    public Result<UserCouponResp> claim(@PathVariable Long id) {
         return Result.success(userCouponService.claimPublic(id, UserContextHolder.getUserId()));
     }
 
@@ -103,10 +97,7 @@ public class CouponController {
      * @return 用户券
      */
     @GetMapping("/me/{id}")
-    public Result<UserCouponResp> getMineById(
-            @PathVariable
-            Long id
-    ) {
+    public Result<UserCouponResp> getMineById(@PathVariable Long id) {
         return Result.success(userCouponService.getMine(UserContextHolder.getUserId(), id));
     }
 }

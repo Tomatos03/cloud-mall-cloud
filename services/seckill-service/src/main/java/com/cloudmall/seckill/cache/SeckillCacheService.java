@@ -63,11 +63,11 @@ public class SeckillCacheService {
      *         ）
      */
     public SeckillPurchaseResultEnum purchase(
-            Long activityId,
-            Long skuId,
-            Long userId,
-            int quantity,
-            long ttlSeconds
+        Long activityId,
+        Long skuId,
+        Long userId,
+        int quantity,
+        long ttlSeconds
     ) {
         String stockKey = STOCK_KEY_PREFIX + activityId + ":" + skuId;
         String userKey = USER_FLAG_PREFIX + activityId + ":" + skuId + ":" + userId;

@@ -50,11 +50,11 @@ public class OrderController {
      */
     @PostMapping("/{checkoutType}")
     public Result<String> create(
-            @PathVariable
-            CheckoutTypeEnum checkoutType,
-            @RequestBody
-            @Valid
-            CreateOrderReq req
+        @PathVariable
+        CheckoutTypeEnum checkoutType,
+        @RequestBody
+        @Valid
+        CreateOrderReq req
     ) {
         Long userId = UserContextHolder.getUserId();
         return Result.success(orderApp.create(checkoutType, userId, req));
@@ -67,11 +67,7 @@ public class OrderController {
      * @return 三级价格明细 + 优惠券使用明细 + 推荐组合
      */
     @PostMapping("/quote")
-    public Result<CouponOrderCalcResp> quote(
-            @RequestBody
-            @Valid
-            QuoteOrderReq req
-    ) {
+    public Result<CouponOrderCalcResp> quote(@RequestBody @Valid QuoteOrderReq req) {
         return Result.success(orderApp.quote(req));
     }
 
@@ -82,10 +78,7 @@ public class OrderController {
      * @return 父订单详情
      */
     @GetMapping("/{id}")
-    public Result<OrderResp> getById(
-            @PathVariable
-            Long id
-    ) {
+    public Result<OrderResp> getById(@PathVariable Long id) {
         return Result.success(orderService.getById(id));
     }
 

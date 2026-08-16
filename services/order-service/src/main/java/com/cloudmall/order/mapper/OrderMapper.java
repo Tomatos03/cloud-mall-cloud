@@ -43,8 +43,8 @@ public interface OrderMapper extends BaseMapper<OrderDO> {
      * @return 超时父订单列表
      */
     default List<OrderDO> selectStuckCreatingOrders(
-            ParentOrderStatusEnum status,
-            LocalDateTime timeoutThreshold
+        ParentOrderStatusEnum status,
+        LocalDateTime timeoutThreshold
     ) {
         return selectList(
                 Wrappers.<OrderDO>lambdaQuery()

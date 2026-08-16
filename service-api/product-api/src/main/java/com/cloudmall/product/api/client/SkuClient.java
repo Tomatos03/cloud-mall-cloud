@@ -26,12 +26,7 @@ public interface SkuClient {
      * @return 操作是否成功
      */
     @PutMapping("/{skuId}/stock")
-    Boolean updateStock(
-            @PathVariable("skuId")
-            Long skuId,
-            @RequestBody
-            StockReq req
-    );
+    Boolean updateStock(@PathVariable("skuId") Long skuId, @RequestBody StockReq req);
 
     /**
      * 批量查询 SKU 信息（含实时价格、库存、上下架状态、规格描述、所属店铺）。 <p>
@@ -41,8 +36,5 @@ public interface SkuClient {
      * @return SKU 信息列表
      */
     @PostMapping("/batch-query")
-    List<SkuResp> listSkusByIds(
-            @RequestBody
-            List<Long> skuIds
-    );
+    List<SkuResp> listSkusByIds(@RequestBody List<Long> skuIds);
 }

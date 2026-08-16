@@ -25,10 +25,7 @@ public interface CategoryClient {
      * @return 分类信息
      */
     @GetMapping("/{id}")
-    CategoryResp getById(
-            @PathVariable("id")
-            Long id
-    );
+    CategoryResp getById(@PathVariable("id") Long id);
 
     /**
      * 批量查询分类（分类后代匹配用）。
@@ -37,8 +34,5 @@ public interface CategoryClient {
      * @return 分类信息列表
      */
     @PostMapping("/batch")
-    List<CategoryResp> getByIds(
-            @RequestBody
-            List<Long> ids
-    );
+    List<CategoryResp> getByIds(@RequestBody List<Long> ids);
 }

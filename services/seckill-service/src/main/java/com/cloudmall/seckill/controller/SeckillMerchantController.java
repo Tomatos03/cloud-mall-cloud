@@ -57,10 +57,7 @@ public class SeckillMerchantController {
      * @return 活动详情
      */
     @GetMapping("/merchant/activities/{id}")
-    public Result<ActivityDetailResp> getSignupActivity(
-            @PathVariable
-            Long id
-    ) {
+    public Result<ActivityDetailResp> getSignupActivity(@PathVariable Long id) {
         return Result.success(activityService.getSignupActivity(id));
     }
 
@@ -73,11 +70,11 @@ public class SeckillMerchantController {
      */
     @PostMapping("/activities/{activityId}/products")
     public Result<Long> submitProduct(
-            @PathVariable
-            Long activityId,
-            @Valid
-            @RequestBody
-            ActivityProductSubmitReq req
+        @PathVariable
+        Long activityId,
+        @Valid
+        @RequestBody
+        ActivityProductSubmitReq req
     ) {
         return Result.success(seckillApp.submitProduct(activityId, req));
     }

@@ -39,12 +39,7 @@ public class SkuController {
      * @return 操作是否成功
      */
     @PutMapping("/{skuId}/stock")
-    public Result<Boolean> updateStock(
-            @PathVariable
-            Long skuId,
-            @RequestBody
-            StockReq req
-    ) {
+    public Result<Boolean> updateStock(@PathVariable Long skuId, @RequestBody StockReq req) {
         return Result.success(skuService.updateStock(skuId, req.getQuantity()));
     }
 
@@ -56,10 +51,7 @@ public class SkuController {
      * @return SKU 信息列表
      */
     @PostMapping("/batch-query")
-    public Result<List<SkuResp>> listSkusByIds(
-            @RequestBody
-            List<Long> skuIds
-    ) {
+    public Result<List<SkuResp>> listSkusByIds(@RequestBody List<Long> skuIds) {
         return Result.success(skuService.listSkusByIds(skuIds));
     }
 
@@ -71,10 +63,7 @@ public class SkuController {
      * @return 唯一命中的 SKU 信息，未命中时为 null
      */
     @PostMapping("/match")
-    public Result<SkuResp> matchSku(
-            @RequestBody
-            SkuMatchReq req
-    ) {
+    public Result<SkuResp> matchSku(@RequestBody SkuMatchReq req) {
         return Result.success(skuService.matchSkuBySpec(req.getProductId(), req.getSpecValueIds()));
     }
 }

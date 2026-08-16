@@ -50,11 +50,7 @@ public class UserController {
      * @return 处理结果
      */
     @PostMapping("/login")
-    public Result<LoginResp> login(
-            @RequestBody
-            @Valid
-            LoginReq request
-    ) {
+    public Result<LoginResp> login(@RequestBody @Valid LoginReq request) {
         return Result.success(authApp.login(request));
     }
 
@@ -65,11 +61,7 @@ public class UserController {
      * @return 处理结果
      */
     @PostMapping("/register")
-    public Result<Long> register(
-            @RequestBody
-            @Valid
-            RegisterReq request
-    ) {
+    public Result<Long> register(@RequestBody @Valid RegisterReq request) {
         return Result.success(userService.register(request));
     }
 
@@ -102,10 +94,7 @@ public class UserController {
      * @return 处理结果
      */
     @GetMapping("/{id}")
-    public Result<UserResp> getUser(
-            @PathVariable
-            Long id
-    ) {
+    public Result<UserResp> getUser(@PathVariable Long id) {
         return Result.success(userService.getUser(id));
     }
 
@@ -128,10 +117,7 @@ public class UserController {
      * @return 处理结果
      */
     @PutMapping("/roles")
-    public Result<Void> assignRoles(
-            @RequestBody
-            List<Long> roleIds
-    ) {
+    public Result<Void> assignRoles(@RequestBody List<Long> roleIds) {
         roleService.assignRoles(UserContextHolder.getUserId(), roleIds);
         return Result.success();
     }
@@ -143,10 +129,7 @@ public class UserController {
      * @return 处理结果
      */
     @GetMapping("/{id}/roles")
-    public Result<List<Long>> getUserRoleIds(
-            @PathVariable
-            Long id
-    ) {
+    public Result<List<Long>> getUserRoleIds(@PathVariable Long id) {
         return Result.success(userService.getUserRoleIds(id));
     }
 }

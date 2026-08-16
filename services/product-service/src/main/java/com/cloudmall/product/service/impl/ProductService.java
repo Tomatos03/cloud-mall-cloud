@@ -260,9 +260,9 @@ public class ProductService implements IProductService {
     }
 
     private static <T> Map<Long, T> batchQuery(
-            Set<Long> ids,
-            Function<Set<Long>, List<T>> query,
-            Function<T, Long> idGetter
+        Set<Long> ids,
+        Function<Set<Long>, List<T>> query,
+        Function<T, Long> idGetter
     ) {
         if (CollUtil.isEmpty(ids)) {
             return Map.of();
@@ -275,11 +275,11 @@ public class ProductService implements IProductService {
     }
 
     private static ProductDocResp assembleSearchDoc(
-            ProductDO product,
-            Map<Long, BrandDO> brandMap,
-            Map<Long, CategoryDO> categoryMap,
-            Map<Long, ProductImageDO> imageMap,
-            Map<Long, BigDecimal> lowestPriceMap
+        ProductDO product,
+        Map<Long, BrandDO> brandMap,
+        Map<Long, CategoryDO> categoryMap,
+        Map<Long, ProductImageDO> imageMap,
+        Map<Long, BigDecimal> lowestPriceMap
     ) {
         BrandDO brand = brandMap.get(product.getBrandId());
         CategoryDO category = categoryMap.get(product.getCategoryId());
@@ -743,9 +743,9 @@ public class ProductService implements IProductService {
      * @return 该 SKU 关联的规格值主键列表
      */
     private List<Long> resolveSpecValueIds(
-            List<SpecGroupItem> groups,
-            SkuItem skuItem,
-            List<List<Long>> specValueIds
+        List<SpecGroupItem> groups,
+        SkuItem skuItem,
+        List<List<Long>> specValueIds
     ) {
         List<Long> realIds = new ArrayList<>(groups.size());
         for (int g = 0; g < groups.size(); g++) {

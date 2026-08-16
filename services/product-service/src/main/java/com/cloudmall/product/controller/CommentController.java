@@ -40,11 +40,7 @@ public class CommentController {
      * @return 评论ID
      */
     @PostMapping
-    public Result<Void> create(
-            @RequestBody
-            @Valid
-            CommentCreateReq req
-    ) {
+    public Result<Void> create(@RequestBody @Valid CommentCreateReq req) {
         commentService.create(req);
         return Result.success();
     }

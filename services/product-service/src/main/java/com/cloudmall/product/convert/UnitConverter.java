@@ -53,9 +53,5 @@ public interface UnitConverter {
     @Mapping(target = "createTime", ignore = true)
     @Mapping(target = "updateTime", ignore = true)
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
-    void merge(
-            @MappingTarget
-            UnitDO unit,
-            UnitUpdateReq req
-    );
+    void merge(@MappingTarget UnitDO unit, UnitUpdateReq req);
 }

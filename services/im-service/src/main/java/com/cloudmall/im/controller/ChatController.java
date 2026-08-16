@@ -41,10 +41,7 @@ public class ChatController {
      * @return 会话ID
      */
     @PostMapping("/sessions")
-    public Result<CreateSessionResp> createChatSession(
-            @RequestParam
-            Long storeId
-    ) {
+    public Result<CreateSessionResp> createChatSession(@RequestParam Long storeId) {
         return Result.success(chatAppService.createChatSession(UserContextHolder.getUserId(), storeId));
     }
 
@@ -55,10 +52,7 @@ public class ChatController {
      * @return 会话分页数据
      */
     @GetMapping("/sessions")
-    public Result<IPage<ChatSessionResp>> queryChatSession(
-            @Valid
-            SessionPageReq req
-    ) {
+    public Result<IPage<ChatSessionResp>> queryChatSession(@Valid SessionPageReq req) {
         return Result.success(chatAppService.pageChatSession(UserContextHolder.getUserId(), req));
     }
 
@@ -71,9 +65,9 @@ public class ChatController {
      */
     @GetMapping("/sessions/{sessionId}/messages")
     public Result<CursorResult<MessageResp>> getMessageHistory(
-            @PathVariable
-            Long sessionId,
-            MessageCursorReq req
+        @PathVariable
+        Long sessionId,
+        MessageCursorReq req
     ) {
         req.setSessionId(sessionId);
         return Result.success(chatAppService.cursorMessageHistory(UserContextHolder.getUserId(), req));
@@ -86,10 +80,7 @@ public class ChatController {
      * @return 处理结果
      */
     @PutMapping("/sessions/{sessionId}/read")
-    public Result<Void> markAsRead(
-            @PathVariable
-            Long sessionId
-    ) {
+    public Result<Void> markAsRead(@PathVariable Long sessionId) {
         chatAppService.markReadForChatSession(UserContextHolder.getUserId(), sessionId);
         return Result.success();
     }

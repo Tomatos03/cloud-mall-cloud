@@ -34,8 +34,8 @@ public class SeckillOrderConsumer extends AbstractMessageConsumer<SeckillOrderCr
      * @param handlers 秒杀事件处理器
      */
     public SeckillOrderConsumer(
-            IMessageConsumeService consumeService,
-            List<EventHandler<SeckillOrderCreateEvent>> handlers
+        IMessageConsumeService consumeService,
+        List<EventHandler<SeckillOrderCreateEvent>> handlers
     ) {
         super(consumeService, handlers, SeckillOrderCreateEvent.class);
     }

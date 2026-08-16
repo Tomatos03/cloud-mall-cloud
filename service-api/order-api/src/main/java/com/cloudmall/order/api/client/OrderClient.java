@@ -24,10 +24,10 @@ public interface OrderClient {
      */
     @PostMapping("/{checkoutType}")
     String createOrder(
-            @PathVariable("checkoutType")
-            CheckoutTypeEnum checkoutType,
-            @RequestBody
-            CreateOrderReq req
+        @PathVariable("checkoutType")
+        CheckoutTypeEnum checkoutType,
+        @RequestBody
+        CreateOrderReq req
     );
 
     /**
@@ -37,10 +37,7 @@ public interface OrderClient {
      * @return 处理结果
      */
     @GetMapping("/{id}")
-    OrderResp getById(
-            @PathVariable("id")
-            Long id
-    );
+    OrderResp getById(@PathVariable("id") Long id);
 
     /**
      * 分页查询数据。
@@ -52,11 +49,11 @@ public interface OrderClient {
      */
     @GetMapping
     Page<OrderResp> page(
-            @RequestParam("userId")
-            Long userId,
-            @RequestParam(value = "current", defaultValue = "1")
-            long current,
-            @RequestParam(value = "size", defaultValue = "20")
-            long size
+        @RequestParam("userId")
+        Long userId,
+        @RequestParam(value = "current", defaultValue = "1")
+        long current,
+        @RequestParam(value = "size", defaultValue = "20")
+        long size
     );
 }

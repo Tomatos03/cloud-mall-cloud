@@ -40,10 +40,7 @@ public class InternalSeckillController {
      * @return 处理结果
      */
     @PostMapping("/confirm-paid")
-    public Result<Void> confirmPaid(
-            @RequestBody
-            SeckillConfirmPaidReq req
-    ) {
+    public Result<Void> confirmPaid(@RequestBody SeckillConfirmPaidReq req) {
         orderService.confirmPaid(req.getOrderNo());
         return Result.success(null);
     }
@@ -55,10 +52,7 @@ public class InternalSeckillController {
      * @return 秒杀单响应
      */
     @GetMapping("/orders/{orderNo}")
-    public Result<SeckillOrderResp> getByOrderNo(
-            @PathVariable
-            String orderNo
-    ) {
+    public Result<SeckillOrderResp> getByOrderNo(@PathVariable String orderNo) {
         return Result.success(seckillConverter.toSeckillOrderResp(orderService.getByOrderNo(orderNo)));
     }
 
@@ -70,12 +64,7 @@ public class InternalSeckillController {
      * @return 已审核通过返回 true
      */
     @GetMapping("/activities/{activityId}/products/{productId}/verification")
-    public Result<Boolean> verifyProduct(
-            @PathVariable
-            Long activityId,
-            @PathVariable
-            Long productId
-    ) {
+    public Result<Boolean> verifyProduct(@PathVariable Long activityId, @PathVariable Long productId) {
         return Result.success(productService.isApproved(activityId, productId));
     }
 }

@@ -37,9 +37,5 @@ public interface RoleConverter {
     @Mapping(target = "deleted", ignore = true)
     @Mapping(target = "createTime", ignore = true)
     @Mapping(target = "updateTime", ignore = true)
-    void updateEntity(
-            RoleReq req,
-            @MappingTarget
-            RoleDO existing
-    );
+    void updateEntity(RoleReq req, @MappingTarget RoleDO existing);
 }

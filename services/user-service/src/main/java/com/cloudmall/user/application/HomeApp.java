@@ -172,9 +172,9 @@ public class HomeApp {
      * @return 商品展示分组，无商品时返回 null
      */
     private HomeCategoryProductResp buildCategoryProductSection(
-            CategoryResp top,
-            Map<Long, CategoryResp> categoryMap,
-            Map<Long, List<Long>> childrenMap
+        CategoryResp top,
+        Map<Long, CategoryResp> categoryMap,
+        Map<Long, List<Long>> childrenMap
     ) {
         List<CategoryResp> tabs = CollUtil.emptyIfNull(childrenMap.get(top.getId()))
                                           .stream()

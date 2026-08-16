@@ -4,6 +4,7 @@ import java.util.List;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -28,10 +29,7 @@ public class FavoriteController {
      * @return true=已收藏 false=已取消
      */
     @PutMapping
-    public Result<Boolean> toggle(
-            @RequestBody
-            FavoriteToggleReq req
-    ) {
+    public Result<Boolean> toggle(@RequestBody FavoriteToggleReq req) {
         return Result.success(favoriteService.toggle(UserContextHolder.getUserId(), req.getProductId()));
     }
 
@@ -43,5 +41,16 @@ public class FavoriteController {
     @GetMapping
     public Result<List<Long>> listProductIds() {
         return Result.success(favoriteService.listProductIds(UserContextHolder.getUserId()));
+    }
+
+    /**
+     * 查询当前用户是否已收藏指定商品。
+     *
+     * @param productId 商品 ID
+     * @return true=已收藏 false=未收藏
+     */
+    @GetMapping("/{productId}")
+    public Result<Boolean> isFavorited(@PathVariable Long productId) {
+        return Result.success(favoriteService.isFavorited(UserContextHolder.getUserId(), productId));
     }
 }

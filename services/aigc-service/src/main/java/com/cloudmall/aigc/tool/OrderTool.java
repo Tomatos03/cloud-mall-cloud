@@ -31,11 +31,7 @@ public class OrderTool {
      * @param toolContext 工具上下文，用于存储查询结果
      * @return 订单详情，未找到时为 null
      */
-    public OrderResp getOrderById(
-            @ToolParam(description = "订单ID")
-            Long id,
-            ToolContext toolContext
-    ) {
+    public OrderResp getOrderById(@ToolParam(description = "订单ID") Long id, ToolContext toolContext) {
         OrderResp order = orderClient.getById(id);
         if (order == null) {
             return null;

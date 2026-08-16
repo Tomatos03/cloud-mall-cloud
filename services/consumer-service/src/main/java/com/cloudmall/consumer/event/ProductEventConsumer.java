@@ -35,8 +35,8 @@ public class ProductEventConsumer extends AbstractMessageConsumer<ProductEvent> 
      * @param handlers 商品事件处理器
      */
     public ProductEventConsumer(
-            IMessageConsumeService consumeService,
-            List<EventHandler<ProductEvent>> handlers
+        IMessageConsumeService consumeService,
+        List<EventHandler<ProductEvent>> handlers
     ) {
         super(consumeService, handlers, ProductEvent.class);
     }

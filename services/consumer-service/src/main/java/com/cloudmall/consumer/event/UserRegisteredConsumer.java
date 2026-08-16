@@ -28,8 +28,8 @@ public class UserRegisteredConsumer extends AbstractMessageConsumer<UserRegister
      * @param handlers 注册事件处理器
      */
     public UserRegisteredConsumer(
-            IMessageConsumeService consumeService,
-            List<EventHandler<UserRegisteredEvent>> handlers
+        IMessageConsumeService consumeService,
+        List<EventHandler<UserRegisteredEvent>> handlers
     ) {
         super(consumeService, handlers, UserRegisteredEvent.class);
     }

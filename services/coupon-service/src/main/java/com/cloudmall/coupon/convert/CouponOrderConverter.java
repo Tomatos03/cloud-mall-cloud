@@ -75,11 +75,11 @@ public interface CouponOrderConverter {
     @Mapping(target = "discountAmount", source = "uc.discountAmountSnapshot")
     @Mapping(target = "estimatedDiscountAmount", source = "estimatedDiscountAmount")
     CouponCandidateResp toCandidate(
-            UserCouponDO uc,
-            BigDecimal applicableAmount,
-            BigDecimal estimatedDiscountAmount,
-            Boolean valid,
-            String invalidReason
+        UserCouponDO uc,
+        BigDecimal applicableAmount,
+        BigDecimal estimatedDiscountAmount,
+        Boolean valid,
+        String invalidReason
     );
 
     /**
@@ -106,9 +106,9 @@ public interface CouponOrderConverter {
      * @return 明细结果
      */
     default CouponItemResult toItemResult(
-            CouponCalcItem item,
-            BigDecimal shopDiscountAmount,
-            BigDecimal platformDiscountAmount
+        CouponCalcItem item,
+        BigDecimal shopDiscountAmount,
+        BigDecimal platformDiscountAmount
     ) {
         BigDecimal payableAmount = item.getLineAmount()
                                        .subtract(shopDiscountAmount)
@@ -154,9 +154,9 @@ public interface CouponOrderConverter {
      * @return 优惠快照
      */
     default CouponOrderCalcResp toResp(
-            List<CouponItemResult> items,
-            List<CouponSubOrderResult> subOrders,
-            List<CouponUsageResult> usages
+        List<CouponItemResult> items,
+        List<CouponSubOrderResult> subOrders,
+        List<CouponUsageResult> usages
     ) {
         BigDecimal totalOriginalAmount = sum(items, CouponItemResult::getOriginalAmount);
         BigDecimal totalShopDiscountAmount = sum(items, CouponItemResult::getShopDiscountAmount);

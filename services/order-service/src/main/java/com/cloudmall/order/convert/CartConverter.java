@@ -122,12 +122,7 @@ public interface CartConverter {
      * @param sku SKU 实时信息，可为 null
      */
     @AfterMapping
-    default void fillSkuState(
-            @MappingTarget
-            CartItem item,
-            CartDO cart,
-            SkuResp sku
-    ) {
+    default void fillSkuState(@MappingTarget CartItem item, CartDO cart, SkuResp sku) {
         if (sku == null) {
             item.setAvailable(false);
             item.setUnavailableReason("商品已下架或不存在");

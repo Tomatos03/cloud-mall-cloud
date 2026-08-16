@@ -49,8 +49,8 @@ public interface ProductSkuSpecMapper extends BaseMapper<ProductSkuSpecDO> {
      * @return SKU-规格值关联列表
      */
     default List<ProductSkuSpecDO> selectBySpecValueIdsInProduct(
-            Collection<Long> specValueIds,
-            Long productId
+        Collection<Long> specValueIds,
+        Long productId
     ) {
         return selectList(
                 Wrappers.<ProductSkuSpecDO>lambdaQuery()

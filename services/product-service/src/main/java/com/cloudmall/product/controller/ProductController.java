@@ -49,11 +49,7 @@ public class ProductController {
      * @return 新建 SPU ID
      */
     @PostMapping
-    public Result<Long> create(
-            @Valid
-            @RequestBody
-            ProductCreateReq req
-    ) {
+    public Result<Long> create(@Valid @RequestBody ProductCreateReq req) {
         return Result.success(productApp.create(req));
     }
 
@@ -66,13 +62,7 @@ public class ProductController {
      * @return 操作结果
      */
     @PutMapping("/{id}")
-    public Result<Void> update(
-            @PathVariable
-            Long id,
-            @Valid
-            @RequestBody
-            ProductUpdateReq req
-    ) {
+    public Result<Void> update(@PathVariable Long id, @Valid @RequestBody ProductUpdateReq req) {
         productService.update(id, req);
         return Result.success();
     }
@@ -86,10 +76,10 @@ public class ProductController {
      */
     @GetMapping
     public Result<List<ProductDocResp>> listByCategory(
-            @RequestParam("categoryIds")
-            Set<Long> categoryIds,
-            @RequestParam(value = "limit", defaultValue = "10")
-            Integer limit
+        @RequestParam("categoryIds")
+        Set<Long> categoryIds,
+        @RequestParam(value = "limit", defaultValue = "10")
+        Integer limit
     ) {
         return Result.success(productService.listByCategoryIds(categoryIds, limit));
     }
@@ -101,10 +91,7 @@ public class ProductController {
      * @return 商品完整详情
      */
     @GetMapping("/{id}/detail")
-    public Result<ProductDetailResp> detail(
-            @PathVariable
-            Long id
-    ) {
+    public Result<ProductDetailResp> detail(@PathVariable Long id) {
         return Result.success(productService.detail(id));
     }
 
@@ -115,10 +102,7 @@ public class ProductController {
      * @return 商品信息
      */
     @GetMapping("/{id}")
-    public Result<ProductResp> getById(
-            @PathVariable
-            Long id
-    ) {
+    public Result<ProductResp> getById(@PathVariable Long id) {
         ProductGetReq req = ProductGetReq.builder()
                                          .id(id)
                                          .build();
@@ -132,10 +116,7 @@ public class ProductController {
      * @return 商品信息
      */
     @GetMapping("/spu/{spu}")
-    public Result<ProductResp> getBySpu(
-            @PathVariable
-            String spu
-    ) {
+    public Result<ProductResp> getBySpu(@PathVariable String spu) {
         ProductGetReq req = ProductGetReq.builder()
                                          .spuCode(spu)
                                          .build();
@@ -161,10 +142,7 @@ public class ProductController {
      * @return 搜索文档，商品不存在返回 null
      */
     @GetMapping("/docs/{id}")
-    public Result<ProductDocResp> searchDoc(
-            @PathVariable
-            Long id
-    ) {
+    public Result<ProductDocResp> searchDoc(@PathVariable Long id) {
         return Result.success(productService.searchDoc(id));
     }
 
@@ -175,10 +153,7 @@ public class ProductController {
      * @return 操作结果
      */
     @DeleteMapping("/{id}")
-    public Result<Void> delete(
-            @PathVariable
-            Long id
-    ) {
+    public Result<Void> delete(@PathVariable Long id) {
         productService.delete(id);
         return Result.success();
     }

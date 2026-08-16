@@ -106,9 +106,9 @@ public class CheckoutPipeline {
     }
 
     private static CheckoutContext buildBaseCheckoutContext(
-            CheckoutTypeEnum checkoutType,
-            Long userId,
-            CreateOrderReq req
+        CheckoutTypeEnum checkoutType,
+        Long userId,
+        CreateOrderReq req
     ) {
         return CheckoutContext.builder()
                               .checkoutType(checkoutType)

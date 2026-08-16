@@ -503,13 +503,13 @@ public class UserCouponService implements IUserCouponService {
      * @return 用户券
      */
     private UserCouponResp issueOne(
-            CouponDO template,
-            Long userId,
-            IssuedSourceEnum source,
-            String eventId,
-            Long operatorId,
-            UserCouponLogSourceEnum logSource,
-            String reason
+        CouponDO template,
+        Long userId,
+        IssuedSourceEnum source,
+        String eventId,
+        Long operatorId,
+        UserCouponLogSourceEnum logSource,
+        String reason
     ) {
         int affected = couponMapper.increaseClaimedCount(template.getId());
         Asserts.isNotZero(affected, BizError.COUPON_STOCK_NOT_ENOUGH);
@@ -640,15 +640,15 @@ public class UserCouponService implements IUserCouponService {
      * @param reason 原因
      */
     private void appendLog(
-            UserCouponDO uc,
-            UserCouponOperationTypeEnum op,
-            UserCouponStatusEnum from,
-            UserCouponStatusEnum to,
-            UserCouponLogSourceEnum source,
-            String orderNo,
-            String eventId,
-            Long operatorId,
-            String reason
+        UserCouponDO uc,
+        UserCouponOperationTypeEnum op,
+        UserCouponStatusEnum from,
+        UserCouponStatusEnum to,
+        UserCouponLogSourceEnum source,
+        String orderNo,
+        String eventId,
+        Long operatorId,
+        String reason
     ) {
         userCouponLogMapper.insert(
                 userCouponLogConverter.toLog(uc, op, from, to, source, orderNo, eventId, operatorId, reason)

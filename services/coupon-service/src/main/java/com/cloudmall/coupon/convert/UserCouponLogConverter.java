@@ -42,15 +42,15 @@ public interface UserCouponLogConverter {
     @Mapping(target = "userCouponId", source = "uc.id")
     @Mapping(target = "couponId", source = "uc.couponId")
     UserCouponLogDO toLog(
-            UserCouponDO uc,
-            UserCouponOperationTypeEnum operationType,
-            UserCouponStatusEnum fromStatus,
-            UserCouponStatusEnum toStatus,
-            UserCouponLogSourceEnum source,
-            String orderNo,
-            String eventId,
-            Long operatorId,
-            String reason
+        UserCouponDO uc,
+        UserCouponOperationTypeEnum operationType,
+        UserCouponStatusEnum fromStatus,
+        UserCouponStatusEnum toStatus,
+        UserCouponLogSourceEnum source,
+        String orderNo,
+        String eventId,
+        Long operatorId,
+        String reason
     );
 
     /**

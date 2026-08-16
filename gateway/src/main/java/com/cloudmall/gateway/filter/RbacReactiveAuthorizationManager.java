@@ -49,8 +49,8 @@ public class RbacReactiveAuthorizationManager implements ReactiveAuthorizationMa
      */
     @Override
     public Mono<AuthorizationDecision> check(
-            Mono<Authentication> authentication,
-            AuthorizationContext context
+        Mono<Authentication> authentication,
+        AuthorizationContext context
     ) {
 
         String method = context.getExchange()
