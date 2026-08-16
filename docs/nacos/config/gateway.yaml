@@ -8,6 +8,7 @@ auth:
     - /chat/ws
     - GET:/seckill/activities
     - GET:/seckill/activities/*
+    - GET:/home
   url-permissions:
     - pattern: "GET:/merchant/**"
       permissions: [coupon:template:view, coupon:stats:view]
@@ -65,7 +66,7 @@ spring:
             - id: user-service
               uri: lb://user-service
               predicates:
-                - Path=/users/**,/roles/**,/resources/**,/addresses/**,/shops/**,/favorites/**
+                - Path=/users/**,/roles/**,/resources/**,/addresses/**,/shops/**,/favorites/**,/home/**
               filters:
                 - StripPrefix=0
 

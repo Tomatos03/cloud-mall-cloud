@@ -433,7 +433,7 @@ public class CouponOrderService implements ICouponOrderService {
                     : Collections.emptyList();
             CouponOrderCalcResp candidateResp;
             candidateResp = calculator.calculate(items, platform, shops);
-            BigDecimal payable = candidateResp.getGoodsPayableAmount();
+            BigDecimal payable = candidateResp.getProductPayableAmount();
             if (payable.compareTo(bestPayable) < 0) {
                 bestPayable = payable;
                 best = combo.stream()

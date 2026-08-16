@@ -10,7 +10,7 @@ import com.cloudmall.mybatisplus.query.ConditionBuilder;
  *
  * <pre>{@code
  * &#064;Getter &#064;Setter
- * public class GoodsConditionReq extends ConditionReq&lt;GoodsDO&gt; {
+ * public class ProductConditionReq extends ConditionReq&lt;ProductDO&gt; {
  *     &#064;QueryCondition(operator = Operator.EQ)
  *     private Long categoryId;
  *

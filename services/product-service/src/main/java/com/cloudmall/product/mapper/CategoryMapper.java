@@ -21,7 +21,7 @@ public interface CategoryMapper extends BaseMapper<CategoryDO> {
         return selectList(
                 Wrappers.<CategoryDO>lambdaQuery()
                         .eq(CategoryDO::getStatus, StatusEnum.ENABLED)
-                        .orderByAsc(CategoryDO::getSortOrder)
+                        .orderByAsc(CategoryDO::getSort)
         );
     }
 }

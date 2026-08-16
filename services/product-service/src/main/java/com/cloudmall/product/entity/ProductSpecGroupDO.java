@@ -22,7 +22,7 @@ public class ProductSpecGroupDO {
     private Long productId;
 
     private String name;
-    private Integer sortOrder;
+    private Integer sort;
 
     @TableField(fill = FieldFill.INSERT)
     private LocalDateTime createTime;

@@ -60,7 +60,7 @@ public class SeckillProductService implements ISeckillProductService {
 
         // 同活动同 SKU 唯一
         Long existing = productMapper.countByActivityAndSku(product.getActivityId(), product.getSkuId());
-        Asserts.isTrue(existing == null || existing == 0, BizError.GOODS_ALREADY_IN_SECKILL_ACTIVITY);
+        Asserts.isTrue(existing == null || existing == 0, BizError.PRODUCT_ALREADY_IN_SECKILL_ACTIVITY);
 
         // 每活动商品数上限（创建活动时配置，未配置兜底 50）
         Long count = productMapper.countByActivityId(product.getActivityId());
@@ -91,7 +91,7 @@ public class SeckillProductService implements ISeckillProductService {
     public void audit(Long productId, boolean approved, String auditRemark, Long auditorId) {
         SeckillProductDO product = Asserts.requireNonNull(
                 productMapper.selectById(productId),
-                BizError.SECKILL_GOODS_NOT_FOUND
+                BizError.SECKILL_PRODUCT_NOT_FOUND
         );
 
         // 仅待审核的商品可审核

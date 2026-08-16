@@ -241,6 +241,6 @@ public class SkuService implements ISkuService {
             return 0;
         }
         ProductSpecGroupDO group = groupMap.get(value.getGroupId());
-        return group == null ? 0 : ObjectUtil.defaultIfNull(group.getSortOrder(), 0);
+        return group == null ? 0 : ObjectUtil.defaultIfNull(group.getSort(), 0);
     }
 }

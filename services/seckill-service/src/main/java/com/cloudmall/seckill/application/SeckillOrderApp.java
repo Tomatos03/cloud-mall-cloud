@@ -86,7 +86,7 @@ public class SeckillOrderApp {
         // 商品必须属于该活动且已审核通过
         SeckillProductDO product = Asserts.requireNonNull(
                 productService.getApprovedByActivityAndSku(req.getActivityId(), req.getSkuId()),
-                BizError.SECKILL_GOODS_NOT_FOUND
+                BizError.SECKILL_PRODUCT_NOT_FOUND
         );
 
         // 一人一单标记 TTL 取到活动结束时刻

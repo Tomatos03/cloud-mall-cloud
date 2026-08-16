@@ -33,6 +33,17 @@ public class CategoryService implements ICategoryService {
     private final CategoryConverter categoryConverter;
 
     /**
+     * 查询启用中的分类平铺列表。
+     *
+     * @return 数据列表
+     */
+    @Override
+    public List<CategoryResp> listEnabled() {
+        List<CategoryDO> categories = categoryMapper.selectEnabledOrdered();
+        return categoryConverter.toRespList(categories);
+    }
+
+    /**
      * 查询分类树。
      *
      * @return 数据列表
@@ -43,7 +54,7 @@ public class CategoryService implements ICategoryService {
 
         List<TreeNode<Long>> nodeList = categoryList
                 .stream()
-                .map(cat -> new TreeNode<>(cat.getId(), cat.getParentId(), cat.getName(), cat.getSortOrder()))
+                .map(cat -> new TreeNode<>(cat.getId(), cat.getParentId(), cat.getName(), cat.getSort()))
                 .toList();
 
         return TreeUtil.build(nodeList, 0L)
@@ -123,7 +134,7 @@ public class CategoryService implements ICategoryService {
                 .id(tree.getId())
                 .name(tree.getName().toString())
                 .parentId(tree.getParentId())
-                .sortOrder(tree.getWeight() != null ? ((Number) tree.getWeight()).intValue() : null)
+                .sort(tree.getWeight() != null ? ((Number) tree.getWeight()).intValue() : null)
                 .build();
         List<CategoryNodeResp> children = CollectionUtil.emptyIfNull(tree.getChildren())
                                                         .stream()

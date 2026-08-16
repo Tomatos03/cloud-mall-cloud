@@ -58,6 +58,28 @@
             <artifactId>spring-cloud-starter-alibaba-nacos-config</artifactId>
         </dependency>
         <dependency>
+            <groupId>com.alibaba.cloud</groupId>
+            <artifactId>spring-cloud-starter-alibaba-sentinel</artifactId>
+            <exclusions>
+                <exclusion>
+                    <groupId>com.alibaba.csp</groupId>
+                    <artifactId>sentinel-datasource-apollo</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>com.alibaba.csp</groupId>
+                    <artifactId>sentinel-datasource-zookeeper</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>com.alibaba.csp</groupId>
+                    <artifactId>sentinel-datasource-redis</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>com.alibaba.csp</groupId>
+                    <artifactId>sentinel-datasource-consul</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
             <groupId>com.mysql</groupId>
             <artifactId>mysql-connector-j</artifactId>
             <scope>runtime</scope>

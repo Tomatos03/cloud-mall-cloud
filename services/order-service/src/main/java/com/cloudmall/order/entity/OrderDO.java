@@ -50,7 +50,8 @@ public class OrderDO {
     private BigDecimal totalPlatformDiscountAmount;
 
     /** 商品应付金额（原价减全部优惠） */
-    private BigDecimal goodsPayableAmount;
+    @TableField("goods_payable_amount")
+    private BigDecimal productPayableAmount;
 
     /** 运费金额 */
     private BigDecimal freightAmount;

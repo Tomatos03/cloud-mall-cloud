@@ -9,6 +9,13 @@ import com.cloudmall.product.api.response.CategoryResp;
 public interface ICategoryService {
 
     /**
+     * 查询启用中的分类平铺列表（按排序值升序）。
+     *
+     * @return 分类响应列表
+     */
+    List<CategoryResp> listEnabled();
+
+    /**
      * 查询分类树。
      *
      * @return 数据列表

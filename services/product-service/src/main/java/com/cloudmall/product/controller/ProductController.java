@@ -1,5 +1,8 @@
 package com.cloudmall.product.controller;
 
+import java.util.List;
+import java.util.Set;
+
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -9,6 +12,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.cloudmall.common.model.CursorReq;
@@ -71,6 +75,23 @@ public class ProductController {
     ) {
         productService.update(id, req);
         return Result.success();
+    }
+
+    /**
+     * 按分类 ID 集合查询已上架商品（首页分类展示用）。
+     *
+     * @param categoryIds 分类 ID 集合（可包含指定分类及其子分类）
+     * @param limit 查询条数上限（1~50，默认 10）
+     * @return 商品列表
+     */
+    @GetMapping
+    public Result<List<ProductDocResp>> listByCategory(
+            @RequestParam("categoryIds")
+            Set<Long> categoryIds,
+            @RequestParam(value = "limit", defaultValue = "10")
+            Integer limit
+    ) {
+        return Result.success(productService.listByCategoryIds(categoryIds, limit));
     }
 
     /**

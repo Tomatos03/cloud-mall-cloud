@@ -4,6 +4,7 @@ import java.math.BigDecimal;
 import java.text.Normalizer;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -153,33 +154,7 @@ public class ProductService implements IProductService {
                                .build();
         }
 
-        Set<Long> brandIds = collectNonNull(records, ProductDO::getBrandId);
-        Set<Long> categoryIds = collectNonNull(records, ProductDO::getCategoryId);
-        Set<Long> imageIds = collectNonNull(records, ProductDO::getImageId);
-        Set<Long> productIds = records.stream()
-                                      .map(ProductDO::getId)
-                                      .collect(Collectors.toSet());
-
-        Map<Long, BrandDO> brandMap = batchQuery(brandIds, brandMapper::selectByIds, BrandDO::getId);
-        Map<Long, CategoryDO> categoryMap = batchQuery(
-                categoryIds,
-                categoryMapper::selectByIds,
-                CategoryDO::getId
-        );
-        Map<Long, ProductImageDO> imageMap = batchQuery(
-                imageIds,
-                productImageMapper::selectByIds,
-                ProductImageDO::getId
-        );
-        Map<Long, BigDecimal> lowestPriceMap = productSkuMapper
-                .selectLowestPrices(productIds)
-                .stream()
-                .collect(Collectors.toMap(ProductSkuPrice::productId, ProductSkuPrice::price));
-
-        List<ProductDocResp> docs = records
-                .stream()
-                .map(p -> assembleSearchDoc(p, brandMap, categoryMap, imageMap, lowestPriceMap))
-                .toList();
+        List<ProductDocResp> docs = assembleSearchDocs(records);
         ProductDO last = records.get(records.size() - 1);
         Long nextCursor = hasMore ? last.getId() : 0L;
         LocalDateTime nextCursorTime = hasMore ? last.getUpdateTime() : null;
@@ -218,6 +193,59 @@ public class ProductService implements IProductService {
 
     private static Set<Long> singletonOrEmpty(Long value) {
         return value == null ? Set.of() : Set.of(value);
+    }
+
+    /**
+     * 按分类 ID 集合查询已上架商品（首页分类展示用）。 <p>
+     * 分类 ID 集合可包含指定分类及其子分类，仅查询已上架商品并按创建时间倒序。
+     *
+     * @param categoryIds 分类 ID 集合
+     * @param limit 查询条数上限（1~50，默认 10）
+     * @return 商品搜索文档列表
+     */
+    @Override
+    public List<ProductDocResp> listByCategoryIds(Collection<Long> categoryIds, Integer limit) {
+        int size = Math.min(Math.max(ObjectUtil.defaultIfNull(limit, 10), 1), 50);
+        List<ProductDO> records = productMapper.selectEnabledByCategoryIds(categoryIds, size);
+        if (CollUtil.isEmpty(records)) {
+            return List.of();
+        }
+        return assembleSearchDocs(records);
+    }
+
+    /**
+     * 批量组装商品搜索文档（SPU + SKU 最低价 + 分类/品牌名 + 主图）。
+     *
+     * @param records 商品记录
+     * @return 商品搜索文档列表
+     */
+    private List<ProductDocResp> assembleSearchDocs(List<ProductDO> records) {
+        Set<Long> brandIds = collectNonNull(records, ProductDO::getBrandId);
+        Set<Long> categoryIds = collectNonNull(records, ProductDO::getCategoryId);
+        Set<Long> imageIds = collectNonNull(records, ProductDO::getImageId);
+        Set<Long> productIds = records.stream()
+                                      .map(ProductDO::getId)
+                                      .collect(Collectors.toSet());
+
+        Map<Long, BrandDO> brandMap = batchQuery(brandIds, brandMapper::selectByIds, BrandDO::getId);
+        Map<Long, CategoryDO> categoryMap = batchQuery(
+                categoryIds,
+                categoryMapper::selectByIds,
+                CategoryDO::getId
+        );
+        Map<Long, ProductImageDO> imageMap = batchQuery(
+                imageIds,
+                productImageMapper::selectByIds,
+                ProductImageDO::getId
+        );
+        Map<Long, BigDecimal> lowestPriceMap = productSkuMapper
+                .selectLowestPrices(productIds)
+                .stream()
+                .collect(Collectors.toMap(ProductSkuPrice::productId, ProductSkuPrice::price));
+
+        return records.stream()
+                      .map(p -> assembleSearchDoc(p, brandMap, categoryMap, imageMap, lowestPriceMap))
+                      .toList();
     }
 
     private static <K, V> Map<K, V> singletonMapOrEmpty(K key, V value) {
@@ -308,7 +336,7 @@ public class ProductService implements IProductService {
     public void update(Long id, ProductUpdateReq req) {
         ProductDO product = Asserts.requireNonNull(
                 productMapper.selectById(id),
-                BizError.GOODS_OR_SHOP_NOT_EXIST
+                BizError.PRODUCT_OR_SHOP_NOT_EXIST
         );
         validateBrandAndCategory(req.getBrandId(), req.getCategoryId());
         validateSkuTopology(req.getSpecGroups(), req.getSkus());
@@ -399,10 +427,10 @@ public class ProductService implements IProductService {
             if (group == null) {
                 group = specGroupConverter.toDO(groupItem, productId);
                 group.setName(groupName);
-                group.setSortOrder(g);
+                group.setSort(g);
                 productSpecGroupMapper.insert(group);
             } else {
-                group.setSortOrder(g);
+                group.setSort(g);
                 productSpecGroupMapper.updateById(group);
             }
 
@@ -422,10 +450,10 @@ public class ProductService implements IProductService {
                 if (value == null) {
                     value = specValueConverter.toDO(valueItem, group.getId());
                     value.setValue(valueName);
-                    value.setSortOrder(v);
+                    value.setSort(v);
                     productSpecValueMapper.insert(value);
                 } else {
-                    value.setSortOrder(v);
+                    value.setSort(v);
                     if (StrUtil.isNotBlank(valueItem.getImage())) {
                         value.setImage(valueItem.getImage());
                     }
@@ -575,7 +603,7 @@ public class ProductService implements IProductService {
     public void delete(Long id) {
         ProductDO product = Asserts.requireNonNull(
                 productMapper.selectById(id),
-                BizError.GOODS_OR_SHOP_NOT_EXIST
+                BizError.PRODUCT_OR_SHOP_NOT_EXIST
         );
         Asserts.isTrue(productMapper.deleteById(id) > 0, BizError.SPU_DELETE_FAILED);
 
@@ -611,7 +639,7 @@ public class ProductService implements IProductService {
 
     /**
      * 落商品图片，返回主图 ID。 <p>
-     * 主图与排序均按下标推导：首张为主图，sortOrder 取下标。
+     * 主图与排序均按下标推导：首张为主图，sort 取下标。
      *
      * @param images 图片请求模型列表
      * @param productId SPU ID
@@ -621,7 +649,7 @@ public class ProductService implements IProductService {
         List<ProductImageDO> imageDOList = new ArrayList<>(images.size());
         for (int i = 0; i < images.size(); i++) {
             ProductImageDO image = imageConverter.toDO(images.get(i), productId);
-            image.setSortOrder(i);
+            image.setSort(i);
             image.setIsMain(i == 0);
             imageDOList.add(image);
         }
@@ -632,7 +660,7 @@ public class ProductService implements IProductService {
     /**
      * 落规格组与规格值，同时返回 [组下标][值下标] -> 规格值主键 的二维映射。 <p>
      * 这张映射是把请求里的 {@code specValues} 翻译成外键的唯一依据，方法返回后即丢弃，
-     * 不落库。 规格组与规格值的 sortOrder 取各自的数组下标。 <p>
+     * 不落库。 规格组与规格值的 sort 取各自的数组下标。 <p>
      * 逐条插入而非批量：规格值不会太多
      *
      * @param productId SPU ID
@@ -647,7 +675,7 @@ public class ProductService implements IProductService {
 
             ProductSpecGroupDO group = specGroupConverter.toDO(groupItem, productId);
             group.setName(normalize(groupItem.getName()));
-            group.setSortOrder(g);
+            group.setSort(g);
             productSpecGroupMapper.insert(group);
 
             List<SpecValueItem> values = groupItem.getValues();
@@ -655,7 +683,7 @@ public class ProductService implements IProductService {
             for (int v = 0; v < values.size(); v++) {
                 ProductSpecValueDO specValue = specValueConverter.toDO(values.get(v), group.getId());
                 specValue.setValue(normalize(values.get(v).getValue()));
-                specValue.setSortOrder(v);
+                specValue.setSort(v);
                 productSpecValueMapper.insert(specValue);
 
                 // 位置 v 与主键一一对应

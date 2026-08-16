@@ -27,7 +27,7 @@ public interface ProductImageMapper extends BaseMapper<ProductImageDO> {
                 Wrappers.<ProductImageDO>lambdaQuery()
                         .eq(ProductImageDO::getProductId, productId)
                         .orderByDesc(ProductImageDO::getIsMain)
-                        .orderByAsc(ProductImageDO::getSortOrder)
+                        .orderByAsc(ProductImageDO::getSort)
         );
     }
 

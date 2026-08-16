@@ -167,7 +167,7 @@ public class RouterAgent implements Agent {
      * 将智能体格式化为路由提示词中的描述行。
      *
      * @param agent 智能体实例
-     * @return 格式化后的描述行，如 {@code - goods: 负责商品搜索...}
+     * @return 格式化后的描述行，如 {@code - product: 负责商品搜索...}
      */
     private String formatAgentDescription(Agent agent) {
         String agentTypeName = agent.getType()

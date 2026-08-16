@@ -24,6 +24,6 @@ public class BrandUpdateReq {
     private String description;
     private String country;
     private String website;
-    private Integer sortOrder;
+    private Integer sort;
     private StatusEnum status;
 }

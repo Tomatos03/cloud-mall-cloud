@@ -20,7 +20,7 @@ public class ResourceReq {
     /** 资源类型（menu / catalog / layout / button） */
     private String type;
 
-    /** 权限编码（如 "goods:create"），按钮类型必填 */
+    /** 权限编码（如 "product:create"），按钮类型必填 */
     private String code;
 
     /** 资源名称（显示名） */

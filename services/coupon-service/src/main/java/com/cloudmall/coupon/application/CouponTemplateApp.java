@@ -110,7 +110,7 @@ public class CouponTemplateApp {
      * @return 商品信息
      */
     private ProductResp requireProduct(Long productId) {
-        return Asserts.requireNonNull(productClient.getById(productId), BizError.GOODS_NOT_EXIST);
+        return Asserts.requireNonNull(productClient.getById(productId), BizError.PRODUCT_NOT_EXIST);
     }
 
     /**

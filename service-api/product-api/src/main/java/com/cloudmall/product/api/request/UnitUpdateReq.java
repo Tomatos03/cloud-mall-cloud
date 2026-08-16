@@ -19,6 +19,6 @@ import com.cloudmall.mybatisplus.enums.StatusEnum;
 public class UnitUpdateReq {
 
     private String name;
-    private Integer sortOrder;
+    private Integer sort;
     private StatusEnum status;
 }

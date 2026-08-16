@@ -55,7 +55,7 @@ public class BrandPageReq extends PageReq<BrandDO> {
     @Override
     public LambdaQueryWrapper<BrandDO> buildLambdaWrapper() {
         LambdaQueryWrapper<BrandDO> wrapper = super.buildLambdaWrapper();
-        wrapper.orderByAsc(BrandDO::getSortOrder);
+        wrapper.orderByAsc(BrandDO::getSort);
         return wrapper;
     }
 }

@@ -26,8 +26,8 @@ public interface SpecGroupConverter {
      * @return 规格组实体
      */
     @Mapping(target = "id", ignore = true)
+    @Mapping(target = "sort", ignore = true)
     @Mapping(target = "deleted", ignore = true)
-    @Mapping(target = "sortOrder", ignore = true)
     @Mapping(target = "createTime", ignore = true)
     @Mapping(target = "updateTime", ignore = true)
     @Mapping(target = "name", source = "item.name")

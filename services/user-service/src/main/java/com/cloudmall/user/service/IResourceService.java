@@ -29,8 +29,8 @@ public interface IResourceService {
      * 获取用户的权限编码列表
      *
      * @param userId 用户 ID
-     * @return 权限编码列表（如 ["goods:create", "order:view"]），不
-     *         会 null
+     * @return 权限编码列表（如 ["product:create", "order:view"]）
+     *         ，不 会 null
      */
     List<String> getPermissionCodes(Long userId);
 
@@ -47,7 +47,7 @@ public interface IResourceService {
      * 判断用户是否拥有指定权限
      *
      * @param userId 用户 ID
-     * @param permissionCode 权限编码（如 "goods:create"）
+     * @param permissionCode 权限编码（如 "product:create"）
      * @return true 拥有该权限
      */
     boolean hasPermission(Long userId, String permissionCode);

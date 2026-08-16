@@ -24,6 +24,16 @@ public class CategoryController {
     private final ICategoryService categoryService;
 
     /**
+     * 查询启用中的分类平铺列表（含层级关系，按排序值升序）。
+     *
+     * @return 处理结果
+     */
+    @GetMapping
+    public Result<List<CategoryResp>> list() {
+        return Result.success(categoryService.listEnabled());
+    }
+
+    /**
      * 查询分类树。
      *
      * @return 处理结果

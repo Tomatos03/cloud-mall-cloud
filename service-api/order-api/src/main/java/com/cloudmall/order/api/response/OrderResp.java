@@ -41,7 +41,7 @@ public class OrderResp {
     private BigDecimal totalPlatformDiscountAmount;
 
     /** 商品应付金额 */
-    private BigDecimal goodsPayableAmount;
+    private BigDecimal productPayableAmount;
 
     /** 运费金额 */
     private BigDecimal freightAmount;

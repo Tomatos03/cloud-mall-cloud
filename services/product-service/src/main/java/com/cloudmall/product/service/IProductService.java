@@ -1,5 +1,8 @@
 package com.cloudmall.product.service;
 
+import java.util.Collection;
+import java.util.List;
+
 import com.cloudmall.common.model.CursorReq;
 import com.cloudmall.common.model.CursorResult;
 import com.cloudmall.product.api.request.ProductCreateReq;
@@ -45,6 +48,17 @@ public interface IProductService {
      * @return 搜索文档，商品不存在返回 null
      */
     ProductDocResp searchDoc(Long id);
+
+    /**
+     * 按分类 ID 集合查询已上架商品（首页分类展示用）。 <p>
+     * 分类 ID 集合可包含指定分类及其子分类，文档组装逻辑与 {@link #cursorPage} 保
+     * 持一致。
+     *
+     * @param categoryIds 分类 ID 集合
+     * @param limit 查询条数上限（1~50，默认 10）
+     * @return 商品搜索文档列表
+     */
+    List<ProductDocResp> listByCategoryIds(Collection<Long> categoryIds, Integer limit);
 
     /**
      * 创建商品。 <p>

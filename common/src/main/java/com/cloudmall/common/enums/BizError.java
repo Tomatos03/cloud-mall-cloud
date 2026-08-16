@@ -38,24 +38,24 @@ public enum BizError {
     STOCK_NOT_ENOUGH(21000, "库存不足"),
     CATEGORY_BEYOND_MAX_LEVEL(20000, "分类层级超出最大限制"),
     CATEGORY_NOT_EXIST_OR_NO_ENABLE(20013, "分类不存在"),
-    GOODS_OR_SHOP_NOT_EXIST(20001, "商品或店铺不存在"),
-    GOODS_SAVE_FAILED(20002, "商品保存失败"),
+    PRODUCT_OR_SHOP_NOT_EXIST(20001, "商品或店铺不存在"),
+    PRODUCT_SAVE_FAILED(20002, "商品保存失败"),
     SKU_SAVE_FAILED(20003, "SKU保存失败"),
     SPEC_VALUE_INVALID(20004, "规格值无效"),
-    GOODS_ID_INVALID(20005, "商品ID无效"),
-    GOODS_UPDATE_FAILED(20006, "商品更新失败"),
+    PRODUCT_ID_INVALID(20005, "商品ID无效"),
+    PRODUCT_UPDATE_FAILED(20006, "商品更新失败"),
     SPEC_SAVE_FAILED(20007, "规格保存失败"),
     SPEC_VALUE_SAVE_FAILED(20008, "规格值保存失败"),
     SPU_DELETE_FAILED(20009, "删除商品SPU失败"),
     SPEC_VALUE_DELETE_FAILED(20010, "规格值删除失败"),
     SPEC_VALUE_CLEANUP_NOT_SUPPORTED(20011, "规格值清理功能不支持"),
-    GOODS_PUBLISH_PAYLOAD_INVALID(20012, "商品发布数据无效"),
+    PRODUCT_PUBLISH_PAYLOAD_INVALID(20012, "商品发布数据无效"),
     SPECIFICATIONS_CANNOT_BE_EMPTY(20014, "规格不能为空"),
     SKUS_CANNOT_BE_EMPTY(20015, "SKU不能为空"),
     SPECIFICATIONS_EXCEED_MAX_LIMIT(20016, "规格数量超出最大限制"),
     SKU_SPECS_CANNOT_BE_EMPTY(20017, "SKU规格不能为空"),
     SKU_SPEC_NOT_MATCH(20018, "SKU中包含无效的规格"),
-    GOODS_UNIT_NOT_EXIST(20019, "商品单位不存在"),
+    PRODUCT_UNIT_NOT_EXIST(20019, "商品单位不存在"),
     BRAND_NOT_EXIST(20020, "品牌不存在"),
 
     // 地址相关错误码 (30xxx)
@@ -68,18 +68,18 @@ public enum BizError {
 
     // 轮播图相关错误码 (45xxx)
     BANNER_NOT_EXIST(45000, "轮播图不存在"),
-    BANNER_GOODS_NOT_EXIST(45001, "轮播图关联的商品不存在"),
+    BANNER_PRODUCT_NOT_EXIST(45001, "轮播图关联的商品不存在"),
 
     // 订单相关错误码 (50xxx)
     // 订单创建相关
     CREATE_ORDER_FAILURE(50000, "创建订单失败"),
     ORDER_DATA_IS_NULL(50001, "订单数据为空"),
-    ORDER_GOODS_ID_IS_NULL(50002, "商品ID为空"),
+    ORDER_PRODUCT_ID_IS_NULL(50002, "商品ID为空"),
     ORDER_QUANTITY_INVALID(50003, "商品数量无效"),
-    GOODS_NOT_IN_CART(50004, "购物车中不存在该商品"),
-    GOODS_NOT_EXIST(50005, "商品不存在"),
-    GOODS_OFF_SHELF(50006, "商品已下架"),
-    GOODS_STOCK_INSUFFICIENT(50007, "商品库存不足"),
+    PRODUCT_NOT_IN_CART(50004, "购物车中不存在该商品"),
+    PRODUCT_NOT_EXIST(50005, "商品不存在"),
+    PRODUCT_OFF_SHELF(50006, "商品已下架"),
+    PRODUCT_STOCK_INSUFFICIENT(50007, "商品库存不足"),
     ORDER_CREATE_FAILED(50012, "订单创建失败"),
 
     // 订单状态相关
@@ -99,7 +99,7 @@ public enum BizError {
 
     // 已废弃或很少使用
     USER_ID_IS_NULL(50011, "用户ID不能为空"),  // 拦截器保证非空，不再使用
-    GOODS_INVENTORY_NOT_ENOUGH(50019, "SKU库存不足"),
+    PRODUCT_INVENTORY_NOT_ENOUGH(50019, "SKU库存不足"),
     ORDER_CREATE_ADDRESS_NOT_EXIST(50020, "下单地址不存在"),
     ORDER_CREATE_ITEMS_EMPTY(50021, "下单商品项不能为空"),
     ORDER_CREATE_STORE_NOT_EXIST(50022, "下单店铺不存在"),
@@ -109,10 +109,10 @@ public enum BizError {
 
     // 购物车相关错误码 (60xxx)
     UNKNOW_CART_TYPE(60000, "未知的购物车类型"),
-    CART_GOODS_NOT_EXIST(60001, "商品不存在"),
-    CART_GOODS_NOT_BELONG_TO_STORE(60002, "商品不属于该店铺"),
-    CART_GOODS_OFF_SHELF(60003, "商品已下架"),
-    CART_GOODS_STOCK_INSUFFICIENT(60004, "商品库存不足"),
+    CART_PRODUCT_NOT_EXIST(60001, "商品不存在"),
+    CART_PRODUCT_NOT_BELONG_TO_STORE(60002, "商品不属于该店铺"),
+    CART_PRODUCT_OFF_SHELF(60003, "商品已下架"),
+    CART_PRODUCT_STOCK_INSUFFICIENT(60004, "商品库存不足"),
     CART_STORE_NOT_EXIST(60005, "店铺不存在"),
     CART_ITEM_NOT_EXIST(60006, "购物车中不存在该商品"),
     CART_LIMIT_EXCEEDED(60007, "购物车商品数量已达上限"),
@@ -121,7 +121,7 @@ public enum BizError {
     // 评论参数验证相关
     COMMENT_RATING_INVALID(70000, "评分必须在1-5之间"),
     COMMENT_CONTENT_EMPTY(70001, "评论内容不能为空"),
-    COMMENT_GOODS_NAME_EMPTY(70002, "商品名称不能为空"),
+    COMMENT_PRODUCT_NAME_EMPTY(70002, "商品名称不能为空"),
 
     // 评论数据相关
     COMMENT_NOT_FOUND(70003, "评论不存在"),
@@ -132,7 +132,7 @@ public enum BizError {
 
     // 评论关联数据相关
     COMMENT_ORDER_ITEM_NOT_EXIST(70006, "订单明细不存在，无法评论"),
-    COMMENT_GOODS_NOT_EXIST(70007, "商品不存在，无法评论"),
+    COMMENT_PRODUCT_NOT_EXIST(70007, "商品不存在，无法评论"),
     COMMENT_USER_NOT_EXIST(70008, "用户不存在，无法评论"),
 
     // 文件上传相关错误码 (80xxx)
@@ -203,7 +203,7 @@ public enum BizError {
     SECKILL_STOCK_EXCEEDS_PRODUCT_STOCK(92013, "秒杀库存不能超过商品库存"),
     ACTIVITY_MUST_ADVANCE_24_HOURS(92014, "秒杀活动必须提前24小时以上"),
     ACTIVITY_DURATION_MUST_BE_ONE_HOUR(92015, "秒杀活动时长必须为1小时"),
-    GOODS_ALREADY_IN_SECKILL_ACTIVITY(92016, "该商品已参加秒杀活动，无法重复参加"),
+    PRODUCT_ALREADY_IN_SECKILL_ACTIVITY(92016, "该商品已参加秒杀活动，无法重复参加"),
     PRODUCT_NOT_ACTIVE(92017, "商品未上架，无法参加秒杀"),
     INVALID_TIME_RANGE(92018, "开始时间必须早于结束时间"),
     PRODUCT_ID_REQUIRED(92019, "商品ID不能为空"),
@@ -217,7 +217,7 @@ public enum BizError {
     ACTIVITY_MAX_ITEMS_REACHED(92027, "该活动已达到最大商品数限制"),
     ITEMS_REQUIRED(92028, "商品列表不能为空"),
     ITEMS_EMPTY(92029, "商品列表不能为空，至少需要1个商品"),
-    SECKILL_GOODS_NOT_FOUND(92030, "秒杀商品不存在"),
+    SECKILL_PRODUCT_NOT_FOUND(92030, "秒杀商品不存在"),
     SECKILL_REPEAT_ORDER(92031, "同一商品不可重复秒杀"),
     SECKILL_ACTIVITY_ALREADY_PUBLISHED(92032, "活动已发布，不能重复发布"),
     SECKILL_ACTIVITY_NOT_PUBLISHABLE(92033, "当前状态不可发布"),

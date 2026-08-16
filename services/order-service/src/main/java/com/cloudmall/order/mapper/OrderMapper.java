@@ -87,8 +87,8 @@ public interface OrderMapper extends BaseMapper<OrderDO> {
                         .set(OrderDO::getTotalOriginalAmount, calc.getTotalOriginalAmount())
                         .set(OrderDO::getTotalShopDiscountAmount, calc.getTotalShopDiscountAmount())
                         .set(OrderDO::getTotalPlatformDiscountAmount, calc.getTotalPlatformDiscountAmount())
-                        .set(OrderDO::getGoodsPayableAmount, calc.getGoodsPayableAmount())
-                        .set(OrderDO::getPayableAmount, calc.getGoodsPayableAmount())
+                        .set(OrderDO::getProductPayableAmount, calc.getProductPayableAmount())
+                        .set(OrderDO::getPayableAmount, calc.getProductPayableAmount())
                         .eq(OrderDO::getId, orderId)
         );
     }

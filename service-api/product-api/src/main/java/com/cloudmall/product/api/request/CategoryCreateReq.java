@@ -13,6 +13,6 @@ public class CategoryCreateReq {
 
     private String name;
     private Long parentId;
-    private Integer sortOrder;
+    private Integer sort;
     private String icon;
 }

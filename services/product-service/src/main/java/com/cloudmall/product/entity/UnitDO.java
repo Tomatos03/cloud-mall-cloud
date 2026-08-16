@@ -23,7 +23,7 @@ public class UnitDO {
     private String name;
     @Builder.Default
     private StatusEnum status = StatusEnum.ENABLED;
-    private Integer sortOrder;
+    private Integer sort;
 
     @TableField(fill = FieldFill.INSERT)
     private LocalDateTime createTime;

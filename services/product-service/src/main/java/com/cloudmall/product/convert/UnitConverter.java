@@ -38,15 +38,12 @@ public interface UnitConverter {
     @Mapping(target = "createTime", ignore = true)
     @Mapping(target = "updateTime", ignore = true)
     @Mapping(target = "status", expression = "java(com.cloudmall.mybatisplus.enums.StatusEnum.ENABLED)")
-    @Mapping(
-            target = "sortOrder",
-            expression = "java(java.util.Optional.ofNullable(req.getSortOrder()).orElse(0))"
-    )
+    @Mapping(target = "sort", expression = "java(java.util.Optional.ofNullable(req.getSort()).orElse(0))")
     UnitDO toDO(UnitCreateReq req);
 
     /**
      * 将 {@code req} 中的非 null 字段合并到已有 {@code unit}。 <p>
-     * 仅合并 name、sortOrder、status 三个业务字段，null 值不覆盖。
+     * 仅合并 name、sort、status 三个业务字段，null 值不覆盖。
      *
      * @param unit 目标实体（会被修改）
      * @param req 更新请求

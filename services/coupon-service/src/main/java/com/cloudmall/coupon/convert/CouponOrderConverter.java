@@ -166,7 +166,7 @@ public interface CouponOrderConverter {
                 .totalOriginalAmount(totalOriginalAmount)
                 .totalShopDiscountAmount(totalShopDiscountAmount)
                 .totalPlatformDiscountAmount(totalPlatformDiscountAmount)
-                .goodsPayableAmount(
+                .productPayableAmount(
                         totalOriginalAmount.subtract(totalShopDiscountAmount)
                                            .subtract(totalPlatformDiscountAmount)
                 )

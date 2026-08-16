@@ -234,7 +234,7 @@ public class OrderService implements IOrderService {
                       .totalOriginalAmount(BigDecimal.ZERO)
                       .totalShopDiscountAmount(BigDecimal.ZERO)
                       .totalPlatformDiscountAmount(BigDecimal.ZERO)
-                      .goodsPayableAmount(BigDecimal.ZERO)
+                      .productPayableAmount(BigDecimal.ZERO)
                       .freightAmount(BigDecimal.ZERO)
                       .payableAmount(BigDecimal.ZERO)
                       .addressSnapshot(JSONUtil.toJsonStr(context.getAddress()))

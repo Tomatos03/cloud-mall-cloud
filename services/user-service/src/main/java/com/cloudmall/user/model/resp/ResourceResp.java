@@ -12,7 +12,7 @@ import lombok.NoArgsConstructor;
  * <p>
  * 作为业务层数据载体。
  * Resource 可表示菜单、目录、布局或按钮，通过 type 区分。
- * code 字段作为权限标识时格式为 "business:action"（如 "goods:create"）。
+ * code 字段作为权限标识时格式为 "business:action"（如 "product:create"）。
  *
  * @author : Tomatos
  * @date : 2026/7/25
@@ -29,7 +29,7 @@ public class ResourceResp {
     /** 资源类型（menu / catalog / layout / button） */
     private String type;
 
-    /** 权限编码（如 "goods:create"），按钮类型必填 */
+    /** 权限编码（如 "product:create"），按钮类型必填 */
     private String code;
 
     /** 资源名称（显示名） */

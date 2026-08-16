@@ -239,7 +239,7 @@ public class CartService implements ICartService {
      */
     private SkuResp fetchSku(Long skuId) {
         List<SkuResp> skus = fetchSkus(Collections.singletonList(skuId));
-        Asserts.notEmpty(skus, BizError.CART_GOODS_NOT_EXIST);
+        Asserts.notEmpty(skus, BizError.CART_PRODUCT_NOT_EXIST);
         return skus.get(0);
     }
 

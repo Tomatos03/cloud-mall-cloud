@@ -28,7 +28,7 @@ public interface ProductSpecGroupMapper extends BaseMapper<ProductSpecGroupDO> {
         return selectList(
                 Wrappers.<ProductSpecGroupDO>lambdaQuery()
                         .eq(ProductSpecGroupDO::getProductId, productId)
-                        .orderByAsc(ProductSpecGroupDO::getSortOrder)
+                        .orderByAsc(ProductSpecGroupDO::getSort)
         );
     }
 

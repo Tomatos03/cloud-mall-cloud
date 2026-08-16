@@ -42,7 +42,7 @@ public class LoadCartCheckoutItemsStep implements CheckoutStep {
     @Override
     public void process(CheckoutContext ctx) {
         List<CartDO> selected = cartService.listSelectedItems(ctx.getUserId());
-        Asserts.notEmpty(selected, BizError.GOODS_NOT_IN_CART);
+        Asserts.notEmpty(selected, BizError.PRODUCT_NOT_IN_CART);
         Map<Long, Integer> checkoutItems = new LinkedHashMap<>();
         for (CartDO cart : selected) {
             checkoutItems.put(cart.getSkuId(), cart.getQuantity());

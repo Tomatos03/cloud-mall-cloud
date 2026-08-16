@@ -24,7 +24,7 @@ public class CategoryDO {
     private Long parentId;
     private Integer level;
     private String icon;
-    private Integer sortOrder;
+    private Integer sort;
     @Builder.Default
     private StatusEnum status = StatusEnum.ENABLED;
 

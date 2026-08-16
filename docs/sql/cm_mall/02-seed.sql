@@ -1,7 +1,8 @@
 -- ============================================================
 -- cm_mall — 种子数据（供开发 / 测试环境使用）
 -- 执行前请先执行 01-schema.sql 初始化表结构
--- 与 01-schema.sql 当前表结构严格对齐（优惠券新模型 + 父子订单 + 商品多规格 + cm_shop）
+-- 与 01-schema.sql 当前表结构严格对齐（优惠券新模型 + 父子订单 + 商品多规格 + cm_shop
+-- + 库存流水 + 消息 Outbox/消费幂等 + IM 会话消息）
 -- ============================================================
 
 SET NAMES utf8mb4;
@@ -97,14 +98,14 @@ ALTER TABLE cm_address AUTO_INCREMENT = 100;
 -- 商品分类（三级）
 -- ============================================================
 -- 一级
-INSERT INTO cm_category (id, name, parent_id, level, icon, sort_order, status) VALUES
+INSERT INTO cm_category (id, name, parent_id, level, icon, sort, status) VALUES
 (1,  '数码电子', 0, 1, NULL, 1, 1),
 (2,  '服饰鞋包', 0, 1, NULL, 2, 1),
 (3,  '食品生鲜', 0, 1, NULL, 3, 1),
 (4,  '家居生活', 0, 1, NULL, 4, 1);
 
 -- 二级
-INSERT INTO cm_category (id, name, parent_id, level, icon, sort_order, status) VALUES
+INSERT INTO cm_category (id, name, parent_id, level, icon, sort, status) VALUES
 (10, '手机通讯', 1, 2, NULL, 1, 1),
 (11, '电脑办公', 1, 2, NULL, 2, 1),
 (12, '音频耳机', 1, 2, NULL, 3, 1),
@@ -116,7 +117,7 @@ INSERT INTO cm_category (id, name, parent_id, level, icon, sort_order, status) V
 (40, '厨房用品', 4, 2, NULL, 1, 1);
 
 -- 三级
-INSERT INTO cm_category (id, name, parent_id, level, icon, sort_order, status) VALUES
+INSERT INTO cm_category (id, name, parent_id, level, icon, sort, status) VALUES
 (101, '智能手机',   10, 3, NULL, 1, 1),
 (102, '手机配件',   10, 3, NULL, 2, 1),
 (111, '笔记本',     11, 3, NULL, 1, 1),
@@ -149,7 +150,7 @@ ALTER TABLE cm_unit AUTO_INCREMENT = 100;
 -- ============================================================
 -- 品牌（全局独立表，商品通过 brand_id 引用）
 -- ============================================================
-INSERT INTO cm_brand (id, name, name_en, logo, description, country, website, status, sort_order) VALUES
+INSERT INTO cm_brand (id, name, name_en, logo, description, country, website, status, sort) VALUES
 (1, '华为',     'HUAWEI',   NULL, '全球领先的ICT基础设施和智能终端提供商', '中国', 'https://www.huawei.com',   1, 1),
 (2, 'Apple',    'Apple',    NULL, '全球科技公司，iPhone、Mac 等产品',       '美国', 'https://www.apple.com',    1, 2),
 (3, '联想',     'Lenovo',   NULL, '全球个人电脑领导品牌',                  '中国', 'https://www.lenovo.com',   1, 3),
@@ -161,10 +162,10 @@ INSERT INTO cm_brand (id, name, name_en, logo, description, country, website, st
 ALTER TABLE cm_brand AUTO_INCREMENT = 100;
 
 -- ============================================================
--- 商品图片（首张为主图 is_main=1，其余按 sort_order 轮播）
+-- 商品图片（首张为主图 is_main=1，其余按 sort 轮播）
 -- cm_product.image_id 指向各商品的主图
 -- ============================================================
-INSERT INTO cm_product_image (id, product_id, url, is_main, sort_order) VALUES
+INSERT INTO cm_product_image (id, product_id, url, is_main, sort) VALUES
 (1,  1, 'https://img.cloudmall.dev/product/mate70/main.jpg',    1, 0),
 (2,  1, 'https://img.cloudmall.dev/product/mate70/2.jpg',       0, 1),
 (3,  1, 'https://img.cloudmall.dev/product/mate70/3.jpg',       0, 2),
@@ -207,7 +208,7 @@ ALTER TABLE cm_product AUTO_INCREMENT = 1000;
 -- ============================================================
 -- 规格组（每商品独立维护）
 -- ============================================================
-INSERT INTO cm_product_spec_group (id, product_id, name, sort_order) VALUES
+INSERT INTO cm_product_spec_group (id, product_id, name, sort) VALUES
 -- 华为 Mate 70 Pro（颜色 + 存储）
 (1,  1, '颜色', 0),
 (2,  1, '存储', 1),
@@ -233,7 +234,7 @@ ALTER TABLE cm_product_spec_group AUTO_INCREMENT = 1000;
 -- ============================================================
 -- 规格值
 -- ============================================================
-INSERT INTO cm_product_spec_value (id, group_id, value, image, sort_order) VALUES
+INSERT INTO cm_product_spec_value (id, group_id, value, image, sort) VALUES
 -- 华为 Mate 70 Pro：颜色
 (1,  1, '曜金黑',   'https://img.cloudmall.dev/spec/color/gold-black.jpg', 0),
 (2,  1, '雪域白',   'https://img.cloudmall.dev/spec/color/snow-white.jpg',  1),
@@ -330,13 +331,24 @@ INSERT INTO cm_product_sku_spec (sku_id, spec_value_id) VALUES
 -- ============================================================
 -- 首页轮播图（image 为 NOT NULL）
 -- ============================================================
-INSERT INTO cm_banner (id, title, image, link_url, sort_order, status) VALUES
+INSERT INTO cm_banner (id, title, image, link_url, sort, status) VALUES
 (1, '华为 Mate 70 Pro 新品首发',   'https://img.cloudmall.dev/banner/1.jpg', '/product/1',  1, 1),
 (2, '夏季清仓 全场低至5折',        'https://img.cloudmall.dev/banner/2.jpg', '/category/20', 2, 1),
 (3, 'iPhone 16 Pro Max 限时特惠',  'https://img.cloudmall.dev/banner/3.jpg', '/product/2',  3, 1),
 (4, '新用户注册即领100元优惠券',   'https://img.cloudmall.dev/banner/4.jpg', '/register', 4, 0);  -- 已下架
 
 ALTER TABLE cm_banner AUTO_INCREMENT = 100;
+
+-- ============================================================
+-- 首页公告
+-- ============================================================
+INSERT INTO cm_notice (id, content, sort, status) VALUES
+(1, '欢迎来到云商城，全场满 299 元包邮！', 1, 1),
+(2, '新用户注册即领 100 元优惠券礼包',      2, 1),
+(3, '每日 10 点整点秒杀，限量抢购先到先得', 3, 1),
+(4, '平台维护公告（示例，已下线）',          4, 0);
+
+ALTER TABLE cm_notice AUTO_INCREMENT = 100;
 
 -- ============================================================
 -- 用户收藏
@@ -568,3 +580,105 @@ INSERT INTO cm_chat_session (id, session_id, user_id, title) VALUES
 (3, UUID(), 5, '订单问题咨询');
 
 ALTER TABLE cm_chat_session AUTO_INCREMENT = 1000;
+
+-- ============================================================
+-- 普通商品库存操作流水（订单创建预占、支付确认扣减；秒杀库存不接入本表）
+-- before_stock / after_stock 按时间线连续推演：支付确认不改变可用库存，仅固化预占
+-- （RELEASE=超时/取消释放、COMPENSATE=补偿任务释放，当前订单无超时/取消，故未出现）
+-- ============================================================
+INSERT INTO cm_stock_op_log (id, order_no, sku_id, product_id, shop_id, op_type, quantity, before_stock, after_stock, source, operator_id, reason, create_time) VALUES
+-- 订单1（已支付）：Mate 70 Pro 曜金黑512GB（SKU2）+ Sony耳机黑色（SKU9）+ 每日坚果（SKU16）
+(1,  'ORD202507010001', 2,  1, 1, 'RESERVE', 1, 25,  24,  'ORDER', NULL, '订单创建预占库存',    DATE_SUB(NOW(), INTERVAL 30 DAY)),
+(2,  'ORD202507010001', 2,  1, 1, 'CONFIRM', 1, 24,  24,  'ORDER', NULL, '支付成功确认扣减',    DATE_SUB(NOW(), INTERVAL 29 DAY)),
+(3,  'ORD202507010001', 9,  4, 1, 'RESERVE', 1, 80,  79,  'ORDER', NULL, '订单创建预占库存',    DATE_SUB(NOW(), INTERVAL 30 DAY)),
+(4,  'ORD202507010001', 9,  4, 1, 'CONFIRM', 1, 79,  79,  'ORDER', NULL, '支付成功确认扣减',    DATE_SUB(NOW(), INTERVAL 29 DAY)),
+(5,  'ORD202507010001', 16, 7, 3, 'RESERVE', 1, 600, 599, 'ORDER', NULL, '订单创建预占库存',    DATE_SUB(NOW(), INTERVAL 30 DAY)),
+(6,  'ORD202507010001', 16, 7, 3, 'CONFIRM', 1, 599, 599, 'ORDER', NULL, '支付成功确认扣减',    DATE_SUB(NOW(), INTERVAL 29 DAY)),
+-- 订单2（已支付）：连衣裙 M码米白（SKU13）+ 衬衫（SKU15）
+(7,  'ORD202507020002', 13, 5, 2, 'RESERVE', 1, 100, 99,  'ORDER', NULL, '订单创建预占库存',    DATE_SUB(NOW(), INTERVAL 28 DAY)),
+(8,  'ORD202507020002', 13, 5, 2, 'CONFIRM', 1, 99,  99,  'ORDER', NULL, '支付成功确认扣减',    DATE_SUB(NOW(), INTERVAL 27 DAY)),
+(9,  'ORD202507020002', 15, 6, 2, 'RESERVE', 1, 300, 299, 'ORDER', NULL, '订单创建预占库存',    DATE_SUB(NOW(), INTERVAL 28 DAY)),
+(10, 'ORD202507020002', 15, 6, 2, 'CONFIRM', 1, 299, 299, 'ORDER', NULL, '支付成功确认扣减',    DATE_SUB(NOW(), INTERVAL 27 DAY)),
+-- 订单3（待支付）：每日坚果（SKU16）仅预占，支付后由 CONFIRM 固化
+(11, 'ORD202507030003', 16, 7, 3, 'RESERVE', 1, 599, 598, 'ORDER', NULL, '订单创建预占库存',    DATE_SUB(NOW(), INTERVAL 1 DAY));
+
+ALTER TABLE cm_stock_op_log AUTO_INCREMENT = 100;
+
+-- ============================================================
+-- 通用本地消息 Outbox（app_name 为来源服务，event_id 为全局幂等键）
+-- 事件 ID 与 cm_user_coupon_log.issued_event_id 对齐；payload 结构参照各服务事件实体
+-- ============================================================
+INSERT INTO cm_message_outbox (id, app_name, event_id, topic, biz_type, biz_id, event_type, payload, publish_status, retry_count, next_retry_time, publish_time, last_error, create_time, update_time) VALUES
+-- 用户注册事件（user-service → coupon-service 注册自动发券）
+(1,  'user-service',    'EVT-UREG-000001', 'USER_REGISTERED', 'USER', '4', 'UserRegistered',
+    '{"eventId":"EVT-UREG-000001","userId":4,"username":"user1"}', 'PUBLISHED', 0, NULL, DATE_SUB(NOW(), INTERVAL 10 DAY), NULL, DATE_SUB(NOW(), INTERVAL 10 DAY), DATE_SUB(NOW(), INTERVAL 10 DAY)),
+(2,  'user-service',    'EVT-UREG-000002', 'USER_REGISTERED', 'USER', '5', 'UserRegistered',
+    '{"eventId":"EVT-UREG-000002","userId":5,"username":"user2"}', 'PUBLISHED', 0, NULL, DATE_SUB(NOW(), INTERVAL 5 DAY),  NULL, DATE_SUB(NOW(), INTERVAL 5 DAY),  DATE_SUB(NOW(), INTERVAL 5 DAY)),
+-- 订单支付事件（order-service → coupon-service 核销 / seckill-service 确认秒杀单）
+(3,  'order-service',   'EVT-ORD-PAID-000001', 'ORDER_EVENTS', 'ORDER', 'ORD202507010001', 'OrderPaid',
+    '{"eventId":"EVT-ORD-PAID-000001","orderNo":"ORD202507010001","userId":4}', 'PUBLISHED', 0, NULL, DATE_SUB(NOW(), INTERVAL 29 DAY), NULL, DATE_SUB(NOW(), INTERVAL 29 DAY), DATE_SUB(NOW(), INTERVAL 29 DAY)),
+(4,  'order-service',   'EVT-ORD-PAID-000002', 'ORDER_EVENTS', 'ORDER', 'ORD202507020002', 'OrderPaid',
+    '{"eventId":"EVT-ORD-PAID-000002","orderNo":"ORD202507020002","userId":5}', 'PUBLISHED', 0, NULL, DATE_SUB(NOW(), INTERVAL 27 DAY), NULL, DATE_SUB(NOW(), INTERVAL 27 DAY), DATE_SUB(NOW(), INTERVAL 27 DAY)),
+-- 秒杀抢购事件（seckill-service → consumer-service 异步建真实订单）
+(5,  'seckill-service', 'EVT-SK-ORDER-000001', 'SECKILL_ORDERS', 'SECKILL_ORDER', 'SK202507010000001', 'SeckillOrderCreate',
+    '{"eventId":"EVT-SK-ORDER-000001","seckillOrderId":1,"orderNo":"SK202507010000001","userId":4,"skuId":1,"productId":1,"seckillPrice":5999.00,"quantity":1,"addressId":1}', 'PUBLISHED', 0, NULL, DATE_SUB(NOW(), INTERVAL 30 DAY), NULL, DATE_SUB(NOW(), INTERVAL 30 DAY), DATE_SUB(NOW(), INTERVAL 30 DAY)),
+(6,  'seckill-service', 'EVT-SK-ORDER-000002', 'SECKILL_ORDERS', 'SECKILL_ORDER', 'SK202507010000002', 'SeckillOrderCreate',
+    '{"eventId":"EVT-SK-ORDER-000002","seckillOrderId":2,"orderNo":"SK202507010000002","userId":5,"skuId":9,"productId":4,"seckillPrice":2499.00,"quantity":1,"addressId":3}', 'PUBLISHED', 0, NULL, DATE_SUB(NOW(), INTERVAL 30 DAY), NULL, DATE_SUB(NOW(), INTERVAL 30 DAY), DATE_SUB(NOW(), INTERVAL 30 DAY)),
+(7,  'seckill-service', 'EVT-SK-ORDER-000003', 'SECKILL_ORDERS', 'SECKILL_ORDER', 'SK202506010000003', 'SeckillOrderCreate',
+    '{"eventId":"EVT-SK-ORDER-000003","seckillOrderId":3,"orderNo":"SK202506010000003","userId":4,"skuId":12,"productId":5,"seckillPrice":299.00,"quantity":1,"addressId":1}', 'PUBLISHED', 0, NULL, DATE_SUB(NOW(), INTERVAL 60 DAY), NULL, DATE_SUB(NOW(), INTERVAL 60 DAY), DATE_SUB(NOW(), INTERVAL 60 DAY)),
+-- 商品变更事件（product-service → search-service 同步 ES）
+(8,  'product-service', 'EVT-PROD-000001', 'PRODUCT_EVENTS', 'PRODUCT', '2', 'ProductUpdated',
+    '{"eventId":"EVT-PROD-000001","productId":2,"spuCode":"SPU20250002"}', 'PUBLISHED', 0, NULL, DATE_SUB(NOW(), INTERVAL 15 DAY), NULL, DATE_SUB(NOW(), INTERVAL 15 DAY), DATE_SUB(NOW(), INTERVAL 15 DAY)),
+(9,  'product-service', 'EVT-PROD-000002', 'PRODUCT_EVENTS', 'PRODUCT', '5', 'ProductUpdated',
+    '{"eventId":"EVT-PROD-000002","productId":5,"spuCode":"SPU20250005"}', 'PENDING', 3, DATE_ADD(NOW(), INTERVAL 5 MINUTE), NULL, 'MQ 连接超时，等待重试', DATE_SUB(NOW(), INTERVAL 1 HOUR), DATE_SUB(NOW(), INTERVAL 10 MINUTE)),
+(10, 'product-service', 'EVT-PROD-000003', 'PRODUCT_EVENTS', 'PRODUCT', '7', 'ProductDeleted',
+    '{"eventId":"EVT-PROD-000003","productId":7,"spuCode":"SPU20250007"}', 'DEAD', 5, NULL, NULL, '超过最大重试次数，转为死信', DATE_SUB(NOW(), INTERVAL 2 DAY), DATE_SUB(NOW(), INTERVAL 1 DAY));
+
+ALTER TABLE cm_message_outbox AUTO_INCREMENT = 100;
+
+-- ============================================================
+-- 消息消费幂等记录（event_id + consumer + operation_type 唯一约束）
+-- consumer 取消费者组名；operation_type 词汇与 consumer-service OperationTypeEnum 对齐
+-- ============================================================
+INSERT INTO cm_message_consume_record (id, event_id, consumer, operation_type, status, retry_count, last_error, consume_time, create_time, update_time) VALUES
+(1, 'EVT-UREG-000001',      'coupon-user-registered', 'REGISTER_AUTO_ISSUE', 'CONSUMED', 0, NULL, DATE_SUB(NOW(), INTERVAL 10 DAY), DATE_SUB(NOW(), INTERVAL 10 DAY), DATE_SUB(NOW(), INTERVAL 10 DAY)),
+(2, 'EVT-UREG-000002',      'coupon-user-registered', 'REGISTER_AUTO_ISSUE', 'CONSUMED', 0, NULL, DATE_SUB(NOW(), INTERVAL 5 DAY),  DATE_SUB(NOW(), INTERVAL 5 DAY),  DATE_SUB(NOW(), INTERVAL 5 DAY)),
+(3, 'EVT-ORD-PAID-000001',  'coupon-order-events',    'ORDER_PAID',          'CONSUMED', 0, NULL, DATE_SUB(NOW(), INTERVAL 29 DAY), DATE_SUB(NOW(), INTERVAL 29 DAY), DATE_SUB(NOW(), INTERVAL 29 DAY)),
+(4, 'EVT-ORD-PAID-000002',  'coupon-order-events',    'ORDER_PAID',          'CONSUMED', 0, NULL, DATE_SUB(NOW(), INTERVAL 27 DAY), DATE_SUB(NOW(), INTERVAL 27 DAY), DATE_SUB(NOW(), INTERVAL 27 DAY)),
+(5, 'EVT-SK-ORDER-000001',  'seckill-order-events',   'SECKILL_ORDER_CREATE', 'CONSUMED', 0, NULL, DATE_SUB(NOW(), INTERVAL 30 DAY), DATE_SUB(NOW(), INTERVAL 30 DAY), DATE_SUB(NOW(), INTERVAL 30 DAY)),
+(6, 'EVT-SK-ORDER-000002',  'seckill-order-events',   'SECKILL_ORDER_CREATE', 'CONSUMED', 0, NULL, DATE_SUB(NOW(), INTERVAL 30 DAY), DATE_SUB(NOW(), INTERVAL 30 DAY), DATE_SUB(NOW(), INTERVAL 30 DAY)),
+(7, 'EVT-SK-ORDER-000003',  'seckill-order-events',   'SECKILL_ORDER_CREATE', 'CONSUMED', 0, NULL, DATE_SUB(NOW(), INTERVAL 60 DAY), DATE_SUB(NOW(), INTERVAL 60 DAY), DATE_SUB(NOW(), INTERVAL 60 DAY)),
+(8, 'EVT-PROD-000001',      'search-product-events',  'PRODUCT_UPSERT',      'CONSUMED', 0, NULL, DATE_SUB(NOW(), INTERVAL 15 DAY), DATE_SUB(NOW(), INTERVAL 15 DAY), DATE_SUB(NOW(), INTERVAL 15 DAY)),
+(9, 'EVT-PROD-000003',      'search-product-events',  'PRODUCT_DELETE',      'DEAD',     5, 'ES 索引删除失败：连接超时', DATE_SUB(NOW(), INTERVAL 1 DAY), DATE_SUB(NOW(), INTERVAL 1 DAY), DATE_SUB(NOW(), INTERVAL 1 DAY));
+
+ALTER TABLE cm_message_consume_record AUTO_INCREMENT = 100;
+
+-- ============================================================
+-- IM 聊天会话（买家 ↔ 商家，uk_buyer_merchant 唯一）
+-- ============================================================
+INSERT INTO cm_im_session (id, buyer_id, merchant_id, create_time, update_time) VALUES
+(1, 4, 2, DATE_SUB(NOW(), INTERVAL 6 DAY), DATE_SUB(NOW(), INTERVAL 6 DAY)),   -- 张三 ↔ 锐意数码（李明）
+(2, 5, 2, DATE_SUB(NOW(), INTERVAL 3 DAY), DATE_SUB(NOW(), INTERVAL 3 DAY)),   -- 赵六 ↔ 锐意数码（李明）
+(3, 4, 6, DATE_SUB(NOW(), INTERVAL 2 DAY), DATE_SUB(NOW(), INTERVAL 2 DAY));   -- 张三 ↔ 鲜享食品（陈刚）
+
+ALTER TABLE cm_im_session AUTO_INCREMENT = 100;
+
+-- ============================================================
+-- IM 聊天消息（text / image 两类，is_read=0 表示对方未读）
+-- ============================================================
+INSERT INTO cm_im_message (id, session_id, sender_id, content, type, is_read, create_time) VALUES
+-- 会话1：张三咨询 Mate 70 Pro 发货
+(1,  1, 4, '你好，请问 Mate 70 Pro 什么时候能发货？',                'text',  1, DATE_SUB(NOW(), INTERVAL 6 DAY)),
+(2,  1, 2, '您好，您的订单已支付，今天下午统一发出',                  'text',  1, DATE_SUB(NOW(), INTERVAL 6 DAY)),
+(3,  1, 4, '好的，谢谢！',                                           'text',  1, DATE_SUB(NOW(), INTERVAL 5 DAY)),
+(4,  1, 2, '不客气，收到货后有任何问题随时联系～',                   'text',  0, DATE_SUB(NOW(), INTERVAL 5 DAY)),
+-- 会话2：赵六咨询 Sony 耳机
+(5,  2, 5, '索尼 WH-1000XM6 还有铂金银色的吗？',                     'text',  1, DATE_SUB(NOW(), INTERVAL 3 DAY)),
+(6,  2, 2, '有的，现货充足，下单后 24 小时内发出',                   'text',  1, DATE_SUB(NOW(), INTERVAL 3 DAY)),
+(7,  2, 5, '好的，那我去下单了',                                     'text',  1, DATE_SUB(NOW(), INTERVAL 2 DAY)),
+-- 会话3：张三咨询坚果礼盒
+(8,  3, 4, '每日坚果礼盒的保质期到什么时候？',                       'text',  1, DATE_SUB(NOW(), INTERVAL 2 DAY)),
+(9,  3, 6, '保质期到明年 6 月，日期很新鲜，放心购买',                'text',  1, DATE_SUB(NOW(), INTERVAL 2 DAY)),
+(10, 3, 6, 'https://img.cloudmall.dev/im/receipt.jpg',               'image', 0, DATE_SUB(NOW(), INTERVAL 1 DAY));
+
+ALTER TABLE cm_im_message AUTO_INCREMENT = 100;

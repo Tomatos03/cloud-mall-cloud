@@ -176,7 +176,7 @@ public class PlaceSeckillOrderStep implements CheckoutStep {
                       .totalOriginalAmount(amount)
                       .totalShopDiscountAmount(BigDecimal.ZERO)
                       .totalPlatformDiscountAmount(BigDecimal.ZERO)
-                      .goodsPayableAmount(amount)
+                      .productPayableAmount(amount)
                       .freightAmount(BigDecimal.ZERO)
                       .payableAmount(amount)
                       .addressSnapshot(addressSnapshot)

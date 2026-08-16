@@ -23,7 +23,7 @@ public class BannerDO {
     private String title;
     private String image;
     private String linkUrl;
-    private Integer sortOrder;
+    private Integer sort;
     @Builder.Default
     private StatusEnum status = StatusEnum.ENABLED;
 

@@ -34,7 +34,7 @@ public class ResourceDO {
     private Long id;
 
     /**
-     * 权限编码（如 goods:view, order:create）
+     * 权限编码（如 product:view, order:create）
      */
     private String code;
 

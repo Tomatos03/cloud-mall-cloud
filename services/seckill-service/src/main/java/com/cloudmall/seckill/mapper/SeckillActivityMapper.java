@@ -8,6 +8,7 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import org.apache.ibatis.annotations.Mapper;
 
+import com.cloudmall.mybatisplus.enums.LimitEnum;
 import com.cloudmall.seckill.entity.SeckillActivityDO;
 import com.cloudmall.seckill.enums.SeckillActivityStatusEnum;
 import com.cloudmall.seckill.model.req.SeckillActivityPageReq;
@@ -103,6 +104,24 @@ public interface SeckillActivityMapper extends BaseMapper<SeckillActivityDO> {
                 Wrappers.<SeckillActivityDO>lambdaQuery()
                         .eq(SeckillActivityDO::getStatus, SeckillActivityStatusEnum.RUNNING)
                         .orderByDesc(SeckillActivityDO::getStartTime)
+        );
+    }
+
+    /**
+     * 查询当前整点场次的进行中活动（覆盖当前时刻，按开始时间倒序取最新一条）。 <p>
+     * 活动固定 1 小时且整点开始，故同一时刻至多一条进行中活动。
+     *
+     * @param now 当前时间
+     * @return 进行中活动，无则返回 null
+     */
+    default SeckillActivityDO selectCurrentHourActivity(LocalDateTime now) {
+        return selectOne(
+                Wrappers.<SeckillActivityDO>lambdaQuery()
+                        .eq(SeckillActivityDO::getStatus, SeckillActivityStatusEnum.RUNNING)
+                        .le(SeckillActivityDO::getStartTime, now)
+                        .gt(SeckillActivityDO::getEndTime, now)
+                        .orderByDesc(SeckillActivityDO::getStartTime)
+                        .last(LimitEnum.ONE.getSql())
         );
     }
 

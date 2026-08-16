@@ -278,6 +278,20 @@ public class SeckillActivityService implements ISeckillActivityService {
     }
 
     /**
+     * 查询当前整点场次的进行中活动（含已审核商品）。
+     *
+     * @return 活动详情，当前无进行中场次时返回 null
+     */
+    @Override
+    public ActivityDetailResp getCurrentHourActivity() {
+        SeckillActivityDO activity = activityMapper.selectCurrentHourActivity(LocalDateTime.now());
+        if (activity == null) {
+            return null;
+        }
+        return toActivityDetail(activity);
+    }
+
+    /**
      * 查询报名活动详情（商家端，仅 PUBLISHED，含已审核商品）。
      *
      * @param id 活动 ID

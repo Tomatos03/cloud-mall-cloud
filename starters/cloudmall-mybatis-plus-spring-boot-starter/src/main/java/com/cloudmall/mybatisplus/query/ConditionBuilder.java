@@ -24,7 +24,7 @@ import com.cloudmall.mybatisplus.annotation.QueryCondition;
  *
  * <pre>{@code
  * &#064;Getter &#064;Setter
- * public class GoodsListReq implements ConditionBuilder&lt;GoodsDO&gt; {
+ * public class ProductListReq implements ConditionBuilder&lt;ProductDO&gt; {
  *
  *     &#064;QueryCondition(operator = Operator.EQ)
  *     private Long categoryId;
@@ -81,8 +81,8 @@ public interface ConditionBuilder<T> {
     /**
      * 从子类泛型参数推断实体类型。 <p>
      * 通过反射获取父类的类型参数 {@code T} 的实际类型。 例如
-     * {@code GoodsListReq extends ConditionReq<GoodsDO>}
-     * 返回 {@code GoodsDO.class}。
+     * {@code ProductListReq extends ConditionReq<ProductDO>}
+     * 返回 {@code ProductDO.class}。
      *
      * @return 处理结果
      */

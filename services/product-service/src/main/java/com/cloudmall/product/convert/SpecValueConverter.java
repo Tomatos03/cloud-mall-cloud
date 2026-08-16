@@ -23,8 +23,8 @@ public interface SpecValueConverter {
      * @return 规格值实体
      */
     @Mapping(target = "id", ignore = true)
+    @Mapping(target = "sort", ignore = true)
     @Mapping(target = "deleted", ignore = true)
-    @Mapping(target = "sortOrder", ignore = true)
     @Mapping(target = "createTime", ignore = true)
     @Mapping(target = "updateTime", ignore = true)
     @Mapping(target = "groupId", source = "groupId")

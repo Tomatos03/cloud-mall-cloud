@@ -146,7 +146,7 @@ CREATE TABLE IF NOT EXISTS cm_category (
     parent_id  bigint       DEFAULT '0' comment '父分类ID(0=顶级分类)',
     level      tinyint      DEFAULT '1' comment '分类层级(1=一级 2=二级 3=三级)',
     icon       varchar(500) DEFAULT NULL comment '分类图标URL',
-    sort_order int          DEFAULT '0' comment '排序值(越小越靠前)',
+    sort int          DEFAULT '0' comment '排序值(越小越靠前)',
     status     tinyint      DEFAULT '1' comment '是否启用(0=禁用 1=启用)',
     create_time datetime    DEFAULT NULL comment '创建时间',
     update_time datetime    DEFAULT NULL comment '更新时间',
@@ -164,7 +164,7 @@ CREATE TABLE IF NOT EXISTS cm_brand (
     country     varchar(50)   DEFAULT NULL comment '品牌国别',
     website     varchar(500)  DEFAULT NULL comment '官方网站',
     status      tinyint(1)    DEFAULT 1 comment '状态(0=禁用 1=启用)',
-    sort_order  int           DEFAULT 0 comment '排序值(越小越靠前)',
+    sort  int           DEFAULT 0 comment '排序值(越小越靠前)',
     create_time datetime      DEFAULT NULL comment '创建时间',
     update_time datetime      DEFAULT NULL comment '更新时间',
     deleted     tinyint(1)    DEFAULT 0 comment '是否删除(0=否 1=是)',
@@ -218,7 +218,7 @@ CREATE TABLE IF NOT EXISTS cm_product_spec_group (
     id          bigint       NOT NULL AUTO_INCREMENT comment '规格组ID',
     product_id  bigint       NOT NULL comment '所属商品ID',
     name        varchar(50)  NOT NULL comment '规格名(如颜色、尺码)',
-    sort_order  int          DEFAULT 0 comment '排序值(越小越靠前)',
+    sort  int          DEFAULT 0 comment '排序值(越小越靠前)',
     create_time datetime     DEFAULT NULL comment '创建时间',
     update_time datetime     DEFAULT NULL comment '更新时间',
     deleted     tinyint(1)   DEFAULT 0 comment '是否删除(0=否 1=是)',
@@ -231,7 +231,7 @@ CREATE TABLE IF NOT EXISTS cm_product_spec_value (
     group_id    bigint       NOT NULL comment '所属规格组ID',
     value       varchar(100) NOT NULL comment '规格值(如红色、XL)',
     image       varchar(500) DEFAULT NULL comment '规格图片(色块/图标)',
-    sort_order  int          DEFAULT 0 comment '排序值(越小越靠前)',
+    sort  int          DEFAULT 0 comment '排序值(越小越靠前)',
     create_time datetime     DEFAULT NULL comment '创建时间',
     update_time datetime     DEFAULT NULL comment '更新时间',
     deleted     tinyint(1)   DEFAULT 0 comment '是否删除(0=否 1=是)',
@@ -252,7 +252,7 @@ CREATE TABLE IF NOT EXISTS cm_product_image (
     product_id  bigint        NOT NULL comment '商品ID',
     url         varchar(500)  NOT NULL comment '图片URL',
     is_main     tinyint(1)    NOT NULL DEFAULT 0 comment '是否主图(0=否 1=是)',
-    sort_order  int           NOT NULL DEFAULT 0 comment '排序（详情页轮播顺序）',
+    sort  int           NOT NULL DEFAULT 0 comment '排序（详情页轮播顺序）',
     create_time datetime      DEFAULT CURRENT_TIMESTAMP comment '创建时间',
     PRIMARY KEY (id),
     KEY idx_product_id (product_id)
@@ -280,13 +280,24 @@ CREATE TABLE IF NOT EXISTS cm_banner (
     title      varchar(200) DEFAULT NULL comment '轮播图标题',
     image      varchar(500) NOT NULL comment '轮播图URL',
     link_url   varchar(500) DEFAULT NULL comment '跳转链接URL',
-    sort_order int          DEFAULT '0' comment '排序值(越小越靠前)',
+    sort int          DEFAULT '0' comment '排序值(越小越靠前)',
     status     tinyint      DEFAULT '1' comment '是否启用(0=禁用 1=启用)',
     create_time datetime    DEFAULT NULL comment '创建时间',
     update_time datetime    DEFAULT NULL comment '更新时间',
     deleted    tinyint      DEFAULT '0' comment '是否删除(0=否 1=是)',
     PRIMARY KEY (id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 comment '首页轮播图表';
+
+CREATE TABLE IF NOT EXISTS cm_notice (
+    id         bigint       NOT NULL AUTO_INCREMENT comment '公告ID',
+    content    varchar(500) NOT NULL comment '公告内容',
+    sort int          DEFAULT '0' comment '排序值(越小越靠前)',
+    status     tinyint      DEFAULT '1' comment '是否启用(0=禁用 1=启用)',
+    create_time datetime    DEFAULT NULL comment '创建时间',
+    update_time datetime    DEFAULT NULL comment '更新时间',
+    deleted    tinyint      DEFAULT '0' comment '是否删除(0=否 1=是)',
+    PRIMARY KEY (id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 comment '首页公告表';
 
 CREATE TABLE IF NOT EXISTS cm_favorite (
     id         bigint   NOT NULL AUTO_INCREMENT comment '收藏ID',

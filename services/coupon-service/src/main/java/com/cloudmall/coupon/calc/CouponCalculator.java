@@ -310,7 +310,7 @@ public class CouponCalculator {
         }
 
         CouponOrderCalcResp resp = couponOrderConverter.toResp(itemResults, subOrders, usages);
-        assertNotNegative(resp.getGoodsPayableAmount());
+        assertNotNegative(resp.getProductPayableAmount());
         return resp;
     }
 

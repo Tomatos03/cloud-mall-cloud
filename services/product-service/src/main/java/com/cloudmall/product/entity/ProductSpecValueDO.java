@@ -21,7 +21,7 @@ public class ProductSpecValueDO {
     private Long groupId;
     private String value;
     private String image;
-    private Integer sortOrder;
+    private Integer sort;
 
     @TableField(fill = FieldFill.INSERT)
     private LocalDateTime createTime;

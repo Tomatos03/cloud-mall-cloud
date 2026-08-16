@@ -13,6 +13,7 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import org.apache.ibatis.annotations.Mapper;
 
 import com.cloudmall.common.model.CursorReq;
+import com.cloudmall.mybatisplus.enums.LimitEnum;
 import com.cloudmall.mybatisplus.enums.StatusEnum;
 import com.cloudmall.product.entity.ProductDO;
 import com.cloudmall.product.model.req.ProductGetReq;
@@ -51,6 +52,27 @@ public interface ProductMapper extends BaseMapper<ProductDO> {
                 Wrappers.<ProductDO>lambdaQuery()
                         .in(ProductDO::getId, ids)
                         .eq(ProductDO::getStatus, StatusEnum.ENABLED)
+        );
+    }
+
+    /**
+     * 按分类 ID 集合查询已上架商品，按创建时间倒序。 <p>
+     * 分类 ID 集合可包含指定分类及其子分类（首页分类展示按标签聚合查询）。
+     *
+     * @param categoryIds 分类 ID 集合
+     * @param limit 查询条数上限
+     * @return 已上架商品列表
+     */
+    default List<ProductDO> selectEnabledByCategoryIds(Collection<Long> categoryIds, int limit) {
+        if (CollUtil.isEmpty(categoryIds)) {
+            return Collections.emptyList();
+        }
+        return selectList(
+                Wrappers.<ProductDO>lambdaQuery()
+                        .in(ProductDO::getCategoryId, categoryIds)
+                        .eq(ProductDO::getStatus, StatusEnum.ENABLED)
+                        .orderByDesc(ProductDO::getCreateTime)
+                        .last(LimitEnum.of(limit))
         );
     }
 

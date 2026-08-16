@@ -20,7 +20,7 @@ public class ProductImageDO {
     private Long productId;
     private String url;
     private Boolean isMain;
-    private Integer sortOrder;
+    private Integer sort;
 
     @TableField(fill = FieldFill.INSERT)
     private LocalDateTime createTime;

@@ -66,6 +66,16 @@ public class SeckillUserController {
     }
 
     /**
+     * 当前整点场次的进行中活动（含已审核商品，免登录）。
+     *
+     * @return 活动详情，当前无进行中场次时返回 null
+     */
+    @GetMapping("/activities/current-hour")
+    public Result<ActivityDetailResp> getCurrentHourActivity() {
+        return Result.success(activityService.getCurrentHourActivity());
+    }
+
+    /**
      * 抢购（登录态取 userId，立即返回受理结果）。
      *
      * @param req 抢购请求

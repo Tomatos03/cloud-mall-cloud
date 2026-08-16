@@ -29,5 +29,5 @@ public class ImageResp {
     private Boolean isMain;
 
     /** 排序号 */
-    private Integer sortOrder;
+    private Integer sort;
 }

@@ -33,7 +33,7 @@ public class CouponOrderCalcResp {
     private BigDecimal totalPlatformDiscountAmount;
 
     /** 父订单商品应付金额（不含运费） */
-    private BigDecimal goodsPayableAmount;
+    private BigDecimal productPayableAmount;
 
     /** 子订单级结果 */
     private List<CouponSubOrderResult> subOrders;

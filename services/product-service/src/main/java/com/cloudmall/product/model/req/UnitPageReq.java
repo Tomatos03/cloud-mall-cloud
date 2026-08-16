@@ -52,7 +52,7 @@ public class UnitPageReq extends PageReq<UnitDO> {
     @Override
     public LambdaQueryWrapper<UnitDO> buildLambdaWrapper() {
         LambdaQueryWrapper<UnitDO> wrapper = super.buildLambdaWrapper();
-        wrapper.orderByAsc(UnitDO::getSortOrder);
+        wrapper.orderByAsc(UnitDO::getSort);
         return wrapper;
     }
 }

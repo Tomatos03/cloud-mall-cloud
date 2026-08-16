@@ -38,7 +38,7 @@ public class AuthProperties {
     public static class UrlPermission {
 
         /**
-         * 匹配模式，格式为 "METHOD:path"，如 "GET:/goods/**"
+         * 匹配模式，格式为 "METHOD:path"，如 "GET:/product/**"
          * METHOD 支持 * 通配（任意 HTTP 方法）
          */
         private String pattern;

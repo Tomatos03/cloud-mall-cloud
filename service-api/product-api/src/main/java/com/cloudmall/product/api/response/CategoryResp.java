@@ -29,5 +29,5 @@ public class CategoryResp {
     private Long parentId;
 
     /** 排序号 */
-    private Integer sortOrder;
+    private Integer sort;
 }

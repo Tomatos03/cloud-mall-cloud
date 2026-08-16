@@ -52,7 +52,7 @@ public class BannerPageReq extends PageReq<BannerDO> {
     @Override
     public LambdaQueryWrapper<BannerDO> buildLambdaWrapper() {
         LambdaQueryWrapper<BannerDO> wrapper = super.buildLambdaWrapper();
-        wrapper.orderByAsc(BannerDO::getSortOrder);
+        wrapper.orderByAsc(BannerDO::getSort);
         return wrapper;
     }
 }

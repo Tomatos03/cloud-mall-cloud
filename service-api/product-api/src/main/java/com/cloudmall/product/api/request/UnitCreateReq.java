@@ -17,5 +17,5 @@ import lombok.NoArgsConstructor;
 public class UnitCreateReq {
 
     private String name;
-    private Integer sortOrder;
+    private Integer sort;
 }
