@@ -21,8 +21,7 @@ import com.cloudmall.common.context.UserContextHolder;
 import com.cloudmall.common.enums.BizError;
 import com.cloudmall.common.enums.UserTypeEnum;
 import com.cloudmall.common.utils.Asserts;
-import com.cloudmall.outbox.appender.OutboxAppender;
-import com.cloudmall.outbox.model.OutboxAppendReq;
+import com.cloudmall.rocketmq.producer.MQProducer;
 import com.cloudmall.user.api.event.UserRegisteredEvent;
 import com.cloudmall.user.api.request.RegisterReq;
 import com.cloudmall.user.api.response.UserResp;
@@ -50,7 +49,7 @@ import com.cloudmall.user.service.IUserService;
 public class UserService implements IUserService {
 
     private final UserMapper userMapper;
-    private final OutboxAppender outboxAppender;
+    private final MQProducer mqProducer;
     private final UserRoleMapper userRoleMapper;
     private final ResourceMapper resourceMapper;
     private final UserConverter userConverter;
@@ -85,14 +84,11 @@ public class UserService implements IUserService {
                                                        .userId(user.getId())
                                                        .username(user.getUsername())
                                                        .build();
-        outboxAppender.append(
-                OutboxAppendReq.builder()
-                               .topic(USER_REGISTERED_TOPIC)
-                               .eventType("UserRegistered")
-                               .bizType("USER")
-                               .bizId(String.valueOf(user.getId()))
-                               .event(event)
-                               .build()
+        mqProducer.sendInTransaction(
+                USER_REGISTERED_TOPIC,
+                "UserRegistered",
+                event,
+                String.valueOf(user.getId())
         );
     }
 

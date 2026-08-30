@@ -19,8 +19,8 @@ import com.cloudmall.order.service.IOrderService;
  * 订单内部接口
  * <p>
  * 内部服务端点统一使用 /internal/order，仅供服务间 Feign 调用，不加入网关对外路由。
- * 支付成功/超时/取消/全额退款的状态变更与 Outbox 同事务提交，
- * 事件由发布任务异步发送，coupon-service 消费后核销/释放/回退用户券。
+ * 支付成功/超时/取消/全额退款的状态变更通过 RocketMQ 事务消息发送，
+ * 本地事务由 OrderTxMessageListener 执行，coupon-service 消费后核销/释放/回退用户券。
  *
  * @author : Tomatos
  */

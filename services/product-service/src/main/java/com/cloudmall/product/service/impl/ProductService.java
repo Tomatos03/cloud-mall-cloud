@@ -27,8 +27,6 @@ import com.cloudmall.common.exception.BizException;
 import com.cloudmall.common.model.CursorReq;
 import com.cloudmall.common.model.CursorResult;
 import com.cloudmall.common.utils.Asserts;
-import com.cloudmall.outbox.appender.OutboxAppender;
-import com.cloudmall.outbox.model.OutboxAppendReq;
 import com.cloudmall.product.api.event.ProductEvent;
 import com.cloudmall.product.api.event.ProductTagEnum;
 import com.cloudmall.product.api.model.ImageItem;
@@ -69,6 +67,7 @@ import com.cloudmall.product.model.req.ProductGetReq;
 import com.cloudmall.product.service.IProductImageService;
 import com.cloudmall.product.service.IProductService;
 import com.cloudmall.product.service.IProductSpecService;
+import com.cloudmall.rocketmq.producer.MQProducer;
 
 /**
  * 商品 SPU 服务实现。
@@ -96,7 +95,7 @@ public class ProductService implements IProductService {
     private final ImageConverter imageConverter;
     private final IProductSpecService productSpecService;
     private final IProductImageService productImageService;
-    private final OutboxAppender outboxAppender;
+    private final MQProducer mqProducer;
 
     /** 商品事件 Topic */
     private static final String PRODUCT_EVENTS_TOPIC = "PRODUCT_EVENTS";
@@ -364,15 +363,7 @@ public class ProductService implements IProductService {
                                          .spuCode(product.getSpuCode())
                                          .build();
 
-        outboxAppender.append(
-                OutboxAppendReq.builder()
-                               .topic(PRODUCT_EVENTS_TOPIC)
-                               .eventType(tagEnum.getTag())
-                               .bizType("PRODUCT")
-                               .bizId(String.valueOf(id))
-                               .event(event)
-                               .build()
-        );
+        mqProducer.sendInTransaction(PRODUCT_EVENTS_TOPIC, tagEnum.getTag(), event, String.valueOf(id));
     }
 
     /**

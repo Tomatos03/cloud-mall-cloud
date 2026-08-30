@@ -14,11 +14,6 @@ import com.cloudmall.rocketmq.producer.MQProducer;
  * <p>
  * 当 classpath 存在 {@link RocketMQTemplate} 且配置启用时，
  * 自动创建 {@link MQProducer} 通用发送客户端 Bean。
- * <p>
- * 消费幂等台账（{@code MessageConsumeService}）由
- * {@link MessageConsumeAutoConfiguration} 按 MyBatis-Plus 是否在场
- * 条件装配，本配置类不引用任何 MyBatis-Plus 类型，
- * 仅引入 rocketmq 依赖（无 mp）的项目仍可正常使用发送能力。
  *
  * @author Tomatos
  */

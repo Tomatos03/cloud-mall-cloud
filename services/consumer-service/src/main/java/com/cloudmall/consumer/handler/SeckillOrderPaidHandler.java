@@ -6,8 +6,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
+import com.cloudmall.consumer.handler.EventHandler;
 import com.cloudmall.order.api.event.OrderTagEnum;
-import com.cloudmall.rocketmq.handler.EventHandler;
 import com.cloudmall.seckill.api.client.InternalSeckillClient;
 import com.cloudmall.seckill.api.event.SeckillPaidEvent;
 import com.cloudmall.seckill.api.request.SeckillConfirmPaidReq;
@@ -59,7 +59,7 @@ public class SeckillOrderPaidHandler implements EventHandler<SeckillPaidEvent> {
      */
     @Override
     public String eventId(SeckillPaidEvent event) {
-        return event.getEventId();
+        return event.getOrderNo();
     }
 
     /**

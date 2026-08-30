@@ -2,6 +2,7 @@ package com.cloudmall.rocketmq.producer;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -303,6 +304,60 @@ public class MQProducer {
     public <T> TransactionSendResult sendInTransaction(String destination, T payload, Object arg) {
         Message<T> message = MessageBuilder.withPayload(payload).build();
         return rocketMQTemplate.sendMessageInTransaction(destination, message, arg);
+    }
+
+    /**
+     * 发送事务消息（携带公共 header，无业务扩展 header）。 <p>
+     * 委托
+     * {@link #sendInTransaction(String, String, Object, Object, Map)}
+     * 发送，extraHeaders 传 null。
+     *
+     * @param topic 主题
+     * @param tag 标签
+     * @param event 事件对象
+     * @param eventId 事件 ID（业务主键，写入 EVENT_ID header）
+     * @param <T> 事件类型
+     * @return 事务发送结果
+     */
+    public <T> TransactionSendResult sendInTransaction(String topic, String tag, T event, Object eventId) {
+        return sendInTransaction(topic, tag, event, eventId, null);
+    }
+
+    /**
+     * 发送事务消息（携带公共 header）。 <p>
+     * 自动装配事务 ID、事件 ID 与事件类型 header， 供同一进程内的事务监听器回查使用。事件
+     * ID 为业务主键（orderNo/productId/userId 等），事务监听器 回查与消费方幂
+     * 等 共用。 额外业务 header 通过 extraHeaders 传入（键为 header 名）。 <p>
+     * 事件 ID 通过 {@link TxMessageHeader#EVENT_ID} header 传
+     * 递给 事务监听器， 框架回调参数 arg 固定传 null，监听器统一从 header 读取业务上下
+     * 文。
+     *
+     * @param topic 主题
+     * @param tag 标签
+     * @param event 事件对象
+     * @param eventId 事件 ID（业务主键，写入 EVENT_ID header）
+     * @param extraHeaders 业务扩展 header，可为 null
+     * @param <T> 事件类型
+     * @return 事务发送结果
+     */
+    public <T> TransactionSendResult sendInTransaction(
+        String topic,
+        String tag,
+        T event,
+        Object eventId,
+        Map<String, Object> extraHeaders
+    ) {
+        Message<T> message = MessageBuilder.withPayload(event)
+                                           .setHeader(TxMessageHeader.TRANSACTION_ID, StrUtil.uuid())
+                                           .setHeader(TxMessageHeader.EVENT_ID, eventId)
+                                           .setHeader(TxMessageHeader.EVENT_TYPE, tag)
+                                           .build();
+        if (extraHeaders != null) {
+            MessageBuilder<T> builder = MessageBuilder.fromMessage(message);
+            extraHeaders.forEach(builder::setHeader);
+            message = builder.build();
+        }
+        return rocketMQTemplate.sendMessageInTransaction(buildDestination(topic, tag), message, null);
     }
 
     /**

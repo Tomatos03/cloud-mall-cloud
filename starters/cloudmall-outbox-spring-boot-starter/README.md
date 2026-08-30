@@ -48,7 +48,7 @@ xxl:
 ## 约定与约束
 
 - 事件对象必须包含 `eventId` 字段（消费端幂等键），由 `OutboxAppender` 生成并注入。
-- 消费端幂等表 `cm_message_consume_record` 按 `(event_id, consumer, operation_type)` 去重，重复发布无害。
+- 消费端按业务层幂等去重（消费幂等表已移除），重复发布由业务唯一约束保障。
 - `OutboxMapper` 通过 `OutboxAutoConfiguration` 的 `@AutoConfigurationPackage(basePackages = "com.cloudmall.outbox")` + `@AutoConfigureBefore(MybatisPlusAutoConfiguration.class)` 保证先于 MyBatis 自动扫描器注册包，再由 `@Mapper` 自动扫描注册；消费方无需额外 `@MapperScan`，也不会因引入本 starter 导致自身 Mapper 的自动扫描退避。
 - 不依赖行锁：xxl-job 单次触发只在一个执行器实例执行，同一服务多实例不会重复扫描同一批。
 

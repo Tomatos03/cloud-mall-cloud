@@ -8,8 +8,8 @@ import lombok.NoArgsConstructor;
 /**
  * 用户注册事件
  * <p>
- * user-service 注册事务写入本地 Outbox，由 RocketMQ 发布，
- * coupon-service 消费后幂等发放新人券。eventId 为跨服务幂等键。
+ * user-service 注册通过 RocketMQ 事务消息发布，
+ * coupon-service 消费后幂等发放新人券。
  *
  * @author : Tomatos
  */
@@ -18,9 +18,6 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class UserRegisteredEvent {
-
-    /** 事件 ID（Outbox event_id，消费幂等键） */
-    private String eventId;
 
     /** 新注册用户 ID */
     private Long userId;

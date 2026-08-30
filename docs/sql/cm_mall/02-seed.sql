@@ -2,7 +2,7 @@
 -- cm_mall — 种子数据（供开发 / 测试环境使用）
 -- 执行前请先执行 01-schema.sql 初始化表结构
 -- 与 01-schema.sql 当前表结构严格对齐（优惠券新模型 + 父子订单 + 商品多规格 + cm_shop
--- + 库存流水 + 消息 Outbox/消费幂等 + IM 会话消息）
+-- + 库存流水 + 消息 Outbox + IM 会话消息）
 -- ============================================================
 
 SET NAMES utf8mb4;
@@ -652,23 +652,6 @@ INSERT INTO cm_message_outbox (id, app_name, event_id, topic, biz_type, biz_id, 
     '{"eventId":"EVT-PROD-000003","productId":7,"spuCode":"SPU20250007"}', 'DEAD', 5, NULL, NULL, '超过最大重试次数，转为死信', DATE_SUB(NOW(), INTERVAL 2 DAY), DATE_SUB(NOW(), INTERVAL 1 DAY));
 
 ALTER TABLE cm_message_outbox AUTO_INCREMENT = 100;
-
--- ============================================================
--- 消息消费幂等记录（event_id + consumer + operation_type 唯一约束）
--- consumer 取消费者组名；operation_type 词汇与 consumer-service OperationTypeEnum 对齐
--- ============================================================
-INSERT INTO cm_message_consume_record (id, event_id, consumer, operation_type, status, retry_count, last_error, consume_time, create_time, update_time) VALUES
-(1, 'EVT-UREG-000001',      'coupon-user-registered', 'REGISTER_AUTO_ISSUE', 'CONSUMED', 0, NULL, DATE_SUB(NOW(), INTERVAL 10 DAY), DATE_SUB(NOW(), INTERVAL 10 DAY), DATE_SUB(NOW(), INTERVAL 10 DAY)),
-(2, 'EVT-UREG-000002',      'coupon-user-registered', 'REGISTER_AUTO_ISSUE', 'CONSUMED', 0, NULL, DATE_SUB(NOW(), INTERVAL 5 DAY),  DATE_SUB(NOW(), INTERVAL 5 DAY),  DATE_SUB(NOW(), INTERVAL 5 DAY)),
-(3, 'EVT-ORD-PAID-000001',  'coupon-order-events',    'ORDER_PAID',          'CONSUMED', 0, NULL, DATE_SUB(NOW(), INTERVAL 29 DAY), DATE_SUB(NOW(), INTERVAL 29 DAY), DATE_SUB(NOW(), INTERVAL 29 DAY)),
-(4, 'EVT-ORD-PAID-000002',  'coupon-order-events',    'ORDER_PAID',          'CONSUMED', 0, NULL, DATE_SUB(NOW(), INTERVAL 27 DAY), DATE_SUB(NOW(), INTERVAL 27 DAY), DATE_SUB(NOW(), INTERVAL 27 DAY)),
-(5, 'EVT-SK-ORDER-000001',  'seckill-order-events',   'SECKILL_ORDER_CREATE', 'CONSUMED', 0, NULL, DATE_SUB(NOW(), INTERVAL 30 DAY), DATE_SUB(NOW(), INTERVAL 30 DAY), DATE_SUB(NOW(), INTERVAL 30 DAY)),
-(6, 'EVT-SK-ORDER-000002',  'seckill-order-events',   'SECKILL_ORDER_CREATE', 'CONSUMED', 0, NULL, DATE_SUB(NOW(), INTERVAL 30 DAY), DATE_SUB(NOW(), INTERVAL 30 DAY), DATE_SUB(NOW(), INTERVAL 30 DAY)),
-(7, 'EVT-SK-ORDER-000003',  'seckill-order-events',   'SECKILL_ORDER_CREATE', 'CONSUMED', 0, NULL, DATE_SUB(NOW(), INTERVAL 60 DAY), DATE_SUB(NOW(), INTERVAL 60 DAY), DATE_SUB(NOW(), INTERVAL 60 DAY)),
-(8, 'EVT-PROD-000001',      'search-product-events',  'PRODUCT_UPSERT',      'CONSUMED', 0, NULL, DATE_SUB(NOW(), INTERVAL 15 DAY), DATE_SUB(NOW(), INTERVAL 15 DAY), DATE_SUB(NOW(), INTERVAL 15 DAY)),
-(9, 'EVT-PROD-000003',      'search-product-events',  'PRODUCT_DELETE',      'DEAD',     5, 'ES 索引删除失败：连接超时', DATE_SUB(NOW(), INTERVAL 1 DAY), DATE_SUB(NOW(), INTERVAL 1 DAY), DATE_SUB(NOW(), INTERVAL 1 DAY));
-
-ALTER TABLE cm_message_consume_record AUTO_INCREMENT = 100;
 
 -- ============================================================
 -- IM 聊天会话（买家 ↔ 商家，uk_buyer_merchant 唯一）

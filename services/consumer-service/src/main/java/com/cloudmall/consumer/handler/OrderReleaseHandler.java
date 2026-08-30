@@ -5,11 +5,11 @@ import java.util.Set;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
+import com.cloudmall.consumer.handler.EventHandler;
 import com.cloudmall.coupon.api.client.InternalCouponClient;
 import com.cloudmall.coupon.api.request.CouponOrderReleaseByOrderReq;
 import com.cloudmall.order.api.event.OrderEvent;
 import com.cloudmall.order.api.event.OrderTagEnum;
-import com.cloudmall.rocketmq.handler.EventHandler;
 
 /**
  * 订单释放处理器：超时/取消共享同一动作，注册两个 tag。
@@ -50,7 +50,7 @@ public class OrderReleaseHandler implements EventHandler<OrderEvent> {
      */
     @Override
     public String eventId(OrderEvent event) {
-        return event.getEventId();
+        return event.getOrderNo();
     }
 
     /**

@@ -5,9 +5,9 @@ import java.util.Set;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
+import com.cloudmall.consumer.handler.EventHandler;
 import com.cloudmall.coupon.api.client.InternalCouponClient;
 import com.cloudmall.coupon.api.request.AutoIssueRegisterReq;
-import com.cloudmall.rocketmq.handler.EventHandler;
 import com.cloudmall.user.api.event.UserRegisteredEvent;
 
 /**
@@ -49,7 +49,7 @@ public class RegisterAutoIssueHandler implements EventHandler<UserRegisteredEven
      */
     @Override
     public String eventId(UserRegisteredEvent event) {
-        return event.getEventId();
+        return String.valueOf(event.getUserId());
     }
 
     /**
@@ -62,7 +62,7 @@ public class RegisterAutoIssueHandler implements EventHandler<UserRegisteredEven
         internalCouponClient.autoIssueForRegister(
                 AutoIssueRegisterReq.builder()
                                     .userId(event.getUserId())
-                                    .eventId(event.getEventId())
+                                    .eventId(String.valueOf(event.getUserId()))
                                     .build()
         );
     }

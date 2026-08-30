@@ -10,9 +10,8 @@ import lombok.NoArgsConstructor;
 /**
  * 秒杀建单事件
  * <p>
- * 抢购成功后与 cm_seckill_order 同事务写入 Outbox，由 RocketMQ 发布到 SECKILL_ORDERS，
+ * 抢购成功后通过 RocketMQ 事务消息发布到 SECKILL_ORDERS，
  * consumer-service 消费后调 order-service 内部接口建真实订单。
- * eventId 为 Outbox event_id，跨服务消费幂等键。
  *
  * @author : Tomatos
  */
@@ -21,9 +20,6 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class SeckillOrderCreateEvent {
-
-    /** 事件 ID（Outbox event_id，消费幂等键） */
-    private String eventId;
 
     /** 秒杀单 ID */
     private Long seckillOrderId;

@@ -6,9 +6,9 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
+import com.cloudmall.consumer.handler.EventHandler;
 import com.cloudmall.product.api.event.ProductEvent;
 import com.cloudmall.product.api.event.ProductTagEnum;
-import com.cloudmall.rocketmq.handler.EventHandler;
 import com.cloudmall.search.api.client.InternalSearchClient;
 
 /**
@@ -52,7 +52,7 @@ public class ProductDeleteHandler implements EventHandler<ProductEvent> {
      */
     @Override
     public String eventId(ProductEvent event) {
-        return event.getEventId();
+        return String.valueOf(event.getProductId());
     }
 
     /**

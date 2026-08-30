@@ -98,6 +98,20 @@ mvn test                                                  # 测试
 
 - `for-each` 头部禁止内联 Stream 管道表达式，先抽取为具名局部变量再遍历。
 
+### JDK 17 语法糖
+
+- 优先使用 JDK 17 提供的最新语法糖，禁止退化为旧式写法：
+  - `switch` 一律用箭头语法（switch 语句或 switch 表达式），禁止传统 `case X: ... break;` 冒号写法；多分支返回统一用 switch 表达式 + `yield`，纯动作分支用 switch 语句 + 箭头标签（保留原有日志/返回语义的前提下改写）。
+  - 类型判断用 `instanceof` 模式匹配（`if (obj instanceof Xxx x)`），禁止先 `instanceof` 再强转。
+  - 不可变集合优先 `List.of` / `Map.of` / `Set.of`；Stream 收尾优先 `toList()`，禁止 `collect(Collectors.toList())`。
+  - 数据载体优先 `record`；长字符串优先文本块（`"""`）。
+- 改写语法糖时保持行为完全等价（分支、返回、日志顺序不变），不改变原有逻辑。
+
+### 静态常量
+
+- 静态常量统一使用接口形式定义（如 `public interface XxxConstants { String XXX = "..." }`），接口常量默认为 `public static final`，禁止用 `final class` + 私有构造器的常量类。
+- 使用处一律通过 `XxxConstants.XXX` 静态引用，禁止实现常量接口来继承常量（如 `implements XxxConstants`）。
+
 ### MyBatis-Plus
 
 - 使用 `Wrappers.lambdaQuery()` / `lambdaUpdate()`，禁止 `new LambdaQueryWrapper<>()`；更新用单参数 `update(Wrappers.lambdaUpdate()...)`。
@@ -128,3 +142,4 @@ mvn test                                                  # 测试
 ## Agent-Specific Instructions
 
 - 子目录可添加模块级 `AGENTS.md` 补充指引。
+

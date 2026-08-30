@@ -6,10 +6,9 @@ import org.apache.rocketmq.spring.annotation.RocketMQMessageListener;
 import org.apache.rocketmq.spring.annotation.SelectorType;
 import org.springframework.stereotype.Component;
 
+import com.cloudmall.consumer.consumer.AbstractMessageConsumer;
+import com.cloudmall.consumer.handler.EventHandler;
 import com.cloudmall.order.api.event.OrderEvent;
-import com.cloudmall.rocketmq.consumer.AbstractMessageConsumer;
-import com.cloudmall.rocketmq.consumer.IMessageConsumeService;
-import com.cloudmall.rocketmq.handler.EventHandler;
 
 /**
  * 订单事件消费者
@@ -23,17 +22,17 @@ import com.cloudmall.rocketmq.handler.EventHandler;
         topic = "ORDER_EVENTS",
         consumerGroup = "coupon-order-events",
         selectorType = SelectorType.TAG,
-        selectorExpression = "OrderPaid || OrderTimeout || OrderCancelled || OrderFullyRefunded"
+        selectorExpression = "OrderPaid || OrderTimeout || OrderCancelled || OrderFullyRefunded",
+        maxReconsumeTimes = 16
 )
 public class OrderEventConsumer extends AbstractMessageConsumer<OrderEvent> {
 
     /**
      * 构造器。
      *
-     * @param consumeService 消费幂等服务
      * @param handlers 订单事件处理器
      */
-    public OrderEventConsumer(IMessageConsumeService consumeService, List<EventHandler<OrderEvent>> handlers) {
-        super(consumeService, handlers, OrderEvent.class);
+    public OrderEventConsumer(List<EventHandler<OrderEvent>> handlers) {
+        super(handlers, OrderEvent.class);
     }
 }

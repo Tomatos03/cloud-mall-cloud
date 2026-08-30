@@ -6,10 +6,9 @@ import org.apache.rocketmq.spring.annotation.RocketMQMessageListener;
 import org.apache.rocketmq.spring.annotation.SelectorType;
 import org.springframework.stereotype.Component;
 
+import com.cloudmall.consumer.consumer.AbstractMessageConsumer;
+import com.cloudmall.consumer.handler.EventHandler;
 import com.cloudmall.product.api.event.ProductEvent;
-import com.cloudmall.rocketmq.consumer.AbstractMessageConsumer;
-import com.cloudmall.rocketmq.consumer.IMessageConsumeService;
-import com.cloudmall.rocketmq.handler.EventHandler;
 
 /**
  * 商品事件消费者
@@ -24,20 +23,17 @@ import com.cloudmall.rocketmq.handler.EventHandler;
         topic = "PRODUCT_EVENTS",
         consumerGroup = "search-product-events",
         selectorType = SelectorType.TAG,
-        selectorExpression = "ProductCreated || ProductUpdated || ProductDeleted"
+        selectorExpression = "ProductCreated || ProductUpdated || ProductDeleted",
+        maxReconsumeTimes = 16
 )
 public class ProductEventConsumer extends AbstractMessageConsumer<ProductEvent> {
 
     /**
      * 构造器。
      *
-     * @param consumeService 消费幂等服务
      * @param handlers 商品事件处理器
      */
-    public ProductEventConsumer(
-        IMessageConsumeService consumeService,
-        List<EventHandler<ProductEvent>> handlers
-    ) {
-        super(consumeService, handlers, ProductEvent.class);
+    public ProductEventConsumer(List<EventHandler<ProductEvent>> handlers) {
+        super(handlers, ProductEvent.class);
     }
 }

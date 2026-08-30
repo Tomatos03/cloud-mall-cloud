@@ -5,11 +5,11 @@ import java.util.Set;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
+import com.cloudmall.consumer.handler.EventHandler;
 import com.cloudmall.coupon.api.client.InternalCouponClient;
 import com.cloudmall.coupon.api.request.CouponOrderCommitByOrderReq;
 import com.cloudmall.order.api.event.OrderEvent;
 import com.cloudmall.order.api.event.OrderTagEnum;
-import com.cloudmall.rocketmq.handler.EventHandler;
 
 /**
  * 订单支付成功处理器：核销订单下全部已锁定用户券。
@@ -50,7 +50,7 @@ public class OrderPaidHandler implements EventHandler<OrderEvent> {
      */
     @Override
     public String eventId(OrderEvent event) {
-        return event.getEventId();
+        return event.getOrderNo();
     }
 
     /**

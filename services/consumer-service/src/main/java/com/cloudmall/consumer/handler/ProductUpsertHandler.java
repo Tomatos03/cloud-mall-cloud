@@ -6,11 +6,11 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
+import com.cloudmall.consumer.handler.EventHandler;
 import com.cloudmall.product.api.client.ProductClient;
 import com.cloudmall.product.api.event.ProductEvent;
 import com.cloudmall.product.api.event.ProductTagEnum;
 import com.cloudmall.product.api.response.ProductDocResp;
-import com.cloudmall.rocketmq.handler.EventHandler;
 import com.cloudmall.search.api.client.InternalSearchClient;
 
 /**
@@ -59,7 +59,7 @@ public class ProductUpsertHandler implements EventHandler<ProductEvent> {
      */
     @Override
     public String eventId(ProductEvent event) {
-        return event.getEventId();
+        return String.valueOf(event.getProductId());
     }
 
     /**
@@ -71,7 +71,7 @@ public class ProductUpsertHandler implements EventHandler<ProductEvent> {
     public void handle(ProductEvent event) {
         ProductDocResp doc = productClient.searchDoc(event.getProductId());
         if (doc == null) {
-            log.warn("商品文档不存在，清理 ES 残留 productId={} eventId={}", event.getProductId(), event.getEventId());
+            log.warn("商品文档不存在，清理 ES 残留 productId={}", event.getProductId());
             internalSearchClient.deleteById(event.getProductId());
             return;
         }

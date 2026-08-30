@@ -10,8 +10,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.cloudmall.common.enums.BizError;
 import com.cloudmall.common.utils.Asserts;
-import com.cloudmall.outbox.appender.OutboxAppender;
-import com.cloudmall.outbox.model.OutboxAppendReq;
+import com.cloudmall.rocketmq.producer.MQProducer;
 import com.cloudmall.seckill.api.event.SeckillOrderCreateEvent;
 import com.cloudmall.seckill.api.event.SeckillTagEnum;
 import com.cloudmall.seckill.api.response.SeckillOrderResp;
@@ -45,11 +44,14 @@ public class SeckillOrderService implements ISeckillOrderService {
 
     private final SeckillOrderMapper orderMapper;
     private final SeckillProductMapper productMapper;
-    private final OutboxAppender outboxAppender;
+    private final MQProducer mqProducer;
     private final SeckillConverter seckillConverter;
 
     /**
-     * 落库秒杀单并同事务追加建单事件。
+     * 落库秒杀单并发送建单事务消息。 <p>
+     * 本地事务由
+     * {@link com.cloudmall.seckill.listener.SeckillTxMessageListener}
+     * 执行。
      *
      * @param order 秒杀单实体（
      * activityId/productId/skuId/userId/seckillPrice
@@ -62,29 +64,24 @@ public class SeckillOrderService implements ISeckillOrderService {
         // 唯一键 uk_activity_sku_user 冲突时抛 DuplicateKeyException，由编排层回补 Redis
         orderMapper.insert(order);
 
-        // eventId 由 OutboxAppender 生成并注入，此处不设置
-        outboxAppender.append(
-                OutboxAppendReq
-                        .builder()
-                        .topic(SECKILL_ORDERS_TOPIC)
-                        .eventType(SeckillTagEnum.ORDER_CREATE.getTag())
-                        .bizType("SECKILL_ORDER")
-                        .bizId(order.getOrderNo())
-                        .event(
-                                SeckillOrderCreateEvent.builder()
-                                                       .seckillOrderId(order.getId())
-                                                       .orderNo(order.getOrderNo())
-                                                       .userId(order.getUserId())
-                                                       .skuId(order.getSkuId())
-                                                       .productId(order.getProductId())
-                                                       .seckillPrice(order.getSeckillPrice())
-                                                       .quantity(order.getQuantity())
-                                                       .addressId(addressId)
-                                                       .build()
-                        )
-                        .build()
+        // 构建事件并发送事务消息（本地事务由监听器执行）
+        SeckillOrderCreateEvent event = SeckillOrderCreateEvent.builder()
+                                                               .seckillOrderId(order.getId())
+                                                               .orderNo(order.getOrderNo())
+                                                               .userId(order.getUserId())
+                                                               .skuId(order.getSkuId())
+                                                               .productId(order.getProductId())
+                                                               .seckillPrice(order.getSeckillPrice())
+                                                               .quantity(order.getQuantity())
+                                                               .addressId(addressId)
+                                                               .build();
+        mqProducer.sendInTransaction(
+                SECKILL_ORDERS_TOPIC,
+                SeckillTagEnum.ORDER_CREATE.getTag(),
+                event,
+                order.getOrderNo()
         );
-        log.info("秒杀单已受理并追加建单事件 orderNo={} userId={}", order.getOrderNo(), order.getUserId());
+        log.info("秒杀单已受理并发送建单事务消息 orderNo={} userId={}", order.getOrderNo(), order.getUserId());
     }
 
     /**

@@ -1,4 +1,4 @@
-package com.cloudmall.rocketmq.handler;
+package com.cloudmall.consumer.handler;
 
 import java.util.Set;
 

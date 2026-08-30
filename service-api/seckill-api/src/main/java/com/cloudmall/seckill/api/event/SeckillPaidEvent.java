@@ -21,9 +21,6 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class SeckillPaidEvent {
 
-    /** 事件 ID（Outbox event_id，消费幂等键） */
-    private String eventId;
-
     /** 父订单号 */
     private String orderNo;
 

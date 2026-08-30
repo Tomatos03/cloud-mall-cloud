@@ -6,9 +6,8 @@ import org.apache.rocketmq.spring.annotation.RocketMQMessageListener;
 import org.apache.rocketmq.spring.annotation.SelectorType;
 import org.springframework.stereotype.Component;
 
-import com.cloudmall.rocketmq.consumer.AbstractMessageConsumer;
-import com.cloudmall.rocketmq.consumer.IMessageConsumeService;
-import com.cloudmall.rocketmq.handler.EventHandler;
+import com.cloudmall.consumer.consumer.AbstractMessageConsumer;
+import com.cloudmall.consumer.handler.EventHandler;
 import com.cloudmall.seckill.api.event.SeckillPaidEvent;
 
 /**
@@ -24,20 +23,17 @@ import com.cloudmall.seckill.api.event.SeckillPaidEvent;
         topic = "ORDER_EVENTS",
         consumerGroup = "seckill-order-paid",
         selectorType = SelectorType.TAG,
-        selectorExpression = "OrderPaid"
+        selectorExpression = "OrderPaid",
+        maxReconsumeTimes = 16
 )
 public class SeckillOrderPaidConsumer extends AbstractMessageConsumer<SeckillPaidEvent> {
 
     /**
      * 构造器。
      *
-     * @param consumeService 消费幂等服务
      * @param handlers 秒杀支付事件处理器
      */
-    public SeckillOrderPaidConsumer(
-        IMessageConsumeService consumeService,
-        List<EventHandler<SeckillPaidEvent>> handlers
-    ) {
-        super(consumeService, handlers, SeckillPaidEvent.class);
+    public SeckillOrderPaidConsumer(List<EventHandler<SeckillPaidEvent>> handlers) {
+        super(handlers, SeckillPaidEvent.class);
     }
 }

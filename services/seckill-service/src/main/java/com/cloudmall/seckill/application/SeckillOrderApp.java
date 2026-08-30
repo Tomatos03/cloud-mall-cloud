@@ -37,7 +37,7 @@ import com.cloudmall.seckill.service.ISeckillProductService;
  * 秒杀单编排层
  * <p>
  * 抢购：黑名单与限流 → 活动窗口校验 → 商品已审校验 → Lua 原子扣减（一人一单 + 库存）
- * → 落库秒杀单 + Outbox 事件。立即返回受理结果，真实订单由消费者异步建立。
+ * → 落库秒杀单 + 事务消息。立即返回受理结果，真实订单由消费者异步建立。
  * 超时回收：扫描未支付秒杀单，先状态后归还，再远程幂等取消真实订单。
  *
  * @author : Tomatos

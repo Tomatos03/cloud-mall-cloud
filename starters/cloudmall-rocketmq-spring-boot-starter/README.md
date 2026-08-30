@@ -1,6 +1,6 @@
 # cloudmall-rocketmq-spring-boot-starter
 
-RocketMQ 消息基础设施 starter，提供通用发送客户端 `MQProducer` 与消费幂等台账能力，并内置 `AbstractMessageConsumer` 消费模板实现「解析 → tag 分发 → 幂等守卫 → 业务处理 → 记账」的标准流程。
+RocketMQ 消息基础设施 starter，提供通用发送客户端 `MQProducer` 与事务消息 header 常量。消费者相关抽象（`AbstractMessageConsumer` / `EventHandler`）已下沉到各消费方服务（如 consumer-service），不再由本 starter 提供。
 
 ## 功能
 
@@ -36,71 +36,25 @@ public class OrderEventPublisher {
 
 异步发送默认回调 `DefaultSendCallback` 自动记录成功 / 失败日志，可继承覆写 `onSuccessExt` / `onExceptionExt` 扩展重试、告警等逻辑。
 
-### 2. 消费幂等台账（`MessageConsumeService`）
+### 2. 事务消息（`TxMessageHeader`）
 
-基于 `cm_message_consume_record` 表，以 `(event_id, consumer, operation_type)` 唯一键保证同一事件同一操作只消费一次，支持重复投递与安全重放。
+事务消息发送与事务监听器处于同一微服务进程，通过公共 header 传递业务上下文：
 
-- `consumer` 标识默认取 `spring.application.name`，可用 `cloudmall.rocketmq.consumer` 覆盖
-- `operation_type` 词汇由消费方定义（如 `ORDER_PAID`）
-- Mapper 通过 `MapperFactoryBean` 显式注册，不依赖 `@MapperScan`，也不影响消费方自身 Mapper 的自动扫描
-- 仅在 classpath 存在 MyBatis-Plus 时装配；纯发送场景（无 MP）自动跳过
+| Header | 值 | 用途 |
+|--------|----|------|
+| `EVENT_ID` | 业务主键（orderNo / productId / userId） | 事务监听器回查定位业务记录，消费方幂等键 |
+| `EVENT_TYPE` | tag 值 | 事务监听器区分事件类型 |
+| `TRANSACTION_ID` | UUID | Broker 事务状态关联与日志追踪 |
 
-### 3. 消费模板（`AbstractMessageConsumer` + `EventHandler`）
-
-每个 topic 一个薄消费者子类，声明 `@RocketMQMessageListener` 并传入载荷类型与处理器集合：
-
-```java
-@Component
-@RocketMQMessageListener(
-        topic = "ORDER_EVENTS",
-        consumerGroup = "coupon-order-events",
-        selectorType = SelectorType.TAG,
-        selectorExpression = "OrderPaid || OrderTimeout || OrderCancelled || OrderFullyRefunded"
-)
-public class OrderEventConsumer extends AbstractMessageConsumer<OrderEvent> {
-
-    public OrderEventConsumer(IMessageConsumeService consumeService, List<EventHandler<OrderEvent>> handlers) {
-        super(consumeService, handlers, OrderEvent.class);
-    }
-}
-```
-
-业务处理实现 `EventHandler<T>`，按 tag 分发：
+事务消息发送：
 
 ```java
-@Component
-@RequiredArgsConstructor
-public class OrderPaidHandler implements EventHandler<OrderEvent> {
-
-    private final CouponOrderClient couponOrderClient;
-
-    @Override
-    public Set<String> tagSet() {
-        return Set.of(OrderTagEnum.PAID.getTag());
-    }
-
-    @Override
-    public boolean canHandle(String tag) {
-        return tagSet().contains(tag);
-    }
-
-    @Override
-    public String eventId(OrderEvent event) {
-        return event.getEventId();
-    }
-
-    @Override
-    public void handle(OrderEvent event) {
-        couponOrderClient.commitByOrder(
-                CouponOrderCommitByOrderReq.builder()
-                                           .orderNo(event.getOrderNo())
-                                           .build()
-        );
-    }
-}
+mqProducer.sendInTransaction("ORDER_EVENTS", OrderTagEnum.PAID.getTag(), event, orderNo);
 ```
 
-消费模板统一完成：JSON 解析 → tag 归一 → 按 `canHandle` 分发 → `alreadyConsumed` 幂等守卫 → `handle` 业务处理 → `markConsumed` 记账；处理抛异常时不记账，交由 RocketMQ 重试投递。
+- 自动装配 `TRANSACTION_ID`（UUID）、`EVENT_ID`（业务主键）、`EVENT_TYPE`（tag）
+- 事务监听器实现 `RocketMQLocalTransactionListener`，通过 `TxMessageHeader` 常量读取 header 完成本地事务执行与回查
+- 框架回调参数 `arg` 固定传 null，业务上下文统一从 header 读取
 
 ## 配置项
 
@@ -112,14 +66,12 @@ rocketmq:
 
 cloudmall:
   rocketmq:
-    enabled: true             # 发送客户端装配开关（默认 true）
-    consumer: order-service   # 消费幂等消费者标识（默认取 spring.application.name）
+    enabled: true   # 发送客户端装配开关（默认 true）
 ```
 
 ## 自动装配
 
 - `MqAutoConfiguration`：classpath 存在 `RocketMQTemplate` 且 `cloudmall.rocketmq.enabled != false` 时装配 `MQProducer`（`@ConditionalOnMissingBean`）
-- `MessageConsumeAutoConfiguration`：classpath 存在 MyBatis-Plus `BaseMapper` 时装配幂等 Mapper 与 `MessageConsumeService`
 
 ## 依赖关系
 
@@ -127,11 +79,11 @@ cloudmall:
 cloudmall-rocketmq-spring-boot-starter
 ├── rocketmq-spring-boot-starter（RocketMQTemplate）
 ├── cloudmall-common（Asserts、BizError）
-└── cloudmall-mybatis-plus-spring-boot-starter（optional，仅消费幂等台账使用，消费方需显式引入）
+└── lombok（optional，编译期）
 ```
 
 ## 注意事项
 
-- 幂等台账依赖 `cloudmall-mybatis-plus-spring-boot-starter`，pom 中为 optional 依赖，使用幂等能力的服务必须显式引入，否则 `MessageConsumeService` 不装配。
-- 消费处理必须自身幂等：幂等台账兜底依赖业务先幂等，重复投递由唯一键跳过。
-- 消费失败抛异常不记账，RocketMQ 按消费端配置重试；`ConsumeStatusEnum` 预留 `DEAD` 死信状态。
+- 事务消息依赖事务监听器（`@RocketMQTransactionListener`）实现本地事务与回查，监听器与发送端必须处于同一进程。
+- 消费失败由 RocketMQ 重试机制兜底（`maxReconsumeTimes` 次后进入死信队列 `%DLQ%{consumerGroup}`），消费方应监听死信队列并告警。
+- 消费处理必须自身幂等：重复投递由业务层幂等（唯一约束 / 幂等键）保障。

@@ -728,23 +728,6 @@ CREATE TABLE IF NOT EXISTS cm_message_outbox (
     KEY idx_next_retry_time (next_retry_time)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 comment '通用本地消息 Outbox 表';
 
--- 消息消费幂等记录（event_id + consumer + operation_type 唯一约束）
-CREATE TABLE IF NOT EXISTS cm_message_consume_record (
-    id             bigint       NOT NULL AUTO_INCREMENT comment '消费记录ID',
-    event_id       varchar(64)  NOT NULL comment '事件ID',
-    consumer       varchar(50)  NOT NULL comment '消费者(如consumer-service)',
-    operation_type varchar(30)  NOT NULL comment '消费操作类型',
-    status         varchar(20)  NOT NULL DEFAULT 'CONSUMED' comment '消费状态(CONSUMED=已消费 DEAD=死信)',
-    retry_count    int          NOT NULL DEFAULT 0 comment '重试次数',
-    last_error     varchar(500) DEFAULT NULL comment '最后错误信息',
-    consume_time   datetime     DEFAULT NULL comment '消费时间',
-    create_time    datetime     DEFAULT NULL comment '创建时间',
-    update_time    datetime     DEFAULT NULL comment '更新时间',
-    PRIMARY KEY (id),
-    UNIQUE KEY uk_event_consumer_op (event_id, consumer, operation_type),
-    KEY idx_status (status)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 comment '消息消费幂等记录表';
-
 -- ============================================================
 -- RBAC 权限模块 — 种子数据
 -- ============================================================

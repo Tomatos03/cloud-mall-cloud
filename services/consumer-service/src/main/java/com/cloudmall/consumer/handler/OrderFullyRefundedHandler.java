@@ -6,11 +6,11 @@ import cn.hutool.core.util.StrUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
+import com.cloudmall.consumer.handler.EventHandler;
 import com.cloudmall.coupon.api.client.InternalCouponClient;
 import com.cloudmall.coupon.api.request.CouponOrderRevertByOrderReq;
 import com.cloudmall.order.api.event.OrderEvent;
 import com.cloudmall.order.api.event.OrderTagEnum;
-import com.cloudmall.rocketmq.handler.EventHandler;
 
 /**
  * 订单全额退款处理器：回退订单下全部已核销用户券。
@@ -51,7 +51,7 @@ public class OrderFullyRefundedHandler implements EventHandler<OrderEvent> {
      */
     @Override
     public String eventId(OrderEvent event) {
-        return event.getEventId();
+        return event.getOrderNo();
     }
 
     /**

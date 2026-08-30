@@ -7,11 +7,11 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
+import com.cloudmall.consumer.handler.EventHandler;
 import com.cloudmall.order.api.client.OrderClient;
 import com.cloudmall.order.api.enums.CheckoutTypeEnum;
 import com.cloudmall.order.api.model.OrderItem;
 import com.cloudmall.order.api.request.CreateOrderReq;
-import com.cloudmall.rocketmq.handler.EventHandler;
 import com.cloudmall.seckill.api.event.SeckillOrderCreateEvent;
 import com.cloudmall.seckill.api.event.SeckillTagEnum;
 
@@ -59,7 +59,7 @@ public class SeckillOrderCreateHandler implements EventHandler<SeckillOrderCreat
      */
     @Override
     public String eventId(SeckillOrderCreateEvent event) {
-        return event.getEventId();
+        return event.getOrderNo();
     }
 
     /**

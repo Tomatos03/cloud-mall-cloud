@@ -6,7 +6,8 @@ import java.math.BigDecimal;
  * 订单事件服务
  * <p>
  * 处理支付成功、超时、取消、全额退款等生命周期事件（本阶段为模拟入口），
- * 状态迁移与事件 Outbox 写入在同一本地事务提交。
+ * 状态变更通过 RocketMQ 事务消息发送，本地事务由
+ * {@link com.cloudmall.order.listener.OrderTxMessageListener} 执行。
  * <p>
  * 事件类型复用 {@link com.cloudmall.order.api.event.OrderTagEnum} 作为 RocketMQ Tag。
  *
