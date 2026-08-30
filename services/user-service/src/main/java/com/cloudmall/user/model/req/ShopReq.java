@@ -24,7 +24,7 @@ import com.cloudmall.user.entity.ShopDO;
 @NoArgsConstructor
 @AllArgsConstructor
 @Accessors(chain = true)
-public class ShopGetReq extends ConditionReq<ShopDO> {
+public class ShopReq extends ConditionReq<ShopDO> {
 
     /** 店铺 ID（等值匹配） */
     @QueryCondition(operator = Operator.EQ)

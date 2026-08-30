@@ -27,6 +27,7 @@ public class CommentDO {
     private String content;
     private Integer rating;
     private String images;
+    private Integer usefulCount;
     @Builder.Default
     private StatusEnum status = StatusEnum.ENABLED;
 

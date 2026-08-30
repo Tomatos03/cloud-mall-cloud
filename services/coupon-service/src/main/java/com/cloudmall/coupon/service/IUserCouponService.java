@@ -7,9 +7,11 @@ import java.util.Set;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
 
+import com.cloudmall.common.model.CursorResult;
 import com.cloudmall.coupon.api.response.CouponResp;
 import com.cloudmall.coupon.api.response.UserCouponResp;
 import com.cloudmall.coupon.model.req.CouponPageReq;
+import com.cloudmall.coupon.model.req.UserCouponCursorReq;
 import com.cloudmall.coupon.model.req.UserCouponPageReq;
 
 /**
@@ -50,6 +52,16 @@ public interface IUserCouponService {
      * @return 分页结果
      */
     IPage<UserCouponResp> pageMine(Long userId, UserCouponPageReq req);
+
+    /**
+     * 游标分页查询我的优惠券（按 ID 降序），查询前先对当前用户做实时过期落库。 status 非空时基
+     * 于购物车明细判定可用/不可用分组。
+     *
+     * @param userId 用户 ID
+     * @param req 游标请求（status 为空表示全部）
+     * @return 游标分页结果
+     */
+    CursorResult<UserCouponResp> pageMineByCursor(Long userId, UserCouponCursorReq req);
 
     /**
      * 分页查询公开券中心（仅 PUBLIC_CLAIM 渠道模板），附带

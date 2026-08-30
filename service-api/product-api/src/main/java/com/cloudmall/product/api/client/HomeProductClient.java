@@ -21,7 +21,7 @@ import com.cloudmall.product.api.response.ProductDocResp;
 @FeignClient(
         name = "product-service",
         contextId = "homeProductClient",
-        path = "/product",
+        path = "/products",
         fallbackFactory = HomeProductClientFallbackFactory.class
 )
 public interface HomeProductClient {

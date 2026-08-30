@@ -3,19 +3,23 @@ package com.cloudmall.coupon.controller;
 import java.util.List;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.cloudmall.common.context.UserContextHolder;
+import com.cloudmall.common.model.CursorResult;
 import com.cloudmall.common.model.Result;
 import com.cloudmall.coupon.api.response.CouponResp;
 import com.cloudmall.coupon.api.response.UserCouponResp;
 import com.cloudmall.coupon.enums.IssueChannelEnum;
 import com.cloudmall.coupon.model.req.CouponPageReq;
+import com.cloudmall.coupon.model.req.UserCouponCursorReq;
 import com.cloudmall.coupon.model.req.UserCouponPageReq;
 import com.cloudmall.coupon.service.IUserCouponService;
 
@@ -88,6 +92,17 @@ public class CouponController {
     public Result<IPage<UserCouponResp>> pageMine(UserCouponPageReq req) {
         IPage<UserCouponResp> page = userCouponService.pageMine(UserContextHolder.getUserId(), req);
         return Result.success(page);
+    }
+
+    /**
+     * 游标分页查询我的优惠券。
+     *
+     * @param req 游标请求（status 为空表示全部状态）
+     * @return 游标分页结果
+     */
+    @PostMapping("/me/cursor")
+    public Result<CursorResult<UserCouponResp>> pageMineCursor(@RequestBody @Valid UserCouponCursorReq req) {
+        return Result.success(userCouponService.pageMineByCursor(UserContextHolder.getUserId(), req));
     }
 
     /**

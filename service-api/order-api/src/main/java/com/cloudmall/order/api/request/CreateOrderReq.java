@@ -1,6 +1,7 @@
 package com.cloudmall.order.api.request;
 
 import java.util.List;
+import java.util.Map;
 
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotEmpty;
@@ -40,8 +41,11 @@ public class CreateOrderReq {
     @NotNull
     private Long addressId;
 
-    /** 订单备注 */
+    /** 订单备注（单店铺或未按店铺拆分时使用） */
     private String remark;
+
+    /** 店铺维度备注（跨店铺聚合订单按店铺单独设置，key 为店铺 ID，可空） */
+    private Map<Long, String> shopRemarks;
 
     /** 订单号（仅秒杀，由秒杀侧预生成，uk_order_no 幂等键） */
     private String orderNo;

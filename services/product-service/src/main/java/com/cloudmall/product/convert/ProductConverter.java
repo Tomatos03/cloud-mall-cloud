@@ -8,14 +8,17 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
 import com.cloudmall.product.api.request.ProductCreateReq;
+import com.cloudmall.product.api.response.CommentSummaryResp;
 import com.cloudmall.product.api.response.ImageResp;
 import com.cloudmall.product.api.response.ProductDetailResp;
 import com.cloudmall.product.api.response.ProductResp;
+import com.cloudmall.product.api.response.ProductSku;
 import com.cloudmall.product.api.response.SpecGroupResp;
 import com.cloudmall.product.entity.BrandDO;
+import com.cloudmall.product.entity.CategoryDO;
 import com.cloudmall.product.entity.ProductDO;
 import com.cloudmall.product.entity.ProductImageDO;
-import com.cloudmall.product.entity.ProductSkuDO;
+import com.cloudmall.user.api.response.ShopInfoResp;
 
 /**
  * 商品相关对象转换器。
@@ -25,7 +28,7 @@ import com.cloudmall.product.entity.ProductSkuDO;
  *
  * @author : Tomatos
  */
-@Mapper(componentModel = "spring", uses = {BrandConverter.class, SkuConverter.class})
+@Mapper(componentModel = "spring", uses = BrandConverter.class)
 public interface ProductConverter {
 
     /**
@@ -94,13 +97,14 @@ public interface ProductConverter {
 
     /**
      * 将 SPU DO 及其完整关联数据组装为详情页响应。 <p>
-     * brand 与 skus 分别委托 {@link BrandConverter}、
-     * {@link SkuConverter} 转换， 由 MapStruct 在生成实现中自动注入调用。
+     * brand 与 category 委托 {@link BrandConverter} 转换，skus
+     * 由 Service 层预先转换为 {@link ProductSku} 后传入。
      *
      * @param product SPU 实体
      * @param brand 品牌实体
+     * @param category 分类实体
      * @param images 图片列表
-     * @param skus SKU 实体列表
+     * @param skus SKU 响应列表
      * @param specGroups 规格分组
      * @return 商品详情响应
      */
@@ -111,14 +115,33 @@ public interface ProductConverter {
     @Mapping(target = "name", source = "product.name")
     @Mapping(target = "specGroups", source = "specGroups")
     @Mapping(target = "spuCode", source = "product.spuCode")
+    @Mapping(target = "categoryName", source = "category.name")
     @Mapping(target = "categoryId", source = "product.categoryId")
     @Mapping(target = "description", source = "product.description")
     ProductDetailResp toDetailResp(
         ProductDO product,
         BrandDO brand,
+        CategoryDO category,
         List<ImageResp> images,
-        List<ProductSkuDO> skus,
+        List<ProductSku> skus,
         List<SpecGroupResp> specGroups
     );
 
+    /**
+     * 填充商品详情的店铺信息与评论摘要聚合块。
+     *
+     * @param resp 商品详情响应
+     * @param shop 店铺信息
+     * @param commentSummary 评论摘要
+     * @return 聚合后的商品详情响应
+     */
+    default ProductDetailResp applyAggregations(
+        ProductDetailResp resp,
+        ShopInfoResp shop,
+        CommentSummaryResp commentSummary
+    ) {
+        resp.setShop(shop);
+        resp.setCommentSummary(commentSummary);
+        return resp;
+    }
 }

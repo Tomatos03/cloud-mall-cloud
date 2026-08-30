@@ -3,9 +3,11 @@ package com.cloudmall.product.convert;
 import java.util.List;
 
 import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.util.StrUtil;
 import cn.hutool.json.JSONUtil;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
+import org.mapstruct.MappingTarget;
 
 import com.cloudmall.product.api.request.CommentCreateReq;
 import com.cloudmall.product.api.response.CommentResp;
@@ -27,6 +29,15 @@ public interface CommentConverter {
      */
     @Mapping(target = "username", ignore = true)
     CommentResp toResp(CommentDO comment);
+
+    /**
+     * 回填评论用户昵称。
+     *
+     * @param comment 评论响应
+     * @param username 用户昵称
+     */
+    @Mapping(target = "username", source = "username")
+    void fillUsername(@MappingTarget CommentResp comment, String username);
 
     /**
      * CommentCreateReq → CommentDO。 <p>
@@ -53,5 +64,15 @@ public interface CommentConverter {
      */
     default String imagesToString(List<String> images) {
         return CollUtil.isEmpty(images) ? null : JSONUtil.toJsonStr(images);
+    }
+
+    /**
+     * 图片 JSON 数组字符串解析为 URL 列表。
+     *
+     * @param images 图片 JSON 数组字符串
+     * @return 图片 URL 列表，空白时返回 null
+     */
+    default List<String> imagesToList(String images) {
+        return StrUtil.isBlank(images) ? null : JSONUtil.toList(images, String.class);
     }
 }

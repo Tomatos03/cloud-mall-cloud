@@ -1,11 +1,14 @@
 package com.cloudmall.coupon.service.impl;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import cn.hutool.core.collection.CollUtil;
@@ -21,12 +24,17 @@ import org.springframework.transaction.interceptor.TransactionAspectSupport;
 import com.cloudmall.common.context.UserContextHolder;
 import com.cloudmall.common.enums.BizError;
 import com.cloudmall.common.exception.BizException;
+import com.cloudmall.common.model.CursorReq;
+import com.cloudmall.common.model.CursorResult;
 import com.cloudmall.common.utils.Asserts;
+import com.cloudmall.coupon.api.dto.CouponCalcItem;
 import com.cloudmall.coupon.api.response.CouponResp;
 import com.cloudmall.coupon.api.response.UserCouponResp;
 import com.cloudmall.coupon.cache.CouponCacheService;
 import com.cloudmall.coupon.cache.CouponRateLimitService;
+import com.cloudmall.coupon.calc.CouponScopeMatcher;
 import com.cloudmall.coupon.convert.CouponConverter;
+import com.cloudmall.coupon.convert.CouponOrderConverter;
 import com.cloudmall.coupon.convert.UserCouponConverter;
 import com.cloudmall.coupon.convert.UserCouponLogConverter;
 import com.cloudmall.coupon.entity.CouponDO;
@@ -37,14 +45,20 @@ import com.cloudmall.coupon.enums.IssuedSourceEnum;
 import com.cloudmall.coupon.enums.UserCouponLogSourceEnum;
 import com.cloudmall.coupon.enums.UserCouponOperationTypeEnum;
 import com.cloudmall.coupon.enums.UserCouponStatusEnum;
+import com.cloudmall.coupon.enums.UserCouponUsableEnum;
 import com.cloudmall.coupon.enums.ValidityModeEnum;
 import com.cloudmall.coupon.mapper.CouponMapper;
 import com.cloudmall.coupon.mapper.UserCouponLogMapper;
 import com.cloudmall.coupon.mapper.UserCouponMapper;
+import com.cloudmall.coupon.model.req.CouponCursorItemReq;
 import com.cloudmall.coupon.model.req.CouponPageReq;
+import com.cloudmall.coupon.model.req.UserCouponCursorReq;
 import com.cloudmall.coupon.model.req.UserCouponPageReq;
 import com.cloudmall.coupon.service.ICouponTemplateService;
 import com.cloudmall.coupon.service.IUserCouponService;
+import com.cloudmall.mybatisplus.enums.StatusEnum;
+import com.cloudmall.product.api.client.SkuClient;
+import com.cloudmall.product.api.response.SkuResp;
 
 /**
  * 用户券领域服务实现。
@@ -60,10 +74,13 @@ public class UserCouponService implements IUserCouponService {
     private final CouponMapper couponMapper;
     private final CouponCacheService couponCacheService;
     private final CouponRateLimitService couponRateLimitService;
+    private final CouponScopeMatcher scopeMatcher;
+    private final CouponOrderConverter couponOrderConverter;
     private final CouponConverter couponConverter;
     private final UserCouponConverter userCouponConverter;
     private final UserCouponLogConverter userCouponLogConverter;
     private final ICouponTemplateService couponTemplateService;
+    private final SkuClient skuClient;
 
     /**
      * 公开领取优惠券。
@@ -158,6 +175,134 @@ public class UserCouponService implements IUserCouponService {
         expireOverdueByUser(userId);
         IPage<UserCouponDO> result = userCouponMapper.selectUserCouponPage(req);
         return result.convert(userCouponConverter::toResp);
+    }
+
+    /**
+     * 游标分页查询我的优惠券。 <p>
+     * status 为空时按全状态游标分页；status 为 AVAILABLE/UNAVAILABLE
+     * 时， 基于当前购物车明细判定每张未过期券是否满足范围与门槛，再按分组返回。
+     *
+     * @param userId 用户 ID
+     * @param req 游标请求（status 为空表示全部状态）
+     * @return 游标分页结果
+     */
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public CursorResult<UserCouponResp> pageMineByCursor(Long userId, UserCouponCursorReq req) {
+        expireOverdueByUser(userId);
+        if (req.getStatus() != null) {
+            Asserts.notEmpty(req.getItems(), BizError.INVALID_PARAM);
+        }
+        int size = Math.min(ObjectUtil.defaultIfNull(req.getSize(), 10), CursorReq.MAX_SIZE);
+        List<CouponCalcItem> calcItems = req.getStatus() == null ? List.of() : buildCalcItems(req.getItems());
+        List<UserCouponDO> matched = new ArrayList<>();
+        boolean hasMore = true;
+        while (matched.size() < size && hasMore) {
+            int remaining = size - matched.size();
+            List<UserCouponDO> batch = userCouponMapper.selectUserCouponCursor(userId, req, remaining + 1);
+            if (batch.isEmpty()) {
+                hasMore = false;
+                break;
+            }
+            boolean batchFull = batch.size() > remaining;
+            List<UserCouponDO> window = batchFull ? batch.subList(0, remaining) : batch;
+            for (UserCouponDO uc : window) {
+                if (matchesUsable(uc, req.getStatus(), calcItems)) {
+                    matched.add(uc);
+                }
+            }
+            req.setCursor(window.get(window.size() - 1).getId());
+            if (!batchFull) {
+                hasMore = false;
+            }
+        }
+        if (CollUtil.isEmpty(matched)) {
+            return CursorResult.<UserCouponResp>builder()
+                               .items(List.of())
+                               .cursor(0L)
+                               .cursorTime(null)
+                               .hasMore(false)
+                               .build();
+        }
+
+        List<UserCouponResp> items = userCouponConverter.toRespList(matched);
+        return CursorResult.<UserCouponResp>builder()
+                           .items(items)
+                           .cursor(hasMore ? req.getCursor() : 0L)
+                           .cursorTime(null)
+                           .hasMore(hasMore)
+                           .build();
+    }
+
+    /**
+     * 判断用户券是否命中可用性分组。
+     *
+     * @param uc 用户券
+     * @param status 可用性分组（空表示全部）
+     * @param items 评估上下文商品明细
+     * @return true 表示命中
+     */
+    private boolean matchesUsable(UserCouponDO uc, UserCouponUsableEnum status, List<CouponCalcItem> items) {
+        if (status == null) {
+            return true;
+        }
+        if (!uc.isAvailable()) {
+            return false;
+        }
+        boolean usable = isUsable(uc, items);
+        return UserCouponUsableEnum.AVAILABLE.equals(status) == usable;
+    }
+
+    /**
+     * 判定用户券是否满足使用条件（范围命中且达到门槛）。
+     *
+     * @param uc 用户券
+     * @param items 评估上下文商品明细
+     * @return true 表示可用
+     */
+    private boolean isUsable(UserCouponDO uc, List<CouponCalcItem> items) {
+        CouponDO template = Asserts.requireNonNull(
+                couponMapper.selectById(uc.getCouponId()),
+                BizError.COUPON_TEMPLATE_NOT_FOUND
+        );
+        List<CouponCalcItem> applicable = scopeMatcher.matchItems(template, items);
+        return couponOrderConverter.toCalcCoupon(uc, applicable).isUsable();
+    }
+
+    /**
+     * 基于购物车 SKU 与数量构建可信商品明细。
+     *
+     * @param items 请求商品项
+     * @return 可信商品明细列表
+     */
+    private List<CouponCalcItem> buildCalcItems(List<CouponCursorItemReq> items) {
+        Map<Long, Integer> quantities = new LinkedHashMap<>();
+        for (CouponCursorItemReq item : items) {
+            quantities.merge(item.getSkuId(), item.getQuantity(), Integer::sum);
+        }
+        List<SkuResp> skus = skuClient.listSkusByIds(new ArrayList<>(quantities.keySet()));
+        List<CouponCalcItem> calcItems = new ArrayList<>();
+        for (SkuResp sku : skus) {
+            if (!StatusEnum.ENABLED.equals(sku.getStatus())) {
+                continue;
+            }
+            Integer quantity = quantities.get(sku.getSkuId());
+            if (quantity == null) {
+                continue;
+            }
+            calcItems.add(
+                    CouponCalcItem.builder()
+                                  .skuId(sku.getSkuId())
+                                  .productId(sku.getProductId())
+                                  .categoryId(sku.getCategoryId())
+                                  .shopId(sku.getShopId())
+                                  .unitPrice(sku.getPrice())
+                                  .quantity(quantity)
+                                  .lineAmount(sku.getPrice().multiply(BigDecimal.valueOf(quantity)))
+                                  .build()
+            );
+        }
+        return calcItems;
     }
 
     /**

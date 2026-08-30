@@ -8,13 +8,20 @@ import java.util.List;
 public interface IFavoriteService {
 
     /**
-     * 切换用户对商品的收藏状态，已收藏则取消，未收藏则新增。
+     * 收藏商品，已收藏则直接返回。
      *
      * @param userId 用户 ID
      * @param productId 商品 ID
-     * @return 切换后是否处于收藏状态
      */
-    boolean toggle(Long userId, Long productId);
+    void favorite(Long userId, Long productId);
+
+    /**
+     * 取消收藏商品，未收藏则直接返回。
+     *
+     * @param userId 用户 ID
+     * @param productId 商品 ID
+     */
+    void unfavorite(Long userId, Long productId);
 
     /**
      * 查询用户收藏的商品 ID 列表。

@@ -2,8 +2,9 @@ package com.cloudmall.user.service;
 
 import java.util.List;
 
+import com.cloudmall.user.api.response.ShopInfoResp;
 import com.cloudmall.user.api.response.ShopResp;
-import com.cloudmall.user.model.req.ShopGetReq;
+import com.cloudmall.user.model.req.ShopReq;
 
 public interface IShopService {
 
@@ -13,7 +14,15 @@ public interface IShopService {
      * @param req 请求参数
      * @return 处理结果
      */
-    ShopResp get(ShopGetReq req);
+    ShopResp get(ShopReq req);
+
+    /**
+     * 查询店铺信息（含评分、商品数、好评率、关注数）。
+     *
+     * @param shopId 店铺 ID
+     * @return 店铺信息
+     */
+    ShopInfoResp getShopInfo(Long shopId);
 
     /**
      * 批量查询店铺信息。

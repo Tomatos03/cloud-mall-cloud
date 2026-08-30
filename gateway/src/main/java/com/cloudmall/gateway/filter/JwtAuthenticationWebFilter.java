@@ -10,6 +10,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.io.buffer.DataBuffer;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.server.reactive.ServerHttpRequest;
@@ -136,10 +137,22 @@ public class JwtAuthenticationWebFilter implements WebFilter {
      */
     private Mono<Void> handleAuthError(ServerWebExchange exchange, AuthTokenException e) {
         log.warn("JWT 认证失败: {}", e.getMessage());
+        HttpHeaders headers = exchange.getResponse().getHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+
+        // 跨域场景下（如 dev 前端 localhost:9090 → localhost:80）401 也需携带 CORS 头，
+        // 否则浏览器拦截读取响应，前端 axios 拿不到状态码，无法触发跳转登录页。
+        // 与 gateway globalcors 行为一致：回显 Origin + Vary，无 Origin 时回退 *。
+        String origin = exchange.getRequest()
+                                .getHeaders()
+                                .getOrigin();
+        if (origin != null && !origin.isBlank()) {
+            headers.setAccessControlAllowOrigin(origin);
+            headers.add(HttpHeaders.VARY, "Origin");
+        } else {
+            headers.setAccessControlAllowOrigin("*");
+        }
         exchange.getResponse().setStatusCode(HttpStatus.UNAUTHORIZED);
-        exchange.getResponse()
-                .getHeaders()
-                .setContentType(MediaType.APPLICATION_JSON);
 
         Result<Void> result = Result.error("Token 无效或已过期", 401);
         try {

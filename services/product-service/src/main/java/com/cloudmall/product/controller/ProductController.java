@@ -36,7 +36,7 @@ import com.cloudmall.product.service.IProductService;
  */
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/product")
+@RequestMapping("/products")
 public class ProductController {
 
     private final IProductService productService;
@@ -92,7 +92,7 @@ public class ProductController {
      */
     @GetMapping("/{id}/detail")
     public Result<ProductDetailResp> detail(@PathVariable Long id) {
-        return Result.success(productService.detail(id));
+        return Result.success(productApp.detail(id));
     }
 
     /**

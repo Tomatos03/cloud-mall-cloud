@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import com.cloudmall.user.api.response.ShopInfoResp;
 import com.cloudmall.user.api.response.ShopResp;
 
 @FeignClient(name = "user-service", contextId = "shopClient", path = "/shops")
@@ -31,6 +32,15 @@ public interface ShopClient {
      */
     @GetMapping("/{id}")
     ShopResp getById(@PathVariable("id") Long id);
+
+    /**
+     * 获取店铺信息（含评分、商品数、好评率、关注数）。
+     *
+     * @param id 店铺 ID
+     * @return 店铺信息
+     */
+    @GetMapping("/{id}/info")
+    ShopInfoResp getShopInfo(@PathVariable("id") Long id);
 
     /**
      * 获取相关数据。

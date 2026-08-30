@@ -41,6 +41,7 @@ import com.cloudmall.product.api.response.ImageResp;
 import com.cloudmall.product.api.response.ProductDetailResp;
 import com.cloudmall.product.api.response.ProductDocResp;
 import com.cloudmall.product.api.response.ProductResp;
+import com.cloudmall.product.api.response.ProductSku;
 import com.cloudmall.product.api.response.SpecGroupResp;
 import com.cloudmall.product.convert.ImageConverter;
 import com.cloudmall.product.convert.ProductConverter;
@@ -765,13 +766,22 @@ public class ProductService implements IProductService {
      */
     @Override
     public ProductDetailResp detail(Long id) {
-        ProductDO product = Asserts.requireNonNull(productMapper.selectById(id));
+        ProductDO product = Asserts.requireNonNull(
+                productMapper.selectById(id),
+                BizError.PRODUCT_DETAIL_NOT_FOUND
+        );
         BrandDO brand = brandMapper.selectById(product.getBrandId());
+        CategoryDO category = categoryMapper.selectById(product.getCategoryId());
         List<ImageResp> images = productImageService.listByProductId(id);
         List<SpecGroupResp> specGroups = productSpecService.getSpecGroups(id);
         List<ProductSkuDO> skus = productSkuMapper.selectByProductId(id);
+        List<Long> skuIds = skus.stream()
+                                .map(ProductSkuDO::getId)
+                                .collect(Collectors.toList());
+        Map<Long, List<Long>> skuSpecMap = productSpecService.getSkuSpecMap(skuIds);
+        List<ProductSku> skuResponses = skuConverter.toRespList(skus, skuSpecMap);
 
-        return productConverter.toDetailResp(product, brand, images, skus, specGroups);
+        return productConverter.toDetailResp(product, brand, category, images, skuResponses, specGroups);
     }
 
     /**

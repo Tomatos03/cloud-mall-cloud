@@ -10,7 +10,7 @@ import com.cloudmall.common.model.CursorResult;
 import com.cloudmall.product.api.response.ProductDocResp;
 import com.cloudmall.product.api.response.ProductResp;
 
-@FeignClient(name = "product-service", contextId = "productClient", path = "/product")
+@FeignClient(name = "product-service", contextId = "productClient", path = "/products")
 public interface ProductClient {
 
     /**

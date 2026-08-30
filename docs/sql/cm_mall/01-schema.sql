@@ -259,19 +259,25 @@ CREATE TABLE IF NOT EXISTS cm_product_image (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 comment '商品图片表';
 
 CREATE TABLE IF NOT EXISTS cm_comment (
-    id        bigint   NOT NULL AUTO_INCREMENT comment '评论ID',
-    product_id  bigint   NOT NULL comment '商品ID',
-    user_id   bigint   NOT NULL comment '评论用户ID',
-    order_id  bigint   DEFAULT NULL comment '关联订单ID',
-    content   text     DEFAULT NULL comment '评论内容',
-    rating    tinyint  DEFAULT '5' comment '评分(1-5)',
-    images    text     DEFAULT NULL comment '评论图片(JSON数组)',
-    status    tinyint  DEFAULT '1' comment '状态(0=隐藏 1=显示)',
-    create_time datetime DEFAULT NULL comment '创建时间',
-    update_time datetime    DEFAULT NULL comment '更新时间',
-    deleted    tinyint      DEFAULT '0' comment '是否删除(0=否 1=是)',
+    id            bigint   NOT NULL AUTO_INCREMENT comment '评论ID',
+    product_id    bigint   NOT NULL comment '商品SPU ID',
+    sku_id        bigint   DEFAULT NULL comment '商品SKU ID',
+    shop_id       bigint   NOT NULL comment '店铺ID',
+    user_id       bigint   NOT NULL comment '评论用户ID',
+    order_id      bigint   NOT NULL comment '订单ID',
+    order_item_id bigint   NOT NULL comment '订单项ID',
+    content       text     DEFAULT NULL comment '评论内容',
+    rating        tinyint  NOT NULL comment '评分(1-5)',
+    images        text     DEFAULT NULL comment '评论图片(JSON数组)',
+    useful_count  int      NOT NULL DEFAULT 0 comment '有用数',
+    status        tinyint  NOT NULL DEFAULT 1 comment '状态(0=隐藏 1=显示)',
+    create_time   datetime NOT NULL comment '创建时间',
+    update_time   datetime NOT NULL comment '更新时间',
+    deleted       tinyint  NOT NULL DEFAULT 0 comment '是否删除(0=否 1=是)',
     PRIMARY KEY (id),
-    KEY idx_product_id (product_id),
+    UNIQUE KEY uk_order_item_id (order_item_id),
+    KEY idx_product_comment (product_id, status, deleted, create_time),
+    KEY idx_shop_comment (shop_id, status, deleted),
     KEY idx_user_id (user_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 comment '商品评论表';
 
@@ -305,10 +311,31 @@ CREATE TABLE IF NOT EXISTS cm_favorite (
     product_id   bigint   NOT NULL comment '商品ID',
     create_time datetime DEFAULT NULL comment '收藏时间',
     update_time datetime    DEFAULT NULL comment '更新时间',
-    deleted    tinyint      DEFAULT '0' comment '是否删除(0=否 1=是)',
     PRIMARY KEY (id),
     UNIQUE KEY uk_user_product (user_id, product_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 comment '用户收藏表';
+
+CREATE TABLE IF NOT EXISTS cm_shop_follow (
+    id         bigint   NOT NULL AUTO_INCREMENT comment '主键',
+    user_id    bigint   NOT NULL comment '用户ID',
+    shop_id    bigint   NOT NULL comment '店铺ID',
+    create_time datetime NOT NULL comment '关注时间',
+    PRIMARY KEY (id),
+    UNIQUE KEY uk_user_shop (user_id, shop_id),
+    KEY idx_user_id (user_id),
+    KEY idx_shop_id (shop_id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 comment '用户关注店铺关系表';
+
+CREATE TABLE IF NOT EXISTS cm_shop_stat (
+    shop_id                bigint   NOT NULL comment '店铺ID',
+    product_count          int      NOT NULL DEFAULT 0 comment '出售中商品数量',
+    total_review_count     int      NOT NULL DEFAULT 0 comment '有效评价数量',
+    positive_review_count  int      NOT NULL DEFAULT 0 comment '好评数量',
+    total_score            int      NOT NULL DEFAULT 0 comment '评价总评分',
+    follow_count           bigint   NOT NULL DEFAULT 0 comment '关注数量',
+    update_time            datetime NOT NULL comment '更新时间',
+    PRIMARY KEY (shop_id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 comment '店铺统计表';
 
 CREATE TABLE IF NOT EXISTS cm_unit (
     id         bigint       NOT NULL AUTO_INCREMENT comment '单位ID',
@@ -487,6 +514,7 @@ CREATE TABLE IF NOT EXISTS cm_order_sub (
     platform_discount_amount   decimal(18,2) NOT NULL DEFAULT 0.00 comment '平台券优惠金额',
     payable_amount             decimal(18,2) NOT NULL DEFAULT 0.00 comment '商品应付金额',
     merchant_settlement_amount decimal(18,2) NOT NULL DEFAULT 0.00 comment '商家结算金额',
+    remark                     varchar(500)  DEFAULT NULL comment '店铺订单备注(跨店铺聚合订单按店铺单独设置)',
     status                     varchar(20)   NOT NULL DEFAULT 'PENDING_SHIPMENT' comment '子订单状态(PENDING_SHIPMENT=待发货 SHIPPED=已发货 DELIVERED=已收货 COMPLETED=已完成 CANCELLED=已取消 REFUNDED=已退款)',
     create_time                datetime      DEFAULT NULL comment '创建时间',
     update_time                datetime      DEFAULT NULL comment '更新时间',

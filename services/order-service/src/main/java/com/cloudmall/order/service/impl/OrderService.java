@@ -201,14 +201,21 @@ public class OrderService implements IOrderService {
      * @param order 父订单
      * @param index 店铺序号（用于子订单号后缀）
      * @param subResult 子订单优惠结果
+     * @param remark 店铺维度订单备注（可空）
      * @return 子订单实体
      */
-    private static OrderSubDO buildSubOrder(OrderDO order, int index, CouponSubOrderResult subResult) {
+    private static OrderSubDO buildSubOrder(
+        OrderDO order,
+        int index,
+        CouponSubOrderResult subResult,
+        String remark
+    ) {
         return OrderSubDO.builder()
                          .id(IdWorker.getId())
                          .subOrderNo(order.getOrderNo() + "-" + (index + 1))
                          .parentOrderId(order.getId())
                          .shopId(subResult.getShopId())
+                         .remark(remark)
                          .status(SubOrderStatusEnum.PENDING_SHIPMENT)
                          .originalAmount(subResult.getOriginalAmount())
                          .shopDiscountAmount(subResult.getShopDiscountAmount())
@@ -252,7 +259,7 @@ public class OrderService implements IOrderService {
     @Transactional(rollbackFor = Exception.class)
     public void finalizeOrder(OrderDO order, CheckoutContext context, CouponOrderCalcResp calc) {
         updateParentAmounts(order.getId(), calc);
-        Map<Long, OrderSubDO> subsByShop = createSubOrders(order, calc);
+        Map<Long, OrderSubDO> subsByShop = createSubOrders(order, calc, context);
         insertItemsForSubs(subsByShop, calc, context);
         insertOrderCoupons(order, subsByShop, calc.getUsages());
         transitionToPendingPayment(order.getId());
@@ -263,17 +270,25 @@ public class OrderService implements IOrderService {
      *
      * @param order 父订单
      * @param calc 优惠计算/锁定结果
+     * @param context 订单上下文（店铺维度备注来源）
      * @return shopId → 子订单
      */
-    private Map<Long, OrderSubDO> createSubOrders(OrderDO order, CouponOrderCalcResp calc) {
+    private Map<Long, OrderSubDO> createSubOrders(
+        OrderDO order,
+        CouponOrderCalcResp calc,
+        CheckoutContext context
+    ) {
         List<CouponSubOrderResult> subResults = calc.getSubOrders();
         if (CollUtil.isEmpty(subResults)) {
             return Collections.emptyMap();
         }
         List<OrderSubDO> subs = new ArrayList<>(subResults.size());
         Map<Long, OrderSubDO> subsByShop = new LinkedHashMap<>();
+        Map<Long, String> shopRemarks = context.getReq().getShopRemarks();
         for (int i = 0; i < subResults.size(); i++) {
-            OrderSubDO sub = buildSubOrder(order, i, subResults.get(i));
+            Long shopId = subResults.get(i).getShopId();
+            String remark = shopRemarks == null ? null : shopRemarks.get(shopId);
+            OrderSubDO sub = buildSubOrder(order, i, subResults.get(i), remark);
             subs.add(sub);
             subsByShop.put(sub.getShopId(), sub);
         }

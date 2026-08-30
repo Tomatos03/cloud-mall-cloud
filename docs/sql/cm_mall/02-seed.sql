@@ -85,6 +85,14 @@ INSERT INTO cm_shop (id, user_id, name, logo, description, status) VALUES
 ALTER TABLE cm_shop AUTO_INCREMENT = 100;
 
 -- ============================================================
+-- 店铺统计（cm_shop_stat，按 shop_id 一行一店）
+-- ============================================================
+INSERT INTO cm_shop_stat (shop_id, product_count, total_review_count, positive_review_count, total_score, follow_count, update_time) VALUES
+(1, 286,  1000, 980, 4900, 128000, NOW()),
+(2, 320,  500,  470, 2450, 56000,  NOW()),
+(3, 150,  300,  285, 1430, 21000,  NOW());
+
+-- ============================================================
 -- 用户收货地址
 -- ============================================================
 INSERT INTO cm_address (id, user_id, consignee, phone, province, city, district, detail, zip_code, is_default) VALUES
@@ -365,13 +373,13 @@ ALTER TABLE cm_favorite AUTO_INCREMENT = 100;
 -- ============================================================
 -- 商品评论
 -- ============================================================
-INSERT INTO cm_comment (id, product_id, user_id, order_id, content, rating, images, status) VALUES
-(1, 1, 4, 1, '手机非常好用，拍照效果一流，鸿蒙系统超级流畅！', 5, NULL, 1),
-(2, 1, 5, 2, '用了两周，续航很给力，就是价格有点贵',        4, NULL, 1),
-(3, 4, 4, 1, '降噪效果惊艳，坐地铁完全听不到噪音，强烈推荐',  5, NULL, 1),
-(4, 5, 5, 2, '裙子很漂亮，材质舒适，尺码标准',              5, NULL, 1),
-(5, 7, 4, 1, '坚果很新鲜，每天一包很方便，会回购',          4, NULL, 1),
-(6, 6, 5, 2, '衬衫版型很好，免烫确实省心，值得购买',        5, NULL, 1);
+INSERT INTO cm_comment (id, product_id, user_id, order_id, order_item_id, shop_id, content, rating, images, useful_count, status, create_time, update_time) VALUES
+(1, 1, 4, 1, 1, 1, '手机非常好用，拍照效果一流，鸿蒙系统超级流畅！', 5, NULL, 2, 1, NOW(), NOW()),
+(2, 1, 5, 2, 6, 1, '用了两周，续航很给力，就是价格有点贵',        4, NULL, 1, 1, NOW(), NOW()),
+(3, 4, 4, 1, 2, 1, '降噪效果惊艳，坐地铁完全听不到噪音，强烈推荐',  5, NULL, 3, 1, NOW(), NOW()),
+(4, 5, 5, 2, 4, 2, '裙子很漂亮，材质舒适，尺码标准',              5, NULL, 0, 1, NOW(), NOW()),
+(5, 7, 4, 1, 3, 3, '坚果很新鲜，每天一包很方便，会回购',          4, NULL, 1, 1, NOW(), NOW()),
+(6, 6, 5, 2, 5, 2, '衬衫版型很好，免烫确实省心，值得购买',        5, NULL, 0, 1, NOW(), NOW());
 
 ALTER TABLE cm_comment AUTO_INCREMENT = 1000;
 
@@ -523,6 +531,15 @@ INSERT INTO cm_cart (id, user_id, shop_id, product_id, sku_id, product_name, pro
 (4, 5, 3, 8, 17, '青岛啤酒经典1903 500ml*12',                  NULL, 69.90,   2, 0);
 
 ALTER TABLE cm_cart AUTO_INCREMENT = 1000;
+
+-- 补充购物车数据（覆盖张三/赵六的多店铺混合场景，sku/价格与 cm_product_sku 严格一致）
+INSERT INTO cm_cart (id, user_id, shop_id, product_id, sku_id, product_name, product_image, price, quantity, selected) VALUES
+(5,  4, 1, 1, 1,  '华为 Mate 70 Pro（曜金黑 256GB）',           'https://img.cloudmall.dev/product/mate70/main.jpg',   6999.00,  1, 1),
+(6,  4, 1, 3, 8,  '联想 ThinkPad X1 Carbon（Ultra7 32G 1TB）',  'https://img.cloudmall.dev/product/thinkpad/main.jpg', 12999.00, 1, 1),
+(7,  4, 3, 7, 16, '三只松鼠每日坚果礼盒（750g/30包）',          'https://img.cloudmall.dev/product/nuts/main.jpg',     89.90,    4, 0),
+(8,  5, 1, 2, 7,  'Apple iPhone 16 Pro Max（白色钛金属 256GB）', 'https://img.cloudmall.dev/product/iphone16/main.jpg', 9999.00,  2, 1),
+(9,  5, 1, 4, 9,  'Sony WH-1000XM6 降噪耳机（黑色）',            'https://img.cloudmall.dev/product/sony1000/main.jpg', 2999.00,  1, 0),
+(10, 5, 2, 5, 12, '女士蕾丝刺绣连衣裙（S 米白色）',              'https://img.cloudmall.dev/product/dress/main.jpg',    399.00,   1, 1);
 
 -- ============================================================
 -- 秒杀活动（时长固定1小时；DRAFT/PUBLISHED 满足开始时间晚于当前24小时）

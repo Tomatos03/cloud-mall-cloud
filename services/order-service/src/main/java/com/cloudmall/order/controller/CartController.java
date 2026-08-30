@@ -55,7 +55,10 @@ public class CartController {
      */
     @PutMapping("/sku/{skuId}")
     public Result<Void> updateQuantity(@PathVariable Long skuId, @RequestParam Integer quantity) {
-        CartOperatorReq cartOperatorReq = new CartOperatorReq().skuId(skuId).quantity(quantity);
+        CartOperatorReq cartOperatorReq = CartOperatorReq.builder()
+                                                         .skuId(skuId)
+                                                         .quantity(quantity)
+                                                         .build();
         cartService.updateQuantity(UserContextHolder.getUserId(), cartOperatorReq);
         return Result.success(null);
     }

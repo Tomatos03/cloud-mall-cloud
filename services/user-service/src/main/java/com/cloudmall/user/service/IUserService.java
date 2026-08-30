@@ -45,6 +45,14 @@ public interface IUserService {
     UserResp getUser(Long userId);
 
     /**
+     * 按 ID 批量查询用户信息（不存在的用户自动过滤）。
+     *
+     * @param userIds 用户 ID 列表
+     * @return 用户信息列表
+     */
+    List<UserResp> listByIds(List<Long> userIds);
+
+    /**
      * 分页查询用户信息
      *
      * @param req 分页请求（含筛选条件）

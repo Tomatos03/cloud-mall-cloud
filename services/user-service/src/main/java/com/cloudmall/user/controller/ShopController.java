@@ -13,8 +13,9 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.cloudmall.common.context.UserContextHolder;
 import com.cloudmall.common.model.Result;
+import com.cloudmall.user.api.response.ShopInfoResp;
 import com.cloudmall.user.api.response.ShopResp;
-import com.cloudmall.user.model.req.ShopGetReq;
+import com.cloudmall.user.model.req.ShopReq;
 import com.cloudmall.user.service.IShopService;
 
 @RestController
@@ -32,9 +33,9 @@ public class ShopController {
      */
     @GetMapping
     public Result<ShopResp> getByUserId(@RequestParam Long userId) {
-        ShopGetReq req = ShopGetReq.builder()
-                                   .userId(userId)
-                                   .build();
+        ShopReq req = ShopReq.builder()
+                             .userId(userId)
+                             .build();
         return Result.success(shopService.get(req));
     }
 
@@ -46,10 +47,21 @@ public class ShopController {
      */
     @GetMapping("/{id}")
     public Result<ShopResp> getById(@PathVariable Long id) {
-        ShopGetReq req = ShopGetReq.builder()
-                                   .id(id)
-                                   .build();
+        ShopReq req = ShopReq.builder()
+                             .id(id)
+                             .build();
         return Result.success(shopService.get(req));
+    }
+
+    /**
+     * 查询店铺信息（含评分、商品数、好评率、关注数）。
+     *
+     * @param id 店铺 ID
+     * @return 店铺信息
+     */
+    @GetMapping("/{id}/info")
+    public Result<ShopInfoResp> getShopInfo(@PathVariable Long id) {
+        return Result.success(shopService.getShopInfo(id));
     }
 
     /**
@@ -59,9 +71,9 @@ public class ShopController {
      */
     @GetMapping("/current")
     public Result<ShopResp> getCurrent() {
-        ShopGetReq req = ShopGetReq.builder()
-                                   .userId(UserContextHolder.getUserId())
-                                   .build();
+        ShopReq req = ShopReq.builder()
+                             .userId(UserContextHolder.getUserId())
+                             .build();
         return Result.success(shopService.get(req));
     }
 

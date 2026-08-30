@@ -48,6 +48,9 @@ public class OrderSubResp {
     /** 商家结算金额 */
     private BigDecimal merchantSettlementAmount;
 
+    /** 店铺订单备注（跨店铺聚合订单按店铺单独设置） */
+    private String remark;
+
     /** 子订单状态 code */
     private String status;
 

@@ -1,5 +1,7 @@
 package com.cloudmall.user.convert;
 
+import java.util.List;
+
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
@@ -37,6 +39,14 @@ public interface UserConverter {
     @Mapping(source = "types", target = "userType")
     @Mapping(source = "avatarUrl", target = "avatar")
     UserResp toResp(UserDO user);
+
+    /**
+     * 转换对象列表。
+     *
+     * @param users 用户实体列表
+     * @return 用户信息列表
+     */
+    List<UserResp> toRespList(List<UserDO> users);
 
     /**
      * 转换对象数据。

@@ -3,16 +3,15 @@ package com.cloudmall.user.controller;
 import java.util.List;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.cloudmall.common.context.UserContextHolder;
 import com.cloudmall.common.model.Result;
-import com.cloudmall.user.api.request.FavoriteToggleReq;
 import com.cloudmall.user.service.IFavoriteService;
 
 @RestController
@@ -21,17 +20,6 @@ import com.cloudmall.user.service.IFavoriteService;
 public class FavoriteController {
 
     private final IFavoriteService favoriteService;
-
-    /**
-     * 切换当前用户对某商品的收藏状态。
-     *
-     * @param req 商品收藏请求
-     * @return true=已收藏 false=已取消
-     */
-    @PutMapping
-    public Result<Boolean> toggle(@RequestBody FavoriteToggleReq req) {
-        return Result.success(favoriteService.toggle(UserContextHolder.getUserId(), req.getProductId()));
-    }
 
     /**
      * 查询当前用户收藏的商品 ID 列表。
@@ -52,5 +40,29 @@ public class FavoriteController {
     @GetMapping("/{productId}")
     public Result<Boolean> isFavorited(@PathVariable Long productId) {
         return Result.success(favoriteService.isFavorited(UserContextHolder.getUserId(), productId));
+    }
+
+    /**
+     * 收藏指定商品（幂等）。
+     *
+     * @param productId 商品 ID
+     * @return 处理结果
+     */
+    @PostMapping("/{productId}")
+    public Result<Void> favorite(@PathVariable Long productId) {
+        favoriteService.favorite(UserContextHolder.getUserId(), productId);
+        return Result.success();
+    }
+
+    /**
+     * 取消收藏指定商品（幂等）。
+     *
+     * @param productId 商品 ID
+     * @return 处理结果
+     */
+    @DeleteMapping("/{productId}")
+    public Result<Void> unfavorite(@PathVariable Long productId) {
+        favoriteService.unfavorite(UserContextHolder.getUserId(), productId);
+        return Result.success();
     }
 }

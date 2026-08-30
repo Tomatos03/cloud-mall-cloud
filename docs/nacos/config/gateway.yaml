@@ -62,11 +62,20 @@ spring:
     gateway:
       server:
         webflux:
+          globalcors:
+            cors-configurations:
+              '[/**]':
+                allowedOriginPatterns:
+                  - "*"
+                allowedMethods:
+                  - "*"
+                allowedHeaders:
+                  - "*"
           routes:
             - id: user-service
               uri: lb://user-service
               predicates:
-                - Path=/users/**,/roles/**,/resources/**,/addresses/**,/shops/**,/favorites/**,/home/**
+                - Path=/users/**,/roles/**,/resources/**,/addresses/**,/shops/**,/favorites/**,/home/**,/products/*/favorite
               filters:
                 - StripPrefix=0
 
@@ -80,7 +89,7 @@ spring:
             - id: product-service
               uri: lb://product-service
               predicates:
-                - Path=/product/**,/categories/**,/banners/**,/brands/**,/comments/**,/units/**,/skus/**
+                - Path=/products/**,/categories/**,/banners/**,/brands/**,/comments/**,/units/**,/skus/**
               filters:
                 - StripPrefix=0
 

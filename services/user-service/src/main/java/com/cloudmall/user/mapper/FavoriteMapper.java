@@ -26,6 +26,14 @@ public interface FavoriteMapper extends BaseMapper<FavoriteDO> {
         );
     }
 
+    default void cancelFavorite(Long userId, Long productId) {
+        delete(
+                Wrappers.<FavoriteDO>lambdaQuery()
+                        .eq(FavoriteDO::getUserId, userId)
+                        .eq(FavoriteDO::getProductId, productId)
+        );
+    }
+
     /**
      * 查询用户全部收藏，按收藏时间倒序。
      *

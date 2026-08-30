@@ -5,6 +5,8 @@ import java.util.Collection;
 import java.util.List;
 
 import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.util.ObjectUtil;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
@@ -13,6 +15,7 @@ import org.apache.ibatis.annotations.Mapper;
 
 import com.cloudmall.coupon.entity.UserCouponDO;
 import com.cloudmall.coupon.enums.UserCouponStatusEnum;
+import com.cloudmall.coupon.model.req.UserCouponCursorReq;
 import com.cloudmall.coupon.model.req.UserCouponPageReq;
 
 /**
@@ -36,6 +39,30 @@ public interface UserCouponMapper extends BaseMapper<UserCouponDO> {
      */
     default IPage<UserCouponDO> selectUserCouponPage(UserCouponPageReq req) {
         return selectPage(req, req.buildLambdaWrapper());
+    }
+
+    /**
+     * 游标查询我的优惠券。 <p>
+     * ID 游标按 ID 降序（新领取的在前）：cursor 为 0 表示首页，之后传上一页最后一条的
+     * ID；status 非空时仅查 AVAILABLE（未过期）状态。
+     *
+     * @param userId 用户 ID
+     * @param req 游标请求（status 为空表示全部状态）
+     * @param querySize 查询条数（含多查的 1 条）
+     * @return 用户券列表
+     */
+    default List<UserCouponDO> selectUserCouponCursor(Long userId, UserCouponCursorReq req, int querySize) {
+        LambdaQueryWrapper<UserCouponDO> wrapper = Wrappers.<UserCouponDO>lambdaQuery()
+                .eq(UserCouponDO::getUserId, userId);
+        if (req.getStatus() != null) {
+            wrapper.eq(UserCouponDO::getStatus, UserCouponStatusEnum.AVAILABLE);
+        }
+        Long cursor = ObjectUtil.defaultIfNull(req.getCursor(), 0L);
+        if (cursor > 0) {
+            wrapper.lt(UserCouponDO::getId, cursor);
+        }
+        wrapper.orderByDesc(UserCouponDO::getId);
+        return selectPage(new Page<>(1, querySize), wrapper).getRecords();
     }
 
     /**

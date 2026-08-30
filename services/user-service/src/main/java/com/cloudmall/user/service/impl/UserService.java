@@ -57,6 +57,7 @@ public class UserService implements IUserService {
 
     /** 用户注册事件 Topic */
     private static final String USER_REGISTERED_TOPIC = "USER_REGISTERED";
+
     private final PasswordEncoder passwordEncoder;
 
     /**
@@ -111,6 +112,18 @@ public class UserService implements IUserService {
     public UserResp getUser(Long userId) {
         UserDO user = Asserts.requireNonNull(userMapper.selectById(userId), BizError.USER_NOT_EXISTS);
         return userConverter.toResp(user);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public List<UserResp> listByIds(List<Long> userIds) {
+        if (CollUtil.isEmpty(userIds)) {
+            return Collections.emptyList();
+        }
+        List<UserDO> users = userMapper.selectByIds(userIds);
+        return userConverter.toRespList(users);
     }
 
     /**

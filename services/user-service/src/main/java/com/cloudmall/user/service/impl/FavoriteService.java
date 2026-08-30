@@ -4,6 +4,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Service;
 
 import com.cloudmall.user.entity.FavoriteDO;
@@ -17,27 +18,33 @@ public class FavoriteService implements IFavoriteService {
     private final FavoriteMapper favoriteMapper;
 
     /**
-     * 转换对象数据。
+     * 收藏商品，已收藏则直接返回。
      *
      * @param userId 用户标识
      * @param productId 商品标识
-     * @return 是否满足条件
      */
     @Override
-    public boolean toggle(Long userId, Long productId) {
-        FavoriteDO existing = favoriteMapper.selectByUserAndProduct(userId, productId);
-        if (existing != null) {
-            favoriteMapper.deleteById(existing.getId());
-            return false;
-        } else {
+    public void favorite(Long userId, Long productId) {
+        try {
             FavoriteDO favorite = FavoriteDO.builder()
                                             .userId(userId)
                                             .productId(productId)
                                             .createTime(LocalDateTime.now())
                                             .build();
             favoriteMapper.insert(favorite);
-            return true;
+        } catch (DuplicateKeyException ignored) {
         }
+    }
+
+    /**
+     * 取消收藏商品，未收藏则直接返回。
+     *
+     * @param userId 用户标识
+     * @param productId 商品标识
+     */
+    @Override
+    public void unfavorite(Long userId, Long productId) {
+        favoriteMapper.cancelFavorite(userId, productId);
     }
 
     /**

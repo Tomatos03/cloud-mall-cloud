@@ -55,6 +55,7 @@ mvn test                                                  # 测试
 ### 命名
 
 - Service 接口 `I*Service`（如 `IAuthService`），实现去掉 `I` 前缀；分页查询方法命名 `page*`，Controller 方法名与 Service 保持一致。
+- 请求对象以 `XxxReq` 结尾，独立接口响应对象以 `XxxResp` 结尾；响应内部嵌套结构（不单独对外返回，如 `ProductDetailResp.skus` 的元素）不需要 `Resp` 后缀，直接以领域名命名（如 `ProductSku`）。
 
 ### 分层职责
 

@@ -69,15 +69,15 @@ public class CartService implements ICartService {
      */
     @Override
     public Long addToCart(Long userId, CartOperatorReq req) {
-        SkuResp sku = fetchSku(req.skuId());
+        SkuResp sku = fetchSku(req.getSkuId());
 
-        CartDO existing = findCartItem(userId, req.skuId());
+        CartDO existing = findCartItem(userId, req.getSkuId());
         if (existing != null) {
-            return mergeToExisting(existing, sku, req.quantity());
+            return mergeToExisting(existing, sku, req.getQuantity());
         }
 
         checkCartCapacity(userId);
-        return insertNewItem(userId, sku, req.quantity());
+        return insertNewItem(userId, sku, req.getQuantity());
     }
 
     /**
@@ -88,8 +88,7 @@ public class CartService implements ICartService {
      */
     @Override
     public void updateQuantity(Long userId, CartOperatorReq req) {
-        int updated = cartMapper.updateQuantityIfPositive(userId, req.skuId(), req.quantity());
-        Asserts.isTrue(updated > 0, BizError.CART_ITEM_NOT_EXIST);
+        cartMapper.updateQuantityIfPositive(userId, req.getSkuId(), req.getQuantity());
     }
 
     /**

@@ -58,6 +58,9 @@ public class OrderSubDO {
     /** 商家结算金额 */
     private BigDecimal merchantSettlementAmount;
 
+    /** 订单备注（店铺维度，跨店铺聚合订单按店铺单独设置） */
+    private String remark;
+
     /** 子订单状态 */
     private SubOrderStatusEnum status;
 

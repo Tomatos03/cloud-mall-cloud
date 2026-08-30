@@ -19,7 +19,7 @@ import com.cloudmall.user.api.response.LoginResp;
 import com.cloudmall.user.api.response.ShopResp;
 import com.cloudmall.user.convert.UserConverter;
 import com.cloudmall.user.entity.UserDO;
-import com.cloudmall.user.model.req.ShopGetReq;
+import com.cloudmall.user.model.req.ShopReq;
 import com.cloudmall.user.service.IResourceService;
 import com.cloudmall.user.service.IShopService;
 import com.cloudmall.user.service.IUserService;
@@ -102,9 +102,9 @@ public class AuthApp {
         if (user.getTypes() != UserTypeEnum.MERCHANT) {
             return null;
         }
-        ShopResp shop = shopService.get(ShopGetReq.builder()
-                                                  .userId(user.getId())
-                                                  .build());
+        ShopResp shop = shopService.get(ShopReq.builder()
+                                               .userId(user.getId())
+                                               .build());
         return shop != null ? shop.getId() : null;
     }
 }
