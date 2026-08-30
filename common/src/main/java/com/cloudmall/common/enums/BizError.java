@@ -192,7 +192,7 @@ public enum BizError {
     SECKILL_NOT_STARTED(92001, "秒杀活动还未开始"),
     SECKILL_ALREADY_ENDED(92002, "秒杀活动已结束"),
     SECKILL_STOCK_INSUFFICIENT(92003, "秒杀商品库存不足"),
-    SECKILL_RATE_LIMIT_EXCEEDED(92004, "你的操作过于频繁，请稍后再试"),
+    SECKILL_RATE_LIMIT_EXCEEDED(92004, "请求过于频繁，请稍后重试"),
     SECKILL_ORDER_NOT_EXIST(92005, "秒杀订单不存在"),
     SECKILL_ORDER_NOT_BELONG_TO_USER(92006, "秒杀订单不属于当前用户"),
     SECKILL_ORDER_CANNOT_CANCEL(92007, "该秒杀订单无法取消"),

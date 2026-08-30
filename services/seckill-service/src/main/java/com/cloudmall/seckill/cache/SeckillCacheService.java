@@ -121,7 +121,7 @@ public class SeckillCacheService {
     public void deleteStock(Long activityId, Long skuId) {
         String key = STOCK_KEY_PREFIX + activityId + ":" + skuId;
         Boolean removed = stringRedisTemplate.delete(key);
-        if (Boolean.TRUE.equals(removed)) {
+        if (removed) {
             log.info("清理秒杀库存缓存: key={}", key);
         }
     }
