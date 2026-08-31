@@ -25,7 +25,6 @@ public class ProductDO {
     private String description;
     private Long categoryId;
     private Long brandId;
-    private Long imageId;
     private Long shopId;
 
     @Builder.Default

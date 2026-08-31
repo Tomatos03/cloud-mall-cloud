@@ -180,7 +180,6 @@ CREATE TABLE IF NOT EXISTS cm_product (
     description text          DEFAULT NULL comment '商品描述',
     category_id bigint        DEFAULT NULL comment '所属分类ID',
     brand_id    bigint        DEFAULT NULL comment '品牌ID',
-    image_id    bigint        DEFAULT NULL comment '主图ID（关联cm_product_image）',
     shop_id     bigint        DEFAULT NULL comment '所属店铺ID（关联cm_shop）',
     status      tinyint(1)    DEFAULT 1 comment '商品状态(0=下架 1=上架)',
     create_time datetime      DEFAULT NULL comment '创建时间',
@@ -190,7 +189,6 @@ CREATE TABLE IF NOT EXISTS cm_product (
     KEY idx_status (status),
     KEY idx_category (category_id),
     KEY idx_brand_id (brand_id),
-    KEY idx_image_id (image_id),
     KEY idx_shop_id (shop_id),
     UNIQUE KEY uk_spu_code (spu_code)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 comment '商品信息表(SPU)';

@@ -46,15 +46,14 @@ public interface ProductConverter {
 
     /**
      * 将创建请求转换为 SPU 实体。 <p>
-     * spuCode 由服务端在 insert 后基于自增 ID 生成，imageId 在图片创建后设置，
-     * 审计字段由 MyBatis-Plus 自动填充。
+     * spuCode 由服务端在 insert 后基于自增 ID 生成， 审计字段由
+     * MyBatis-Plus 自动填充。
      *
      * @param req 创建请求
      * @return SPU 实体
      */
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "deleted", ignore = true)
-    @Mapping(target = "imageId", ignore = true)
     @Mapping(target = "spuCode", ignore = true)
     @Mapping(target = "createTime", ignore = true)
     @Mapping(target = "updateTime", ignore = true)
@@ -66,7 +65,7 @@ public interface ProductConverter {
      *
      * @param product SPU 实体
      * @param brandMap 品牌 ID -> 品牌 DO 映射
-     * @param imageMap 图片 ID -> 图片 DO 映射
+     * @param imageMap 商品 ID -> 主图 DO 映射
      * @param lowestPriceMap SPU ID -> 最低价映射
      * @return 组装后的商品列表响应
      */
@@ -83,8 +82,8 @@ public interface ProductConverter {
                 resp.setBrand(brand.getName());
             }
         }
-        if (imageMap != null && product.getImageId() != null) {
-            ProductImageDO img = imageMap.get(product.getImageId());
+        if (imageMap != null) {
+            ProductImageDO img = imageMap.get(product.getId());
             if (img != null) {
                 resp.setImage(img.getUrl());
             }

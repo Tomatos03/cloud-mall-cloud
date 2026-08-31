@@ -116,7 +116,7 @@ public class ProductService implements IProductService {
     private ProductResp assembleProductResp(ProductDO product) {
         ProductResp resp = productConverter.toResp(product);
         BrandDO brand = Asserts.requireNonNull(brandMapper.selectById(product.getBrandId()));
-        ProductImageDO img = Asserts.requireNonNull(productImageMapper.selectById(product.getImageId()));
+        ProductImageDO img = Asserts.requireNonNull(productImageMapper.selectMainImage(product.getId()));
         CategoryDO categoryDO = Asserts.requireNonNull(categoryMapper.selectById(product.getCategoryId()));
         BigDecimal lowestPrice = productSkuMapper.selectLowestPrice(product.getId());
 
@@ -180,13 +180,16 @@ public class ProductService implements IProductService {
         }
         Set<Long> brandIds = singletonOrEmpty(product.getBrandId());
         Set<Long> categoryIds = singletonOrEmpty(product.getCategoryId());
-        Set<Long> imageIds = singletonOrEmpty(product.getImageId());
         BigDecimal lowestPrice = productSkuMapper.selectLowestPrice(id);
         return assembleSearchDoc(
                 product,
                 batchQuery(brandIds, brandMapper::selectByIds, BrandDO::getId),
                 batchQuery(categoryIds, categoryMapper::selectByIds, CategoryDO::getId),
-                batchQuery(imageIds, productImageMapper::selectByIds, ProductImageDO::getId),
+                batchQuery(
+                        Set.of(id),
+                        productImageMapper::selectMainImagesByProductIds,
+                        ProductImageDO::getProductId
+                ),
                 singletonMapOrEmpty(id, lowestPrice)
         );
     }
@@ -222,7 +225,6 @@ public class ProductService implements IProductService {
     private List<ProductDocResp> assembleSearchDocs(List<ProductDO> records) {
         Set<Long> brandIds = collectNonNull(records, ProductDO::getBrandId);
         Set<Long> categoryIds = collectNonNull(records, ProductDO::getCategoryId);
-        Set<Long> imageIds = collectNonNull(records, ProductDO::getImageId);
         Set<Long> productIds = records.stream()
                                       .map(ProductDO::getId)
                                       .collect(Collectors.toSet());
@@ -234,9 +236,9 @@ public class ProductService implements IProductService {
                 CategoryDO::getId
         );
         Map<Long, ProductImageDO> imageMap = batchQuery(
-                imageIds,
-                productImageMapper::selectByIds,
-                ProductImageDO::getId
+                productIds,
+                productImageMapper::selectMainImagesByProductIds,
+                ProductImageDO::getProductId
         );
         Map<Long, BigDecimal> lowestPriceMap = productSkuMapper
                 .selectLowestPrices(productIds)
@@ -283,7 +285,7 @@ public class ProductService implements IProductService {
     ) {
         BrandDO brand = brandMap.get(product.getBrandId());
         CategoryDO category = categoryMap.get(product.getCategoryId());
-        ProductImageDO image = imageMap.get(product.getImageId());
+        ProductImageDO image = imageMap.get(product.getId());
         return ProductDocResp.builder()
                              .id(product.getId())
                              .name(product.getName())
@@ -381,16 +383,14 @@ public class ProductService implements IProductService {
     }
 
     /**
-     * 全量替换商品图片：物理删除旧图后按请求重建，并刷新主图指针。
+     * 全量替换商品图片：物理删除旧图后按请求重建。
      *
      * @param product SPU 实体
      * @param images 图片请求模型列表
      */
     private void replaceImages(ProductDO product, List<ImageItem> images) {
         productImageMapper.deleteByProductId(product.getId());
-        Long imageId = saveImages(images, product.getId());
-        product.setImageId(imageId);
-        productMapper.updateById(product);
+        saveImages(images, product.getId());
     }
 
     /**
@@ -615,9 +615,7 @@ public class ProductService implements IProductService {
 
     private ProductDO saveProductWithImages(ProductCreateReq req, Long shopId) {
         ProductDO product = saveProduct(req, shopId);
-        Long imageId = saveImages(req.getImages(), product.getId());
-        product.setImageId(imageId);
-        productMapper.updateById(product);
+        saveImages(req.getImages(), product.getId());
         return product;
     }
 
@@ -630,14 +628,13 @@ public class ProductService implements IProductService {
     }
 
     /**
-     * 落商品图片，返回主图 ID。 <p>
+     * 落商品图片。 <p>
      * 主图与排序均按下标推导：首张为主图，sort 取下标。
      *
      * @param images 图片请求模型列表
      * @param productId SPU ID
-     * @return 主图（首张图片）的 ID
      */
-    private Long saveImages(List<ImageItem> images, Long productId) {
+    private void saveImages(List<ImageItem> images, Long productId) {
         List<ProductImageDO> imageDOList = new ArrayList<>(images.size());
         for (int i = 0; i < images.size(); i++) {
             ProductImageDO image = imageConverter.toDO(images.get(i), productId);
@@ -646,7 +643,6 @@ public class ProductService implements IProductService {
             imageDOList.add(image);
         }
         productImageMapper.insert(imageDOList);
-        return imageDOList.get(0).getId();
     }
 
     /**

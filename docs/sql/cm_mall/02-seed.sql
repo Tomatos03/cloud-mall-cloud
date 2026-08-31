@@ -171,7 +171,7 @@ ALTER TABLE cm_brand AUTO_INCREMENT = 100;
 
 -- ============================================================
 -- 商品图片（首张为主图 is_main=1，其余按 sort 轮播）
--- cm_product.image_id 指向各商品的主图
+-- 主图按商品 ID 查询 cm_product_image，取 is_main=1 的首行
 -- ============================================================
 INSERT INTO cm_product_image (id, product_id, url, is_main, sort) VALUES
 (1,  1, 'https://img.cloudmall.dev/product/mate70/main.jpg',    1, 0),
@@ -198,18 +198,18 @@ ALTER TABLE cm_product_image AUTO_INCREMENT = 1000;
 
 -- ============================================================
 -- 商品信息（SPU）
--- 列：id, name, spu_code, description, category_id, brand_id, image_id, shop_id, status
+-- 列：id, name, spu_code, description, category_id, brand_id, shop_id, status
 -- 价格/库存只存在于 SKU 表，SPU 不冗余
 -- ============================================================
-INSERT INTO cm_product (id, name, spu_code, description, category_id, brand_id, image_id, shop_id, status) VALUES
-(1,  '华为 Mate 70 Pro',         'SPU20250001', '搭载麒麟芯片，超强影像系统，鸿蒙OS 5.0',             101, 1, 1,  1, 1),
-(2,  'Apple iPhone 16 Pro Max', 'SPU20250002', 'A18 Pro 芯片，钛金属设计，4800万像素专业级拍摄',       101, 2, 4,  1, 1),
-(3,  '联想 ThinkPad X1 Carbon', 'SPU20250003', '第14代酷睿Ultra，14英寸2.8K OLED屏，轻薄商务',         111, 3, 7,  1, 1),
-(4,  'Sony WH-1000XM6 降噪耳机','SPU20250004', '旗舰级降噪，30小时续航，Hi-Res认证',                    121, 4, 9,  1, 1),
-(5,  '女士蕾丝刺绣连衣裙',       'SPU20250005', '法式优雅蕾丝设计，修身显瘦，夏季新款',                  201, 5, 11, 2, 1),
-(6,  '男士纯棉商务衬衫',         'SPU20250006', '免烫抗皱面料，经典修身版型，商务休闲两穿',              211, 5, 14, 2, 1),
-(7,  '三只松鼠每日坚果礼盒',     'SPU20250007', '7种坚果混合，每日一包，营养均衡',                       301, 6, 16, 3, 1),
-(8,  '青岛啤酒经典1903 500ml*12','SPU20250008', '百年经典工艺，麦香浓郁，纯正德国风味',                  31,  7, 18, 3, 1);
+INSERT INTO cm_product (id, name, spu_code, description, category_id, brand_id, shop_id, status) VALUES
+(1,  '华为 Mate 70 Pro',         'SPU20250001', '搭载麒麟芯片，超强影像系统，鸿蒙OS 5.0',             101, 1, 1, 1),
+(2,  'Apple iPhone 16 Pro Max', 'SPU20250002', 'A18 Pro 芯片，钛金属设计，4800万像素专业级拍摄',       101, 2, 1, 1),
+(3,  '联想 ThinkPad X1 Carbon', 'SPU20250003', '第14代酷睿Ultra，14英寸2.8K OLED屏，轻薄商务',         111, 3, 1, 1),
+(4,  'Sony WH-1000XM6 降噪耳机','SPU20250004', '旗舰级降噪，30小时续航，Hi-Res认证',                    121, 4, 1, 1),
+(5,  '女士蕾丝刺绣连衣裙',       'SPU20250005', '法式优雅蕾丝设计，修身显瘦，夏季新款',                  201, 5, 2, 1),
+(6,  '男士纯棉商务衬衫',         'SPU20250006', '免烫抗皱面料，经典修身版型，商务休闲两穿',              211, 5, 2, 1),
+(7,  '三只松鼠每日坚果礼盒',     'SPU20250007', '7种坚果混合，每日一包，营养均衡',                       301, 6, 3, 1),
+(8,  '青岛啤酒经典1903 500ml*12','SPU20250008', '百年经典工艺，麦香浓郁，纯正德国风味',                  31,  7, 3, 1);
 
 ALTER TABLE cm_product AUTO_INCREMENT = 1000;
 
