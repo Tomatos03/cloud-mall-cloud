@@ -11,7 +11,7 @@ xxl:
       jobs:
         - handler: couponLockExpire
           desc: 用户券锁定过期释放
-          schedule-type: FIX_DELAY
+          schedule-type: FIX_RATE
           schedule-conf: "60"
         - handler: userCouponExpire
           desc: 用户券批量过期

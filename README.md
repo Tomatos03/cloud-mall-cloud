@@ -49,7 +49,7 @@ cloud-mall-cloud/
 │   ├── cloudmall-common      # Result/BizException/BizError/UserContextFilter
 │   ├── cloudmall-mybatis-plus# MyMetaObjectHandler/PageReq/LimitEnum/StatusEnum
 │   ├── cloudmall-jwt         # JWT 认证
-│   ├── cloudmall-rocketmq    # MQProducer/AbstractMessageConsumer
+│   ├── cloudmall-rocketmq    # MQProducer/TxMessageHeader
 │   ├── cloudmall-outbox      # 本地消息 Outbox
 │   ├── cloudmall-feign       # 用户上下文透传 + Result 自动拆箱
 │   ├── cloudmall-elasticsearch # ES 集成

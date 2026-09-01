@@ -1,5 +1,8 @@
 package com.cloudmall.user.mapper;
 
+import java.util.List;
+
+import cn.hutool.core.collection.CollUtil;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
@@ -30,6 +33,19 @@ public interface UserMapper extends BaseMapper<UserDO> {
      */
     default UserDO selectByUsername(String username) {
         return selectOne(Wrappers.<UserDO>lambdaQuery().eq(UserDO::getUsername, username));
+    }
+
+    /**
+     * 按用户名批量查询用户，软删除过滤由 @TableLogic 自动处理。
+     *
+     * @param usernames 用户名列表
+     * @return 命中的用户列表（不存在的用户名自动过滤）
+     */
+    default List<UserDO> selectByUsernames(List<String> usernames) {
+        if (CollUtil.isEmpty(usernames)) {
+            return List.of();
+        }
+        return selectList(Wrappers.<UserDO>lambdaQuery().in(UserDO::getUsername, usernames));
     }
 
     /**

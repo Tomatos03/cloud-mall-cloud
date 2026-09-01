@@ -132,6 +132,21 @@ public interface SeckillProductMapper extends BaseMapper<SeckillProductDO> {
     }
 
     /**
+     * 回补秒杀池库存并减回销量（普通流程建单失败时补偿）。
+     *
+     * @param activityId 活动 ID
+     * @param skuId SKU ID
+     */
+    default void releaseStock(Long activityId, Long skuId) {
+        update(
+                Wrappers.<SeckillProductDO>lambdaUpdate()
+                        .setSql("stock = stock + 1, sold_count = GREATEST(sold_count - 1, 0)")
+                        .eq(SeckillProductDO::getActivityId, activityId)
+                        .eq(SeckillProductDO::getSkuId, skuId)
+        );
+    }
+
+    /**
      * 查询指定活动中已审核通过的商品。 <p>
      * 条件：活动 ID、商品 ID 匹配且审核状态为 APPROVED。
      *

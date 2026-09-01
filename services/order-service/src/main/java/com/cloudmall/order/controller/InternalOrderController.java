@@ -11,9 +11,11 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.cloudmall.common.model.Result;
 import com.cloudmall.order.api.request.OrderEventReq;
+import com.cloudmall.order.api.request.PlainSeckillOrderReq;
 import com.cloudmall.order.api.response.CouponUsageStatsResp;
 import com.cloudmall.order.service.IOrderEventService;
 import com.cloudmall.order.service.IOrderService;
+import com.cloudmall.order.service.impl.PlainSeckillOrderService;
 
 /**
  * 订单内部接口
@@ -31,6 +33,7 @@ public class InternalOrderController {
 
     private final IOrderEventService orderEventService;
     private final IOrderService orderStatsService;
+    private final PlainSeckillOrderService plainSeckillOrderService;
 
     /**
      * 支付成功。
@@ -66,6 +69,17 @@ public class InternalOrderController {
     public Result<Void> cancel(@RequestBody @Valid OrderEventReq req) {
         orderEventService.handleCancel(req.getOrderNo());
         return Result.success();
+    }
+
+    /**
+     * 普通秒杀同步建单（seckill-service 普通流程抢购调用，幂等）。
+     *
+     * @param req 建单请求
+     * @return 真实订单号
+     */
+    @PostMapping("/plain-seckill")
+    public Result<String> createPlainSeckillOrder(@RequestBody @Valid PlainSeckillOrderReq req) {
+        return Result.success(plainSeckillOrderService.create(req));
     }
 
     /**

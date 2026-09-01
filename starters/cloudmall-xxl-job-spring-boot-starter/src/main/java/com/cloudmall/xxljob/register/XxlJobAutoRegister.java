@@ -250,19 +250,38 @@ public class XxlJobAutoRegister implements ApplicationRunner, Ordered {
     }
 
     /**
-     * 解析分页响应 content.data 数组。
+     * 解析分页响应中的列表数组，兼容不同版本调度中心的响应结构。 <p>
+     * 3.x 返回 {@code {code, data:{data:[...]}}}，2.x 返回扁平
+     * {@code {recordsTotal, recordsFiltered, data:[...]}}
+     * （无 code 字段）， 旧版存在
+     * {@code {code, content:{data:[...]}}} 形态，按 3.x → 扁平
+     * → content 依次尝试。
      *
      * @param body 响应体
-     * @return data 数组
+     * @return 列表数组，结构不匹配时返回空数组
      */
-    private JSONArray contentData(String body) {
-        JSONObject json = checkResponse(body);
+    static JSONArray contentData(String body) {
+        JSONObject json = JSONUtil.parseObj(body);
+        Integer code = json.getInt("code");
+        if (code != null && code != SUCCESS_CODE) {
+            throw new IllegalStateException("调度中心返回失败: " + json.getStr("msg"));
+        }
+        Object data = json.get("data");
+        if (data instanceof JSONArray flat) {
+            return flat;
+        }
+        if (data instanceof JSONObject page) {
+            JSONArray list = page.getJSONArray("data");
+            if (list != null) {
+                return list;
+            }
+        }
         JSONObject content = json.getJSONObject("content");
         if (content == null) {
             return new JSONArray();
         }
-        JSONArray data = content.getJSONArray("data");
-        return data == null ? new JSONArray() : data;
+        JSONArray list = content.getJSONArray("data");
+        return list == null ? new JSONArray() : list;
     }
 
     /**
@@ -271,7 +290,7 @@ public class XxlJobAutoRegister implements ApplicationRunner, Ordered {
      * @param body 响应体
      * @return 响应 JSON
      */
-    private JSONObject checkResponse(String body) {
+    private static JSONObject checkResponse(String body) {
         JSONObject json = JSONUtil.parseObj(body);
         if (json.getInt("code", -1) != SUCCESS_CODE) {
             throw new IllegalStateException("调度中心返回失败: " + json.getStr("msg"));

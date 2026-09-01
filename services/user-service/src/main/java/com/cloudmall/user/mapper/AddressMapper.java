@@ -2,6 +2,7 @@ package com.cloudmall.user.mapper;
 
 import java.util.List;
 
+import cn.hutool.core.collection.CollUtil;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import org.apache.ibatis.annotations.Mapper;
@@ -19,6 +20,19 @@ public interface AddressMapper extends BaseMapper<AddressDO> {
      */
     default List<AddressDO> listByUserId(Long userId) {
         return selectList(Wrappers.<AddressDO>lambdaQuery().eq(AddressDO::getUserId, userId));
+    }
+
+    /**
+     * 按用户批量查询收货地址。
+     *
+     * @param userIds 用户 ID 列表
+     * @return 命中的收货地址列表
+     */
+    default List<AddressDO> selectByUserIds(List<Long> userIds) {
+        if (CollUtil.isEmpty(userIds)) {
+            return List.of();
+        }
+        return selectList(Wrappers.<AddressDO>lambdaQuery().in(AddressDO::getUserId, userIds));
     }
 
     /**

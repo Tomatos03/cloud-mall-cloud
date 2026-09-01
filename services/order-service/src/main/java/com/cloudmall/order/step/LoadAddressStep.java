@@ -6,7 +6,7 @@ import org.springframework.stereotype.Component;
 import com.cloudmall.common.enums.BizError;
 import com.cloudmall.common.utils.Asserts;
 import com.cloudmall.order.model.CheckoutContext;
-import com.cloudmall.user.api.client.AddressClient;
+import com.cloudmall.user.api.client.InternalUserClient;
 import com.cloudmall.user.api.response.AddressResp;
 
 /**
@@ -18,7 +18,7 @@ import com.cloudmall.user.api.response.AddressResp;
 @RequiredArgsConstructor
 public class LoadAddressStep implements CheckoutStep {
 
-    private final AddressClient addressClient;
+    private final InternalUserClient internalUserClient;
 
     /**
      * 步骤名称。
@@ -37,7 +37,7 @@ public class LoadAddressStep implements CheckoutStep {
      */
     @Override
     public void process(CheckoutContext ctx) {
-        AddressResp address = addressClient.getById(ctx.getReq().getAddressId(), ctx.getUserId());
+        AddressResp address = internalUserClient.getAddressById(ctx.getReq().getAddressId(), ctx.getUserId());
         Asserts.notNull(address, BizError.ORDER_CREATE_ADDRESS_NOT_EXIST);
         ctx.setAddress(address);
     }

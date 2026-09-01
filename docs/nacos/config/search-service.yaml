@@ -34,7 +34,7 @@ xxl:
       jobs:
         - handler: searchProductIncrementalSync
           desc: 商品索引增量同步（MQ 兜底）
-          schedule-type: FIX_DELAY
+          schedule-type: FIX_RATE
           schedule-conf: "60"
         - handler: searchProductFullRebuild
           desc: 商品索引全量重建

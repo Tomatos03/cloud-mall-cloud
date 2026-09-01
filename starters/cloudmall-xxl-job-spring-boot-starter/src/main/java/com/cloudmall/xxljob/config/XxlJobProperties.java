@@ -84,8 +84,8 @@ public class XxlJobProperties {
         /** 任务描述 */
         private String desc;
 
-        /** 调度类型：CRON / FIX_RATE / FIX_DELAY */
-        private String scheduleType = "FIX_DELAY";
+        /** 调度类型：CRON / FIX_RATE（xxl-job 3.x 已移除 FIX_DELAY，固定间隔统一用 FIX_RATE） */
+        private String scheduleType = "FIX_RATE";
 
         /** 调度配置：CRON 表达式或秒数 */
         private String scheduleConf = "60";

@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import com.cloudmall.order.api.request.OrderEventReq;
+import com.cloudmall.order.api.request.PlainSeckillOrderReq;
 import com.cloudmall.order.api.response.CouponUsageStatsResp;
 
 /**
@@ -43,6 +44,17 @@ public interface InternalOrderClient {
      */
     @PostMapping("/cancel")
     void cancel(@RequestBody OrderEventReq req);
+
+    /**
+     * 普通秒杀同步建单（seckill-service 普通流程抢购调用）。 <p>
+     * 按 orderNo 幂等落库父订单/子订单/明细，订单快照（秒杀价、商品信息）由
+     * seckill-service 可信组装后传入。
+     *
+     * @param req 建单请求
+     * @return 真实订单号
+     */
+    @PostMapping("/plain-seckill")
+    String createPlainSeckillOrder(@RequestBody PlainSeckillOrderReq req);
 
     /**
      * 查询单模板订单使用统计。

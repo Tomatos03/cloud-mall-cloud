@@ -11,7 +11,7 @@
 - 顶层：`common/`（共享工具与跨服务对象）、`gateway/`、`service-api/`（Feign 接口 + DTO 聚合，父 POM）、`services/`（业务服务，父 POM）、`starters/`（自研 Starter，父 POM）、`docs/`（设计/compose/Nacos 配置/SQL）。
 - 业务服务（`services/`）：`user-service`（UserApplication，认证/RBAC + 用户资料）、`product-service`（ProductApplication）、`order-service`（OrderApplication）、`coupon-service`（CouponApplication）、`seckill-service`（SeckillApplication）、`im-service`（IMApplication）、`aigc-service`（agent-service，AIGCApplication）。
 - 服务接口（`service-api/`）：`user-api`、`product-api`、`order-api`、`coupon-api`、`seckill-api`、`search-api`。
-- 自研 Starter（`starters/`）：`cloudmall-common`（Result/BizException/BizError/UserContextFilter）、`cloudmall-mybatis-plus`（MyMetaObjectHandler、PageReq/ConditionReq、LimitEnum、StatusEnum）、`cloudmall-jwt`、`cloudmall-rocketmq`（MQProducer/AbstractMessageConsumer）、`cloudmall-outbox`（本地消息 Outbox）、`cloudmall-feign`（用户上下文透传 + Result 自动拆箱）、`cloudmall-elasticsearch`、`cloudmall-xxl-job`。
+- 自研 Starter（`starters/`）：`cloudmall-common`（Result/BizException/BizError/UserContextFilter）、`cloudmall-mybatis-plus`（MyMetaObjectHandler、PageReq/ConditionReq、LimitEnum、StatusEnum）、`cloudmall-jwt`、`cloudmall-rocketmq`（MQProducer/TxMessageHeader）、`cloudmall-outbox`（本地消息 Outbox）、`cloudmall-feign`（用户上下文透传 + Result 自动拆箱）、`cloudmall-elasticsearch`、`cloudmall-xxl-job`。
 - 业务服务分层：`controller`、`service`/`impl`、`mapper`、`entity`、`model/req` 与 `model/resp`、`convert`（MapStruct）、`enums`、`application`、`job`。
 - 服务端口统一在 Nacos 配置中心管理（导入 `common` + `{app-name}` 配置）。
 

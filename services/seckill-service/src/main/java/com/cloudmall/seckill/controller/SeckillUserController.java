@@ -21,6 +21,7 @@ import com.cloudmall.seckill.api.response.ActivityResp;
 import com.cloudmall.seckill.api.response.PurchaseResp;
 import com.cloudmall.seckill.api.response.SeckillOrderResp;
 import com.cloudmall.seckill.application.SeckillOrderApp;
+import com.cloudmall.seckill.application.SeckillPlainOrderApp;
 import com.cloudmall.seckill.service.ISeckillActivityService;
 import com.cloudmall.seckill.service.ISeckillOrderService;
 
@@ -38,6 +39,7 @@ import com.cloudmall.seckill.service.ISeckillOrderService;
 public class SeckillUserController {
 
     private final SeckillOrderApp seckillOrderApp;
+    private final SeckillPlainOrderApp seckillPlainOrderApp;
     private final ISeckillActivityService activityService;
     private final ISeckillOrderService orderService;
 
@@ -81,6 +83,17 @@ public class SeckillUserController {
     @PostMapping("/purchase")
     public Result<PurchaseResp> purchase(@Valid @RequestBody SeckillPurchaseReq req) {
         return Result.success(seckillOrderApp.purchase(req));
+    }
+
+    /**
+     * 普通流程抢购（同步 DB 建单，QPS 对比实验用）。
+     *
+     * @param req 抢购请求
+     * @return 受理结果（真实订单号）
+     */
+    @PostMapping("/plain/purchase")
+    public Result<PurchaseResp> purchasePlain(@Valid @RequestBody SeckillPurchaseReq req) {
+        return Result.success(seckillPlainOrderApp.purchase(req));
     }
 
     /**

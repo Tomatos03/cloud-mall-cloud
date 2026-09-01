@@ -11,5 +11,5 @@ xxl:
       jobs:
         - handler: orderTimeoutRecovery
           desc: 创建中超时订单恢复
-          schedule-type: FIX_DELAY
+          schedule-type: FIX_RATE
           schedule-conf: "60"

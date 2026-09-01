@@ -325,7 +325,7 @@
 4. 首次运行游标初始化为当前时间，存量数据由全量对账任务补齐。
 5. 受 `search.sync.incremental.enabled` 控制；翻页达 `maxPages` 上限提前结束。
 
-**每 60 秒执行一次（FIX_DELAY）。**
+**每 60 秒执行一次（FIX_RATE，xxl-job 3.x 已移除 FIX_DELAY）。**
 
 MQ 增量消费（`ProductCreated / ProductUpdated / ProductDeleted` 事务消息）的兜底数据源，覆盖消息丢失/漏消费场景；删除场景由全量对账任务兜底。
 
