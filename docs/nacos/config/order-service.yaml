@@ -9,14 +9,6 @@ xxl:
     auto-register:
       enabled: true
       jobs:
-        - handler: outboxPublish
-          desc: Outbox事件发布
-          schedule-type: FIX_DELAY
-          schedule-conf: "5"
-        - handler: outboxCleanup
-          desc: Outbox已发布记录清理
-          schedule-type: CRON
-          schedule-conf: "0 0 3 * * ?"
         - handler: orderTimeoutRecovery
           desc: 创建中超时订单恢复
           schedule-type: FIX_DELAY

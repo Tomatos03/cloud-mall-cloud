@@ -38,9 +38,3 @@ xxl:
       ip: host.docker.internal
       log-path: /tmp/xxl-job/jobhandler
       log-retention-days: 30
-
-cloudmall:
-  outbox:
-    # Outbox 发布单批上限与已发布记录保留天数，服务级可覆盖
-    batch-size: 100
-    retention-days: 7

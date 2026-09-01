@@ -14,10 +14,10 @@ XXL-JOB 分布式任务调度接入 starter，提供执行器自动装配与任�
 @Slf4j
 @Component
 @RequiredArgsConstructor
-public class OrderOutboxJobHandler {
+public class OrderTimeoutRecoveryJobHandler {
 
-    @XxlJob("orderOutboxPublish")
-    public void publish(String param) {
+    @XxlJob("orderTimeoutRecovery")
+    public void recover(String param) {
         // 任务逻辑
     }
 }
@@ -51,10 +51,10 @@ xxl:
     auto-register:
       enabled: true
       jobs:                        # 任务定义列表（key 为 @XxlJob handler 名）
-        - handler: orderOutboxPublish
-          desc: 订单Outbox事件发布
+        - handler: orderTimeoutRecovery
+          desc: 创建中超时订单恢复
           schedule-type: FIX_DELAY
-          schedule-conf: "5"
+          schedule-conf: "60"
 ```
 
 `jobs` 任务定义未声明的字段取 starter 默认值（与项目任务约定一致）：
@@ -73,11 +73,12 @@ xxl:
 
 | handler | 服务 | 调度类型 | 配置 | 路由 | 阻塞 |
 |---------|------|----------|------|------|------|
-| `userOutboxPublish` | user-service | FIX_DELAY | 5s | FIRST | SERIAL |
-| `orderOutboxPublish` | order-service | FIX_DELAY | 5s | FIRST | SERIAL |
 | `orderTimeoutRecovery` | order-service | FIX_DELAY | 60s | FIRST | SERIAL |
 | `couponLockExpire` | coupon-service | FIX_DELAY | 60s | FIRST | SERIAL |
 | `userCouponExpire` | coupon-service | CRON | `0 */5 * * * ?` | FIRST | SERIAL |
+| `seckillOrderTimeoutRecovery` | seckill-service | FIX_DELAY | 60s | FIRST | SERIAL |
+| `seckillActivityStatus` | seckill-service | FIX_DELAY | 60s | FIRST | SERIAL |
+| `seckillCachePreheat` | seckill-service | FIX_DELAY | 60s | FIRST | SERIAL |
 | `searchProductIncrementalSync` | search-service | FIX_DELAY | 60s | FIRST | SERIAL |
 | `searchProductFullRebuild` | search-service | CRON | `0 0 3 * * ?` | FIRST | SERIAL |
 ## 基础设施
@@ -88,7 +89,7 @@ xxl:
 
 ## 注意事项
 
-- **admin 是调度单点**：调度中心不可用时，Outbox 任务（5s 轮询）会暂停发布，事件堆积在 outbox 表，admin 恢复后自动追平；批处理任务同理延后。数据不丢失。
+- **admin 是调度单点**：调度中心不可用时，批处理任务会延后执行，恢复后自动追平；数据不丢失。
 - **`xxl.job.*` 只在启动时读取一次**（executor 启动 netty 并注册），Nacos 动态刷新对该配置无效，修改后必须重启服务。
 - **accessToken 两端同步**：`common.yaml` 的 `xxl.job.access-token` 必须与 compose 中 admin 的 `--xxl.job.accessToken` 一致，改一处必须同步另一处。
 - **`executor.ip: host.docker.internal` 是开发环境取值**（admin 容器回连宿主机执行器），生产环境按实际网络覆盖。
