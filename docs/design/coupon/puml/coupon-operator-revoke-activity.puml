@@ -1,0 +1,50 @@
+@startuml coupon-operator-revoke-activity
+title 紧急撤销用户券
+
+skinparam backgroundColor #FFFFFF
+skinparam defaultFontName "PingFang SC, Microsoft YaHei, sans-serif"
+skinparam activity {
+  BackgroundColor #FFFFFF
+  BorderColor #94A3B8
+  DiamondBackgroundColor #F0F9FF
+  DiamondBorderColor #3B82F6
+  StartColor #16A34A
+  EndColor #EF4444
+  ArrowColor #475569
+}
+skinparam swimlane {
+  BackgroundColor #F8FAFC
+  BorderColor #CBD5E1
+  TitleBackgroundColor #E2E8F0
+}
+
+|运营|
+
+start
+
+:选择模板;
+
+:填写撤销原因;
+
+:提交撤销;
+
+|优惠券服务|
+
+:校验模板与原因;
+
+:批量撤销可撤销用户券;
+
+if (存在不可撤销券?) then (是)
+  :跳过并记录;
+else (否)
+endif
+
+:记录撤销流水;
+
+|数据库|
+
+:更新用户券状态\n并写入流水;
+
+stop
+
+@enduml

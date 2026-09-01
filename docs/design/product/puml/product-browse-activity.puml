@@ -1,0 +1,49 @@
+@startuml product-browse-activity
+title 用户浏览首页与商品
+
+skinparam backgroundColor #FFFFFF
+skinparam defaultFontName "PingFang SC, Microsoft YaHei, sans-serif"
+skinparam activity {
+  BackgroundColor #FFFFFF
+  BorderColor #94A3B8
+  DiamondBackgroundColor #F0F9FF
+  DiamondBorderColor #3B82F6
+  StartColor #16A34A
+  EndColor #EF4444
+  ArrowColor #475569
+}
+skinparam swimlane {
+  BackgroundColor #F8FAFC
+  BorderColor #CBD5E1
+  TitleBackgroundColor #E2E8F0
+}
+
+|用户|
+
+start
+
+:访问首页;
+
+:进入商品详情页;
+
+:选择规格;
+
+|首页服务|
+
+:聚合首页数据;
+
+|商品服务|
+
+:返回分类商品列表;
+
+:返回商品详情;
+
+:规格联动匹配;
+
+|用户|
+
+:浏览商品与规格;
+
+stop
+
+@enduml

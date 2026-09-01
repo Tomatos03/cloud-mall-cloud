@@ -1,0 +1,53 @@
+@startuml coupon-register-auto-activity
+title 新用户注册自动发放优惠券
+
+skinparam backgroundColor #FFFFFF
+skinparam defaultFontName "PingFang SC, Microsoft YaHei, sans-serif"
+skinparam activity {
+  BackgroundColor #FFFFFF
+  BorderColor #94A3B8
+  DiamondBackgroundColor #F0F9FF
+  DiamondBorderColor #3B82F6
+  StartColor #16A34A
+  EndColor #EF4444
+  ArrowColor #475569
+}
+skinparam swimlane {
+  BackgroundColor #F8FAFC
+  BorderColor #CBD5E1
+  TitleBackgroundColor #E2E8F0
+}
+
+|用户服务|
+
+start
+
+:用户完成注册;
+
+:发布注册事件;
+
+|消息队列|
+
+:投递注册事件;
+
+|优惠券服务|
+
+:消费注册事件;
+
+:匹配自动发放模板;
+
+if (存在匹配模板?) then (否)
+  :不发放;
+  stop
+else (是)
+endif
+
+:发放落库;
+
+|数据库|
+
+:写入用户券与状态流水;
+
+stop
+
+@enduml

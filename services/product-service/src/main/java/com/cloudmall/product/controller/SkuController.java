@@ -31,16 +31,30 @@ public class SkuController {
     private final ISkuService skuService;
 
     /**
-     * 更新商品 SKU 库存。 <p>
-     * quantity >= 0 时回滚库存，quantity < 0 时扣减库存。
+     * 扣减 SKU 库存。 <p>
+     * quantity 为正数，条件更新（stock >= quantity）防止超卖，库存不足抛
+     * {@code STOCK_NOT_ENOUGH}。
      *
      * @param skuId SKU ID
-     * @param req 库存变更请求
+     * @param req 库存扣减请求
      * @return 操作是否成功
      */
-    @PutMapping("/{skuId}/stock")
-    public Result<Boolean> updateStock(@PathVariable Long skuId, @RequestBody StockReq req) {
-        return Result.success(skuService.updateStock(skuId, req.getQuantity()));
+    @PutMapping("/{skuId}/stock/deduct")
+    public Result<Boolean> deductStock(@PathVariable Long skuId, @RequestBody StockReq req) {
+        return Result.success(skuService.deductStock(skuId, req.getQuantity()));
+    }
+
+    /**
+     * 回滚 SKU 库存（增加库存）。 <p>
+     * quantity 为正数，无条件加回。
+     *
+     * @param skuId SKU ID
+     * @param req 库存回滚请求
+     * @return 操作是否成功
+     */
+    @PutMapping("/{skuId}/stock/release")
+    public Result<Boolean> releaseStock(@PathVariable Long skuId, @RequestBody StockReq req) {
+        return Result.success(skuService.releaseStock(skuId, req.getQuantity()));
     }
 
     /**

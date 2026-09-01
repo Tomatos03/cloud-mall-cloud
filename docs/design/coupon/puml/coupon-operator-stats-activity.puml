@@ -1,0 +1,51 @@
+@startuml coupon-operator-stats-activity
+title 查看与统计优惠券
+
+skinparam backgroundColor #FFFFFF
+skinparam defaultFontName "PingFang SC, Microsoft YaHei, sans-serif"
+skinparam activity {
+  BackgroundColor #FFFFFF
+  BorderColor #94A3B8
+  DiamondBackgroundColor #F0F9FF
+  DiamondBorderColor #3B82F6
+  StartColor #16A34A
+  EndColor #EF4444
+  ArrowColor #475569
+}
+skinparam swimlane {
+  BackgroundColor #F8FAFC
+  BorderColor #CBD5E1
+  TitleBackgroundColor #E2E8F0
+}
+
+|运营|
+
+start
+
+:进入券管理;
+
+:查看全部模板;
+
+:查看模板统计;
+
+:查看全局统计概览;
+
+:查看操作审计流水;
+
+|优惠券服务|
+
+:查询模板与统计;
+
+:查询审计流水;
+
+|数据库|
+
+:查询模板\n状态流水\n与操作日志;
+
+|运营|
+
+:展示结果;
+
+stop
+
+@enduml

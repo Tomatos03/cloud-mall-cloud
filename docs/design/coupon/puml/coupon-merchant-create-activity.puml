@@ -1,0 +1,51 @@
+@startuml coupon-merchant-create-activity
+title 创建和发布优惠券模板
+
+skinparam backgroundColor #FFFFFF
+skinparam defaultFontName "PingFang SC, Microsoft YaHei, sans-serif"
+skinparam activity {
+  BackgroundColor #FFFFFF
+  BorderColor #94A3B8
+  DiamondBackgroundColor #F0F9FF
+  DiamondBorderColor #3B82F6
+  StartColor #16A34A
+  EndColor #EF4444
+  ArrowColor #475569
+}
+skinparam swimlane {
+  BackgroundColor #F8FAFC
+  BorderColor #CBD5E1
+  TitleBackgroundColor #E2E8F0
+}
+
+|商家|
+
+start
+
+:填写模板信息;
+
+:创建草稿;
+
+:编辑草稿;
+
+:提交发布;
+
+|优惠券服务|
+
+:校验规则\n并冻结核心配置;
+
+if (校验通过?) then (否)
+  :返回失败;
+  stop
+else (是)
+endif
+
+:发布模板;
+
+|数据库|
+
+:写入模板与状态流水;
+
+stop
+
+@enduml

@@ -1,0 +1,65 @@
+@startuml product-merchant-create-activity
+title 商家发布商品
+
+skinparam backgroundColor #FFFFFF
+skinparam defaultFontName "PingFang SC, Microsoft YaHei, sans-serif"
+skinparam activity {
+  BackgroundColor #FFFFFF
+  BorderColor #94A3B8
+  DiamondBackgroundColor #F0F9FF
+  DiamondBorderColor #3B82F6
+  StartColor #16A34A
+  EndColor #EF4444
+  ArrowColor #475569
+}
+skinparam swimlane {
+  BackgroundColor #F8FAFC
+  BorderColor #CBD5E1
+  TitleBackgroundColor #E2E8F0
+}
+
+|商家|
+
+start
+
+:提交商品创建请求;
+
+|商品服务|
+
+:解析店铺归属;
+
+if (店铺/品牌/分类存在?) then (否)
+  :返回失败;
+  stop
+else (是)
+endif
+
+:规格拓扑校验;
+
+if (规格/价格合法?) then (否)
+  :返回失败;
+  stop
+else (是)
+endif
+
+:落库 SPU 与图片;
+
+:落库规格组与规格值;
+
+:落库 SKU 与关联;
+
+|数据库|
+
+:写入商品与规格数据;
+
+|商品服务|
+
+:发布商品创建事件;
+
+|商家|
+
+:创建成功;
+
+stop
+
+@enduml

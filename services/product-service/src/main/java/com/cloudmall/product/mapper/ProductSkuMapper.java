@@ -1,7 +1,6 @@
 package com.cloudmall.product.mapper;
 
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -103,23 +102,6 @@ public interface ProductSkuMapper extends BaseMapper<ProductSkuDO> {
      */
     default List<ProductSkuDO> selectByProductId(Long productId) {
         return selectList(Wrappers.<ProductSkuDO>lambdaQuery().eq(ProductSkuDO::getProductId, productId));
-    }
-
-    /**
-     * 条件增减库存：库存足够时按增量调整，防止扣成负数。
-     *
-     * @param skuId SKU ID
-     * @param quantity 增减量（正数增加，负数扣减）
-     * @return 影响行数，0 表示库存不足或 SKU 不存在
-     */
-    default int updateStock(Long skuId, Integer quantity) {
-        return update(
-                Wrappers.<ProductSkuDO>lambdaUpdate()
-                        .setSql("stock = stock + " + quantity)
-                        .set(ProductSkuDO::getUpdateTime, LocalDateTime.now())
-                        .eq(ProductSkuDO::getId, skuId)
-                        .ge(ProductSkuDO::getStock, -quantity)
-        );
     }
 
     /**

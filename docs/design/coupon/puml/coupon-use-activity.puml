@@ -1,0 +1,51 @@
+@startuml coupon-use-activity
+title 订单结算使用优惠券
+
+skinparam backgroundColor #FFFFFF
+skinparam defaultFontName "PingFang SC, Microsoft YaHei, sans-serif"
+skinparam activity {
+  BackgroundColor #FFFFFF
+  BorderColor #94A3B8
+  DiamondBackgroundColor #F0F9FF
+  DiamondBorderColor #3B82F6
+  StartColor #16A34A
+  EndColor #EF4444
+  ArrowColor #475569
+}
+skinparam swimlane {
+  BackgroundColor #F8FAFC
+  BorderColor #CBD5E1
+  TitleBackgroundColor #E2E8F0
+}
+
+|用户|
+
+start
+
+:结算下单\n携带所选用户券;
+
+|优惠券服务|
+
+:试算;
+
+:锁券;
+
+|数据库|
+
+:锁定用户券;
+
+|用户|
+
+:订单待支付;
+
+|优惠券服务|
+
+if (支付成功?) then (是)
+  :核销;
+else (否)
+  :释放或回退;
+endif
+
+stop
+
+@enduml

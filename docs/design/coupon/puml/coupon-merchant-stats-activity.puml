@@ -1,0 +1,49 @@
+@startuml coupon-merchant-stats-activity
+title 查看和统计优惠券
+
+skinparam backgroundColor #FFFFFF
+skinparam defaultFontName "PingFang SC, Microsoft YaHei, sans-serif"
+skinparam activity {
+  BackgroundColor #FFFFFF
+  BorderColor #94A3B8
+  DiamondBackgroundColor #F0F9FF
+  DiamondBorderColor #3B82F6
+  StartColor #16A34A
+  EndColor #EF4444
+  ArrowColor #475569
+}
+skinparam swimlane {
+  BackgroundColor #F8FAFC
+  BorderColor #CBD5E1
+  TitleBackgroundColor #E2E8F0
+}
+
+|商家|
+
+start
+
+:进入店铺券管理;
+
+:分页查询店铺券列表;
+
+:查看券统计;
+
+|优惠券服务|
+
+:校验商家身份;
+
+:查询本店数据;
+
+:组装统计结果;
+
+|数据库|
+
+:查询模板与状态流水;
+
+|商家|
+
+:展示统计结果;
+
+stop
+
+@enduml

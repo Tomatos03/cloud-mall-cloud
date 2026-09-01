@@ -1,0 +1,51 @@
+@startuml coupon-mine-activity
+title 我的优惠券
+
+skinparam backgroundColor #FFFFFF
+skinparam defaultFontName "PingFang SC, Microsoft YaHei, sans-serif"
+skinparam activity {
+  BackgroundColor #FFFFFF
+  BorderColor #94A3B8
+  DiamondBackgroundColor #F0F9FF
+  DiamondBorderColor #3B82F6
+  StartColor #16A34A
+  EndColor #EF4444
+  ArrowColor #475569
+}
+skinparam swimlane {
+  BackgroundColor #F8FAFC
+  BorderColor #CBD5E1
+  TitleBackgroundColor #E2E8F0
+}
+
+|用户|
+
+start
+
+:进入我的优惠券;
+
+:按状态分页查询;
+
+:查看单张详情;
+
+|优惠券服务|
+
+:校验用户身份;
+
+:按状态过滤查询;
+
+|数据库|
+
+:查询 cm_user_coupon;
+
+|优惠券服务|
+
+:组装用户券快照;
+
+|用户|
+
+:展示用户券;
+
+stop
+
+@enduml

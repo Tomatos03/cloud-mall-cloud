@@ -12,15 +12,25 @@ import com.cloudmall.product.api.response.SkuResp;
 public interface ISkuService {
 
     /**
-     * 更新商品 SKU 库存。 <p>
-     * quantity 为正数时增加库存，为负数时扣减库存；扣减依赖单条 UPDATE 的行锁与库存条件（
-     * stock + quantity >= 0）保证并发安全，不会超卖。
+     * 扣减 SKU 库存。 <p>
+     * quantity 为正数，条件更新（stock >= quantity）防止超卖，库存不足抛
+     * {@code STOCK_NOT_ENOUGH}。
      *
      * @param skuId SKU ID
-     * @param quantity 库存变化量（正数增加，负数扣减）
+     * @param quantity 扣减数量（正数）
      * @return 操作是否成功
      */
-    Boolean updateStock(Long skuId, Integer quantity);
+    Boolean deductStock(Long skuId, Integer quantity);
+
+    /**
+     * 回滚 SKU 库存（增加库存）。 <p>
+     * quantity 为正数，无条件加回。
+     *
+     * @param skuId SKU ID
+     * @param quantity 回滚数量（正数）
+     * @return 操作是否成功
+     */
+    Boolean releaseStock(Long skuId, Integer quantity);
 
     /**
      * 批量查询 SKU 信息（含实时价格、库存、规格描述、所属店铺）。 <p>

@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 320" font-family="system-ui,-apple-system,'Segoe UI',Roboto,sans-serif">
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 6" refX="10" refY="3" markerWidth="10" markerHeight="6" orient="auto-start-reverse">
+      <path d="M0,0 L10,3 L0,6 Z" fill="#475569"/>
+    </marker>
+    <marker id="arrowBlue" viewBox="0 0 10 6" refX="10" refY="3" markerWidth="10" markerHeight="6" orient="auto-start-reverse">
+      <path d="M0,0 L10,3 L0,6 Z" fill="#3b82f6"/>
+    </marker>
+    <marker id="arrowRed" viewBox="0 0 10 6" refX="10" refY="3" markerWidth="10" markerHeight="6" orient="auto-start-reverse">
+      <path d="M0,0 L10,3 L0,6 Z" fill="#ef4444"/>
+    </marker>
+    <marker id="arrowGreen" viewBox="0 0 10 6" refX="10" refY="3" markerWidth="10" markerHeight="6" orient="auto-start-reverse">
+      <path d="M0,0 L10,3 L0,6 Z" fill="#16a34a"/>
+    </marker>
+    <filter id="shadow" x="-4%" y="-4%" width="108%" height="112%">
+      <feDropShadow dx="0" dy="2" stdDeviation="3" flood-opacity="0.12"/>
+    </filter>
+  </defs>
+
+  <!-- Title -->
+  <text x="360" y="36" text-anchor="middle" font-size="20" font-weight="700" fill="#0f172a">活动状态机</text>
+
+  <!-- DRAFT -->
+  <rect x="60" y="90" width="140" height="56" rx="8" fill="#f1f5f9" stroke="#94a3b8" stroke-width="1.5" filter="url(#shadow)"/>
+  <text x="130" y="120" text-anchor="middle" font-size="14" font-weight="600" fill="#334155">DRAFT</text>
+  <text x="130" y="136" text-anchor="middle" font-size="11" fill="#64748b">运营排期，商家不可见</text>
+
+  <!-- PUBLISHED -->
+  <rect x="300" y="90" width="140" height="56" rx="8" fill="#dbeafe" stroke="#3b82f6" stroke-width="1.5" filter="url(#shadow)"/>
+  <text x="370" y="120" text-anchor="middle" font-size="14" font-weight="600" fill="#1e40af">PUBLISHED</text>
+  <text x="370" y="136" text-anchor="middle" font-size="11" fill="#3b82f6">报名期：提交+审核</text>
+
+  <!-- RUNNING -->
+  <rect x="520" y="90" width="140" height="56" rx="8" fill="#dcfce7" stroke="#16a34a" stroke-width="1.5" filter="url(#shadow)"/>
+  <text x="590" y="120" text-anchor="middle" font-size="14" font-weight="600" fill="#15803d">RUNNING</text>
+  <text x="590" y="136" text-anchor="middle" font-size="11" fill="#16a34a">秒杀进行中</text>
+
+  <!-- CANCELLED -->
+  <rect x="60" y="220" width="140" height="56" rx="8" fill="#fee2e2" stroke="#ef4444" stroke-width="1.5" filter="url(#shadow)"/>
+  <text x="130" y="250" text-anchor="middle" font-size="14" font-weight="600" fill="#991b1b">CANCELLED</text>
+  <text x="130" y="266" text-anchor="middle" font-size="11" fill="#dc2626">已取消（终态）</text>
+
+  <!-- FINISHED -->
+  <rect x="520" y="220" width="140" height="56" rx="8" fill="#e0e7ff" stroke="#6366f1" stroke-width="1.5" filter="url(#shadow)"/>
+  <text x="590" y="250" text-anchor="middle" font-size="14" font-weight="600" fill="#4338ca">FINISHED</text>
+  <text x="590" y="266" text-anchor="middle" font-size="11" fill="#6366f1">已结束（终态）</text>
+
+  <!-- DRAFT -> PUBLISHED (发布 = 开放报名) -->
+  <line x1="200" y1="114" x2="298" y2="114" stroke="#3b82f6" stroke-width="1.5" marker-end="url(#arrowBlue)"/>
+  <text x="250" y="106" text-anchor="middle" font-size="11" fill="#3b82f6" font-weight="500">发布（报名）</text>
+
+  <!-- PUBLISHED -> RUNNING (start_time 到达) -->
+  <line x1="442" y1="114" x2="518" y2="114" stroke="#16a34a" stroke-width="1.5" marker-end="url(#arrowGreen)"/>
+  <text x="480" y="106" text-anchor="middle" font-size="11" fill="#16a34a" font-weight="500">开始时间到达</text>
+
+  <!-- RUNNING -> FINISHED (end_time 到达) -->
+  <line x1="590" y1="146" x2="590" y2="218" stroke="#6366f1" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <text x="602" y="188" font-size="11" fill="#4f46e5">结束时间到达</text>
+
+  <!-- DRAFT -> CANCELLED (取消) -->
+  <line x1="130" y1="146" x2="130" y2="218" stroke="#ef4444" stroke-width="1.5" stroke-dasharray="4,3" marker-end="url(#arrowRed)"/>
+  <text x="146" y="188" font-size="11" fill="#dc2626">取消</text>
+
+  <!-- PUBLISHED -> CANCELLED (取消) -->
+  <path d="M 300 146 C 290 200, 220 200, 205 218" fill="none" stroke="#ef4444" stroke-width="1.5" stroke-dasharray="4,3" marker-end="url(#arrowRed)"/>
+  <text x="248" y="206" font-size="11" fill="#dc2626">取消</text>
+</svg>

@@ -31,10 +31,6 @@
         </dependency>
         <dependency>
             <groupId>com.cloudmall</groupId>
-            <artifactId>cloudmall-outbox-spring-boot-starter</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.cloudmall</groupId>
             <artifactId>cloudmall-xxl-job-spring-boot-starter</artifactId>
         </dependency>
         <dependency>

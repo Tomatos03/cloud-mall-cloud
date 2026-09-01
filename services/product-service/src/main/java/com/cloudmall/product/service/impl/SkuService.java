@@ -52,22 +52,44 @@ public class SkuService implements ISkuService {
     private final IProductSpecService productSpecService;
 
     /**
-     * 更新相关数据。
+     * 扣减 SKU 库存。 <p>
+     * quantity 为正数，条件更新（stock >= quantity）防止超卖；quantity
+     * 为 0 直接成功。
      *
      * @param skuId SKU 标识
-     * @param quantity 数量
-     * @return 是否满足条件
-     * @throws BizException 处理过程中可能抛出该异常
+     * @param quantity 扣减数量（正数）
+     * @return 是否成功
+     * @throws BizException 库存不足或 SKU 不存在
      */
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public Boolean updateStock(Long skuId, Integer quantity) {
-        ProductSkuDO sku = Asserts.requireNonNull(productSkuMapper.selectById(skuId));
+    public Boolean deductStock(Long skuId, Integer quantity) {
+        Asserts.requireNonNull(productSkuMapper.selectById(skuId));
         if (quantity == 0) {
             return Boolean.TRUE;
         }
-        int updated = productSkuMapper.updateStock(skuId, quantity);
+        int updated = productSkuMapper.reserveStock(skuId, quantity);
         Asserts.isTrue(updated > 0, BizError.STOCK_NOT_ENOUGH);
+        return Boolean.TRUE;
+    }
+
+    /**
+     * 回滚 SKU 库存（增加库存）。 <p>
+     * quantity 为正数，无条件加回；quantity 为 0 直接成功。
+     *
+     * @param skuId SKU 标识
+     * @param quantity 回滚数量（正数）
+     * @return 是否成功
+     * @throws BizException SKU 不存在
+     */
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public Boolean releaseStock(Long skuId, Integer quantity) {
+        Asserts.requireNonNull(productSkuMapper.selectById(skuId));
+        if (quantity == 0) {
+            return Boolean.TRUE;
+        }
+        productSkuMapper.releaseStock(skuId, quantity);
         return Boolean.TRUE;
     }
 

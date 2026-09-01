@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 320" font-family="system-ui,-apple-system,'Segoe UI',Roboto,sans-serif">
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 6" refX="10" refY="3" markerWidth="10" markerHeight="6" orient="auto-start-reverse">
+      <path d="M0,0 L10,3 L0,6 Z" fill="#475569"/>
+    </marker>
+    <marker id="arrowBlue" viewBox="0 0 10 6" refX="10" refY="3" markerWidth="10" markerHeight="6" orient="auto-start-reverse">
+      <path d="M0,0 L10,3 L0,6 Z" fill="#3b82f6"/>
+    </marker>
+    <marker id="arrowRed" viewBox="0 0 10 6" refX="10" refY="3" markerWidth="10" markerHeight="6" orient="auto-start-reverse">
+      <path d="M0,0 L10,3 L0,6 Z" fill="#ef4444"/>
+    </marker>
+    <marker id="arrowGreen" viewBox="0 0 10 6" refX="10" refY="3" markerWidth="10" markerHeight="6" orient="auto-start-reverse">
+      <path d="M0,0 L10,3 L0,6 Z" fill="#16a34a"/>
+    </marker>
+    <filter id="shadow" x="-4%" y="-4%" width="108%" height="112%">
+      <feDropShadow dx="0" dy="2" stdDeviation="3" flood-opacity="0.12"/>
+    </filter>
+  </defs>
+
+  <!-- Title -->
+  <text x="360" y="36" text-anchor="middle" font-size="20" font-weight="700" fill="#0f172a">模板状态机</text>
+
+  <!-- DRAFT -->
+  <rect x="60" y="90" width="140" height="56" rx="8" fill="#f1f5f9" stroke="#94a3b8" stroke-width="1.5" filter="url(#shadow)"/>
+  <text x="130" y="120" text-anchor="middle" font-size="14" font-weight="600" fill="#334155">DRAFT</text>
+  <text x="130" y="136" text-anchor="middle" font-size="11" fill="#64748b">草稿</text>
+
+  <!-- ACTIVE -->
+  <rect x="290" y="90" width="140" height="56" rx="8" fill="#dbeafe" stroke="#3b82f6" stroke-width="1.5" filter="url(#shadow)"/>
+  <text x="360" y="120" text-anchor="middle" font-size="14" font-weight="600" fill="#1e40af">ACTIVE</text>
+  <text x="360" y="136" text-anchor="middle" font-size="11" fill="#3b82f6">已发布</text>
+
+  <!-- PAUSED -->
+  <rect x="290" y="220" width="140" height="56" rx="8" fill="#fef3c7" stroke="#f59e0b" stroke-width="1.5" filter="url(#shadow)"/>
+  <text x="360" y="250" text-anchor="middle" font-size="14" font-weight="600" fill="#92400e">PAUSED</text>
+  <text x="360" y="266" text-anchor="middle" font-size="11" fill="#b45309">已暂停</text>
+
+  <!-- ENDED -->
+  <rect x="520" y="220" width="140" height="56" rx="8" fill="#fee2e2" stroke="#ef4444" stroke-width="1.5" filter="url(#shadow)"/>
+  <text x="590" y="250" text-anchor="middle" font-size="14" font-weight="600" fill="#991b1b">ENDED</text>
+  <text x="590" y="266" text-anchor="middle" font-size="11" fill="#dc2626">已结束</text>
+
+  <!-- 删除（软删除） -->
+  <rect x="60" y="220" width="140" height="56" rx="8" fill="#f1f5f9" stroke="#94a3b8" stroke-width="1.5" stroke-dasharray="6,3" filter="url(#shadow)"/>
+  <text x="130" y="250" text-anchor="middle" font-size="14" font-weight="600" fill="#64748b">已删除</text>
+  <text x="130" y="266" text-anchor="middle" font-size="11" fill="#94a3b8">deleted=1</text>
+
+  <!-- DRAFT -> ACTIVE (发布) -->
+  <line x1="200" y1="114" x2="288" y2="114" stroke="#3b82f6" stroke-width="1.5" marker-end="url(#arrowBlue)"/>
+  <text x="244" y="106" text-anchor="middle" font-size="11" fill="#3b82f6" font-weight="500">发布（核心规则冻结）</text>
+
+  <!-- DRAFT -> 已删除 -->
+  <line x1="130" y1="146" x2="130" y2="218" stroke="#94a3b8" stroke-width="1.5" stroke-dasharray="4,3" marker-end="url(#arrow)"/>
+  <text x="146" y="188" font-size="11" fill="#64748b">删除（软删除）</text>
+
+  <!-- ACTIVE -> PAUSED (暂停) -->
+  <line x1="360" y1="146" x2="360" y2="218" stroke="#f59e0b" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <text x="378" y="188" font-size="11" fill="#b45309">暂停</text>
+
+  <!-- ACTIVE -> ENDED (结束) -->
+  <line x1="430" y1="130" x2="518" y2="222" stroke="#ef4444" stroke-width="1.5" marker-end="url(#arrowRed)"/>
+  <text x="482" y="164" font-size="11" fill="#dc2626">结束</text>
+
+  <!-- PAUSED -> ACTIVE (恢复) -->
+  <path d="M 290 248 C 240 244 240 160 290 120" fill="none" stroke="#16a34a" stroke-width="1.5" marker-end="url(#arrowGreen)"/>
+  <text x="222" y="190" font-size="11" fill="#16a34a">恢复</text>
+
+  <!-- PAUSED -> ENDED (结束) -->
+  <line x1="430" y1="248" x2="518" y2="248" stroke="#ef4444" stroke-width="1.5" marker-end="url(#arrowRed)"/>
+  <text x="474" y="240" text-anchor="middle" font-size="11" fill="#dc2626">结束</text>
+</svg>
