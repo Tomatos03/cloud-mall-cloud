@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 640" width="1200" height="640"
+     font-family="'PingFang SC','Microsoft YaHei','Noto Sans CJK SC',sans-serif">
+  <title>商品索引增量同步</title>
+  <desc>PRODUCT_EVENTS 触发 consumer-service 拉取商品搜索文档，再由 search-service 写入或删除 ES 文档。</desc>
+  <rect x="0" y="0" width="1200" height="640" fill="#ffffff"/>
+
+  <defs>
+    <marker id="pi-arrow" viewBox="0 0 10 10" refX="8.5" refY="5"
+            markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,1 L8,5 L0,9 z" fill="#64748b"/>
+    </marker>
+    <marker id="pi-arrow-amber" viewBox="0 0 10 10" refX="8.5" refY="5"
+            markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,1 L8,5 L0,9 z" fill="#f59e0b"/>
+    </marker>
+  </defs>
+
+  <text x="600" y="34" text-anchor="middle" font-size="20" font-weight="700" fill="#0f172a">商品索引增量同步</text>
+  <text x="600" y="55" text-anchor="middle" font-size="12" fill="#64748b">PRODUCT_EVENTS → 拉取商品搜索文档 → search-service 写入或删除 ES</text>
+
+  <g>
+    <rect x="40" y="90" width="220" height="80" rx="10" fill="#eff6ff" stroke="#2563eb" stroke-width="1.4"/>
+    <text x="150" y="124" text-anchor="middle" font-size="14" font-weight="700" fill="#1e40af">product-service</text>
+    <text x="150" y="146" text-anchor="middle" font-size="10" fill="#1d4ed8">创建 / 更新 / 删除</text>
+    <text x="150" y="162" text-anchor="middle" font-size="10" fill="#1d4ed8">事务消息</text>
+
+    <rect x="310" y="90" width="250" height="80" rx="10" fill="#fff7ed" stroke="#f97316" stroke-width="1.4"/>
+    <text x="435" y="122" text-anchor="middle" font-size="13" font-weight="700" fill="#9a3412"
+          font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace">PRODUCT_EVENTS</text>
+    <text x="435" y="144" text-anchor="middle" font-size="10" fill="#c2410c">ProductCreated / ProductUpdated</text>
+    <text x="435" y="160" text-anchor="middle" font-size="10" fill="#c2410c">ProductDeleted</text>
+
+    <rect x="610" y="90" width="240" height="80" rx="10" fill="#f5f3ff" stroke="#8b5cf6" stroke-width="1.4"/>
+    <text x="730" y="122" text-anchor="middle" font-size="12.5" font-weight="700" fill="#5b21b6">ProductEventConsumer</text>
+    <text x="730" y="144" text-anchor="middle" font-size="10" fill="#7c3aed">search-product-events</text>
+    <text x="730" y="160" text-anchor="middle" font-size="10" fill="#7c3aed">按 tag 分发</text>
+  </g>
+
+  <g stroke="#64748b" stroke-width="1.6" fill="none">
+    <line x1="260" y1="130" x2="308" y2="130" marker-end="url(#pi-arrow)"/>
+    <line x1="560" y1="130" x2="608" y2="130" marker-end="url(#pi-arrow)"/>
+    <polyline points="730,170 730,205 595,205 595,228" marker-end="url(#pi-arrow)"/>
+    <polyline points="730,205 920,205 920,228" marker-end="url(#pi-arrow)"/>
+  </g>
+
+  <g>
+    <rect x="470" y="230" width="250" height="76" rx="10" fill="#ecfdf5" stroke="#10b981" stroke-width="1.4"/>
+    <text x="595" y="256" text-anchor="middle" font-size="13" font-weight="700" fill="#065f46">ProductUpsertHandler</text>
+    <text x="595" y="276" text-anchor="middle" font-size="10" fill="#047857">ProductCreated / ProductUpdated</text>
+    <text x="595" y="292" text-anchor="middle" font-size="10" fill="#047857">拉取完整搜索文档</text>
+
+    <rect x="800" y="230" width="240" height="76" rx="10" fill="#ecfdf5" stroke="#10b981" stroke-width="1.4"/>
+    <text x="920" y="256" text-anchor="middle" font-size="13" font-weight="700" fill="#065f46">ProductDeleteHandler</text>
+    <text x="920" y="276" text-anchor="middle" font-size="10" fill="#047857">ProductDeleted</text>
+    <text x="920" y="292" text-anchor="middle" font-size="10" fill="#047857">删除 ES 文档</text>
+  </g>
+
+  <g stroke="#64748b" stroke-width="1.6" fill="none">
+    <line x1="595" y1="306" x2="595" y2="348" marker-end="url(#pi-arrow)"/>
+    <line x1="595" y1="414" x2="595" y2="440" marker-end="url(#pi-arrow)"/>
+    <line x1="920" y1="306" x2="920" y2="398" marker-end="url(#pi-arrow)"/>
+    <polyline points="673,480 720,480 720,450 778,450" marker-end="url(#pi-arrow)"/>
+  </g>
+
+  <rect x="470" y="350" width="250" height="64" rx="10" fill="#eff6ff" stroke="#2563eb" stroke-width="1.4"/>
+  <text x="595" y="374" text-anchor="middle" font-size="13" font-weight="700" fill="#1e40af">product-service</text>
+  <text x="595" y="394" text-anchor="middle" font-size="10" fill="#1d4ed8"
+        font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace">GET /products/docs/{id}</text>
+  <text x="595" y="409" text-anchor="middle" font-size="9.5" fill="#1d4ed8">文档组装归属商品服务</text>
+
+  <polygon points="595,442 673,480 595,518 517,480" fill="#fffbeb" stroke="#f59e0b" stroke-width="1.4"/>
+  <text x="595" y="485" text-anchor="middle" font-size="12" font-weight="700" fill="#b45309">doc 存在？</text>
+
+  <text x="690" y="442" font-size="10" fill="#047857">是：upsert(doc)</text>
+
+  <rect x="780" y="400" width="280" height="100" rx="10" fill="#fff1f2" stroke="#e11d48" stroke-width="1.4"/>
+  <text x="920" y="426" text-anchor="middle" font-size="14" font-weight="700" fill="#9f1239">search-service</text>
+  <text x="920" y="448" text-anchor="middle" font-size="9.5" fill="#be123c"
+        font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace">POST /internal/search/upsert</text>
+  <text x="920" y="466" text-anchor="middle" font-size="9.5" fill="#be123c"
+        font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace">POST /internal/search/delete/{id}</text>
+  <text x="920" y="484" text-anchor="middle" font-size="9.5" fill="#be123c">ES 索引归属搜索服务</text>
+
+  <g stroke="#f59e0b" stroke-width="1.5" stroke-dasharray="5 4" fill="none">
+    <polyline points="595,518 595,555 920,555 920,502" marker-end="url(#pi-arrow-amber)"/>
+  </g>
+  <text x="700" y="572" font-size="10" fill="#b45309">否：deleteById 清理 ES 残留</text>
+
+  <text x="600" y="610" text-anchor="middle" font-size="10.5" fill="#475569">文档组装归属 product-service；ES 索引归属 search-service；删除幂等，文档不存在时忽略。</text>
+</svg>

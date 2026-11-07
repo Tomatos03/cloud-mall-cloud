@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 620" width="1200" height="620"
+     font-family="'PingFang SC','Microsoft YaHei','Noto Sans CJK SC',sans-serif">
+  <title>订单事件到优惠券状态同步</title>
+  <desc>order-service 发布 ORDER_EVENTS，consumer-service 按 tag 分发到三个处理器并调用 coupon-service。</desc>
+  <rect x="0" y="0" width="1200" height="620" fill="#ffffff"/>
+
+  <defs>
+    <marker id="oc-arrow" viewBox="0 0 10 10" refX="8.5" refY="5"
+            markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,1 L8,5 L0,9 z" fill="#64748b"/>
+    </marker>
+  </defs>
+
+  <text x="600" y="34" text-anchor="middle" font-size="20" font-weight="700" fill="#0f172a">订单事件 → 优惠券状态同步</text>
+  <text x="600" y="55" text-anchor="middle" font-size="12" fill="#64748b">OrderEventConsumer（消费组 coupon-order-events）按 tag 分发到三个处理器</text>
+
+  <rect x="40" y="150" width="220" height="100" rx="10" fill="#eff6ff" stroke="#2563eb" stroke-width="1.4"/>
+  <text x="150" y="182" text-anchor="middle" font-size="15" font-weight="700" fill="#1e40af">order-service</text>
+  <text x="150" y="204" text-anchor="middle" font-size="10" fill="#1d4ed8">支付 / 超时 / 取消 / 退款</text>
+  <text x="150" y="222" text-anchor="middle" font-size="10" fill="#1d4ed8">事务消息发布</text>
+
+  <rect x="330" y="80" width="280" height="430" rx="12" fill="#fff7ed" stroke="#f97316" stroke-width="1.4"/>
+  <text x="470" y="112" text-anchor="middle" font-size="16" font-weight="700" fill="#9a3412"
+        font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace">ORDER_EVENTS</text>
+  <text x="470" y="132" text-anchor="middle" font-size="10" fill="#c2410c">RocketMQ Topic · 事务消息</text>
+
+  <g>
+    <rect x="355" y="150" width="230" height="64" rx="8" fill="#ffffff" stroke="#fdba74" stroke-width="1.3"/>
+    <text x="372" y="176" font-size="13" font-weight="700" fill="#9a3412"
+          font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace">OrderPaid</text>
+    <text x="372" y="197" font-size="10" fill="#c2410c">支付成功</text>
+
+    <rect x="355" y="240" width="230" height="64" rx="8" fill="#ffffff" stroke="#fdba74" stroke-width="1.3"/>
+    <text x="372" y="266" font-size="13" font-weight="700" fill="#9a3412"
+          font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace">OrderTimeout</text>
+    <text x="372" y="287" font-size="10" fill="#c2410c">支付超时</text>
+
+    <rect x="355" y="330" width="230" height="64" rx="8" fill="#ffffff" stroke="#fdba74" stroke-width="1.3"/>
+    <text x="372" y="356" font-size="13" font-weight="700" fill="#9a3412"
+          font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace">OrderCancelled</text>
+    <text x="372" y="377" font-size="10" fill="#c2410c">订单取消</text>
+
+    <rect x="355" y="420" width="230" height="64" rx="8" fill="#ffffff" stroke="#fdba74" stroke-width="1.3"/>
+    <text x="372" y="446" font-size="13" font-weight="700" fill="#9a3412"
+          font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace">OrderFullyRefunded</text>
+    <text x="372" y="467" font-size="10" fill="#c2410c">全额退款</text>
+  </g>
+
+  <g stroke="#64748b" stroke-width="1.6" fill="none">
+    <line x1="260" y1="200" x2="328" y2="200" marker-end="url(#oc-arrow)"/>
+    <polyline points="585,182 630,182 630,168 678,168" marker-end="url(#oc-arrow)"/>
+    <line x1="585" y1="270" x2="678" y2="270" marker-end="url(#oc-arrow)"/>
+    <polyline points="585,358 630,358 630,310 678,310" marker-end="url(#oc-arrow)"/>
+    <polyline points="585,446 630,446 630,426 678,426" marker-end="url(#oc-arrow)"/>
+  </g>
+
+  <g>
+    <rect x="680" y="130" width="460" height="76" rx="10" fill="#ecfdf5" stroke="#10b981" stroke-width="1.4"/>
+    <text x="700" y="155" font-size="14" font-weight="700" fill="#065f46">OrderPaidHandler</text>
+    <text x="700" y="175" font-size="10" fill="#047857">tag: OrderPaid</text>
+    <text x="700" y="192" font-size="10" fill="#047857"
+          font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace">POST /internal/coupon/commit-by-order</text>
+
+    <rect x="680" y="226" width="460" height="120" rx="10" fill="#ecfdf5" stroke="#10b981" stroke-width="1.4"/>
+    <text x="700" y="251" font-size="14" font-weight="700" fill="#065f46">OrderReleaseHandler</text>
+    <text x="700" y="271" font-size="10" fill="#047857">tag: OrderTimeout / OrderCancelled</text>
+    <text x="700" y="291" font-size="10" fill="#047857"
+          font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace">POST /internal/coupon/release-by-order</text>
+    <text x="700" y="311" font-size="10" fill="#047857">共享释放动作：两个 tag 注册同一处理器</text>
+
+    <rect x="680" y="366" width="460" height="120" rx="10" fill="#ecfdf5" stroke="#10b981" stroke-width="1.4"/>
+    <text x="700" y="391" font-size="14" font-weight="700" fill="#065f46">OrderFullyRefundedHandler</text>
+    <text x="700" y="411" font-size="10" fill="#047857">tag: OrderFullyRefunded</text>
+    <text x="700" y="431" font-size="10" fill="#047857"
+          font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace">POST /internal/coupon/revert-by-order</text>
+    <text x="700" y="451" font-size="10" fill="#047857">refundId 为空则跳过</text>
+  </g>
+
+  <rect x="40" y="530" width="560" height="64" rx="9" fill="#f8fafc" stroke="#cbd5e1" stroke-width="1.2"/>
+  <text x="60" y="555" font-size="12" font-weight="700" fill="#334155">消费组：coupon-order-events</text>
+  <text x="60" y="576" font-size="10" fill="#475569">订阅 OrderPaid / OrderTimeout / OrderCancelled / OrderFullyRefunded</text>
+
+  <rect x="680" y="530" width="460" height="64" rx="9" fill="#f8fafc" stroke="#cbd5e1" stroke-width="1.2"/>
+  <text x="700" y="555" font-size="12" font-weight="700" fill="#334155">幂等：下游按 orderNo 处理</text>
+  <text x="700" y="576" font-size="10" fill="#475569">退款场景叠加 refundId；重复投递由券侧状态条件更新兜底</text>
+</svg>

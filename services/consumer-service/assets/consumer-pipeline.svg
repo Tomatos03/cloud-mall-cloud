@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 680" width="1280" height="680"
+     font-family="'PingFang SC','Microsoft YaHei','Noto Sans CJK SC',sans-serif">
+  <title>消费模板处理流程</title>
+  <desc>AbstractMessageConsumer 的解析、tag 归一、处理器分发，以及解析失败、无匹配和异常重试分支。</desc>
+  <rect x="0" y="0" width="1280" height="680" fill="#ffffff"/>
+
+  <defs>
+    <marker id="cp-arrow" viewBox="0 0 10 10" refX="8.5" refY="5"
+            markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,1 L8,5 L0,9 z" fill="#64748b"/>
+    </marker>
+    <marker id="cp-arrow-violet" viewBox="0 0 10 10" refX="8.5" refY="5"
+            markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,1 L8,5 L0,9 z" fill="#8b5cf6"/>
+    </marker>
+  </defs>
+
+  <text x="640" y="34" text-anchor="middle" font-size="20" font-weight="700" fill="#0f172a">消费模板处理流程</text>
+  <text x="640" y="55" text-anchor="middle" font-size="12" fill="#64748b">AbstractMessageConsumer#onMessage：解析 → 归一化 → 分发 → 处理，以及失败分支</text>
+
+  <g>
+    <rect x="40" y="90" width="200" height="90" rx="10" fill="#eff6ff" stroke="#2563eb" stroke-width="1.4"/>
+    <text x="140" y="124" text-anchor="middle" font-size="14" font-weight="700" fill="#1e40af">MessageExt</text>
+    <text x="140" y="146" text-anchor="middle" font-size="10" fill="#1d4ed8">RocketMQ 投递</text>
+    <text x="140" y="162" text-anchor="middle" font-size="10" fill="#1d4ed8">body + tags</text>
+
+    <rect x="280" y="90" width="200" height="90" rx="10" fill="#eff6ff" stroke="#2563eb" stroke-width="1.4"/>
+    <text x="380" y="124" text-anchor="middle" font-size="14" font-weight="700" fill="#1e40af">parse</text>
+    <text x="380" y="146" text-anchor="middle" font-size="10" fill="#1d4ed8">UTF-8 解码</text>
+    <text x="380" y="162" text-anchor="middle" font-size="10" fill="#1d4ed8">JSON → 载荷 T</text>
+
+    <rect x="520" y="90" width="200" height="90" rx="10" fill="#eff6ff" stroke="#2563eb" stroke-width="1.4"/>
+    <text x="620" y="124" text-anchor="middle" font-size="14" font-weight="700" fill="#1e40af">normalize</text>
+    <text x="620" y="146" text-anchor="middle" font-size="10" fill="#1d4ed8">tag == null</text>
+    <text x="620" y="162" text-anchor="middle" font-size="10" fill="#1d4ed8">→ 空串</text>
+
+    <rect x="760" y="90" width="220" height="90" rx="10" fill="#f5f3ff" stroke="#8b5cf6" stroke-width="1.4"/>
+    <text x="870" y="124" text-anchor="middle" font-size="14" font-weight="700" fill="#5b21b6">dispatch</text>
+    <text x="870" y="146" text-anchor="middle" font-size="10" fill="#7c3aed">遍历 IEventHandler&lt;T&gt;</text>
+    <text x="870" y="162" text-anchor="middle" font-size="10" fill="#7c3aed">canHandle(tag) 命中</text>
+
+    <rect x="1020" y="90" width="220" height="90" rx="10" fill="#ecfdf5" stroke="#10b981" stroke-width="1.4"/>
+    <text x="1130" y="124" text-anchor="middle" font-size="14" font-weight="700" fill="#065f46">handle</text>
+    <text x="1130" y="146" text-anchor="middle" font-size="10" fill="#047857">eventHandler.handle(event)</text>
+    <text x="1130" y="162" text-anchor="middle" font-size="10" fill="#047857">Feign 调用下游</text>
+  </g>
+
+  <g stroke="#64748b" stroke-width="1.6" fill="none">
+    <line x1="240" y1="135" x2="278" y2="135" marker-end="url(#cp-arrow)"/>
+    <line x1="480" y1="135" x2="518" y2="135" marker-end="url(#cp-arrow)"/>
+    <line x1="720" y1="135" x2="758" y2="135" marker-end="url(#cp-arrow)"/>
+    <line x1="980" y1="135" x2="1018" y2="135" marker-end="url(#cp-arrow)"/>
+  </g>
+
+  <g stroke="#f59e0b" stroke-width="1.5" stroke-dasharray="5 4" fill="none">
+    <line x1="380" y1="180" x2="380" y2="213" marker-end="url(#cp-arrow)"/>
+    <line x1="870" y1="180" x2="870" y2="213" marker-end="url(#cp-arrow)"/>
+  </g>
+  <g stroke="#fb7185" stroke-width="1.5" stroke-dasharray="5 4" fill="none">
+    <line x1="1130" y1="180" x2="1130" y2="213" marker-end="url(#cp-arrow)"/>
+  </g>
+
+  <g>
+    <rect x="250" y="215" width="260" height="64" rx="9" fill="#fffbeb" stroke="#f59e0b" stroke-width="1.3"/>
+    <text x="380" y="239" text-anchor="middle" font-size="12" font-weight="700" fill="#b45309">解析失败</text>
+    <text x="380" y="259" text-anchor="middle" font-size="10" fill="#92400e">记录 msgId 日志 → ack（不重试）</text>
+
+    <rect x="720" y="215" width="260" height="64" rx="9" fill="#fffbeb" stroke="#f59e0b" stroke-width="1.3"/>
+    <text x="850" y="239" text-anchor="middle" font-size="12" font-weight="700" fill="#b45309">无处理器匹配</text>
+    <text x="850" y="259" text-anchor="middle" font-size="10" fill="#92400e">静默 ack，消息不重试</text>
+
+    <rect x="1000" y="215" width="260" height="64" rx="9" fill="#fff1f2" stroke="#fb7185" stroke-width="1.3"/>
+    <text x="1130" y="239" text-anchor="middle" font-size="12" font-weight="700" fill="#be123c">抛出 RuntimeException</text>
+    <text x="1130" y="259" text-anchor="middle" font-size="10" fill="#9f1239">交给 handleException 处理</text>
+  </g>
+
+  <rect x="40" y="316" width="1200" height="300" rx="12" fill="#f8fafc" stroke="#cbd5e1" stroke-width="1.4"/>
+  <text x="64" y="346" font-size="14" font-weight="700" fill="#334155">异常处理与重试</text>
+
+  <g stroke="#8b5cf6" stroke-width="1.5" stroke-dasharray="6 4" fill="none">
+    <polyline points="1130,279 1130,300 230,300 230,368" marker-end="url(#cp-arrow-violet)"/>
+  </g>
+
+  <g>
+    <rect x="80" y="370" width="300" height="82" rx="10" fill="#f5f3ff" stroke="#8b5cf6" stroke-width="1.5"/>
+    <text x="230" y="398" text-anchor="middle" font-size="13" font-weight="700" fill="#5b21b6">handleException(...)</text>
+    <text x="230" y="419" text-anchor="middle" font-size="10" fill="#6d28d9">默认：log.error(tag / eventId)</text>
+    <text x="230" y="435" text-anchor="middle" font-size="10" fill="#6d28d9">并 throw e（保持原行为）</text>
+  </g>
+
+  <g stroke="#64748b" stroke-width="1.6" fill="none">
+    <line x1="380" y1="411" x2="448" y2="411" marker-end="url(#cp-arrow)"/>
+    <line x1="690" y1="411" x2="758" y2="411" marker-end="url(#cp-arrow)"/>
+    <line x1="1010" y1="411" x2="1078" y2="411" marker-end="url(#cp-arrow)"/>
+  </g>
+
+  <g>
+    <rect x="450" y="381" width="240" height="60" rx="9" fill="#fffbeb" stroke="#f59e0b" stroke-width="1.3"/>
+    <text x="570" y="405" text-anchor="middle" font-size="12" font-weight="700" fill="#b45309">RocketMQ 重试</text>
+    <text x="570" y="424" text-anchor="middle" font-size="10" fill="#92400e">maxReconsumeTimes = 16</text>
+
+    <rect x="760" y="381" width="250" height="60" rx="9" fill="#fff1f2" stroke="#fb7185" stroke-width="1.3"/>
+    <text x="885" y="405" text-anchor="middle" font-size="12" font-weight="700" fill="#be123c">进入死信队列</text>
+    <text x="885" y="424" text-anchor="middle" font-size="10" fill="#9f1239">%DLQ%{consumerGroup}</text>
+
+    <rect x="1080" y="376" width="140" height="70" rx="9" fill="#f1f5f9" stroke="#64748b" stroke-width="1.3"/>
+    <text x="1150" y="404" text-anchor="middle" font-size="12" font-weight="700" fill="#334155">DlqConsumer</text>
+    <text x="1150" y="424" text-anchor="middle" font-size="10" fill="#475569">记录完整报文</text>
+    <text x="1150" y="438" text-anchor="middle" font-size="10" fill="#475569">并 ack</text>
+  </g>
+
+  <g>
+    <rect x="80" y="492" width="300" height="82" rx="9" fill="#ecfdf5" stroke="#10b981" stroke-width="1.3" stroke-dasharray="6 4"/>
+    <text x="230" y="518" text-anchor="middle" font-size="12" font-weight="700" fill="#065f46">子类覆写扩展点</text>
+    <text x="230" y="539" text-anchor="middle" font-size="10" fill="#047857">吞掉异常 → 继续后续处理器</text>
+    <text x="230" y="555" text-anchor="middle" font-size="10" fill="#047857">也可降级、告警或补偿</text>
+  </g>
+
+  <g stroke="#8b5cf6" stroke-width="1.4" stroke-dasharray="5 4" fill="none">
+    <line x1="230" y1="452" x2="230" y2="490" marker-end="url(#cp-arrow-violet)"/>
+  </g>
+
+  <g>
+    <rect x="450" y="500" width="740" height="74" rx="9" fill="#ffffff" stroke="#cbd5e1" stroke-width="1.2"/>
+    <text x="820" y="526" text-anchor="middle" font-size="11" fill="#475569">默认实现保持向上抛出，由 RocketMQ 重试机制兜底；重试耗尽后进入死信队列。</text>
+    <text x="820" y="548" text-anchor="middle" font-size="11" fill="#475569">若子类覆写后不再抛出异常，消费模板会继续执行后续匹配的处理器。</text>
+  </g>
+
+  <text x="640" y="650" text-anchor="middle" font-size="10" fill="#64748b">投递语义为 at-least-once，处理器需依赖下游唯一约束或状态条件更新保证幂等。</text>
+</svg>

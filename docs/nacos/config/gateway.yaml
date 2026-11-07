@@ -112,6 +112,14 @@ spring:
               filters:
                 - StripPrefix=0
 
+            # AI 客服：前端统一走 /ai/**，网关剥离 /ai 前缀后转发到 agent-service 的 /chat、/sessions
+            - id: agent-service
+              uri: lb://agent-service
+              predicates:
+                - Path=/ai/**
+              filters:
+                - StripPrefix=1
+
             - id: im-ws
               uri: lb:ws://im-service
               predicates:

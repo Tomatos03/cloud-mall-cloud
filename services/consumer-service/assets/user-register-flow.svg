@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1160 400" width="1160" height="400"
+     font-family="'PingFang SC','Microsoft YaHei','Noto Sans CJK SC',sans-serif">
+  <title>用户注册自动发券</title>
+  <desc>user-service 发布 USER_REGISTERED，consumer-service 调用 coupon-service 自动发放新人券。</desc>
+  <rect x="0" y="0" width="1160" height="400" fill="#ffffff"/>
+
+  <defs>
+    <marker id="ur-arrow" viewBox="0 0 10 10" refX="8.5" refY="5"
+            markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,1 L8,5 L0,9 z" fill="#64748b"/>
+    </marker>
+  </defs>
+
+  <text x="580" y="34" text-anchor="middle" font-size="20" font-weight="700" fill="#0f172a">用户注册自动发券</text>
+  <text x="580" y="55" text-anchor="middle" font-size="12" fill="#64748b">USER_REGISTERED → 自动发放新人券，eventId = userId</text>
+
+  <g>
+    <rect x="40" y="90" width="220" height="80" rx="10" fill="#eff6ff" stroke="#2563eb" stroke-width="1.4"/>
+    <text x="150" y="124" text-anchor="middle" font-size="14" font-weight="700" fill="#1e40af">user-service</text>
+    <text x="150" y="146" text-anchor="middle" font-size="10" fill="#1d4ed8">注册成功</text>
+    <text x="150" y="162" text-anchor="middle" font-size="10" fill="#1d4ed8">事务消息</text>
+
+    <rect x="310" y="90" width="250" height="80" rx="10" fill="#fff7ed" stroke="#f97316" stroke-width="1.4"/>
+    <text x="435" y="122" text-anchor="middle" font-size="13" font-weight="700" fill="#9a3412"
+          font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace">USER_REGISTERED</text>
+    <text x="435" y="144" text-anchor="middle" font-size="10" fill="#c2410c">Tag: UserRegistered</text>
+    <text x="435" y="160" text-anchor="middle" font-size="10" fill="#c2410c">用户注册事件</text>
+
+    <rect x="610" y="90" width="240" height="80" rx="10" fill="#f5f3ff" stroke="#8b5cf6" stroke-width="1.4"/>
+    <text x="730" y="122" text-anchor="middle" font-size="12.5" font-weight="700" fill="#5b21b6">UserRegisteredConsumer</text>
+    <text x="730" y="144" text-anchor="middle" font-size="10" fill="#7c3aed">coupon-user-registered</text>
+    <text x="730" y="160" text-anchor="middle" font-size="10" fill="#7c3aed">未声明 selector，消费全部 tag</text>
+  </g>
+
+  <g stroke="#64748b" stroke-width="1.6" fill="none">
+    <line x1="260" y1="130" x2="308" y2="130" marker-end="url(#ur-arrow)"/>
+    <line x1="560" y1="130" x2="608" y2="130" marker-end="url(#ur-arrow)"/>
+    <line x1="730" y1="170" x2="730" y2="228" marker-end="url(#ur-arrow)"/>
+    <line x1="850" y1="270" x2="898" y2="270" marker-end="url(#ur-arrow)"/>
+  </g>
+
+  <rect x="610" y="230" width="240" height="80" rx="10" fill="#ecfdf5" stroke="#10b981" stroke-width="1.4"/>
+  <text x="730" y="256" text-anchor="middle" font-size="12.5" font-weight="700" fill="#065f46">RegisterAutoIssueHandler</text>
+  <text x="730" y="276" text-anchor="middle" font-size="10" fill="#047857">载荷 UserRegisteredEvent</text>
+  <text x="730" y="292" text-anchor="middle" font-size="10" fill="#047857">eventId = userId</text>
+
+  <rect x="900" y="230" width="220" height="80" rx="10" fill="#fff1f2" stroke="#e11d48" stroke-width="1.4"/>
+  <text x="1010" y="256" text-anchor="middle" font-size="14" font-weight="700" fill="#9f1239">coupon-service</text>
+  <text x="1010" y="276" text-anchor="middle" font-size="10" fill="#be123c"
+        font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace">auto-issue-register</text>
+  <text x="1010" y="292" text-anchor="middle" font-size="10" fill="#be123c">按 eventId 幂等</text>
+
+  <text x="580" y="356" text-anchor="middle" font-size="10.5" fill="#475569">重复投递不会重复发券：券侧以 eventId 去重；消费组 coupon-user-registered。</text>
+</svg>

@@ -30,7 +30,7 @@ import com.cloudmall.aigc.model.resp.ChatResp;
 @Service
 public class RouterAgent implements IAgent {
     /** Nacos 路由 prompt 模板中的 Agent 描述占位符 */
-    public static final String AGENT_DESCRIPTIONS = "agent_descriptions";
+    public static final String AGENT_DESCRIPTIONS = "AGENT_DESCRIPTIONS";
 
     private final AgentPromptLoader promptLoader;
     private final ChatClient.Builder chatClientBuilder;
@@ -80,14 +80,13 @@ public class RouterAgent implements IAgent {
             log.debug("路由 system prompt:\n{}", systemPrompt);
         }
 
-        return chatClientBuilder.defaultSystem(
-                                        promptSystemSpec -> promptSystemSpec.text(systemPrompt)
-                                                                            .param(
-                                                                                    AGENT_DESCRIPTIONS,
-                                                                                    agentDescriptions
-                                                                            )
-                                )
-                                .build();
+        // 提示词中含有 JSON 示例，交给 StringTemplate 渲染会把花括号当成表达式而报错，
+        // 因此这里直接替换占位符，不走模板引擎；同时兼容大小写两种占位符写法。
+        String placeholder = "{" + AGENT_DESCRIPTIONS + "}";
+        String resolvedSystemPrompt = systemPrompt.replace(placeholder, agentDescriptions)
+                                                  .replace(placeholder.toLowerCase(), agentDescriptions);
+
+        return chatClientBuilder.defaultSystem(resolvedSystemPrompt).build();
     }
 
     /**

@@ -27,6 +27,9 @@ spring:
             model: tts-1
             voice: alloy
     vectorstore:
+      # AI 客服对话不依赖向量库；默认关闭，避免 ES 未启动导致服务启动失败。
+      # 需要知识库管理接口时设置 VECTOR_STORE_TYPE=elasticsearch，并先启动 ES。
+      type: ${VECTOR_STORE_TYPE:none}
       elasticsearch:
         initialize-schema: true
         index-name: cm-agent-knowledge
