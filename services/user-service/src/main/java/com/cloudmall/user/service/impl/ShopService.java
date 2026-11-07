@@ -4,8 +4,10 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 import cn.hutool.core.collection.CollUtil;
+import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -45,6 +47,17 @@ public class ShopService implements IShopService {
     public ShopResp get(ShopReq req) {
         ShopDO shop = shopMapper.selectByReq(req);
         return shopConverter.toResp(shop);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Optional<Long> findShopIdByUserId(@NonNull Long userId) {
+        ShopDO shop = shopMapper.selectByReq(ShopReq.builder()
+                                                    .userId(userId)
+                                                    .build());
+        return Optional.ofNullable(shop).map(ShopDO::getId);
     }
 
     /**

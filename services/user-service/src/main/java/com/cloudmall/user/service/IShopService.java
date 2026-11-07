@@ -1,6 +1,7 @@
 package com.cloudmall.user.service;
 
 import java.util.List;
+import java.util.Optional;
 
 import com.cloudmall.user.api.response.ShopInfoResp;
 import com.cloudmall.user.api.response.ShopResp;
@@ -15,6 +16,14 @@ public interface IShopService {
      * @return 处理结果
      */
     ShopResp get(ShopReq req);
+
+    /**
+     * 查询用户对应的店铺 ID。
+     *
+     * @param userId 用户 ID
+     * @return 店铺 ID，未开店时为空
+     */
+    Optional<Long> findShopIdByUserId(Long userId);
 
     /**
      * 查询店铺信息（含评分、商品数、好评率、关注数）。
