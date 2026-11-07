@@ -56,21 +56,7 @@ public enum UserTypeEnum {
                         )
                 );
     }
-    /**
-     * 根据编码查找用户类型，编码为空或非法时返回 null。
-     *
-     * @param code 类型编码，如 "ADMIN"
-     * @return 匹配的用户类型，无法解析时返回 null
-     */
-    public static UserTypeEnum fromCodeOrNull(String code) {
-        if (StrUtil.isBlank(code)) {
-            return null;
-        }
-        return Arrays.stream(values())
-                     .filter(t -> t.code.equals(code))
-                     .findFirst()
-                     .orElse(null);
-    }
+
     /**
      * 解析逗号分隔的编码串为用户类型集合。 <p>
      * cm_user.types 为 MySQL SET 类型，一个用户可拥有多个类型，如

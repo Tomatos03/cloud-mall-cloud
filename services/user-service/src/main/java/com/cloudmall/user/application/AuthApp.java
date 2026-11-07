@@ -1,16 +1,19 @@
 package com.cloudmall.user.application;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
+import cn.hutool.core.collection.CollUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.jspecify.annotations.NonNull;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import com.cloudmall.common.context.UserContext;
 import com.cloudmall.common.enums.BizError;
 import com.cloudmall.common.utils.Asserts;
+import com.cloudmall.jwt.constant.JwtClaimNames;
 import com.cloudmall.jwt.service.ITokenService;
 import com.cloudmall.user.api.request.LoginReq;
 import com.cloudmall.user.api.response.LoginResp;
@@ -46,7 +49,7 @@ public class AuthApp {
      */
     public LoginResp login(LoginReq request) {
         UserDO user = authenticate(request);
-        return genLoginResp(prepareUserContext(user));
+        return genLoginResp(prepareClaims(user));
     }
 
     /**
@@ -72,21 +75,25 @@ public class AuthApp {
     }
 
     @NonNull
-    private LoginResp genLoginResp(UserContext userCtx) {
-        String token = authTokenService.createToken(userCtx);
+    private LoginResp genLoginResp(Map<String, Object> claims) {
+        String token = authTokenService.createToken(claims);
         return userConverter.toLoginResp(token);
     }
 
-    private UserContext prepareUserContext(UserDO user) {
+    private Map<String, Object> prepareClaims(UserDO user) {
         List<String> permissionCodes = resourceService.getPermissionCodes(user.getId());
         Long shopId = shopService.findShopIdByUserId(user.getId()).orElse(null);
 
-        return UserContext.builder()
-                          .userId(user.getId())
-                          .username(user.getUsername())
-                          .userType(user.getTypes())
-                          .shopId(shopId)
-                          .permissionCodes(permissionCodes)
-                          .build();
+        Map<String, Object> claims = new HashMap<>();
+        claims.put(JwtClaimNames.USER_ID, user.getId());
+        claims.put(JwtClaimNames.USERNAME, user.getUsername());
+        claims.put(JwtClaimNames.USER_TYPE, user.getTypes());
+        if (shopId != null) {
+            claims.put(JwtClaimNames.SHOP_ID, shopId);
+        }
+        if (CollUtil.isNotEmpty(permissionCodes)) {
+            claims.put(JwtClaimNames.PERMISSION_CODES, permissionCodes);
+        }
+        return claims;
     }
 }

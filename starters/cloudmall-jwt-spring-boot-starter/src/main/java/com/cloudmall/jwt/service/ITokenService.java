@@ -1,7 +1,9 @@
 package com.cloudmall.jwt.service;
 
-import com.cloudmall.common.context.UserContext;
-import com.cloudmall.jwt.exception.AuthTokenException;
+import java.util.Map;
+
+import com.cloudmall.jwt.exception.ParseTokenException;
+import com.cloudmall.jwt.model.ParsedToken;
 
 /**
  * 认证令牌服务接口
@@ -16,30 +18,36 @@ public interface ITokenService {
 
     /**
      * 创建令牌 <p>
-     * 登录成功后，将用户上下文编码为 token 字符串返回给客户端。
+     * 登录成功后，将声明集合编码为 token 字符串返回给客户端。
      *
-     * @param userContext 用户上下文（含 userId、username、
-     *                    userType 等）
+     * @param claims 声明集合（含 userId、username、userType 等）
      * @return token 字符串
      */
-    String createToken(UserContext userContext);
+    String createToken(Map<String, Object> claims);
 
     /**
      * 解析令牌 <p>
-     * 从 token 字符串中还原用户上下文。解析失败应抛出异常，而非返回 null。
+     * 校验签名与有效期后返回只读的 {@link ParsedToken}。解析失败应抛出异常，而非返回 null。
      *
      * @param token token 字符串
-     * @return 用户上下文
-     * @throws AuthTokenException token 无效或已过期时抛出
+     * @return 解析后的 token
+     * @throws ParseTokenException token 无效或已过期时抛出
      */
-    UserContext parseToken(String token);
+    ParsedToken parseToken(String token);
 
     /**
      * 校验令牌是否合法 <p>
-     * 仅验证签名和有效期，不还原用户上下文。
+     * 校验签名与有效期，解析失败时返回 false。
      *
      * @param token token 字符串
      * @return true 合法，false 无效或已过期
      */
-    boolean validateToken(String token);
+    default boolean validateToken(String token) {
+        try {
+            parseToken(token);
+            return true;
+        } catch (ParseTokenException e) {
+            return false;
+        }
+    }
 }

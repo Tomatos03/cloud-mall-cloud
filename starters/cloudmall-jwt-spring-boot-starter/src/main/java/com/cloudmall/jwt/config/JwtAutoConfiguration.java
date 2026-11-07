@@ -20,7 +20,7 @@ public class JwtAutoConfiguration {
      */
     @Bean
     @ConditionalOnMissingBean
-    public ITokenService authTokenService(JwtProperties properties) {
+    public ITokenService jwtTokenService(JwtProperties properties) {
         return new JwtTokenService(properties);
     }
 }

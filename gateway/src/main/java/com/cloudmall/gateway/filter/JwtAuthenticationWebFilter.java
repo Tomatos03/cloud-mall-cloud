@@ -26,9 +26,12 @@ import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
 
 import com.cloudmall.common.context.UserContext;
+import com.cloudmall.common.enums.UserTypeEnum;
 import com.cloudmall.common.model.Result;
-import com.cloudmall.jwt.exception.AuthTokenException;
+import com.cloudmall.jwt.constant.JwtClaimNames;
+import com.cloudmall.jwt.exception.ParseTokenException;
 import com.cloudmall.jwt.service.ITokenService;
+import com.cloudmall.jwt.model.ParsedToken;
 
 /**
  * JWT 认证过滤器
@@ -79,10 +82,26 @@ public class JwtAuthenticationWebFilter implements WebFilter {
 
         String token = header.substring(TOKEN_PREFIX.length());
 
-        return Mono.fromCallable(() -> authTokenService.parseToken(token))
+        return Mono.fromCallable(() -> toUserContext(authTokenService.parseToken(token)))
                    .subscribeOn(Schedulers.boundedElastic())
                    .flatMap(userContext -> handleAuthenticated(exchange, chain, userContext))
-                   .onErrorResume(AuthTokenException.class, e -> handleAuthError(exchange, e));
+                   .onErrorResume(ParseTokenException.class, e -> handleAuthError(exchange, e));
+    }
+
+    /**
+     * 将解析后的 token 映射为用户上下文。
+     *
+     * @param parsedToken 解析后的 token
+     * @return 用户上下文
+     */
+    private UserContext toUserContext(ParsedToken parsedToken) {
+        return UserContext.builder()
+                          .userId(parsedToken.getLong(JwtClaimNames.USER_ID))
+                          .username(parsedToken.getString(JwtClaimNames.USERNAME))
+                          .userType(UserTypeEnum.fromCode(parsedToken.getString(JwtClaimNames.USER_TYPE)))
+                          .shopId(parsedToken.getLong(JwtClaimNames.SHOP_ID))
+                          .permissionCodes(parsedToken.getStringList(JwtClaimNames.PERMISSION_CODES))
+                          .build();
     }
 
     /**
@@ -135,7 +154,7 @@ public class JwtAuthenticationWebFilter implements WebFilter {
      * @param e 认证异常
      * @return 处理完成的 Mono
      */
-    private Mono<Void> handleAuthError(ServerWebExchange exchange, AuthTokenException e) {
+    private Mono<Void> handleAuthError(ServerWebExchange exchange, ParseTokenException e) {
         log.warn("JWT 认证失败: {}", e.getMessage());
         HttpHeaders headers = exchange.getResponse().getHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);

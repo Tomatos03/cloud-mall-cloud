@@ -12,8 +12,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
-import com.cloudmall.common.context.UserContext;
 import com.cloudmall.common.enums.UserTypeEnum;
+import com.cloudmall.jwt.constant.JwtClaimNames;
 import com.cloudmall.jwt.service.ITokenService;
 import com.cloudmall.user.entity.AddressDO;
 import com.cloudmall.user.entity.UserDO;
@@ -132,19 +132,18 @@ public class BatchRegisterApp {
     }
 
     /**
-     * 基于已知用户上下文直发 token，与登录产物等价（网关按 userId / username /
+     * 基于已知用户信息直发 token，与登录产物等价（网关按 userId / username /
      * userType 解析）。
      *
      * @param user 用户实体
      * @return token 字符串
      */
     private String createToken(UserDO user) {
-        UserContext userContext = UserContext.builder()
-                                             .userId(user.getId())
-                                             .username(user.getUsername())
-                                             .userType(UserTypeEnum.NORMAL)
-                                             .build();
-        return tokenService.createToken(userContext);
+        Map<String, Object> claims = new HashMap<>();
+        claims.put(JwtClaimNames.USER_ID, user.getId());
+        claims.put(JwtClaimNames.USERNAME, user.getUsername());
+        claims.put(JwtClaimNames.USER_TYPE, UserTypeEnum.NORMAL);
+        return tokenService.createToken(claims);
     }
 
     /**

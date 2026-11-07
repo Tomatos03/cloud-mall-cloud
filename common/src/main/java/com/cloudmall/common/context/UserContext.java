@@ -1,7 +1,6 @@
 package com.cloudmall.common.context;
 
 import java.util.List;
-import java.util.Map;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -28,7 +27,6 @@ public class UserContext {
     private UserTypeEnum userType;
     private Long shopId;
     private List<String> permissionCodes;
-    private Map<String, Object> extra;
 
     /**
      * 当前用户是否为管理员。

@@ -3,15 +3,15 @@ package com.cloudmall.jwt.exception;
 import lombok.Getter;
 
 /**
- * 认证令牌异常
+ * 令牌解析异常
  * <p>
- * 当 token 解析失败、签名无效或已过期时抛出。
+ * 当 token 解析失败、签名无效、已过期或缺少用户标识时抛出。
  *
  * @author : Tomatos
  * @date : 2026/7/25
  */
 @Getter
-public class AuthTokenException extends RuntimeException {
+public class ParseTokenException extends RuntimeException {
 
     private final String token;
 
@@ -21,7 +21,7 @@ public class AuthTokenException extends RuntimeException {
      * @param message 消息
      * @param token 令牌
      */
-    public AuthTokenException(String message, String token) {
+    public ParseTokenException(String message, String token) {
         super(message);
         this.token = token;
     }
@@ -33,7 +33,7 @@ public class AuthTokenException extends RuntimeException {
      * @param token 令牌
      * @param cause 原始异常
      */
-    public AuthTokenException(String message, String token, Throwable cause) {
+    public ParseTokenException(String message, String token, Throwable cause) {
         super(message, cause);
         this.token = token;
     }
