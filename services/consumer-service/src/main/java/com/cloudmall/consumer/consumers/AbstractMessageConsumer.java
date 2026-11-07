@@ -14,10 +14,7 @@ import com.cloudmall.consumer.handler.IEventHandler;
 /**
  * 消息消费统一模板
  * <p>
- * 每个 topic 一个薄子类，仅声明 {@code @RocketMQMessageListener} 并传入载荷类型与处理器集合。
- * 模板统一完成：JSON 解析 → tag 归一 → 注册表分发 → 业务处理。
- * 无 tag 的消息以空串作为注册键。业务处理抛异常时向上抛出，由 RocketMQ
- * 重试机制兜底（{@code maxReconsumeTimes} 次后进入死信队列）。
+ * 模板统一完成：JSON 解析 → tag 归一 → 注册表分发 → 业务处理 -> 异常处理(子类可覆盖)
  *
  * @param <T> 事件载荷类型
  * @author : Tomatos
@@ -51,10 +48,26 @@ public abstract class AbstractMessageConsumer<T> implements RocketMQListener<Mes
             try {
                 eventHandler.handle(event);
             } catch (RuntimeException e) {
-                log.error("事件处理失败 tag={} eventId={}", tag, eventHandler.eventId(event), e);
-                throw e;
+                handleException(tag, eventHandler, event, e);
             }
         }
+    }
+
+    /**
+     * 处理处理器执行异常。
+     * <p>
+     * 默认记录失败日志并原样上抛，由 RocketMQ 重试机制兜底；
+     * 子类可覆写以自定义处理策略（如降级、告警，
+     * 或吞掉异常继续后续处理器）。
+     *
+     * @param tag 消息 tag
+     * @param eventHandler 发生异常的处理器
+     * @param event 事件载荷
+     * @param e 处理器抛出的异常
+     */
+    protected void handleException(String tag, IEventHandler<T> eventHandler, T event, RuntimeException e) {
+        log.error("事件处理失败 tag={} eventId={}", tag, eventHandler.eventId(event), e);
+        throw e;
     }
 
     /**
