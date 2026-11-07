@@ -84,6 +84,8 @@ public class JwtAuthenticationWebFilter implements WebFilter {
 
         return Mono.fromCallable(() -> toUserContext(authTokenService.parseToken(token)))
                    .subscribeOn(Schedulers.boundedElastic())
+                   .onErrorMap(IllegalArgumentException.class,
+                               e -> new ParseTokenException("token 的 userType 非法", token, e))
                    .flatMap(userContext -> handleAuthenticated(exchange, chain, userContext))
                    .onErrorResume(ParseTokenException.class, e -> handleAuthError(exchange, e));
     }

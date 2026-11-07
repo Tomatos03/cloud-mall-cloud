@@ -4,10 +4,11 @@ import com.cloudmall.jwt.constant.JwtClaimNames;
 import com.cloudmall.jwt.exception.ParseTokenException;
 import com.cloudmall.jwt.service.JwtTokenService;
 import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.JwtException;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import lombok.NonNull;
 
 /**
@@ -82,52 +83,79 @@ public final class ParsedToken {
      *
      * @param key 声明名称
      * @return 声明值，缺失时返回 null
+     * @throws IllegalArgumentException 声明存在但类型不是字符串时抛出
      */
     public String getString(@NonNull String key) {
-        return claims.get(key, String.class);
+        Object value = claims.get(key);
+        if (value == null) {
+            return null;
+        }
+        if (value instanceof String string) {
+            return string;
+        }
+        throw new IllegalArgumentException("声明 " + key + " 的类型不是字符串");
     }
 
     /**
      * 获取数值声明。
      *
      * @param key 声明名称
-     * @return 声明值，缺失或非数值时返回 null
+     * @return 声明值，缺失时返回 null
+     * @throws IllegalArgumentException 声明存在但类型不是数值时抛出
      */
     public Long getLong(@NonNull String key) {
         Object value = claims.get(key);
-        return value instanceof Number number ? number.longValue() : null;
+        if (value == null) {
+            return null;
+        }
+        if (value instanceof Number number) {
+            return number.longValue();
+        }
+        throw new IllegalArgumentException("声明 " + key + " 的类型不是数值");
     }
 
     /**
      * 获取字符串列表声明。
      *
      * @param key 声明名称
-     * @return 声明值，缺失或非列表时返回空列表
+     * @return 声明值，缺失时返回空列表
+     * @throws IllegalArgumentException 声明存在但不是字符串列表时抛出
      */
     public List<String> getStringList(@NonNull String key) {
         Object value = claims.get(key);
-        if (!(value instanceof List<?> list)) {
+        if (value == null) {
             return List.of();
         }
-        return list
-            .stream()
-            .filter(Objects::nonNull)
-            .map(String::valueOf)
-            .toList();
+        if (!(value instanceof List<?> list)) {
+            throw new IllegalArgumentException("声明 " + key + " 的类型不是列表");
+        }
+        List<String> result = new ArrayList<>(list.size());
+        for (Object item : list) {
+            if (!(item instanceof String string)) {
+                throw new IllegalArgumentException("声明 " + key + " 包含非字符串元素");
+            }
+            result.add(string);
+        }
+        return List.copyOf(result);
     }
 
     /**
      * 获取 Map 声明。
      *
      * @param key 声明名称
-     * @return 声明值，缺失或非 Map 时返回空 Map
+     * @return 声明值，缺失时返回空 Map
+     * @throws IllegalArgumentException 声明存在但类型不是 Map 时抛出
      */
     @SuppressWarnings("unchecked")
     public Map<String, Object> getMap(@NonNull String key) {
         Object value = claims.get(key);
-        return value instanceof Map<?, ?> map
-            ? (Map<String, Object>) map
-            : Map.of();
+        if (value == null) {
+            return Map.of();
+        }
+        if (value instanceof Map<?, ?> map) {
+            return (Map<String, Object>) map;
+        }
+        throw new IllegalArgumentException("声明 " + key + " 的类型不是 Map");
     }
 
     /**
@@ -137,9 +165,14 @@ public final class ParsedToken {
      * @param type 目标类型
      * @param <T> 目标类型
      * @return 声明值，缺失时返回 null
+     * @throws IllegalArgumentException 声明存在但类型不匹配时抛出
      */
     public <T> T get(@NonNull String key, @NonNull Class<T> type) {
-        return claims.get(key, type);
+        try {
+            return claims.get(key, type);
+        } catch (JwtException e) {
+            throw new IllegalArgumentException("声明 " + key + " 的类型不是 " + type.getSimpleName(), e);
+        }
     }
 
     /**
