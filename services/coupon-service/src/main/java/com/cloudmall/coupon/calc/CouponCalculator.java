@@ -13,14 +13,14 @@ import cn.hutool.core.collection.CollUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
-import com.cloudmall.common.enums.BizError;
+import com.cloudmall.common.enums.BizErrorEnum;
 import com.cloudmall.common.exception.BizException;
 import com.cloudmall.common.utils.Asserts;
-import com.cloudmall.coupon.api.dto.CouponCalcItem;
-import com.cloudmall.coupon.api.response.CouponItemResult;
-import com.cloudmall.coupon.api.response.CouponOrderCalcResp;
-import com.cloudmall.coupon.api.response.CouponSubOrderResult;
-import com.cloudmall.coupon.api.response.CouponUsageResult;
+import com.cloudmall.coupon.api.model.bo.CouponCalcItem;
+import com.cloudmall.coupon.api.model.resp.CouponItemResult;
+import com.cloudmall.coupon.api.model.resp.CouponOrderCalcResp;
+import com.cloudmall.coupon.api.model.resp.CouponSubOrderResult;
+import com.cloudmall.coupon.api.model.resp.CouponUsageResult;
 import com.cloudmall.coupon.convert.CouponOrderConverter;
 
 /**
@@ -142,7 +142,7 @@ public class CouponCalculator {
      * @param applicableAmount 适用金额
      */
     private void assertMeetsThreshold(CalcCoupon coupon, BigDecimal applicableAmount) {
-        Asserts.isTrue(coupon.isMeetsThreshold(applicableAmount), BizError.COUPON_QUOTE_INVALID);
+        Asserts.isTrue(coupon.isMeetsThreshold(applicableAmount), BizErrorEnum.COUPON_QUOTE_INVALID);
     }
 
     /**
@@ -336,7 +336,7 @@ public class CouponCalculator {
      */
     private void assertNotNegative(BigDecimal amount) {
         if (amount.signum() < 0) {
-            throw new BizException(BizError.COUPON_QUOTE_INVALID);
+            throw new BizException(BizErrorEnum.COUPON_QUOTE_INVALID);
         }
     }
 }

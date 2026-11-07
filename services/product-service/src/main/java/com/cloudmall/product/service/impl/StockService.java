@@ -9,16 +9,16 @@ import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.cloudmall.common.enums.BizError;
+import com.cloudmall.common.enums.BizErrorEnum;
 import com.cloudmall.common.exception.BizException;
 import com.cloudmall.common.utils.Asserts;
-import com.cloudmall.product.api.request.StockConfirmReq;
-import com.cloudmall.product.api.request.StockOpReq;
-import com.cloudmall.product.api.request.StockReserveItem;
+import com.cloudmall.product.api.model.req.StockConfirmReq;
+import com.cloudmall.product.api.model.req.StockOpReq;
+import com.cloudmall.product.api.model.req.StockReserveItem;
 import com.cloudmall.product.convert.StockOpConverter;
-import com.cloudmall.product.entity.ProductDO;
-import com.cloudmall.product.entity.ProductSkuDO;
-import com.cloudmall.product.entity.StockOpLogDO;
+import com.cloudmall.product.model.entity.ProductDO;
+import com.cloudmall.product.model.entity.ProductSkuDO;
+import com.cloudmall.product.model.entity.StockOpLogDO;
 import com.cloudmall.product.enums.StockOpSourceEnum;
 import com.cloudmall.product.enums.StockOpTypeEnum;
 import com.cloudmall.product.mapper.ProductMapper;
@@ -195,7 +195,7 @@ public class StockService implements IStockService {
                 ? productSkuMapper.reserveStock(item.getSkuId(), item.getQuantity())
                 : productSkuMapper.releaseStock(item.getSkuId(), item.getQuantity());
         if (deduct && affected == 0) {
-            throw new BizException(BizError.STOCK_NOT_ENOUGH);
+            throw new BizException(BizErrorEnum.STOCK_NOT_ENOUGH);
         }
     }
 

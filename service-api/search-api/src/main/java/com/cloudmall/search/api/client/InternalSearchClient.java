@@ -5,7 +5,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
-import com.cloudmall.product.api.response.ProductDocResp;
+import com.cloudmall.product.api.model.resp.ProductDocResp;
 
 /**
  * 搜索内部 Feign 客户端

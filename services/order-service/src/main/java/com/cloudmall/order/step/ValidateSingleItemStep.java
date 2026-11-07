@@ -2,9 +2,9 @@ package com.cloudmall.order.step;
 
 import org.springframework.stereotype.Component;
 
-import com.cloudmall.common.enums.BizError;
+import com.cloudmall.common.enums.BizErrorEnum;
 import com.cloudmall.common.utils.Asserts;
-import com.cloudmall.order.model.CheckoutContext;
+import com.cloudmall.order.model.bo.CheckoutContext;
 
 /**
  * 单商品校验步骤：items 仅一条且数量合法。
@@ -12,7 +12,7 @@ import com.cloudmall.order.model.CheckoutContext;
  * @author : Tomatos
  */
 @Component
-public class ValidateSingleItemStep implements CheckoutStep {
+public class ValidateSingleItemStep implements ICheckoutStep {
 
     /**
      * 步骤名称。
@@ -33,6 +33,6 @@ public class ValidateSingleItemStep implements CheckoutStep {
     public void process(CheckoutContext ctx) {
         Asserts.isTrue(ctx.getReq()
                           .getItems()
-                          .size() == 1, BizError.INVALID_PARAM);
+                          .size() == 1, BizErrorEnum.INVALID_PARAM);
     }
 }

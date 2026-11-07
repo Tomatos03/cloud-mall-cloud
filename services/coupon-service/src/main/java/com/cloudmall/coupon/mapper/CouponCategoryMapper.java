@@ -6,7 +6,7 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import org.apache.ibatis.annotations.Mapper;
 
-import com.cloudmall.coupon.entity.CouponCategoryDO;
+import com.cloudmall.coupon.model.entity.CouponCategoryDO;
 
 /**
  * 优惠券分类范围 Mapper。

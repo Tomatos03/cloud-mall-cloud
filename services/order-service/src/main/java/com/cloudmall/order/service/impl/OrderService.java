@@ -20,35 +20,35 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.cloudmall.common.context.UserContextHolder;
-import com.cloudmall.common.enums.BizError;
+import com.cloudmall.common.enums.BizErrorEnum;
 import com.cloudmall.common.utils.Asserts;
-import com.cloudmall.coupon.api.response.CouponItemResult;
-import com.cloudmall.coupon.api.response.CouponOrderCalcResp;
-import com.cloudmall.coupon.api.response.CouponSubOrderResult;
-import com.cloudmall.coupon.api.response.CouponUsageResult;
-import com.cloudmall.coupon.enums.CouponOwnerEnum;
-import com.cloudmall.order.api.response.CouponUsageStatsResp;
-import com.cloudmall.order.api.response.OrderResp;
-import com.cloudmall.order.api.response.OrderSubResp;
+import com.cloudmall.coupon.api.model.resp.CouponItemResult;
+import com.cloudmall.coupon.api.model.resp.CouponOrderCalcResp;
+import com.cloudmall.coupon.api.model.resp.CouponSubOrderResult;
+import com.cloudmall.coupon.api.model.resp.CouponUsageResult;
+import com.cloudmall.coupon.api.enums.CouponOwnerEnum;
+import com.cloudmall.order.api.model.resp.CouponUsageStatsResp;
+import com.cloudmall.order.api.model.resp.OrderResp;
+import com.cloudmall.order.api.model.resp.OrderSubResp;
 import com.cloudmall.order.convert.OrderConverter;
 import com.cloudmall.order.convert.OrderCouponConverter;
 import com.cloudmall.order.convert.OrderItemConverter;
 import com.cloudmall.order.convert.OrderSubConverter;
-import com.cloudmall.order.entity.OrderCouponDO;
-import com.cloudmall.order.entity.OrderDO;
-import com.cloudmall.order.entity.OrderItemDO;
-import com.cloudmall.order.entity.OrderSubDO;
+import com.cloudmall.order.model.entity.OrderCouponDO;
+import com.cloudmall.order.model.entity.OrderDO;
+import com.cloudmall.order.model.entity.OrderItemDO;
+import com.cloudmall.order.model.entity.OrderSubDO;
 import com.cloudmall.order.enums.ParentOrderStatusEnum;
 import com.cloudmall.order.enums.SubOrderStatusEnum;
 import com.cloudmall.order.mapper.OrderCouponMapper;
 import com.cloudmall.order.mapper.OrderItemMapper;
 import com.cloudmall.order.mapper.OrderMapper;
 import com.cloudmall.order.mapper.OrderSubMapper;
-import com.cloudmall.order.model.CheckoutContext;
+import com.cloudmall.order.model.bo.CheckoutContext;
 import com.cloudmall.order.model.req.OrderPageReq;
 import com.cloudmall.order.model.req.OrderSubPageReq;
 import com.cloudmall.order.service.IOrderService;
-import com.cloudmall.product.api.response.SkuResp;
+import com.cloudmall.product.api.model.resp.SkuResp;
 
 /**
  * 订单服务实现
@@ -81,9 +81,9 @@ public class OrderService implements IOrderService {
      */
     @Override
     public OrderResp getById(Long id) {
-        OrderDO order = Asserts.requireNonNull(orderMapper.selectById(id), BizError.ORDER_NOT_EXIST);
+        OrderDO order = Asserts.requireNonNull(orderMapper.selectById(id), BizErrorEnum.ORDER_NOT_EXIST);
         Long userId = UserContextHolder.getUserId();
-        Asserts.isTrue(Objects.equals(order.getUserId(), userId), BizError.ORDER_NOT_BELONG_TO_USER);
+        Asserts.isTrue(Objects.equals(order.getUserId(), userId), BizErrorEnum.ORDER_NOT_BELONG_TO_USER);
         return toResp(order);
     }
 
@@ -107,7 +107,7 @@ public class OrderService implements IOrderService {
      */
     @Override
     public IPage<OrderSubResp> pageMerchant(OrderSubPageReq req) {
-        Long shopId = Asserts.requireNonNull(UserContextHolder.getShopId(), BizError.MERCHANT_NO_SHOP);
+        Long shopId = Asserts.requireNonNull(UserContextHolder.getShopId(), BizErrorEnum.MERCHANT_NO_SHOP);
         req.setShopId(shopId);
         IPage<OrderSubDO> page = orderSubMapper.selectMerchantPage(req);
         return page.convert(this::toSubRespWithItems);
@@ -410,7 +410,7 @@ public class OrderService implements IOrderService {
      */
     private void transitionToPendingPayment(Long orderId) {
         int result = orderMapper.transitionToPendingPayment(orderId, ParentOrderStatusEnum.PENDING_PAYMENT);
-        Asserts.isTrue(result > 0, BizError.INVALID_ORDER_STATUS);
+        Asserts.isTrue(result > 0, BizErrorEnum.INVALID_ORDER_STATUS);
     }
 
     /**

@@ -6,9 +6,9 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
 
-import com.cloudmall.coupon.api.request.CouponReq;
-import com.cloudmall.coupon.api.response.CouponResp;
-import com.cloudmall.coupon.entity.CouponDO;
+import com.cloudmall.coupon.api.model.req.CouponReq;
+import com.cloudmall.coupon.api.model.resp.CouponResp;
+import com.cloudmall.coupon.model.entity.CouponDO;
 
 /**
  * 优惠券模板转换器。
@@ -49,7 +49,7 @@ public interface CouponConverter {
     @Mapping(target = "claimedCount", expression = "java(0L)")
     @Mapping(target = "createTime", expression = "java(java.time.LocalDateTime.now())")
     @Mapping(target = "updateTime", expression = "java(java.time.LocalDateTime.now())")
-    @Mapping(target = "status", expression = "java(com.cloudmall.coupon.enums.CouponStatusEnum.DRAFT)")
+    @Mapping(target = "status", expression = "java(com.cloudmall.coupon.api.enums.CouponStatusEnum.DRAFT)")
     @Mapping(
             target = "shopId",
             expression = "java(com.cloudmall.common.context.UserContextHolder.getShopId())"

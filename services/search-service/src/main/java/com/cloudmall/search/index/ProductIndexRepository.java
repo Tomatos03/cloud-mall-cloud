@@ -25,8 +25,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
-import com.cloudmall.product.api.response.ProductDocResp;
-import com.cloudmall.search.config.SearchProperties;
+import com.cloudmall.product.api.model.resp.ProductDocResp;
+import com.cloudmall.search.properties.SearchProperties;
 
 /**
  * 商品索引写入组件

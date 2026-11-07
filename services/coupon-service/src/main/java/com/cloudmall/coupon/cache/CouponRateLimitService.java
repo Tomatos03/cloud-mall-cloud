@@ -6,7 +6,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 
-import com.cloudmall.common.enums.BizError;
+import com.cloudmall.common.enums.BizErrorEnum;
 import com.cloudmall.common.utils.Asserts;
 
 /**
@@ -39,6 +39,6 @@ public class CouponRateLimitService {
         if (count != null && count == 1) {
             stringRedisTemplate.expire(key, WINDOW);
         }
-        Asserts.isTrue(count == null || count <= MAX_CLAIM_PER_MINUTE, BizError.COUPON_CLAIM_TOO_FREQUENT);
+        Asserts.isTrue(count == null || count <= MAX_CLAIM_PER_MINUTE, BizErrorEnum.COUPON_CLAIM_TOO_FREQUENT);
     }
 }

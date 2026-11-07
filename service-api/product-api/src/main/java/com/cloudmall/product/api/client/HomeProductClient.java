@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import com.cloudmall.product.api.client.fallback.HomeProductClientFallbackFactory;
-import com.cloudmall.product.api.response.ProductDocResp;
+import com.cloudmall.product.api.model.resp.ProductDocResp;
 
 /**
  * 首页聚合专用商品 Feign 客户端

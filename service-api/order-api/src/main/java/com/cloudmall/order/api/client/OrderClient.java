@@ -9,8 +9,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import com.cloudmall.order.api.enums.CheckoutTypeEnum;
-import com.cloudmall.order.api.request.CreateOrderReq;
-import com.cloudmall.order.api.response.OrderResp;
+import com.cloudmall.order.api.model.req.CreateOrderReq;
+import com.cloudmall.order.api.model.resp.OrderResp;
 
 @FeignClient(name = "order-service", contextId = "orderClient", path = "/orders")
 public interface OrderClient {

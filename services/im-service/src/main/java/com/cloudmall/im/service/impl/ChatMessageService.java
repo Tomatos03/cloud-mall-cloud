@@ -6,7 +6,7 @@ import org.springframework.stereotype.Service;
 
 import com.cloudmall.common.model.CursorResult;
 import com.cloudmall.im.convert.ChatMessageConverter;
-import com.cloudmall.im.entity.ChatMessageDO;
+import com.cloudmall.im.model.entity.ChatMessageDO;
 import com.cloudmall.im.mapper.ChatMessageMapper;
 import com.cloudmall.im.model.req.MessageCursorReq;
 import com.cloudmall.im.model.resp.MessageResp;

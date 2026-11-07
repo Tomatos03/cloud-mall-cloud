@@ -9,13 +9,13 @@ import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.cloudmall.common.enums.BizError;
+import com.cloudmall.common.enums.BizErrorEnum;
 import com.cloudmall.common.utils.Asserts;
 import com.cloudmall.order.api.enums.CheckoutTypeEnum;
-import com.cloudmall.order.api.request.PlainSeckillOrderReq;
-import com.cloudmall.order.entity.OrderDO;
-import com.cloudmall.order.entity.OrderItemDO;
-import com.cloudmall.order.entity.OrderSubDO;
+import com.cloudmall.order.api.model.req.PlainSeckillOrderReq;
+import com.cloudmall.order.model.entity.OrderDO;
+import com.cloudmall.order.model.entity.OrderItemDO;
+import com.cloudmall.order.model.entity.OrderSubDO;
 import com.cloudmall.order.enums.ParentOrderStatusEnum;
 import com.cloudmall.order.enums.SubOrderStatusEnum;
 import com.cloudmall.order.mapper.OrderItemMapper;
@@ -51,7 +51,7 @@ public class PlainSeckillOrderService {
     @Transactional(rollbackFor = Exception.class)
     public String create(PlainSeckillOrderReq req) {
         String orderNo = req.getOrderNo();
-        Asserts.notBlank(orderNo, BizError.INVALID_PARAM);
+        Asserts.notBlank(orderNo, BizErrorEnum.INVALID_PARAM);
 
         OrderDO existing = orderMapper.selectByOrderNo(orderNo);
         if (existing != null) {
@@ -61,7 +61,7 @@ public class PlainSeckillOrderService {
 
         OrderDO order = buildOrder(req);
         if (!tryInsertOrder(order, orderNo)) {
-            return Asserts.requireNonNull(orderMapper.selectByOrderNo(orderNo), BizError.INVALID_PARAM)
+            return Asserts.requireNonNull(orderMapper.selectByOrderNo(orderNo), BizErrorEnum.INVALID_PARAM)
                           .getOrderNo();
         }
         insertSubAndItem(order, req);

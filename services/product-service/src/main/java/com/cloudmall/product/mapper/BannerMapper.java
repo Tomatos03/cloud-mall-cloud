@@ -6,7 +6,7 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import org.apache.ibatis.annotations.Mapper;
 
-import com.cloudmall.product.entity.BannerDO;
+import com.cloudmall.product.model.entity.BannerDO;
 import com.cloudmall.product.model.req.BannerPageReq;
 import com.cloudmall.product.model.req.BannerReq;
 

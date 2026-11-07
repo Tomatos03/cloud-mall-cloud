@@ -5,10 +5,10 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
 
-import com.cloudmall.mybatisplus.annotation.Operator;
+import com.cloudmall.mybatisplus.annotation.OperatorEnum;
 import com.cloudmall.mybatisplus.annotation.QueryCondition;
 import com.cloudmall.mybatisplus.model.PageReq;
-import com.cloudmall.seckill.entity.SeckillProductDO;
+import com.cloudmall.seckill.model.entity.SeckillProductDO;
 
 /**
  * 秒杀商品分页查询请求。
@@ -23,7 +23,7 @@ import com.cloudmall.seckill.entity.SeckillProductDO;
 public class SeckillProductPageReq extends PageReq<SeckillProductDO> {
 
     /** 商品审核状态（为空表示不限） */
-    @QueryCondition(property = "auditStatus", operator = Operator.EQ)
+    @QueryCondition(property = "auditStatus", operator = OperatorEnum.EQ)
     private String status;
 
     /**

@@ -5,9 +5,9 @@ import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import com.cloudmall.product.api.response.ImageResp;
+import com.cloudmall.product.api.model.resp.ImageResp;
 import com.cloudmall.product.convert.ImageConverter;
-import com.cloudmall.product.entity.ProductImageDO;
+import com.cloudmall.product.model.entity.ProductImageDO;
 import com.cloudmall.product.mapper.ProductImageMapper;
 import com.cloudmall.product.service.IProductImageService;
 

@@ -4,11 +4,11 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import com.cloudmall.common.enums.BizError;
+import com.cloudmall.common.enums.BizErrorEnum;
 import com.cloudmall.common.model.CursorResult;
 import com.cloudmall.common.utils.Asserts;
-import com.cloudmall.im.entity.ChatMessageDO;
-import com.cloudmall.im.entity.ChatSessionDO;
+import com.cloudmall.im.model.entity.ChatMessageDO;
+import com.cloudmall.im.model.entity.ChatSessionDO;
 import com.cloudmall.im.model.req.MessageCursorReq;
 import com.cloudmall.im.model.req.SessionPageReq;
 import com.cloudmall.im.model.resp.ChatSessionResp;
@@ -18,8 +18,8 @@ import com.cloudmall.im.service.IChatMessageService;
 import com.cloudmall.im.service.IChatSessionService;
 import com.cloudmall.user.api.client.ShopClient;
 import com.cloudmall.user.api.client.UserClient;
-import com.cloudmall.user.api.response.ShopResp;
-import com.cloudmall.user.api.response.UserResp;
+import com.cloudmall.user.api.model.resp.ShopResp;
+import com.cloudmall.user.api.model.resp.UserResp;
 
 /**
  * 聊天应用服务实现
@@ -40,8 +40,8 @@ public class ChatAppService implements IChatAppService {
 
     @Override
     public CreateSessionResp createChatSession(Long buyerId, Long storeId) {
-        Asserts.notNull(buyerId, BizError.NO_PERMISSION);
-        ShopResp shop = Asserts.requireNonNull(shopClient.getById(storeId), BizError.STORE_NOT_EXIST);
+        Asserts.notNull(buyerId, BizErrorEnum.NO_PERMISSION);
+        ShopResp shop = Asserts.requireNonNull(shopClient.getById(storeId), BizErrorEnum.STORE_NOT_EXIST);
 
         ChatSessionDO session = chatSessionService.selectByBuyerAndMerchant(buyerId, shop.getUserId());
         if (session == null) {
@@ -84,11 +84,11 @@ public class ChatAppService implements IChatAppService {
     private ChatSessionDO requireMember(Long sessionId, Long currentUserId) {
         ChatSessionDO session = Asserts.requireNonNull(
                 chatSessionService.getById(sessionId),
-                BizError.CONVERSATION_NOT_EXIST
+                BizErrorEnum.CONVERSATION_NOT_EXIST
         );
         Asserts.isTrue(
                 currentUserId != null && session.isMember(currentUserId),
-                BizError.CONVERSATION_NOT_MEMBER
+                BizErrorEnum.CONVERSATION_NOT_MEMBER
         );
         return session;
     }

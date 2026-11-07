@@ -11,17 +11,17 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import com.cloudmall.common.context.UserContextHolder;
-import com.cloudmall.common.enums.BizError;
+import com.cloudmall.common.enums.BizErrorEnum;
 import com.cloudmall.common.utils.Asserts;
-import com.cloudmall.coupon.api.response.CouponStatsResp;
-import com.cloudmall.coupon.entity.CouponDO;
-import com.cloudmall.coupon.entity.UserCouponLogDO;
+import com.cloudmall.coupon.api.model.resp.CouponStatsResp;
+import com.cloudmall.coupon.model.entity.CouponDO;
+import com.cloudmall.coupon.model.entity.UserCouponLogDO;
 import com.cloudmall.coupon.enums.UserCouponOperationTypeEnum;
 import com.cloudmall.coupon.mapper.CouponMapper;
 import com.cloudmall.coupon.mapper.UserCouponLogMapper;
 import com.cloudmall.coupon.service.ICouponStatsService;
 import com.cloudmall.order.api.client.InternalOrderClient;
-import com.cloudmall.order.api.response.CouponUsageStatsResp;
+import com.cloudmall.order.api.model.resp.CouponUsageStatsResp;
 
 /**
  * 优惠券统计服务实现
@@ -48,7 +48,7 @@ public class CouponStatsService implements ICouponStatsService {
     public CouponStatsResp statsByCoupon(Long couponId) {
         CouponDO coupon = Asserts.requireNonNull(
                 couponMapper.selectById(couponId),
-                BizError.COUPON_TEMPLATE_NOT_FOUND
+                BizErrorEnum.COUPON_TEMPLATE_NOT_FOUND
         );
         requireManageable(coupon);
         CouponStatsResp stats = aggregate(couponId);
@@ -65,7 +65,7 @@ public class CouponStatsService implements ICouponStatsService {
      */
     @Override
     public CouponStatsResp overview() {
-        Asserts.isTrue(UserContextHolder.isAdmin(), BizError.COUPON_OPERATION_NOT_ALLOWED);
+        Asserts.isTrue(UserContextHolder.isAdmin(), BizErrorEnum.COUPON_OPERATION_NOT_ALLOWED);
         CouponStatsResp stats = aggregate(null);
         fillUsageStats(stats, internalOrderClient.usageOverview());
         return stats;
@@ -130,7 +130,7 @@ public class CouponStatsService implements ICouponStatsService {
         if (UserContextHolder.isAdmin()) {
             return;
         }
-        Long shopId = Asserts.requireNonNull(UserContextHolder.getShopId(), BizError.MERCHANT_NO_SHOP);
-        Asserts.isEqual(coupon.getShopId(), shopId, BizError.COUPON_OPERATION_NOT_ALLOWED);
+        Long shopId = Asserts.requireNonNull(UserContextHolder.getShopId(), BizErrorEnum.MERCHANT_NO_SHOP);
+        Asserts.isEqual(coupon.getShopId(), shopId, BizErrorEnum.COUPON_OPERATION_NOT_ALLOWED);
     }
 }

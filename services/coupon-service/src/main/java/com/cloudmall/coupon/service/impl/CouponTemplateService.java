@@ -11,21 +11,21 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.cloudmall.common.context.UserContextHolder;
-import com.cloudmall.common.enums.BizError;
+import com.cloudmall.common.enums.BizErrorEnum;
 import com.cloudmall.common.utils.Asserts;
-import com.cloudmall.coupon.api.request.CouponReq;
-import com.cloudmall.coupon.api.response.CouponOperationLogResp;
-import com.cloudmall.coupon.api.response.CouponResp;
+import com.cloudmall.coupon.api.model.req.CouponReq;
+import com.cloudmall.coupon.api.model.resp.CouponOperationLogResp;
+import com.cloudmall.coupon.api.model.resp.CouponResp;
 import com.cloudmall.coupon.cache.CouponCacheService;
 import com.cloudmall.coupon.convert.CouponConverter;
 import com.cloudmall.coupon.convert.CouponOperationLogConverter;
-import com.cloudmall.coupon.entity.CouponCategoryDO;
-import com.cloudmall.coupon.entity.CouponDO;
-import com.cloudmall.coupon.entity.CouponOperationLogDO;
-import com.cloudmall.coupon.entity.CouponProductDO;
-import com.cloudmall.coupon.enums.CouponOperationActionEnum;
-import com.cloudmall.coupon.enums.CouponScopeEnum;
-import com.cloudmall.coupon.enums.CouponStatusEnum;
+import com.cloudmall.coupon.model.entity.CouponCategoryDO;
+import com.cloudmall.coupon.model.entity.CouponDO;
+import com.cloudmall.coupon.model.entity.CouponOperationLogDO;
+import com.cloudmall.coupon.model.entity.CouponProductDO;
+import com.cloudmall.coupon.api.enums.CouponOperationActionEnum;
+import com.cloudmall.coupon.api.enums.CouponScopeEnum;
+import com.cloudmall.coupon.api.enums.CouponStatusEnum;
 import com.cloudmall.coupon.mapper.CouponCategoryMapper;
 import com.cloudmall.coupon.mapper.CouponMapper;
 import com.cloudmall.coupon.mapper.CouponOperationLogMapper;
@@ -89,8 +89,8 @@ public class CouponTemplateService implements ICouponTemplateService {
     public void updateDraft(Long id, CouponReq req, Long shopId) {
         CouponDO coupon = getTemplate(id);
         requireManageable(coupon);
-        Asserts.isTrue(coupon.getStatus() == CouponStatusEnum.DRAFT, BizError.COUPON_RULE_FROZEN);
-        Asserts.isTrue(req.getOwnerType() == coupon.getOwnerType(), BizError.COUPON_OWNER_INVALID);
+        Asserts.isTrue(coupon.getStatus() == CouponStatusEnum.DRAFT, BizErrorEnum.COUPON_RULE_FROZEN);
+        Asserts.isTrue(req.getOwnerType() == coupon.getOwnerType(), BizErrorEnum.COUPON_OWNER_INVALID);
         validateRule(req, shopId);
 
         couponConverter.applyUpdate(coupon, req);
@@ -117,7 +117,7 @@ public class CouponTemplateService implements ICouponTemplateService {
     public void publish(Long id) {
         CouponDO coupon = getTemplate(id);
         requireManageable(coupon);
-        Asserts.isTrue(coupon.getStatus() == CouponStatusEnum.DRAFT, BizError.COUPON_OPERATION_NOT_ALLOWED);
+        Asserts.isTrue(coupon.getStatus() == CouponStatusEnum.DRAFT, BizErrorEnum.COUPON_OPERATION_NOT_ALLOWED);
         validatePublish(coupon);
         coupon.setStatus(CouponStatusEnum.ACTIVE);
         couponMapper.updateById(coupon);
@@ -142,7 +142,7 @@ public class CouponTemplateService implements ICouponTemplateService {
     public void pause(Long id) {
         CouponDO coupon = getTemplate(id);
         requireManageable(coupon);
-        Asserts.isTrue(coupon.getStatus() == CouponStatusEnum.ACTIVE, BizError.COUPON_OPERATION_NOT_ALLOWED);
+        Asserts.isTrue(coupon.getStatus() == CouponStatusEnum.ACTIVE, BizErrorEnum.COUPON_OPERATION_NOT_ALLOWED);
         coupon.setStatus(CouponStatusEnum.PAUSED);
         coupon.setUpdateTime(LocalDateTime.now());
         couponMapper.updateById(coupon);
@@ -167,7 +167,7 @@ public class CouponTemplateService implements ICouponTemplateService {
     public void resume(Long id) {
         CouponDO coupon = getTemplate(id);
         requireManageable(coupon);
-        Asserts.isTrue(coupon.getStatus() == CouponStatusEnum.PAUSED, BizError.COUPON_OPERATION_NOT_ALLOWED);
+        Asserts.isTrue(coupon.getStatus() == CouponStatusEnum.PAUSED, BizErrorEnum.COUPON_OPERATION_NOT_ALLOWED);
         coupon.setStatus(CouponStatusEnum.ACTIVE);
         coupon.setUpdateTime(LocalDateTime.now());
         couponMapper.updateById(coupon);
@@ -192,7 +192,7 @@ public class CouponTemplateService implements ICouponTemplateService {
     public void end(Long id) {
         CouponDO coupon = getTemplate(id);
         requireManageable(coupon);
-        Asserts.isTrue(coupon.isActiveOrPaused(), BizError.COUPON_OPERATION_NOT_ALLOWED);
+        Asserts.isTrue(coupon.isActiveOrPaused(), BizErrorEnum.COUPON_OPERATION_NOT_ALLOWED);
         CouponStatusEnum from = coupon.getStatus();
         coupon.setStatus(CouponStatusEnum.ENDED);
         coupon.setUpdateTime(LocalDateTime.now());
@@ -211,9 +211,9 @@ public class CouponTemplateService implements ICouponTemplateService {
     public void deleteDraft(Long id) {
         CouponDO coupon = getTemplate(id);
         requireManageable(coupon);
-        Asserts.isTrue(coupon.getStatus() == CouponStatusEnum.DRAFT, BizError.COUPON_RULE_FROZEN);
+        Asserts.isTrue(coupon.getStatus() == CouponStatusEnum.DRAFT, BizErrorEnum.COUPON_RULE_FROZEN);
         Long claimed = ObjectUtil.defaultIfNull(coupon.getClaimedCount(), 0L);
-        Asserts.isZero(claimed, BizError.COUPON_OPERATION_NOT_ALLOWED);
+        Asserts.isZero(claimed, BizErrorEnum.COUPON_OPERATION_NOT_ALLOWED);
         couponMapper.deleteById(id);
         deleteScope(id);
         appendOperationLog(
@@ -235,7 +235,7 @@ public class CouponTemplateService implements ICouponTemplateService {
      */
     @Override
     public IPage<CouponResp> pageShop(CouponPageReq req) {
-        Long shopId = Asserts.requireNonNull(UserContextHolder.getShopId(), BizError.MERCHANT_NO_SHOP);
+        Long shopId = Asserts.requireNonNull(UserContextHolder.getShopId(), BizErrorEnum.MERCHANT_NO_SHOP);
         req.setShopId(shopId);
         IPage<CouponDO> page = couponMapper.selectCouponPage(req);
         return page.convert(couponConverter::toResp);
@@ -249,7 +249,7 @@ public class CouponTemplateService implements ICouponTemplateService {
      */
     @Override
     public IPage<CouponResp> pageAll(CouponPageReq req) {
-        Asserts.isTrue(UserContextHolder.isAdmin(), BizError.COUPON_OPERATION_NOT_ALLOWED);
+        Asserts.isTrue(UserContextHolder.isAdmin(), BizErrorEnum.COUPON_OPERATION_NOT_ALLOWED);
         IPage<CouponDO> page = couponMapper.selectCouponPage(req);
         return page.convert(couponConverter::toResp);
     }
@@ -262,7 +262,7 @@ public class CouponTemplateService implements ICouponTemplateService {
      */
     @Override
     public IPage<CouponOperationLogResp> pageOperationLogs(CouponOperationLogPageReq req) {
-        Asserts.isTrue(UserContextHolder.isAdmin(), BizError.COUPON_OPERATION_NOT_ALLOWED);
+        Asserts.isTrue(UserContextHolder.isAdmin(), BizErrorEnum.COUPON_OPERATION_NOT_ALLOWED);
         IPage<CouponOperationLogDO> page = couponOperationLogMapper.selectOperationLogPage(req);
         return page.convert(couponOperationLogConverter::toResp);
     }
@@ -293,7 +293,7 @@ public class CouponTemplateService implements ICouponTemplateService {
      */
     @Override
     public CouponDO getTemplate(Long id) {
-        return Asserts.requireNonNull(couponMapper.selectById(id), BizError.COUPON_TEMPLATE_NOT_FOUND);
+        return Asserts.requireNonNull(couponMapper.selectById(id), BizErrorEnum.COUPON_TEMPLATE_NOT_FOUND);
     }
 
     /**
@@ -304,35 +304,35 @@ public class CouponTemplateService implements ICouponTemplateService {
      */
     private void validateRule(CouponReq req, Long shopId) {
         if (req.isRegisterAutoChannel()) {
-            Asserts.isTrue(req.isPlatform(), BizError.COUPON_OWNER_INVALID);
+            Asserts.isTrue(req.isPlatform(), BizErrorEnum.COUPON_OWNER_INVALID);
         }
         if (req.isShop()) {
-            Asserts.notNull(shopId, BizError.COUPON_OWNER_INVALID);
+            Asserts.notNull(shopId, BizErrorEnum.COUPON_OWNER_INVALID);
         }
         switch (req.getType()) {
             case FULL_REDUCTION -> {
-                Asserts.isTrue(req.isThresholdPositive(), BizError.COUPON_RULE_INVALID);
-                Asserts.isTrue(req.isDiscountAmountValid(), BizError.COUPON_RULE_INVALID);
+                Asserts.isTrue(req.isThresholdPositive(), BizErrorEnum.COUPON_RULE_INVALID);
+                Asserts.isTrue(req.isDiscountAmountValid(), BizErrorEnum.COUPON_RULE_INVALID);
             }
             case CASH -> {
-                Asserts.isTrue(req.isThresholdNonNegative(), BizError.COUPON_RULE_INVALID);
-                Asserts.isTrue(req.isDiscountAmountPositive(), BizError.COUPON_RULE_INVALID);
+                Asserts.isTrue(req.isThresholdNonNegative(), BizErrorEnum.COUPON_RULE_INVALID);
+                Asserts.isTrue(req.isDiscountAmountPositive(), BizErrorEnum.COUPON_RULE_INVALID);
             }
             case DISCOUNT -> {
-                Asserts.isTrue(req.isThresholdNonNegative(), BizError.COUPON_RULE_INVALID);
-                Asserts.isTrue(req.isDiscountRateValid(), BizError.COUPON_RULE_INVALID);
+                Asserts.isTrue(req.isThresholdNonNegative(), BizErrorEnum.COUPON_RULE_INVALID);
+                Asserts.isTrue(req.isDiscountRateValid(), BizErrorEnum.COUPON_RULE_INVALID);
             }
         }
         if (req.isProductScope()) {
-            Asserts.isTrue(CollUtil.isNotEmpty(req.getProductIds()), BizError.COUPON_SCOPE_INVALID);
+            Asserts.isTrue(CollUtil.isNotEmpty(req.getProductIds()), BizErrorEnum.COUPON_SCOPE_INVALID);
         } else if (req.isCategoryScope()) {
-            Asserts.isTrue(CollUtil.isNotEmpty(req.getCategoryIds()), BizError.COUPON_SCOPE_INVALID);
+            Asserts.isTrue(CollUtil.isNotEmpty(req.getCategoryIds()), BizErrorEnum.COUPON_SCOPE_INVALID);
         }
-        Asserts.isTrue(req.isIssueTimeValid(), BizError.COUPON_RULE_INVALID);
+        Asserts.isTrue(req.isIssueTimeValid(), BizErrorEnum.COUPON_RULE_INVALID);
         if (req.isFixedValidity()) {
-            Asserts.isTrue(req.isFixedTimeValid(), BizError.COUPON_RULE_INVALID);
+            Asserts.isTrue(req.isFixedTimeValid(), BizErrorEnum.COUPON_RULE_INVALID);
         } else if (req.isRelativeValidity()) {
-            Asserts.isTrue(req.hasValidDays(), BizError.COUPON_RULE_INVALID);
+            Asserts.isTrue(req.hasValidDays(), BizErrorEnum.COUPON_RULE_INVALID);
         }
     }
 
@@ -342,16 +342,16 @@ public class CouponTemplateService implements ICouponTemplateService {
      * @param coupon 模板
      */
     private void validatePublish(CouponDO coupon) {
-        Asserts.isTrue(coupon.isClaimable(), BizError.COUPON_NOT_CLAIMABLE);
+        Asserts.isTrue(coupon.isClaimable(), BizErrorEnum.COUPON_NOT_CLAIMABLE);
         if (coupon.getScopeType() == CouponScopeEnum.PRODUCT) {
             Asserts.isTrue(
                     couponProductMapper.countByCouponId(coupon.getId()) > 0,
-                    BizError.COUPON_SCOPE_INVALID
+                    BizErrorEnum.COUPON_SCOPE_INVALID
             );
         } else if (coupon.getScopeType() == CouponScopeEnum.CATEGORY) {
             Asserts.isTrue(
                     couponCategoryMapper.countByCouponId(coupon.getId()) > 0,
-                    BizError.COUPON_SCOPE_INVALID
+                    BizErrorEnum.COUPON_SCOPE_INVALID
             );
         }
     }
@@ -463,7 +463,7 @@ public class CouponTemplateService implements ICouponTemplateService {
         if (UserContextHolder.isAdmin()) {
             return;
         }
-        Long shopId = Asserts.requireNonNull(UserContextHolder.getShopId(), BizError.MERCHANT_NO_SHOP);
-        Asserts.isEqual(coupon.getShopId(), shopId, BizError.COUPON_OPERATION_NOT_ALLOWED);
+        Long shopId = Asserts.requireNonNull(UserContextHolder.getShopId(), BizErrorEnum.MERCHANT_NO_SHOP);
+        Asserts.isEqual(coupon.getShopId(), shopId, BizErrorEnum.COUPON_OPERATION_NOT_ALLOWED);
     }
 }

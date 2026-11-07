@@ -13,7 +13,7 @@ import org.springframework.ai.vectorstore.VectorStore;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-import com.cloudmall.aigc.parser.DocumentParser;
+import com.cloudmall.aigc.parser.IDocumentParser;
 import com.cloudmall.aigc.parser.DocumentParserFactory;
 import com.cloudmall.aigc.service.IKnowledgeService;
 
@@ -65,7 +65,7 @@ public class KnowledgeService implements IKnowledgeService {
         List<String> documentIds = new ArrayList<>();
         List<Document> pendingDocument = new ArrayList<>();
         for (MultipartFile file : files) {
-            DocumentParser parser = documentParserFactory.getParser(file.getOriginalFilename());
+            IDocumentParser parser = documentParserFactory.getParser(file.getOriginalFilename());
             List<Document> documents = parser.parse(file);
 
             documents.forEach(doc -> setDocumentMetaInfo(category, file, doc));

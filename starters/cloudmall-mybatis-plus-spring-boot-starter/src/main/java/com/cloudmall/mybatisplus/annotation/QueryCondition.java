@@ -47,9 +47,9 @@ public @interface QueryCondition {
     /**
      * 查询操作符。
      * <p>
-     * 原为内部枚举，已迁移至 {@link Operator} 顶层类。
+     * 原为内部枚举，已迁移至 {@link OperatorEnum} 顶层类。
      */
-    Operator operator() default Operator.EQ;
+    OperatorEnum operator() default OperatorEnum.EQ;
 
     /**
      * 值为 {@code null} 或空白字符串/空集合时是否忽略该条件。

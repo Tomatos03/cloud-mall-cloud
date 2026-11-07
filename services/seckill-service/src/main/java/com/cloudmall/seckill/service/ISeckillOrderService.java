@@ -2,8 +2,8 @@ package com.cloudmall.seckill.service;
 
 import java.util.List;
 
-import com.cloudmall.seckill.api.response.SeckillOrderResp;
-import com.cloudmall.seckill.entity.SeckillOrderDO;
+import com.cloudmall.seckill.api.model.resp.SeckillOrderResp;
+import com.cloudmall.seckill.model.entity.SeckillOrderDO;
 
 /**
  * 秒杀单服务

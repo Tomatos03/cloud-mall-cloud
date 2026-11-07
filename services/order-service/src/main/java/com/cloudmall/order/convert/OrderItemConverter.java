@@ -4,8 +4,8 @@ import java.util.List;
 
 import org.mapstruct.Mapper;
 
-import com.cloudmall.order.api.response.OrderItemResp;
-import com.cloudmall.order.entity.OrderItemDO;
+import com.cloudmall.order.api.model.resp.OrderItemResp;
+import com.cloudmall.order.model.entity.OrderItemDO;
 
 /**
  * 订单明细转换器

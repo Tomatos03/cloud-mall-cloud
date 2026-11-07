@@ -6,10 +6,10 @@ import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
 import org.mapstruct.NullValuePropertyMappingStrategy;
 
-import com.cloudmall.product.api.request.UnitCreateReq;
-import com.cloudmall.product.api.request.UnitUpdateReq;
-import com.cloudmall.product.api.response.UnitResp;
-import com.cloudmall.product.entity.UnitDO;
+import com.cloudmall.product.api.model.req.UnitCreateReq;
+import com.cloudmall.product.api.model.req.UnitUpdateReq;
+import com.cloudmall.product.api.model.resp.UnitResp;
+import com.cloudmall.product.model.entity.UnitDO;
 
 /**
  * 单位对象转换器。

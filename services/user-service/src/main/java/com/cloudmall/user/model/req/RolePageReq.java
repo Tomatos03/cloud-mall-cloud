@@ -4,7 +4,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import com.cloudmall.mybatisplus.model.PageReq;
-import com.cloudmall.user.entity.RoleDO;
+import com.cloudmall.user.model.entity.RoleDO;
 
 /**
  * 角色分页查询请求

@@ -15,7 +15,7 @@ import org.apache.ibatis.annotations.Mapper;
 import com.cloudmall.common.model.CursorReq;
 import com.cloudmall.mybatisplus.enums.LimitEnum;
 import com.cloudmall.mybatisplus.enums.StatusEnum;
-import com.cloudmall.product.entity.ProductDO;
+import com.cloudmall.product.model.entity.ProductDO;
 import com.cloudmall.product.model.req.ProductGetReq;
 
 /**

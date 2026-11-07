@@ -6,11 +6,11 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.Accessors;
 
-import com.cloudmall.mybatisplus.annotation.Operator;
+import com.cloudmall.mybatisplus.annotation.OperatorEnum;
 import com.cloudmall.mybatisplus.annotation.QueryCondition;
 import com.cloudmall.mybatisplus.enums.StatusEnum;
 import com.cloudmall.mybatisplus.model.ConditionReq;
-import com.cloudmall.product.entity.ProductDO;
+import com.cloudmall.product.model.entity.ProductDO;
 
 /**
  * 商品单个查询请求。
@@ -28,13 +28,13 @@ import com.cloudmall.product.entity.ProductDO;
 public class ProductGetReq extends ConditionReq<ProductDO> {
 
     /** 商品 ID（等值匹配） */
-    @QueryCondition(operator = Operator.EQ)
+    @QueryCondition(operator = OperatorEnum.EQ)
     private Long id;
 
     /** 商品 SPU 编码（等值匹配） */
-    @QueryCondition(operator = Operator.EQ)
+    @QueryCondition(operator = OperatorEnum.EQ)
     private String spuCode;
 
-    @QueryCondition(operator = Operator.EQ)
+    @QueryCondition(operator = OperatorEnum.EQ)
     private StatusEnum status;
 }

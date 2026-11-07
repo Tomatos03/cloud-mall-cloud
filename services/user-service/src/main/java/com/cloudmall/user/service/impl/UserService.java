@@ -18,17 +18,17 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.cloudmall.common.context.UserContext;
 import com.cloudmall.common.context.UserContextHolder;
-import com.cloudmall.common.enums.BizError;
+import com.cloudmall.common.enums.BizErrorEnum;
 import com.cloudmall.common.enums.UserTypeEnum;
 import com.cloudmall.common.utils.Asserts;
 import com.cloudmall.rocketmq.producer.MQProducer;
-import com.cloudmall.user.api.event.UserRegisteredEvent;
-import com.cloudmall.user.api.request.RegisterReq;
-import com.cloudmall.user.api.response.UserResp;
+import com.cloudmall.user.api.model.bo.UserRegisteredEvent;
+import com.cloudmall.user.api.model.req.RegisterReq;
+import com.cloudmall.user.api.model.resp.UserResp;
 import com.cloudmall.user.convert.UserConverter;
-import com.cloudmall.user.entity.ResourceDO;
-import com.cloudmall.user.entity.UserDO;
-import com.cloudmall.user.entity.UserRoleDO;
+import com.cloudmall.user.model.entity.ResourceDO;
+import com.cloudmall.user.model.entity.UserDO;
+import com.cloudmall.user.model.entity.UserRoleDO;
 import com.cloudmall.user.mapper.ResourceMapper;
 import com.cloudmall.user.mapper.UserMapper;
 import com.cloudmall.user.mapper.UserRoleMapper;
@@ -73,7 +73,7 @@ public class UserService implements IUserService {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public Long register(RegisterReq request) {
-        Asserts.isFalse(userMapper.existsByUsername(request.getUsername()), BizError.USER_ALREADY_EXISTS);
+        Asserts.isFalse(userMapper.existsByUsername(request.getUsername()), BizErrorEnum.USER_ALREADY_EXISTS);
         UserDO user = addNewUser(request);
         userRegisterEvent(user);
         return user.getId();
@@ -106,7 +106,7 @@ public class UserService implements IUserService {
      */
     @Override
     public UserResp getUser(Long userId) {
-        UserDO user = Asserts.requireNonNull(userMapper.selectById(userId), BizError.USER_NOT_EXISTS);
+        UserDO user = Asserts.requireNonNull(userMapper.selectById(userId), BizErrorEnum.USER_NOT_EXISTS);
         return userConverter.toResp(user);
     }
 

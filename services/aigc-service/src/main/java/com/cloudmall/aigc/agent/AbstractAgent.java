@@ -13,7 +13,7 @@ import org.springframework.ai.chat.messages.AssistantMessage;
 import reactor.core.publisher.Flux;
 
 import com.cloudmall.aigc.manager.GeneratingSessionManager;
-import com.cloudmall.aigc.model.enums.ChatEventType;
+import com.cloudmall.aigc.enums.ChatEventTypeEnum;
 import com.cloudmall.aigc.model.req.ChatReq;
 import com.cloudmall.aigc.model.resp.ChatResp;
 import com.cloudmall.aigc.service.ISessionService;
@@ -21,7 +21,7 @@ import com.cloudmall.aigc.tool.ToolResultContext;
 import com.cloudmall.common.context.UserContextHolder;
 
 @Slf4j
-public abstract class AbstractAgent implements Agent {
+public abstract class AbstractAgent implements IAgent {
     private final GeneratingSessionManager generatingSessionManager;
     private final ChatMemoryRepository chatMemoryRepository;
     private final ISessionService sessionService;
@@ -124,7 +124,7 @@ public abstract class AbstractAgent implements Agent {
                             generatedContent.append(content);
                             return ChatResp.builder()
                                            .data(content)
-                                           .eventType(ChatEventType.MESSAGE)
+                                           .eventType(ChatEventTypeEnum.MESSAGE)
                                            .build();
                         }
                 )

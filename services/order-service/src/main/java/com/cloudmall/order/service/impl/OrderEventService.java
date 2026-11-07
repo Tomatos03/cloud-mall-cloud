@@ -5,11 +5,11 @@ import java.math.BigDecimal;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import com.cloudmall.common.enums.BizError;
+import com.cloudmall.common.enums.BizErrorEnum;
 import com.cloudmall.common.utils.Asserts;
-import com.cloudmall.order.api.event.OrderEvent;
-import com.cloudmall.order.api.event.OrderTagEnum;
-import com.cloudmall.order.entity.OrderDO;
+import com.cloudmall.order.api.model.bo.OrderEvent;
+import com.cloudmall.order.api.enums.OrderTagEnum;
+import com.cloudmall.order.model.entity.OrderDO;
 import com.cloudmall.order.mapper.OrderMapper;
 import com.cloudmall.order.service.IOrderEventService;
 import com.cloudmall.rocketmq.producer.MQProducer;
@@ -41,12 +41,12 @@ public class OrderEventService implements IOrderEventService {
      */
     @Override
     public void handlePaid(String orderNo, BigDecimal payAmount) {
-        Asserts.notNull(payAmount, BizError.INVALID_PARAM);
+        Asserts.notNull(payAmount, BizErrorEnum.INVALID_PARAM);
         OrderDO order = requireOrder(orderNo);
         BigDecimal convertedAmount = convertThirdPartyAmount(payAmount);
         Asserts.isTrue(
                 convertedAmount.compareTo(order.getPayableAmount()) == 0,
-                BizError.ORDER_PAY_AMOUNT_MISMATCH
+                BizErrorEnum.ORDER_PAY_AMOUNT_MISMATCH
         );
         OrderEvent event = OrderEvent.builder()
                                      .orderNo(orderNo)
@@ -94,13 +94,13 @@ public class OrderEventService implements IOrderEventService {
      */
     @Override
     public void handleFullyRefunded(String orderNo, String refundId, BigDecimal refundAmount) {
-        Asserts.notBlank(refundId, BizError.INVALID_PARAM);
-        Asserts.notNull(refundAmount, BizError.INVALID_PARAM);
+        Asserts.notBlank(refundId, BizErrorEnum.INVALID_PARAM);
+        Asserts.notNull(refundAmount, BizErrorEnum.INVALID_PARAM);
         OrderDO order = requireOrder(orderNo);
         BigDecimal convertedAmount = convertThirdPartyAmount(refundAmount);
         Asserts.isTrue(
                 convertedAmount.compareTo(order.getPayableAmount()) == 0,
-                BizError.ORDER_REFUND_AMOUNT_MISMATCH
+                BizErrorEnum.ORDER_REFUND_AMOUNT_MISMATCH
         );
         OrderEvent event = OrderEvent.builder()
                                      .orderNo(orderNo)
@@ -117,7 +117,7 @@ public class OrderEventService implements IOrderEventService {
      * @return 父订单
      */
     private OrderDO requireOrder(String orderNo) {
-        OrderDO order = Asserts.requireNonNull(orderMapper.selectByOrderNo(orderNo), BizError.ORDER_NOT_EXIST);
+        OrderDO order = Asserts.requireNonNull(orderMapper.selectByOrderNo(orderNo), BizErrorEnum.ORDER_NOT_EXIST);
         return order;
     }
 

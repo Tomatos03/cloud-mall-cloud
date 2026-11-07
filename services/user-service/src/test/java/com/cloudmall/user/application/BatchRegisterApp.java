@@ -15,8 +15,8 @@ import org.springframework.stereotype.Component;
 import com.cloudmall.common.enums.UserTypeEnum;
 import com.cloudmall.jwt.constant.JwtClaimNames;
 import com.cloudmall.jwt.service.ITokenService;
-import com.cloudmall.user.entity.AddressDO;
-import com.cloudmall.user.entity.UserDO;
+import com.cloudmall.user.model.entity.AddressDO;
+import com.cloudmall.user.model.entity.UserDO;
 import com.cloudmall.user.mapper.AddressMapper;
 import com.cloudmall.user.mapper.UserMapper;
 

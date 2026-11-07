@@ -4,7 +4,7 @@ import java.util.List;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
 
-import com.cloudmall.product.api.response.BannerResp;
+import com.cloudmall.product.api.model.resp.BannerResp;
 import com.cloudmall.product.model.req.BannerPageReq;
 import com.cloudmall.product.model.req.BannerReq;
 

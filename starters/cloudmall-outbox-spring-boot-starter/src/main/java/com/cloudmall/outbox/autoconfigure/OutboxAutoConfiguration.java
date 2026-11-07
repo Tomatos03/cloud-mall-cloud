@@ -11,11 +11,11 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.core.env.Environment;
 
 import com.cloudmall.outbox.appender.OutboxAppender;
-import com.cloudmall.outbox.config.OutboxProperties;
+import com.cloudmall.outbox.properties.OutboxProperties;
 import com.cloudmall.outbox.dispatcher.OutboxDispatcher;
 import com.cloudmall.outbox.job.OutboxJobHandlers;
 import com.cloudmall.outbox.mapper.OutboxMapper;
-import com.cloudmall.outbox.publisher.OutboxPublisher;
+import com.cloudmall.outbox.publisher.IOutboxPublisher;
 import com.cloudmall.outbox.publisher.RocketMqOutboxPublisher;
 import com.cloudmall.rocketmq.producer.MQProducer;
 
@@ -25,7 +25,7 @@ import com.cloudmall.rocketmq.producer.MQProducer;
  * 装配通用追加器、分发器与默认 RocketMQ 发布器。载荷为原始 JSON 字节，
  * 生产者不感知事件结构，无需事件注册表。
  * <p>
- * 发布器面向 {@link OutboxPublisher} 抽象：默认提供 RocketMQ 实现，
+ * 发布器面向 {@link IOutboxPublisher} 抽象：默认提供 RocketMQ 实现，
  * 业务服务可注册自定义 Bean 替换（如 Feign 发布），分发器无需改动。
  * <p>
  * 通过 {@link AutoConfigurationPackage} 注册 com.cloudmall.outbox，
@@ -64,7 +64,7 @@ public class OutboxAutoConfiguration {
      * 创建默认 RocketMQ 发布器。 <p>
      * 依赖 {@link MQProducer} Bean（由
      * {@code MqAutoConfiguration} 提供）， 业务服务可通过自定义
-     * {@link OutboxPublisher} Bean 覆盖。
+     * {@link IOutboxPublisher} Bean 覆盖。
      *
      * @param mqProducer RocketMQ 发送客户端
      * @return RocketMQ 发布器
@@ -72,7 +72,7 @@ public class OutboxAutoConfiguration {
     @Bean
     @ConditionalOnBean(MQProducer.class)
     @ConditionalOnClass(MQProducer.class)
-    @ConditionalOnMissingBean(OutboxPublisher.class)
+    @ConditionalOnMissingBean(IOutboxPublisher.class)
     public RocketMqOutboxPublisher rocketMqOutboxPublisher(MQProducer mqProducer) {
         return new RocketMqOutboxPublisher(mqProducer);
     }
@@ -90,7 +90,7 @@ public class OutboxAutoConfiguration {
     @SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection")
     public OutboxDispatcher outboxDispatcher(
         OutboxMapper outboxMapper,
-        OutboxPublisher publisher,
+        IOutboxPublisher publisher,
         OutboxProperties properties,
         Environment environment
     ) {

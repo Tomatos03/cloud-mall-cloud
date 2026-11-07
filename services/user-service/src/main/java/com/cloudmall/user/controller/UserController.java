@@ -15,10 +15,10 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.cloudmall.common.context.UserContextHolder;
 import com.cloudmall.common.model.Result;
-import com.cloudmall.user.api.request.LoginReq;
-import com.cloudmall.user.api.request.RegisterReq;
-import com.cloudmall.user.api.response.LoginResp;
-import com.cloudmall.user.api.response.UserResp;
+import com.cloudmall.user.api.model.req.LoginReq;
+import com.cloudmall.user.api.model.req.RegisterReq;
+import com.cloudmall.user.api.model.resp.LoginResp;
+import com.cloudmall.user.api.model.resp.UserResp;
 import com.cloudmall.user.application.AuthApp;
 import com.cloudmall.user.model.req.UserPageReq;
 import com.cloudmall.user.model.resp.ResourceNodeResp;

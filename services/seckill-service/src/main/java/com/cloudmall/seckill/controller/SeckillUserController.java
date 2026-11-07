@@ -12,14 +12,14 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.cloudmall.common.context.UserContextHolder;
-import com.cloudmall.common.enums.BizError;
+import com.cloudmall.common.enums.BizErrorEnum;
 import com.cloudmall.common.model.Result;
 import com.cloudmall.common.utils.Asserts;
-import com.cloudmall.seckill.api.request.SeckillPurchaseReq;
-import com.cloudmall.seckill.api.response.ActivityDetailResp;
-import com.cloudmall.seckill.api.response.ActivityResp;
-import com.cloudmall.seckill.api.response.PurchaseResp;
-import com.cloudmall.seckill.api.response.SeckillOrderResp;
+import com.cloudmall.seckill.api.model.req.SeckillPurchaseReq;
+import com.cloudmall.seckill.api.model.resp.ActivityDetailResp;
+import com.cloudmall.seckill.api.model.resp.ActivityResp;
+import com.cloudmall.seckill.api.model.resp.PurchaseResp;
+import com.cloudmall.seckill.api.model.resp.SeckillOrderResp;
 import com.cloudmall.seckill.application.SeckillOrderApp;
 import com.cloudmall.seckill.application.SeckillPlainOrderApp;
 import com.cloudmall.seckill.service.ISeckillActivityService;
@@ -104,7 +104,7 @@ public class SeckillUserController {
     @GetMapping("/orders")
     public Result<List<SeckillOrderResp>> listMyOrders() {
         Long userId = UserContextHolder.getUserId();
-        Asserts.notNull(userId, BizError.USER_NOT_AUTHENTICATED);
+        Asserts.notNull(userId, BizErrorEnum.USER_NOT_AUTHENTICATED);
         return Result.success(orderService.listByUserId(userId));
     }
 }

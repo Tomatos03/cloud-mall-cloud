@@ -6,9 +6,9 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import com.cloudmall.product.api.response.BannerResp;
+import com.cloudmall.product.api.model.resp.BannerResp;
 import com.cloudmall.product.convert.BannerConverter;
-import com.cloudmall.product.entity.BannerDO;
+import com.cloudmall.product.model.entity.BannerDO;
 import com.cloudmall.product.mapper.BannerMapper;
 import com.cloudmall.product.model.req.BannerPageReq;
 import com.cloudmall.product.model.req.BannerReq;

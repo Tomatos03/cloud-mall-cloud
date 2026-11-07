@@ -6,7 +6,7 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import org.apache.ibatis.annotations.Mapper;
 
-import com.cloudmall.coupon.entity.UserCouponLogDO;
+import com.cloudmall.coupon.model.entity.UserCouponLogDO;
 import com.cloudmall.coupon.enums.UserCouponOperationTypeEnum;
 
 /**

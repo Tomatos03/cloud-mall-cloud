@@ -9,8 +9,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
 import com.cloudmall.seckill.cache.SeckillCacheService;
-import com.cloudmall.seckill.entity.SeckillActivityDO;
-import com.cloudmall.seckill.entity.SeckillProductDO;
+import com.cloudmall.seckill.model.entity.SeckillActivityDO;
+import com.cloudmall.seckill.model.entity.SeckillProductDO;
 import com.cloudmall.seckill.mapper.SeckillActivityMapper;
 import com.cloudmall.seckill.mapper.SeckillProductMapper;
 

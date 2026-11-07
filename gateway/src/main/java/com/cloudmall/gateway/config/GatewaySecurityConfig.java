@@ -14,6 +14,7 @@ import org.springframework.security.web.server.SecurityWebFilterChain;
 
 import com.cloudmall.gateway.filter.JwtAuthenticationWebFilter;
 import com.cloudmall.gateway.filter.RbacReactiveAuthorizationManager;
+import com.cloudmall.gateway.properties.AuthProperties;
 
 /**
  * Gateway Spring Security 安全配置

@@ -7,7 +7,7 @@ import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import org.apache.ibatis.annotations.Mapper;
 
 import com.cloudmall.mybatisplus.enums.StatusEnum;
-import com.cloudmall.user.entity.NoticeDO;
+import com.cloudmall.user.model.entity.NoticeDO;
 
 /**
  * 首页公告 Mapper

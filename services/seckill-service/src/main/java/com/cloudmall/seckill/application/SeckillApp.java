@@ -6,12 +6,12 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
 import com.cloudmall.common.context.UserContextHolder;
-import com.cloudmall.common.enums.BizError;
+import com.cloudmall.common.enums.BizErrorEnum;
 import com.cloudmall.common.utils.Asserts;
 import com.cloudmall.product.api.client.SkuClient;
-import com.cloudmall.product.api.response.SkuResp;
-import com.cloudmall.seckill.api.request.ActivityProductSubmitReq;
-import com.cloudmall.seckill.entity.SeckillProductDO;
+import com.cloudmall.product.api.model.resp.SkuResp;
+import com.cloudmall.seckill.api.model.req.ActivityProductSubmitReq;
+import com.cloudmall.seckill.model.entity.SeckillProductDO;
 import com.cloudmall.seckill.service.ISeckillProductService;
 
 /**
@@ -39,23 +39,23 @@ public class SeckillApp {
      */
     public Long submitProduct(Long activityId, ActivityProductSubmitReq req) {
         List<SkuResp> skus = skuClient.listSkusByIds(List.of(req.getSkuId()));
-        Asserts.notEmpty(skus, BizError.PRODUCT_NOT_FOUND);
+        Asserts.notEmpty(skus, BizErrorEnum.PRODUCT_NOT_FOUND);
 
         SkuResp sku = skus.get(0);
 
         // SKU 必须属于当前商家店铺，防止越权替他人店铺报名
         Long shopId = UserContextHolder.getShopId();
-        Asserts.notNull(shopId, BizError.MERCHANT_STORE_NOT_FOUND);
-        Asserts.isEqual(sku.getShopId(), shopId, BizError.MERCHANT_NO_SHOP);
+        Asserts.notNull(shopId, BizErrorEnum.MERCHANT_STORE_NOT_FOUND);
+        Asserts.isEqual(sku.getShopId(), shopId, BizErrorEnum.MERCHANT_NO_SHOP);
 
         // 秒杀价必须低于 SKU 原价
         Asserts.isTrue(
                 req.getSeckillPrice().compareTo(sku.getPrice()) < 0,
-                BizError.SECKILL_PRICE_MUST_LESS_THAN_ORIGINAL
+                BizErrorEnum.SECKILL_PRICE_MUST_LESS_THAN_ORIGINAL
         );
 
         // 秒杀库存不得超过 SKU 库存
-        Asserts.isTrue(req.getStock() <= sku.getStock(), BizError.SECKILL_STOCK_EXCEEDS_PRODUCT_STOCK);
+        Asserts.isTrue(req.getStock() <= sku.getStock(), BizErrorEnum.SECKILL_STOCK_EXCEEDS_PRODUCT_STOCK);
 
         SeckillProductDO product = SeckillProductDO.builder()
                                                    .activityId(activityId)

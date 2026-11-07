@@ -7,7 +7,7 @@ import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import org.apache.ibatis.annotations.Mapper;
 
 import com.cloudmall.mybatisplus.enums.StatusEnum;
-import com.cloudmall.product.entity.CategoryDO;
+import com.cloudmall.product.model.entity.CategoryDO;
 
 @Mapper
 public interface CategoryMapper extends BaseMapper<CategoryDO> {

@@ -8,11 +8,11 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import com.cloudmall.mybatisplus.annotation.Operator;
+import com.cloudmall.mybatisplus.annotation.OperatorEnum;
 import com.cloudmall.mybatisplus.annotation.QueryCondition;
 import com.cloudmall.mybatisplus.enums.StatusEnum;
 import com.cloudmall.mybatisplus.model.PageReq;
-import com.cloudmall.product.entity.CommentDO;
+import com.cloudmall.product.model.entity.CommentDO;
 import com.cloudmall.product.enums.CommentRatingTypeEnum;
 import com.cloudmall.product.enums.CommentSortEnum;
 
@@ -40,7 +40,7 @@ public class CommentPageReq extends PageReq<CommentDO> {
     private static final int BAD_RATING_MAX = 2;
 
     /** 商品 ID（等值匹配） */
-    @QueryCondition(operator = Operator.EQ)
+    @QueryCondition(operator = OperatorEnum.EQ)
     private Long productId;
 
     /** 评分筛选（全部/好评/中评/差评） */
@@ -53,7 +53,7 @@ public class CommentPageReq extends PageReq<CommentDO> {
     private CommentSortEnum sortType;
 
     /** 状态（等值匹配），默认查询已启用评论 */
-    @QueryCondition(operator = Operator.EQ)
+    @QueryCondition(operator = OperatorEnum.EQ)
     private StatusEnum status = StatusEnum.ENABLED;
 
     /**

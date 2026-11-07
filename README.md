@@ -46,7 +46,7 @@ cloud-mall-cloud/
 │   ├── search-service        # 搜索服务
 │   └── consumer-service      # 消费者服务
 ├── starters/                 # 自研 Spring Boot Starter
-│   ├── cloudmall-common      # Result/BizException/BizError/UserContextFilter
+│   ├── cloudmall-common      # Result/BizException/BizErrorEnum/UserContextFilter
 │   ├── cloudmall-mybatis-plus# MyMetaObjectHandler/PageReq/LimitEnum/StatusEnum
 │   ├── cloudmall-jwt         # JWT 认证
 │   ├── cloudmall-rocketmq    # MQProducer/TxMessageHeader
@@ -114,7 +114,42 @@ docker compose -f docs/docker/compose.yaml down -v     # 清空数据（慎用�
 
 - RESTful Level 2：资源名复数（`/users`），HTTP 方法表达操作（GET 查 / POST 建 / PUT 改 / DELETE 删）
 - 认证接口使用动词（`/auth/login`）
-- 统一返回 `Result<T>`，业务异常使用 `BizException` + `BizError`
+- 统一返回 `Result<T>`，业务异常使用 `BizException` + `BizErrorEnum`
+
+## 对象模型与目录边界
+
+业务服务内的对象按职责分为四类，**目录与命名必须遵循下表**：
+
+```
+services/{service}/
+├── controller/          # 只依赖 model/req、model/resp、service
+├── application/         # 用例编排
+├── service/impl/        # 业务规则、事务
+├── mapper/              # MyBatis-Plus
+├── model/
+│   ├── entity/          # XxxDO：与数据库表一一对应
+│   ├── req/             # XxxReq：本服务 HTTP 入参
+│   ├── resp/            # XxxResp：本服务 HTTP 出参
+│   └── bo/              # 领域对象：Service 内部聚合对象
+├── convert/             # MapStruct 转换
+└── enums/
+```
+
+| 目录 | 后缀 | 职责 | 允许出现的位置 |
+|---|---|---|---|
+| `model/entity/` | `XxxDO` | 持久化映射，字段即表列 | Mapper、Service 内部 |
+| `model/req/` | `XxxReq` | 本服务 HTTP 入参 | Controller、Service |
+| `model/resp/` | `XxxResp` | 本服务 HTTP 出参 | Controller、Service |
+| `model/bo/` | 领域名（不加 `BO` 后缀） | 多表聚合、跨领域组合、复杂计算结果 | Service、Application 内部 |
+
+边界规则：
+
+- **DO 不出 Service 层**：Controller 签名、Feign 接口、`service-api` 中禁止出现 `XxxDO`。
+- **Req/Resp 只服务本服务 HTTP 边界**：跨服务调用的入参/出参放 `service-api` 对应模块，不在本服务 `model` 中重复定义。
+- **BO 只在 Service/Application 内部流转**：禁止作为 Controller 入参/出参，禁止被 `service-api` 引用。
+- **转换统一走 `convert/XxxConverter`**（MapStruct）：DO ↔ BO ↔ Req/Resp，禁止在 Controller / Service 内联手写转换。
+- **没有聚合需求不建 BO**：BO 用于多表聚合或跨领域组合，不要为每张表机械地造一个 BO。
+- **BO 使用领域名，不强制 `BO` 后缀**：如 `CheckoutContext`、`ProductSkuPrice`；仅在与其它层对象重名时加限定词区分。
 
 ## 数据库约定
 

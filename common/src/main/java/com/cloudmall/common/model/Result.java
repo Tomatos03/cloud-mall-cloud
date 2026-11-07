@@ -2,7 +2,7 @@ package com.cloudmall.common.model;
 
 import lombok.Data;
 
-import com.cloudmall.common.enums.BizError;
+import com.cloudmall.common.enums.BizErrorEnum;
 
 /**
  * 统一返回值工具类
@@ -80,8 +80,8 @@ public class Result<T> {
      * @param errorCode 业务错误码
      * @return Result
      */
-    public static <T> Result<T> error(BizError errorCode) {
-        return new Result<>(errorCode.getCode(), errorCode.getErrorMessage(), null);
+    public static <T> Result<T> error(BizErrorEnum errorCode) {
+        return new Result<>(errorCode.getCode(), errorCode.getMessage(), null);
     }
 
     /**

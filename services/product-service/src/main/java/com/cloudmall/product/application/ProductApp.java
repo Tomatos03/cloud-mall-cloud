@@ -5,16 +5,16 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import com.cloudmall.common.context.UserContextHolder;
-import com.cloudmall.common.enums.BizError;
+import com.cloudmall.common.enums.BizErrorEnum;
 import com.cloudmall.common.utils.Asserts;
-import com.cloudmall.product.api.request.ProductCreateReq;
-import com.cloudmall.product.api.response.CommentSummaryResp;
-import com.cloudmall.product.api.response.ProductDetailResp;
+import com.cloudmall.product.api.model.req.ProductCreateReq;
+import com.cloudmall.product.api.model.resp.CommentSummaryResp;
+import com.cloudmall.product.api.model.resp.ProductDetailResp;
 import com.cloudmall.product.convert.ProductConverter;
 import com.cloudmall.product.service.IProductService;
 import com.cloudmall.user.api.client.ShopClient;
-import com.cloudmall.user.api.response.ShopInfoResp;
-import com.cloudmall.user.api.response.ShopResp;
+import com.cloudmall.user.api.model.resp.ShopInfoResp;
+import com.cloudmall.user.api.model.resp.ShopResp;
 
 /**
  * 商品应用服务。
@@ -100,7 +100,7 @@ public class ProductApp {
         Long userId = UserContextHolder.getUserId();
         ShopResp shop = Asserts.requireNonNull(
                 shopClient.getByUserId(userId),
-                BizError.MERCHANT_STORE_NOT_FOUND
+                BizErrorEnum.MERCHANT_STORE_NOT_FOUND
         );
         return shop.getId();
     }

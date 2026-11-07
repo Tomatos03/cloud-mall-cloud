@@ -5,6 +5,8 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 
+import com.cloudmall.jwt.properties.JwtProperties;
+
 import com.cloudmall.jwt.service.ITokenService;
 import com.cloudmall.jwt.service.JwtTokenService;
 

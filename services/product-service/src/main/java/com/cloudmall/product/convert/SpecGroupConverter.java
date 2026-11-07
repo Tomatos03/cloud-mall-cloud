@@ -5,10 +5,10 @@ import java.util.List;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
-import com.cloudmall.product.api.model.SpecGroupItem;
-import com.cloudmall.product.api.response.SpecGroupResp;
-import com.cloudmall.product.entity.ProductSpecGroupDO;
-import com.cloudmall.product.entity.ProductSpecValueDO;
+import com.cloudmall.product.api.model.bo.SpecGroupItem;
+import com.cloudmall.product.api.model.resp.SpecGroupResp;
+import com.cloudmall.product.model.entity.ProductSpecGroupDO;
+import com.cloudmall.product.model.entity.ProductSpecValueDO;
 
 /**
  * 规格组对象转换器。

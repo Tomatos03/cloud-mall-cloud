@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.cloudmall.common.model.Result;
-import com.cloudmall.product.api.response.BannerResp;
+import com.cloudmall.product.api.model.resp.BannerResp;
 import com.cloudmall.product.model.req.BannerPageReq;
 import com.cloudmall.product.model.req.BannerReq;
 import com.cloudmall.product.service.IBannerService;

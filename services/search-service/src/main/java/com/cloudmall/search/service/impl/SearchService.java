@@ -25,22 +25,22 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
-import com.cloudmall.common.enums.BizError;
+import com.cloudmall.common.enums.BizErrorEnum;
 import com.cloudmall.common.exception.BizException;
 import com.cloudmall.common.model.CursorReq;
 import com.cloudmall.common.model.CursorResult;
 import com.cloudmall.product.api.client.ProductClient;
-import com.cloudmall.product.api.response.ProductDocResp;
-import com.cloudmall.search.api.request.SearchProductReq;
-import com.cloudmall.search.api.response.FacetItemResp;
-import com.cloudmall.search.api.response.SearchFacetsResp;
-import com.cloudmall.search.api.response.SearchProductResp;
-import com.cloudmall.search.api.response.SearchResultResp;
-import com.cloudmall.search.config.SearchProperties;
-import com.cloudmall.search.config.SearchSyncProperties;
+import com.cloudmall.product.api.model.resp.ProductDocResp;
+import com.cloudmall.search.api.model.req.SearchProductReq;
+import com.cloudmall.search.api.model.resp.FacetItemResp;
+import com.cloudmall.search.api.model.resp.SearchFacetsResp;
+import com.cloudmall.search.api.model.resp.SearchProductResp;
+import com.cloudmall.search.api.model.resp.SearchResultResp;
+import com.cloudmall.search.properties.SearchProperties;
+import com.cloudmall.search.properties.SearchSyncProperties;
 import com.cloudmall.search.index.ProductIndexRepository;
-import com.cloudmall.search.model.ProductHit;
-import com.cloudmall.search.model.RebuildResultResp;
+import com.cloudmall.search.model.bo.ProductHit;
+import com.cloudmall.search.model.resp.RebuildResultResp;
 import com.cloudmall.search.service.ISearchService;
 
 /**
@@ -249,7 +249,7 @@ public class SearchService implements ISearchService {
             case "price_desc" -> SortOptions.of(s -> s.field(f -> f.field("priceMin").order(SortOrder.Desc)));
             case "sales" -> SortOptions.of(s -> s.field(f -> f.field("sales").order(SortOrder.Desc)));
             case "newest" -> SortOptions.of(s -> s.field(f -> f.field("createTime").order(SortOrder.Desc)));
-            default -> throw new BizException(BizError.UNKNOWN_SEARCH_ORDER_TYPE);
+            default -> throw new BizException(BizErrorEnum.UNKNOWN_SEARCH_ORDER_TYPE);
         };
     }
 

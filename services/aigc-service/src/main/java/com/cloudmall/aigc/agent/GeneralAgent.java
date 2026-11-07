@@ -60,11 +60,11 @@ public class GeneralAgent extends AbstractAgent {
     /**
      * 获取智能体类型。
      *
-     * @return {@link AgentType#GENERAL}
+     * @return {@link AgentTypeEnum#GENERAL}
      */
     @Override
-    public AgentType getType() {
-        return AgentType.GENERAL;
+    public AgentTypeEnum getType() {
+        return AgentTypeEnum.GENERAL;
     }
 
     /**

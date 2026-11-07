@@ -4,9 +4,9 @@ import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
-import com.cloudmall.product.api.request.StockConfirmReq;
-import com.cloudmall.product.api.request.StockOpReq;
-import com.cloudmall.product.api.request.StockReleaseByOrderReq;
+import com.cloudmall.product.api.model.req.StockConfirmReq;
+import com.cloudmall.product.api.model.req.StockOpReq;
+import com.cloudmall.product.api.model.req.StockReleaseByOrderReq;
 
 /**
  * 商品内部 Feign 客户端

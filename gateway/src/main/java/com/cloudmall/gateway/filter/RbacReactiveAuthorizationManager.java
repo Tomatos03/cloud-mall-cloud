@@ -13,7 +13,7 @@ import org.springframework.security.web.server.authorization.AuthorizationContex
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
 
-import com.cloudmall.gateway.config.AuthProperties;
+import com.cloudmall.gateway.properties.AuthProperties;
 
 /**
  * RBAC 响应式授权管理器

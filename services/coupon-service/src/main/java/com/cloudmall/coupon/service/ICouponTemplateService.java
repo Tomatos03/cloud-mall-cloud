@@ -2,10 +2,10 @@ package com.cloudmall.coupon.service;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
 
-import com.cloudmall.coupon.api.request.CouponReq;
-import com.cloudmall.coupon.api.response.CouponOperationLogResp;
-import com.cloudmall.coupon.api.response.CouponResp;
-import com.cloudmall.coupon.entity.CouponDO;
+import com.cloudmall.coupon.api.model.req.CouponReq;
+import com.cloudmall.coupon.api.model.resp.CouponOperationLogResp;
+import com.cloudmall.coupon.api.model.resp.CouponResp;
+import com.cloudmall.coupon.model.entity.CouponDO;
 import com.cloudmall.coupon.model.req.CouponOperationLogPageReq;
 import com.cloudmall.coupon.model.req.CouponPageReq;
 

@@ -6,11 +6,11 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
-import com.cloudmall.consumer.handler.EventHandler;
-import com.cloudmall.order.api.event.OrderTagEnum;
+import com.cloudmall.consumer.handler.IEventHandler;
+import com.cloudmall.order.api.enums.OrderTagEnum;
 import com.cloudmall.seckill.api.client.InternalSeckillClient;
-import com.cloudmall.seckill.api.event.SeckillPaidEvent;
-import com.cloudmall.seckill.api.request.SeckillConfirmPaidReq;
+import com.cloudmall.seckill.api.model.bo.SeckillPaidEvent;
+import com.cloudmall.seckill.api.model.req.SeckillConfirmPaidReq;
 
 /**
  * 秒杀支付确认处理器
@@ -23,7 +23,7 @@ import com.cloudmall.seckill.api.request.SeckillConfirmPaidReq;
 @Slf4j
 @Component
 @RequiredArgsConstructor
-public class SeckillOrderPaidHandler implements EventHandler<SeckillPaidEvent> {
+public class SeckillOrderPaidHandler implements IEventHandler<SeckillPaidEvent> {
 
     /** 秒杀订单号前缀 */
     private static final String SECKILL_ORDER_NO_PREFIX = "SK";

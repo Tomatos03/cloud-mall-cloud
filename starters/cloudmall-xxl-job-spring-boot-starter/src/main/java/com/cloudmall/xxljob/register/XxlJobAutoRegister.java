@@ -12,7 +12,7 @@ import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.core.Ordered;
 
-import com.cloudmall.xxljob.config.XxlJobProperties;
+import com.cloudmall.xxljob.properties.XxlJobProperties;
 
 /**
  * 启动时向调度中心自动注册任务（幂等）。

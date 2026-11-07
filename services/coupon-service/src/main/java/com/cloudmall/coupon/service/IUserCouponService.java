@@ -8,8 +8,8 @@ import java.util.Set;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 
 import com.cloudmall.common.model.CursorResult;
-import com.cloudmall.coupon.api.response.CouponResp;
-import com.cloudmall.coupon.api.response.UserCouponResp;
+import com.cloudmall.coupon.api.model.resp.CouponResp;
+import com.cloudmall.coupon.api.model.resp.UserCouponResp;
 import com.cloudmall.coupon.model.req.CouponPageReq;
 import com.cloudmall.coupon.model.req.UserCouponCursorReq;
 import com.cloudmall.coupon.model.req.UserCouponPageReq;

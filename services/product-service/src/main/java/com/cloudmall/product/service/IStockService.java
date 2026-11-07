@@ -1,7 +1,7 @@
 package com.cloudmall.product.service;
 
-import com.cloudmall.product.api.request.StockConfirmReq;
-import com.cloudmall.product.api.request.StockOpReq;
+import com.cloudmall.product.api.model.req.StockConfirmReq;
+import com.cloudmall.product.api.model.req.StockOpReq;
 
 /**
  * 普通商品库存服务

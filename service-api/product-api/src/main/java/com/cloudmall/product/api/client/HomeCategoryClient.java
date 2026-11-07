@@ -6,7 +6,7 @@ import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.GetMapping;
 
 import com.cloudmall.product.api.client.fallback.HomeCategoryClientFallbackFactory;
-import com.cloudmall.product.api.response.CategoryResp;
+import com.cloudmall.product.api.model.resp.CategoryResp;
 
 /**
  * 首页聚合专用分类 Feign 客户端

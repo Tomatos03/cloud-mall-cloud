@@ -17,9 +17,9 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.cloudmall.common.context.UserContextHolder;
 import com.cloudmall.common.model.Result;
-import com.cloudmall.user.api.request.AddressUpdateReq;
-import com.cloudmall.user.api.request.CreateReq;
-import com.cloudmall.user.api.response.AddressResp;
+import com.cloudmall.user.api.model.req.AddressUpdateReq;
+import com.cloudmall.user.api.model.req.CreateReq;
+import com.cloudmall.user.api.model.resp.AddressResp;
 import com.cloudmall.user.service.IAddressService;
 
 @RestController

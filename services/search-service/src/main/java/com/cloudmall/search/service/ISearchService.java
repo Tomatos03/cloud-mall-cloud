@@ -1,8 +1,8 @@
 package com.cloudmall.search.service;
 
-import com.cloudmall.search.api.request.SearchProductReq;
-import com.cloudmall.search.api.response.SearchResultResp;
-import com.cloudmall.search.model.RebuildResultResp;
+import com.cloudmall.search.api.model.req.SearchProductReq;
+import com.cloudmall.search.api.model.resp.SearchResultResp;
+import com.cloudmall.search.model.resp.RebuildResultResp;
 
 /**
  * 商品搜索服务接口

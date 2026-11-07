@@ -8,7 +8,7 @@ import com.baomidou.mybatisplus.core.metadata.TableFieldInfo;
 import com.baomidou.mybatisplus.core.metadata.TableInfo;
 import com.baomidou.mybatisplus.core.metadata.TableInfoHelper;
 
-import com.cloudmall.mybatisplus.annotation.Operator;
+import com.cloudmall.mybatisplus.annotation.OperatorEnum;
 
 /**
  * 查询条件构建底层工具。
@@ -65,7 +65,7 @@ public final class QueryConditionHelper {
 
     /**
      * 按操作符向 Wrapper 追加查询条件 <p>
-     * 支持 {@link Operator} 中定义的全部操作符。 特殊说明： <ul> <li>
+     * 支持 {@link OperatorEnum} 中定义的全部操作符。 特殊说明： <ul> <li>
      * {@code IS_NULL / IS_NOT_NULL} 忽略 value 参数</li>
      * <li>{@code BETWEEN} 要求 value 为
      * {@code Object[2]}</li> <li>{@code IN / NOT_IN} 接受
@@ -76,7 +76,7 @@ public final class QueryConditionHelper {
      * @param operator 操作符
      * @param value 条件值
      */
-    public static void applyCondition(QueryWrapper<?> wrapper, String column, Operator operator, Object value) {
+    public static void applyCondition(QueryWrapper<?> wrapper, String column, OperatorEnum operator, Object value) {
         switch (operator) {
             case EQ -> wrapper.eq(column, value);
             case NE -> wrapper.ne(column, value);

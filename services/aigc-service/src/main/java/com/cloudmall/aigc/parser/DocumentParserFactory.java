@@ -19,20 +19,20 @@ import org.springframework.stereotype.Component;
 @Component
 public class DocumentParserFactory {
 
-    private final Map<DocumentType, DocumentParser> parserMap;
+    private final Map<DocumentTypeEnum, IDocumentParser> parserMap;
 
     /**
      * 使用指定参数构造对象。
      *
      * @param parsers 文档解析器列表
      */
-    public DocumentParserFactory(List<DocumentParser> parsers) {
+    public DocumentParserFactory(List<IDocumentParser> parsers) {
         this.parserMap = parsers.stream()
                                 .collect(Collectors.toMap(
-                                        DocumentParser::getType,        // key
+                                        IDocumentParser::getType,        // key
                                         Function.identity(),            // value
                                         (existing, replacement) -> replacement,  // 冲突处理
-                                        () -> new EnumMap<>(DocumentType.class)  // 容器
+                                        () -> new EnumMap<>(DocumentTypeEnum.class)  // 容器
                                 ));
     }
 
@@ -42,8 +42,8 @@ public class DocumentParserFactory {
      * @param filename 文件名
      * @return 文档解析器
      */
-    public DocumentParser getParser(String filename) {
-        DocumentType type = DocumentType.fromFilename(filename);
-        return parserMap.getOrDefault(type, parserMap.get(DocumentType.Tika));
+    public IDocumentParser getParser(String filename) {
+        DocumentTypeEnum type = DocumentTypeEnum.fromFilename(filename);
+        return parserMap.getOrDefault(type, parserMap.get(DocumentTypeEnum.Tika));
     }
 }

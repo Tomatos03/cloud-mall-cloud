@@ -2,9 +2,9 @@ package com.cloudmall.product.service;
 
 import java.util.List;
 
-import com.cloudmall.product.api.request.CategoryCreateReq;
-import com.cloudmall.product.api.response.CategoryNodeResp;
-import com.cloudmall.product.api.response.CategoryResp;
+import com.cloudmall.product.api.model.req.CategoryCreateReq;
+import com.cloudmall.product.api.model.resp.CategoryNodeResp;
+import com.cloudmall.product.api.model.resp.CategoryResp;
 
 public interface ICategoryService {
 

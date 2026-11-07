@@ -78,7 +78,7 @@ cloudmall:
 ```
 cloudmall-rocketmq-spring-boot-starter
 ├── rocketmq-spring-boot-starter（RocketMQTemplate）
-├── cloudmall-common（Asserts、BizError）
+├── cloudmall-common（Asserts、BizErrorEnum）
 └── lombok（optional，编译期）
 ```
 

@@ -6,7 +6,7 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import org.apache.ibatis.annotations.Mapper;
 
-import com.cloudmall.im.entity.ChatSessionDO;
+import com.cloudmall.im.model.entity.ChatSessionDO;
 import com.cloudmall.im.model.req.SessionPageReq;
 
 /**

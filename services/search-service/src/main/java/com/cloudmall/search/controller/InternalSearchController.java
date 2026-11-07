@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.cloudmall.common.model.Result;
-import com.cloudmall.product.api.response.ProductDocResp;
+import com.cloudmall.product.api.model.resp.ProductDocResp;
 import com.cloudmall.search.index.ProductIndexRepository;
 
 /**

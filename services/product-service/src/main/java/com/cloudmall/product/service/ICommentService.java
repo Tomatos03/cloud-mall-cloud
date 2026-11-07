@@ -2,8 +2,8 @@ package com.cloudmall.product.service;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
 
-import com.cloudmall.product.api.request.CommentCreateReq;
-import com.cloudmall.product.api.response.CommentResp;
+import com.cloudmall.product.api.model.req.CommentCreateReq;
+import com.cloudmall.product.api.model.resp.CommentResp;
 import com.cloudmall.product.model.req.CommentPageReq;
 
 public interface ICommentService {

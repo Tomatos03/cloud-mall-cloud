@@ -7,9 +7,9 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import com.cloudmall.product.api.response.BannerResp;
-import com.cloudmall.product.api.response.CategoryResp;
-import com.cloudmall.seckill.api.response.ActivityDetailResp;
+import com.cloudmall.product.api.model.resp.BannerResp;
+import com.cloudmall.product.api.model.resp.CategoryResp;
+import com.cloudmall.seckill.api.model.resp.ActivityDetailResp;
 
 /**
  * 首页聚合响应

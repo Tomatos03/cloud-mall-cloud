@@ -14,10 +14,10 @@ import com.cloudmall.mybatisplus.query.ConditionBuilder;
  * &#064;Getter &#064;Setter
  * public class UserPageReq extends PageReq&lt;UserDO&gt; {
  *
- *     &#064;QueryCondition(property = "username", operator = Operator.LIKE)
+ *     &#064;QueryCondition(property = "username", operator = OperatorEnum.LIKE)
  *     private String name;
  *
- *     &#064;QueryCondition(operator = Operator.EQ)
+ *     &#064;QueryCondition(operator = OperatorEnum.EQ)
  *     private Boolean enabled;
  * }
  * }</pre>

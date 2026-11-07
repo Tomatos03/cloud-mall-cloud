@@ -60,11 +60,11 @@ public class OrderAgent extends AbstractAgent {
     /**
      * 获取智能体类型。
      *
-     * @return {@link AgentType#ORDER}
+     * @return {@link AgentTypeEnum#ORDER}
      */
     @Override
-    public AgentType getType() {
-        return AgentType.ORDER;
+    public AgentTypeEnum getType() {
+        return AgentTypeEnum.ORDER;
     }
 
     /**

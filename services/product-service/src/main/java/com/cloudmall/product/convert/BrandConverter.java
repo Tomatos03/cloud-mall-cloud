@@ -8,10 +8,10 @@ import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
 import org.mapstruct.NullValuePropertyMappingStrategy;
 
-import com.cloudmall.product.api.request.BrandCreateReq;
-import com.cloudmall.product.api.request.BrandUpdateReq;
-import com.cloudmall.product.api.response.BrandResp;
-import com.cloudmall.product.entity.BrandDO;
+import com.cloudmall.product.api.model.req.BrandCreateReq;
+import com.cloudmall.product.api.model.req.BrandUpdateReq;
+import com.cloudmall.product.api.model.resp.BrandResp;
+import com.cloudmall.product.model.entity.BrandDO;
 
 /**
  * 品牌对象转换器。

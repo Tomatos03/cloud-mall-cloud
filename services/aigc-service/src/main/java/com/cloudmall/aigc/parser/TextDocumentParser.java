@@ -18,7 +18,7 @@ import org.springframework.web.multipart.MultipartFile;
  * @date 2026/7/22
  */
 @Component
-public class TextDocumentParser implements DocumentParser {
+public class TextDocumentParser implements IDocumentParser {
 
     /**
      * 解析纯文本文件
@@ -43,7 +43,7 @@ public class TextDocumentParser implements DocumentParser {
      * @return TEXT
      */
     @Override
-    public DocumentType getType() {
-        return DocumentType.TEXT;
+    public DocumentTypeEnum getType() {
+        return DocumentTypeEnum.TEXT;
     }
 }

@@ -28,13 +28,13 @@ import com.cloudmall.aigc.model.resp.ChatResp;
  */
 @Slf4j
 @Service
-public class RouterAgent implements Agent {
+public class RouterAgent implements IAgent {
     /** Nacos 路由 prompt 模板中的 Agent 描述占位符 */
     public static final String AGENT_DESCRIPTIONS = "agent_descriptions";
 
     private final AgentPromptLoader promptLoader;
     private final ChatClient.Builder chatClientBuilder;
-    private final Map<AgentType, Agent> agentMap;
+    private final Map<AgentTypeEnum, IAgent> agentMap;
     private ChatClient routerChatClient;
 
     /**
@@ -45,18 +45,18 @@ public class RouterAgent implements Agent {
      * @param agents 所有业务智能体列表（不含路由自身）
      * @param promptLoader 提示词加载器，用于加载路由 system prompt
      */
-    public RouterAgent(ChatClient.Builder clientBuilder, List<Agent> agents, AgentPromptLoader promptLoader) {
+    public RouterAgent(ChatClient.Builder clientBuilder, List<IAgent> agents, AgentPromptLoader promptLoader) {
         this.chatClientBuilder = clientBuilder;
         this.promptLoader = promptLoader;
         this.agentMap = agents.stream()
-                              .filter(agent -> AgentType.ROUTE != agent.getType())
-                              .collect(Collectors.toMap(Agent::getType, Function.identity()));
+                              .filter(agent -> AgentTypeEnum.ROUTE != agent.getType())
+                              .collect(Collectors.toMap(IAgent::getType, Function.identity()));
 
         this.routerChatClient = buildRouterChatClient();
 
         // 注册 Nacos 热更新监听
         promptLoader.registerListener(
-                AgentType.ROUTE,
+                AgentTypeEnum.ROUTE,
                 () -> {
                     this.routerChatClient = buildRouterChatClient();
                     log.info("RouterAgent ChatClient 已重建（热更新）");
@@ -70,7 +70,7 @@ public class RouterAgent implements Agent {
      * @return 路由 ChatClient
      */
     private ChatClient buildRouterChatClient() {
-        String systemPrompt = promptLoader.load(AgentType.ROUTE);
+        String systemPrompt = promptLoader.load(AgentTypeEnum.ROUTE);
         String agentDescriptions = agentMap.values()
                                            .stream()
                                            .map(this::formatAgentDescription)
@@ -103,11 +103,11 @@ public class RouterAgent implements Agent {
     /**
      * 获取智能体类型。
      *
-     * @return {@link AgentType#ROUTE}
+     * @return {@link AgentTypeEnum#ROUTE}
      */
     @Override
-    public AgentType getType() {
-        return AgentType.ROUTE;
+    public AgentTypeEnum getType() {
+        return AgentTypeEnum.ROUTE;
     }
 
     /**
@@ -133,9 +133,9 @@ public class RouterAgent implements Agent {
         return Mono.fromCallable(() -> classifyIntent(req.getPrompt()))
                    .flatMapMany(
                            decision -> {
-                               Agent agent = agentMap.getOrDefault(
+                               IAgent agent = agentMap.getOrDefault(
                                        decision.agentType(),
-                                       agentMap.get(AgentType.GENERAL)
+                                       agentMap.get(AgentTypeEnum.GENERAL)
                                );
                                log.debug(
                                        "路由决策: sessionId={}, agent={}, confidence={}, reason={}",
@@ -169,7 +169,7 @@ public class RouterAgent implements Agent {
      * @param agent 智能体实例
      * @return 格式化后的描述行，如 {@code - product: 负责商品搜索...}
      */
-    private String formatAgentDescription(Agent agent) {
+    private String formatAgentDescription(IAgent agent) {
         String agentTypeName = agent.getType()
                                     .name()
                                     .toLowerCase();
@@ -192,6 +192,6 @@ public class RouterAgent implements Agent {
     /**
      * 路由决策的结构化输出载体。
      */
-    public record RouteDecision(AgentType agentType, String confidence, String reason) {
+    public record RouteDecision(AgentTypeEnum agentType, String confidence, String reason) {
     }
 }

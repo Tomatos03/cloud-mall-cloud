@@ -6,7 +6,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.cloud.openfeign.FallbackFactory;
 
 import com.cloudmall.product.api.client.HomeCategoryClient;
-import com.cloudmall.product.api.response.CategoryResp;
+import com.cloudmall.product.api.model.resp.CategoryResp;
 
 /**
  * 首页分类客户端兜底工厂

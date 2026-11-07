@@ -28,11 +28,11 @@ import com.cloudmall.aigc.properties.AgentProperties;
 @Component
 public class AgentPromptLoader {
     private final ConfigService configService;
-    private final Map<AgentType, PromptConfig> promptConfigs;
+    private final Map<AgentTypeEnum, PromptConfig> promptConfigs;
     private final String defaultGroup;
     private final int defaultTimeout;
     private final String globalPrompt;
-    private final Map<AgentType, String> cache = new ConcurrentHashMap<>();
+    private final Map<AgentTypeEnum, String> cache = new ConcurrentHashMap<>();
 
     /**
      * 使用 Nacos 配置管理器和 Agent 配置构造加载器。
@@ -54,7 +54,7 @@ public class AgentPromptLoader {
                     .stream()
                     .collect(
                             Collectors.toMap(
-                                    e -> AgentType.valueOf(e.getKey().toUpperCase()),
+                                    e -> AgentTypeEnum.valueOf(e.getKey().toUpperCase()),
                                     e -> {
                                         AgentProperties.PromptConfig cfg = e.getValue();
                                         PromptConfig pc = new PromptConfig();
@@ -77,7 +77,7 @@ public class AgentPromptLoader {
      * @param type 类型
      * @return 字符串结果
      */
-    public String load(AgentType type) {
+    public String load(AgentTypeEnum type) {
         boolean cached = cache.containsKey(type);
         String agentPrompt = cache.computeIfAbsent(type, this::loadFromNacos);
         // globalPrompt 不缓存，热更新时无需重建
@@ -91,7 +91,7 @@ public class AgentPromptLoader {
      * @param type 智能体类型
      * @return 提示词内容，读取失败时返回 {@link #DEFAULT_PROMPT}
      */
-    private String loadFromNacos(AgentType type) {
+    private String loadFromNacos(AgentTypeEnum type) {
         PromptConfig cfg = promptConfigs.get(type);
         if (cfg == null || StrUtil.isBlank(cfg.getDataId())) {
             log.warn("智能体未配置 Nacos dataId: type={}", type);
@@ -125,7 +125,7 @@ public class AgentPromptLoader {
      * @param type 智能体类型
      * @param onUpdate 配置变更后的回调
      */
-    public void registerListener(AgentType type, Runnable onUpdate) {
+    public void registerListener(AgentTypeEnum type, Runnable onUpdate) {
         PromptConfig cfg = promptConfigs.get(type);
         if (cfg == null || StrUtil.isBlank(cfg.getDataId())) {
             log.warn("智能体未配置 Nacos dataId，跳过监听注册: type={}", type);

@@ -4,8 +4,8 @@ import java.util.List;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
 
-import com.cloudmall.seckill.api.response.SeckillProductResp;
-import com.cloudmall.seckill.entity.SeckillProductDO;
+import com.cloudmall.seckill.api.model.resp.SeckillProductResp;
+import com.cloudmall.seckill.model.entity.SeckillProductDO;
 import com.cloudmall.seckill.model.req.SeckillProductPageReq;
 
 /**

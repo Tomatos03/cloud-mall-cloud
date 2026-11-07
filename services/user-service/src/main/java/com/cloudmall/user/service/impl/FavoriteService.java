@@ -7,7 +7,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Service;
 
-import com.cloudmall.user.entity.FavoriteDO;
+import com.cloudmall.user.model.entity.FavoriteDO;
 import com.cloudmall.user.mapper.FavoriteMapper;
 import com.cloudmall.user.service.IFavoriteService;
 

@@ -13,18 +13,18 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;
 
 /**
- * 按 {@link AgentType} 归类所有带 {@link AgentTool} 注解的工具 Bean。
+ * 按 {@link AgentTypeEnum} 归类所有带 {@link AgentTool} 注解的工具 Bean。
  * <p>
  * Spring 单例，容器启动时一次性扫描并缓存，供所有 {@link AbstractAgent} 实例共享。
  */
 @Component
 public class AgentToolRegistry {
 
-    private final Map<AgentType, Object[]> toolMap;
+    private final Map<AgentTypeEnum, Object[]> toolMap;
 
     /**
      * 构造工具注册器，扫描 Spring 容器中所有带 {@link AgentTool} 注解的
-     * Bean， 并按 {@link AgentType} 归类缓存。
+     * Bean， 并按 {@link AgentTypeEnum} 归类缓存。
      *
      * @param context Spring 应用上下文，用于获取带注解的 Bean
      */
@@ -38,7 +38,7 @@ public class AgentToolRegistry {
      * @param type 类型
      * @return 处理结果
      */
-    public Object[] getTools(AgentType type) {
+    public Object[] getTools(AgentTypeEnum type) {
         return toolMap.getOrDefault(type, new Object[0]);
     }
 
@@ -49,10 +49,10 @@ public class AgentToolRegistry {
      * @param context Spring 应用上下文
      * @return 智能体类型到可用工具数组的映射
      */
-    private static Map<AgentType, Object[]> buildAgentAvailableToolsMap(ApplicationContext context) {
+    private static Map<AgentTypeEnum, Object[]> buildAgentAvailableToolsMap(ApplicationContext context) {
         Map<String, Object> toolBeans = context.getBeansWithAnnotation(AgentTool.class);
 
-        Map<AgentType, ArrayList<Object>> result = Arrays.stream(AgentType.values())
+        Map<AgentTypeEnum, ArrayList<Object>> result = Arrays.stream(AgentTypeEnum.values())
                                                          .collect(
                                                                  Collectors.toMap(
                                                                          Function.identity(),
@@ -63,11 +63,11 @@ public class AgentToolRegistry {
         for (Object tool : toolBeans.values()) {
             AgentTool ann = tool.getClass().getAnnotation(AgentTool.class);
 
-            List<AgentType> list = List.of(ann.agents().length == 0 ? AgentType.values() : ann.agents());
-            Set<AgentType> allowed = new HashSet<>(list);
+            List<AgentTypeEnum> list = List.of(ann.agents().length == 0 ? AgentTypeEnum.values() : ann.agents());
+            Set<AgentTypeEnum> allowed = new HashSet<>(list);
             List.of(ann.exclude()).forEach(allowed::remove);
 
-            for (AgentType type : allowed) {
+            for (AgentTypeEnum type : allowed) {
                 result.get(type).add(tool);
             }
         }

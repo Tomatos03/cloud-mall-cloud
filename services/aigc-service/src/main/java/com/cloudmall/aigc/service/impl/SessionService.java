@@ -21,9 +21,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.cloudmall.aigc.convert.HotTopicConverter;
-import com.cloudmall.aigc.entity.ChatSessionDO;
+import com.cloudmall.aigc.model.entity.ChatSessionDO;
 import com.cloudmall.aigc.mapper.ChatSessionMapper;
-import com.cloudmall.aigc.model.enums.SessionTimeBucket;
+import com.cloudmall.aigc.enums.SessionTimeBucketEnum;
 import com.cloudmall.aigc.model.resp.ChatMessageResp;
 import com.cloudmall.aigc.model.resp.CreateSessionResp;
 import com.cloudmall.aigc.model.resp.HotTopicResp;
@@ -31,7 +31,7 @@ import com.cloudmall.aigc.model.resp.SessionHistoryItemResp;
 import com.cloudmall.aigc.properties.AgentProperties;
 import com.cloudmall.aigc.service.ISessionService;
 import com.cloudmall.common.context.UserContextHolder;
-import com.cloudmall.common.enums.BizError;
+import com.cloudmall.common.enums.BizErrorEnum;
 import com.cloudmall.common.exception.BizException;
 import com.cloudmall.common.utils.Asserts;
 
@@ -141,7 +141,7 @@ public class SessionService implements ISessionService {
         Map<String, List<SessionHistoryItemResp>> result = new LinkedHashMap<>();
 
         for (ChatSessionDO session : sessions) {
-            for (SessionTimeBucket bucket : SessionTimeBucket.values()) {
+            for (SessionTimeBucketEnum bucket : SessionTimeBucketEnum.values()) {
                 if (bucket.matches(session.getUpdateTime(), now)) {
                     result.computeIfAbsent(bucket.getDisplayName(), k -> new ArrayList<>())
                           .add(
@@ -196,7 +196,7 @@ public class SessionService implements ISessionService {
     private ChatSessionDO getValidatedSession(String sessionId) {
         ChatSessionDO chatSession = Asserts.requireNonNull(
                 chatSessionMapper.selectBySessionIdAndUserId(sessionId, UserContextHolder.getUserId()),
-                BizError.SESSION_NOT_FOUND
+                BizErrorEnum.SESSION_NOT_FOUND
         );
         return chatSession;
     }

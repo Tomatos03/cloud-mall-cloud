@@ -13,20 +13,20 @@ import org.springframework.stereotype.Component;
  * 使用示例：
  * <pre>{@code
  *
- * @AgentTool(agents = AgentType.PRODUCT)
+ * @AgentTool(agents = AgentTypeEnum.PRODUCT)
  * public class ProductSpuTool {
  *     @Tool(description = "根据SPU查询商品详情")
  *     public ProductResp getBySpu(String spu) { ... }
  * }
  *
- * @AgentTool(exclude = AgentType.REFUND)
+ * @AgentTool(exclude = AgentTypeEnum.REFUND)
  * public class CartTool { ... }
  *
  * @AgentTool  // 默认所有智能体可用
  * public class CommonTool { ... }
  * }</pre>
  *
- * @see AgentType
+ * @see AgentTypeEnum
  */
 @Component
 @Target(ElementType.TYPE)
@@ -37,13 +37,13 @@ public @interface AgentTool {
      * 指定哪些智能体可以使用该工具。
      * 为空时表示所有智能体都可以使用（配合 exclude 排除）。
      */
-    AgentType[] agents() default {
+    AgentTypeEnum[] agents() default {
     };
 
     /**
      * 排除哪些智能体不能使用该工具。
      * 优先级高于 agents：exclude 中指定的智能体即使出现在 agents 中也不会获得该工具。
      */
-    AgentType[] exclude() default {
+    AgentTypeEnum[] exclude() default {
     };
 }

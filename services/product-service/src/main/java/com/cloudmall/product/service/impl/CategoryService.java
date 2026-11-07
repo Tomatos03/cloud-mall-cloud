@@ -12,14 +12,14 @@ import cn.hutool.core.util.ObjectUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import com.cloudmall.common.enums.BizError;
+import com.cloudmall.common.enums.BizErrorEnum;
 import com.cloudmall.common.exception.BizException;
 import com.cloudmall.common.utils.Asserts;
-import com.cloudmall.product.api.request.CategoryCreateReq;
-import com.cloudmall.product.api.response.CategoryNodeResp;
-import com.cloudmall.product.api.response.CategoryResp;
+import com.cloudmall.product.api.model.req.CategoryCreateReq;
+import com.cloudmall.product.api.model.resp.CategoryNodeResp;
+import com.cloudmall.product.api.model.resp.CategoryResp;
 import com.cloudmall.product.convert.CategoryConverter;
-import com.cloudmall.product.entity.CategoryDO;
+import com.cloudmall.product.model.entity.CategoryDO;
 import com.cloudmall.product.mapper.CategoryMapper;
 import com.cloudmall.product.service.ICategoryService;
 
@@ -118,7 +118,7 @@ public class CategoryService implements ICategoryService {
         }
         CategoryDO parent = Asserts.requireNonNull(categoryMapper.selectById(parentId));
         int level = ObjectUtil.defaultIfNull(parent.getLevel(), 1) + 1;
-        Asserts.isTrue(level <= MAX_CATEGORY_LEVEL, BizError.CATEGORY_BEYOND_MAX_LEVEL);
+        Asserts.isTrue(level <= MAX_CATEGORY_LEVEL, BizErrorEnum.CATEGORY_BEYOND_MAX_LEVEL);
         return level;
     }
 

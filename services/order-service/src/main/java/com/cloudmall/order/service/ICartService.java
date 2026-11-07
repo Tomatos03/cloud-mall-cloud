@@ -2,10 +2,10 @@ package com.cloudmall.order.service;
 
 import java.util.List;
 
-import com.cloudmall.order.api.request.CartOperatorReq;
-import com.cloudmall.order.api.request.CartSelectReq;
-import com.cloudmall.order.api.response.CartDetailResp;
-import com.cloudmall.order.entity.CartDO;
+import com.cloudmall.order.api.model.req.CartOperatorReq;
+import com.cloudmall.order.api.model.req.CartSelectReq;
+import com.cloudmall.order.api.model.resp.CartDetailResp;
+import com.cloudmall.order.model.entity.CartDO;
 
 /**
  * 购物车服务接口

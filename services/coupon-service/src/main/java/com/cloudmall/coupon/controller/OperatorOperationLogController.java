@@ -7,7 +7,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.cloudmall.common.model.Result;
-import com.cloudmall.coupon.api.response.CouponOperationLogResp;
+import com.cloudmall.coupon.api.model.resp.CouponOperationLogResp;
 import com.cloudmall.coupon.model.req.CouponOperationLogPageReq;
 import com.cloudmall.coupon.service.ICouponTemplateService;
 

@@ -6,7 +6,7 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
 
-import com.cloudmall.user.entity.ResourceDO;
+import com.cloudmall.user.model.entity.ResourceDO;
 import com.cloudmall.user.model.req.ResourceReq;
 import com.cloudmall.user.model.resp.ResourceResp;
 

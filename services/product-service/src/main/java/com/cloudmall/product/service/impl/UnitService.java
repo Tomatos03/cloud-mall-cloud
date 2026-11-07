@@ -7,14 +7,14 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.cloudmall.common.enums.BizError;
+import com.cloudmall.common.enums.BizErrorEnum;
 import com.cloudmall.common.exception.BizException;
 import com.cloudmall.common.utils.Asserts;
-import com.cloudmall.product.api.request.UnitCreateReq;
-import com.cloudmall.product.api.request.UnitUpdateReq;
-import com.cloudmall.product.api.response.UnitResp;
+import com.cloudmall.product.api.model.req.UnitCreateReq;
+import com.cloudmall.product.api.model.req.UnitUpdateReq;
+import com.cloudmall.product.api.model.resp.UnitResp;
 import com.cloudmall.product.convert.UnitConverter;
-import com.cloudmall.product.entity.UnitDO;
+import com.cloudmall.product.model.entity.UnitDO;
 import com.cloudmall.product.mapper.UnitMapper;
 import com.cloudmall.product.model.req.UnitPageReq;
 import com.cloudmall.product.service.IUnitService;
@@ -94,7 +94,7 @@ public class UnitService implements IUnitService {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public void delete(List<Long> ids) {
-        Asserts.notEmpty(ids, BizError.INVALID_PARAM);
+        Asserts.notEmpty(ids, BizErrorEnum.INVALID_PARAM);
         unitMapper.deleteBatchIds(ids);
     }
 }

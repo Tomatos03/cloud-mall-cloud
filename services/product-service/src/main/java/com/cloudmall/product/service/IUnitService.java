@@ -4,9 +4,9 @@ import java.util.List;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
 
-import com.cloudmall.product.api.request.UnitCreateReq;
-import com.cloudmall.product.api.request.UnitUpdateReq;
-import com.cloudmall.product.api.response.UnitResp;
+import com.cloudmall.product.api.model.req.UnitCreateReq;
+import com.cloudmall.product.api.model.req.UnitUpdateReq;
+import com.cloudmall.product.api.model.resp.UnitResp;
 import com.cloudmall.product.model.req.UnitPageReq;
 
 /**

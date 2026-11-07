@@ -8,10 +8,10 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import org.apache.ibatis.annotations.Mapper;
 
-import com.cloudmall.coupon.entity.CouponDO;
-import com.cloudmall.coupon.enums.CouponOwnerEnum;
-import com.cloudmall.coupon.enums.CouponStatusEnum;
-import com.cloudmall.coupon.enums.IssueChannelEnum;
+import com.cloudmall.coupon.model.entity.CouponDO;
+import com.cloudmall.coupon.api.enums.CouponOwnerEnum;
+import com.cloudmall.coupon.api.enums.CouponStatusEnum;
+import com.cloudmall.coupon.api.enums.IssueChannelEnum;
 import com.cloudmall.coupon.model.req.CouponPageReq;
 
 /**

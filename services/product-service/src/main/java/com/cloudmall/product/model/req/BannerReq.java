@@ -7,11 +7,11 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.Accessors;
 
-import com.cloudmall.mybatisplus.annotation.Operator;
+import com.cloudmall.mybatisplus.annotation.OperatorEnum;
 import com.cloudmall.mybatisplus.annotation.QueryCondition;
 import com.cloudmall.mybatisplus.enums.StatusEnum;
 import com.cloudmall.mybatisplus.model.ConditionReq;
-import com.cloudmall.product.entity.BannerDO;
+import com.cloudmall.product.model.entity.BannerDO;
 
 /**
  * Banner 列表查询请求。
@@ -30,11 +30,11 @@ public class BannerReq extends ConditionReq<BannerDO> {
 
     /** 状态（等值匹配） */
     @Builder.Default
-    @QueryCondition(operator = Operator.EQ)
+    @QueryCondition(operator = OperatorEnum.EQ)
     private StatusEnum status = StatusEnum.ENABLED;
 
     /** 标题（模糊匹配） */
-    @QueryCondition(operator = Operator.LIKE)
+    @QueryCondition(operator = OperatorEnum.LIKE)
     private String title;
 
     /**

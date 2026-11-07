@@ -7,7 +7,7 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import org.apache.ibatis.annotations.Mapper;
 
-import com.cloudmall.seckill.entity.SeckillProductDO;
+import com.cloudmall.seckill.model.entity.SeckillProductDO;
 import com.cloudmall.seckill.enums.SeckillProductAuditStatusEnum;
 import com.cloudmall.seckill.model.req.SeckillProductPageReq;
 

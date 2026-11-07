@@ -3,10 +3,10 @@ package com.cloudmall.user.model.req;
 import lombok.Getter;
 import lombok.Setter;
 
-import com.cloudmall.mybatisplus.annotation.Operator;
+import com.cloudmall.mybatisplus.annotation.OperatorEnum;
 import com.cloudmall.mybatisplus.annotation.QueryCondition;
 import com.cloudmall.mybatisplus.model.PageReq;
-import com.cloudmall.user.entity.UserDO;
+import com.cloudmall.user.model.entity.UserDO;
 
 /**
  * 用户分页查询请求
@@ -21,7 +21,7 @@ import com.cloudmall.user.entity.UserDO;
 public class UserPageReq extends PageReq<UserDO> {
 
     /** 用户名（模糊查询） */
-    @QueryCondition(property = "username", operator = Operator.LIKE)
+    @QueryCondition(property = "username", operator = OperatorEnum.LIKE)
     private String name;
 
     /** 是否启用 */

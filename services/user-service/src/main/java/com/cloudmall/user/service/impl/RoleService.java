@@ -10,12 +10,12 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.cloudmall.common.enums.BizError;
+import com.cloudmall.common.enums.BizErrorEnum;
 import com.cloudmall.common.utils.Asserts;
 import com.cloudmall.user.convert.RoleConverter;
-import com.cloudmall.user.entity.RoleDO;
-import com.cloudmall.user.entity.RoleResourceDO;
-import com.cloudmall.user.entity.UserRoleDO;
+import com.cloudmall.user.model.entity.RoleDO;
+import com.cloudmall.user.model.entity.RoleResourceDO;
+import com.cloudmall.user.model.entity.UserRoleDO;
 import com.cloudmall.user.mapper.RoleMapper;
 import com.cloudmall.user.mapper.RoleResourceMapper;
 import com.cloudmall.user.mapper.UserRoleMapper;
@@ -76,7 +76,7 @@ public class RoleService implements IRoleService {
     @Transactional(rollbackFor = Exception.class)
     public void deleteRole(Long roleId) {
         RoleDO existing = Asserts.requireNonNull(roleMapper.selectById(roleId));
-        Asserts.isTrue(!BooleanUtil.isTrue(existing.getBuiltIn()), BizError.INVALID_PARAM);
+        Asserts.isTrue(!BooleanUtil.isTrue(existing.getBuiltIn()), BizErrorEnum.INVALID_PARAM);
 
         userRoleMapper.deleteByRoleId(roleId);
         roleResourceMapper.deleteByRoleId(roleId);

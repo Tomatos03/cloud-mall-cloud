@@ -12,13 +12,13 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.cloudmall.common.context.UserContextHolder;
-import com.cloudmall.common.enums.BizError;
+import com.cloudmall.common.enums.BizErrorEnum;
 import com.cloudmall.common.model.Result;
 import com.cloudmall.common.utils.Asserts;
-import com.cloudmall.seckill.api.request.ActivityProductSubmitReq;
-import com.cloudmall.seckill.api.response.ActivityDetailResp;
-import com.cloudmall.seckill.api.response.ActivityResp;
-import com.cloudmall.seckill.api.response.SeckillProductResp;
+import com.cloudmall.seckill.api.model.req.ActivityProductSubmitReq;
+import com.cloudmall.seckill.api.model.resp.ActivityDetailResp;
+import com.cloudmall.seckill.api.model.resp.ActivityResp;
+import com.cloudmall.seckill.api.model.resp.SeckillProductResp;
 import com.cloudmall.seckill.application.SeckillApp;
 import com.cloudmall.seckill.service.ISeckillActivityService;
 import com.cloudmall.seckill.service.ISeckillProductService;
@@ -87,7 +87,7 @@ public class SeckillMerchantController {
     @GetMapping("/merchant/products")
     public Result<List<SeckillProductResp>> listMyProducts() {
         Long shopId = UserContextHolder.getShopId();
-        Asserts.notNull(shopId, BizError.MERCHANT_STORE_NOT_FOUND);
+        Asserts.notNull(shopId, BizErrorEnum.MERCHANT_STORE_NOT_FOUND);
         return Result.success(productService.listByShopId(shopId));
     }
 }

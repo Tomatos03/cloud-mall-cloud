@@ -5,7 +5,7 @@ import java.util.List;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
-import com.cloudmall.im.entity.ChatMessageDO;
+import com.cloudmall.im.model.entity.ChatMessageDO;
 import com.cloudmall.im.model.resp.MessageResp;
 
 /**

@@ -9,8 +9,8 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 
-import com.cloudmall.user.api.response.ShopInfoResp;
-import com.cloudmall.user.api.response.ShopResp;
+import com.cloudmall.user.api.model.resp.ShopInfoResp;
+import com.cloudmall.user.api.model.resp.ShopResp;
 
 @FeignClient(name = "user-service", contextId = "shopClient", path = "/shops")
 public interface ShopClient {

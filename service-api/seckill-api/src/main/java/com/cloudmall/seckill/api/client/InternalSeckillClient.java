@@ -6,8 +6,8 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
-import com.cloudmall.seckill.api.request.SeckillConfirmPaidReq;
-import com.cloudmall.seckill.api.response.SeckillOrderResp;
+import com.cloudmall.seckill.api.model.req.SeckillConfirmPaidReq;
+import com.cloudmall.seckill.api.model.resp.SeckillOrderResp;
 
 /**
  * 秒杀内部 Feign 客户端

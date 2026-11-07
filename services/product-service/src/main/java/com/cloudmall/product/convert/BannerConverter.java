@@ -4,8 +4,8 @@ import java.util.List;
 
 import org.mapstruct.Mapper;
 
-import com.cloudmall.product.api.response.BannerResp;
-import com.cloudmall.product.entity.BannerDO;
+import com.cloudmall.product.api.model.resp.BannerResp;
+import com.cloudmall.product.model.entity.BannerDO;
 
 @Mapper(componentModel = "spring")
 public interface BannerConverter {

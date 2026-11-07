@@ -8,14 +8,14 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.cloudmall.common.enums.BizError;
+import com.cloudmall.common.enums.BizErrorEnum;
 import com.cloudmall.common.exception.BizException;
 import com.cloudmall.common.utils.Asserts;
-import com.cloudmall.product.api.request.BrandCreateReq;
-import com.cloudmall.product.api.request.BrandUpdateReq;
-import com.cloudmall.product.api.response.BrandResp;
+import com.cloudmall.product.api.model.req.BrandCreateReq;
+import com.cloudmall.product.api.model.req.BrandUpdateReq;
+import com.cloudmall.product.api.model.resp.BrandResp;
 import com.cloudmall.product.convert.BrandConverter;
-import com.cloudmall.product.entity.BrandDO;
+import com.cloudmall.product.model.entity.BrandDO;
 import com.cloudmall.product.mapper.BrandMapper;
 import com.cloudmall.product.model.req.BrandPageReq;
 import com.cloudmall.product.service.IBrandService;
@@ -110,7 +110,7 @@ public class BrandService implements IBrandService {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public void delete(List<Long> ids) {
-        Asserts.notEmpty(ids, BizError.INVALID_PARAM);
+        Asserts.notEmpty(ids, BizErrorEnum.INVALID_PARAM);
         brandMapper.deleteBatchIds(ids);
     }
 }

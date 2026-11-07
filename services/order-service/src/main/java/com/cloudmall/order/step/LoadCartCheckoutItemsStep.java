@@ -7,10 +7,10 @@ import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
-import com.cloudmall.common.enums.BizError;
+import com.cloudmall.common.enums.BizErrorEnum;
 import com.cloudmall.common.utils.Asserts;
-import com.cloudmall.order.entity.CartDO;
-import com.cloudmall.order.model.CheckoutContext;
+import com.cloudmall.order.model.entity.CartDO;
+import com.cloudmall.order.model.bo.CheckoutContext;
 import com.cloudmall.order.service.ICartService;
 
 /**
@@ -20,7 +20,7 @@ import com.cloudmall.order.service.ICartService;
  */
 @Component
 @RequiredArgsConstructor
-public class LoadCartCheckoutItemsStep implements CheckoutStep {
+public class LoadCartCheckoutItemsStep implements ICheckoutStep {
 
     private final ICartService cartService;
 
@@ -42,7 +42,7 @@ public class LoadCartCheckoutItemsStep implements CheckoutStep {
     @Override
     public void process(CheckoutContext ctx) {
         List<CartDO> selected = cartService.listSelectedItems(ctx.getUserId());
-        Asserts.notEmpty(selected, BizError.PRODUCT_NOT_IN_CART);
+        Asserts.notEmpty(selected, BizErrorEnum.PRODUCT_NOT_IN_CART);
         Map<Long, Integer> checkoutItems = new LinkedHashMap<>();
         for (CartDO cart : selected) {
             checkoutItems.put(cart.getSkuId(), cart.getQuantity());

@@ -9,7 +9,7 @@ import java.math.BigDecimal;
  * 状态变更通过 RocketMQ 事务消息发送，本地事务由
  * {@link com.cloudmall.order.listener.OrderTxMessageListener} 执行。
  * <p>
- * 事件类型复用 {@link com.cloudmall.order.api.event.OrderTagEnum} 作为 RocketMQ Tag。
+ * 事件类型复用 {@link com.cloudmall.order.api.enums.OrderTagEnum} 作为 RocketMQ Tag。
  *
  * @author : Tomatos
  */

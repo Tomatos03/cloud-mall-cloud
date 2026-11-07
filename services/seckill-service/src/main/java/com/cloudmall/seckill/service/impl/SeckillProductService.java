@@ -10,13 +10,13 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.cloudmall.common.enums.BizError;
+import com.cloudmall.common.enums.BizErrorEnum;
 import com.cloudmall.common.utils.Asserts;
-import com.cloudmall.seckill.api.response.SeckillProductResp;
+import com.cloudmall.seckill.api.model.resp.SeckillProductResp;
 import com.cloudmall.seckill.convert.SeckillConverter;
-import com.cloudmall.seckill.entity.AuditRecordDO;
-import com.cloudmall.seckill.entity.SeckillActivityDO;
-import com.cloudmall.seckill.entity.SeckillProductDO;
+import com.cloudmall.seckill.model.entity.AuditRecordDO;
+import com.cloudmall.seckill.model.entity.SeckillActivityDO;
+import com.cloudmall.seckill.model.entity.SeckillProductDO;
 import com.cloudmall.seckill.enums.AuditBizTypeEnum;
 import com.cloudmall.seckill.enums.AuditStatusEnum;
 import com.cloudmall.seckill.enums.SeckillProductAuditStatusEnum;
@@ -51,16 +51,16 @@ public class SeckillProductService implements ISeckillProductService {
     public Long submit(SeckillProductDO product, Long submitterId) {
         SeckillActivityDO activity = Asserts.requireNonNull(
                 activityMapper.selectById(product.getActivityId()),
-                BizError.SECKILL_ACTIVITY_NOT_EXIST
+                BizErrorEnum.SECKILL_ACTIVITY_NOT_EXIST
         );
 
         // 仅 PUBLISHED 且未开始（报名截止 = start_time）的活动可提交
-        Asserts.isTrue(activity.isPublished(), BizError.SECKILL_PRODUCT_NOT_SUBMITTABLE);
-        Asserts.isTrue(activity.isNotStarted(LocalDateTime.now()), BizError.SECKILL_PRODUCT_NOT_SUBMITTABLE);
+        Asserts.isTrue(activity.isPublished(), BizErrorEnum.SECKILL_PRODUCT_NOT_SUBMITTABLE);
+        Asserts.isTrue(activity.isNotStarted(LocalDateTime.now()), BizErrorEnum.SECKILL_PRODUCT_NOT_SUBMITTABLE);
 
         // 同活动同 SKU 唯一
         Long existing = productMapper.countByActivityAndSku(product.getActivityId(), product.getSkuId());
-        Asserts.isTrue(existing == null || existing == 0, BizError.PRODUCT_ALREADY_IN_SECKILL_ACTIVITY);
+        Asserts.isTrue(existing == null || existing == 0, BizErrorEnum.PRODUCT_ALREADY_IN_SECKILL_ACTIVITY);
 
         // 每活动商品数上限（创建活动时配置，未配置兜底 50）
         Long count = productMapper.countByActivityId(product.getActivityId());
@@ -68,7 +68,7 @@ public class SeckillProductService implements ISeckillProductService {
                 activity.getMaxProducts(),
                 DEFAULT_MAX_PRODUCTS_PER_ACTIVITY
         );
-        Asserts.isTrue(count == null || count < maxProducts, BizError.ACTIVITY_MAX_ITEMS_REACHED);
+        Asserts.isTrue(count == null || count < maxProducts, BizErrorEnum.ACTIVITY_MAX_ITEMS_REACHED);
 
         product.setAuditStatus(SeckillProductAuditStatusEnum.PENDING.getCode());
         product.setSoldCount(0);
@@ -91,18 +91,18 @@ public class SeckillProductService implements ISeckillProductService {
     public void audit(Long productId, boolean approved, String auditRemark, Long auditorId) {
         SeckillProductDO product = Asserts.requireNonNull(
                 productMapper.selectById(productId),
-                BizError.SECKILL_PRODUCT_NOT_FOUND
+                BizErrorEnum.SECKILL_PRODUCT_NOT_FOUND
         );
 
         // 仅待审核的商品可审核
         Asserts.isTrue(
                 SeckillProductAuditStatusEnum.PENDING.getCode().equals(product.getAuditStatus()),
-                BizError.AUDIT_TARGET_STATUS_CONFLICT
+                BizErrorEnum.AUDIT_TARGET_STATUS_CONFLICT
         );
 
         AuditRecordDO record = Asserts.requireNonNull(
                 auditRecordMapper.selectPendingByBiz(AuditBizTypeEnum.SECKILL_PRODUCT.getCode(), productId),
-                BizError.AUDIT_NOT_EXIST
+                BizErrorEnum.AUDIT_NOT_EXIST
         );
 
         record.setStatus(approved ? AuditStatusEnum.APPROVED.getCode() : AuditStatusEnum.REJECTED.getCode());

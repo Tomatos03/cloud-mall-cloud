@@ -16,16 +16,16 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.cloudmall.common.enums.BizError;
+import com.cloudmall.common.enums.BizErrorEnum;
 import com.cloudmall.common.exception.BizException;
 import com.cloudmall.common.utils.Asserts;
-import com.cloudmall.product.api.response.SkuResp;
+import com.cloudmall.product.api.model.resp.SkuResp;
 import com.cloudmall.product.convert.SkuConverter;
-import com.cloudmall.product.entity.ProductDO;
-import com.cloudmall.product.entity.ProductSkuDO;
-import com.cloudmall.product.entity.ProductSkuSpecDO;
-import com.cloudmall.product.entity.ProductSpecGroupDO;
-import com.cloudmall.product.entity.ProductSpecValueDO;
+import com.cloudmall.product.model.entity.ProductDO;
+import com.cloudmall.product.model.entity.ProductSkuDO;
+import com.cloudmall.product.model.entity.ProductSkuSpecDO;
+import com.cloudmall.product.model.entity.ProductSpecGroupDO;
+import com.cloudmall.product.model.entity.ProductSpecValueDO;
 import com.cloudmall.product.mapper.ProductMapper;
 import com.cloudmall.product.mapper.ProductSkuMapper;
 import com.cloudmall.product.mapper.ProductSkuSpecMapper;
@@ -69,7 +69,7 @@ public class SkuService implements ISkuService {
             return Boolean.TRUE;
         }
         int updated = productSkuMapper.reserveStock(skuId, quantity);
-        Asserts.isTrue(updated > 0, BizError.STOCK_NOT_ENOUGH);
+        Asserts.isTrue(updated > 0, BizErrorEnum.STOCK_NOT_ENOUGH);
         return Boolean.TRUE;
     }
 

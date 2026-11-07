@@ -9,7 +9,7 @@ import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import org.apache.ibatis.annotations.Mapper;
 
 import com.cloudmall.mybatisplus.enums.LimitEnum;
-import com.cloudmall.seckill.entity.SeckillActivityDO;
+import com.cloudmall.seckill.model.entity.SeckillActivityDO;
 import com.cloudmall.seckill.enums.SeckillActivityStatusEnum;
 import com.cloudmall.seckill.model.req.SeckillActivityPageReq;
 

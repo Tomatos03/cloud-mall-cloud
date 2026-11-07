@@ -4,7 +4,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.cloud.openfeign.FallbackFactory;
 
 import com.cloudmall.seckill.api.client.SeckillClient;
-import com.cloudmall.seckill.api.response.ActivityDetailResp;
+import com.cloudmall.seckill.api.model.resp.ActivityDetailResp;
 
 /**
  * 秒杀客户端兜底工厂

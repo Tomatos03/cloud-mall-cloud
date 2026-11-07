@@ -9,10 +9,10 @@ import cn.hutool.core.collection.CollectionUtil;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
-import com.cloudmall.product.api.model.SkuItem;
-import com.cloudmall.product.api.response.ProductSku;
-import com.cloudmall.product.api.response.SkuResp;
-import com.cloudmall.product.entity.ProductSkuDO;
+import com.cloudmall.product.api.model.bo.SkuItem;
+import com.cloudmall.product.api.model.resp.ProductSku;
+import com.cloudmall.product.api.model.resp.SkuResp;
+import com.cloudmall.product.model.entity.ProductSkuDO;
 
 /**
  * SKU 对象转换器。

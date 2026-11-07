@@ -7,8 +7,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import com.cloudmall.aigc.model.enums.TtsAudioFormat;
-import com.cloudmall.aigc.model.enums.TtsVoice;
+import com.cloudmall.aigc.enums.TtsAudioFormatEnum;
+import com.cloudmall.aigc.enums.TtsVoiceEnum;
 
 /**
  * 文本转语音请求参数
@@ -27,14 +27,14 @@ public class TtsReq {
     @Size(max = 4096, message = "text 长度不能超过 4096 个字符")
     private String text;
 
-    /** 语音风格，详见 {@link TtsVoice} */
-    private TtsVoice voice;
+    /** 语音风格，详见 {@link TtsVoiceEnum} */
+    private TtsVoiceEnum voice;
 
     /** 语速：0.25 ~ 4.0，默认 1.0 */
     private Double speed;
 
-    /** 输出格式，详见 {@link TtsAudioFormat}，默认 MP3 */
-    private TtsAudioFormat responseFormat;
+    /** 输出格式，详见 {@link TtsAudioFormatEnum}，默认 MP3 */
+    private TtsAudioFormatEnum responseFormat;
 
     /** TTS 模型：tts-1, tts-1-hd, gpt-4o-mini-tts */
     private String model;

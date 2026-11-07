@@ -8,8 +8,8 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
-import com.cloudmall.product.api.request.StockReq;
-import com.cloudmall.product.api.response.SkuResp;
+import com.cloudmall.product.api.model.req.StockReq;
+import com.cloudmall.product.api.model.resp.SkuResp;
 
 /**
  * 商品 SKU Feign 客户端。

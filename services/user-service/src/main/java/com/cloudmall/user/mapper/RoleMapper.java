@@ -4,7 +4,7 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import org.apache.ibatis.annotations.Mapper;
 
-import com.cloudmall.user.entity.RoleDO;
+import com.cloudmall.user.model.entity.RoleDO;
 import com.cloudmall.user.model.req.RolePageReq;
 
 /**

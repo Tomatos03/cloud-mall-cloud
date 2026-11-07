@@ -11,9 +11,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.cloudmall.common.model.Result;
-import com.cloudmall.product.api.request.CategoryCreateReq;
-import com.cloudmall.product.api.response.CategoryNodeResp;
-import com.cloudmall.product.api.response.CategoryResp;
+import com.cloudmall.product.api.model.req.CategoryCreateReq;
+import com.cloudmall.product.api.model.resp.CategoryNodeResp;
+import com.cloudmall.product.api.model.resp.CategoryResp;
 import com.cloudmall.product.service.ICategoryService;
 
 @RestController

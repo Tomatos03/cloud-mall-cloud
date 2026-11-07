@@ -12,10 +12,10 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
-import com.cloudmall.outbox.config.OutboxProperties;
-import com.cloudmall.outbox.entity.OutboxDO;
+import com.cloudmall.outbox.properties.OutboxProperties;
+import com.cloudmall.outbox.model.entity.OutboxDO;
 import com.cloudmall.outbox.mapper.OutboxMapper;
-import com.cloudmall.outbox.publisher.OutboxPublisher;
+import com.cloudmall.outbox.publisher.IOutboxPublisher;
 
 /**
  * Outbox 通用分发器
@@ -39,7 +39,7 @@ public class OutboxDispatcher {
     private static final int RETRY_BASE_SECONDS = 30;
 
     private final OutboxMapper outboxMapper;
-    private final OutboxPublisher publisher;
+    private final IOutboxPublisher publisher;
 
     /** 来源服务（spring.application.name） */
     private final String appName;

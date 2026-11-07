@@ -7,7 +7,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.cloud.openfeign.FallbackFactory;
 
 import com.cloudmall.product.api.client.HomeProductClient;
-import com.cloudmall.product.api.response.ProductDocResp;
+import com.cloudmall.product.api.model.resp.ProductDocResp;
 
 /**
  * 首页商品客户端兜底工厂

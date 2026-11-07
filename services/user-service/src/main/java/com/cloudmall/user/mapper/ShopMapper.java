@@ -3,7 +3,7 @@ package com.cloudmall.user.mapper;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import org.apache.ibatis.annotations.Mapper;
 
-import com.cloudmall.user.entity.ShopDO;
+import com.cloudmall.user.model.entity.ShopDO;
 import com.cloudmall.user.model.req.ShopReq;
 
 @Mapper

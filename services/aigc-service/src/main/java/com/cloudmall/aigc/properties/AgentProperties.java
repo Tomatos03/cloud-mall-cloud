@@ -34,7 +34,7 @@ public class AgentProperties {
     /** 默认 Nacos 读取超时（毫秒） */
     private int readTimeout = 3000;
 
-    /** 各智能体的 Nacos 提示词文件配置，key 为 AgentType 小写名 */
+    /** 各智能体的 Nacos 提示词文件配置，key 为 AgentTypeEnum 小写名 */
     private Map<String, PromptConfig> prompts;
 
     @Data

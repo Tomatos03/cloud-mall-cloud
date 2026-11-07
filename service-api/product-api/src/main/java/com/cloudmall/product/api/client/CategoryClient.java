@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
-import com.cloudmall.product.api.response.CategoryResp;
+import com.cloudmall.product.api.model.resp.CategoryResp;
 
 /**
  * 商品分类 Feign 客户端。

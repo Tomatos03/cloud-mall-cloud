@@ -6,11 +6,11 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
-import com.cloudmall.consumer.handler.EventHandler;
+import com.cloudmall.consumer.handler.IEventHandler;
 import com.cloudmall.product.api.client.ProductClient;
-import com.cloudmall.product.api.event.ProductEvent;
-import com.cloudmall.product.api.event.ProductTagEnum;
-import com.cloudmall.product.api.response.ProductDocResp;
+import com.cloudmall.product.api.model.bo.ProductEvent;
+import com.cloudmall.product.api.enums.ProductTagEnum;
+import com.cloudmall.product.api.model.resp.ProductDocResp;
 import com.cloudmall.search.api.client.InternalSearchClient;
 
 /**
@@ -25,7 +25,7 @@ import com.cloudmall.search.api.client.InternalSearchClient;
 @Slf4j
 @Component
 @RequiredArgsConstructor
-public class ProductUpsertHandler implements EventHandler<ProductEvent> {
+public class ProductUpsertHandler implements IEventHandler<ProductEvent> {
 
     private final ProductClient productClient;
     private final InternalSearchClient internalSearchClient;

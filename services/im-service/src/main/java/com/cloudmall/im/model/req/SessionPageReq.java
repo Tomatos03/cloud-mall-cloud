@@ -4,7 +4,7 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import lombok.Getter;
 import lombok.Setter;
 
-import com.cloudmall.im.entity.ChatSessionDO;
+import com.cloudmall.im.model.entity.ChatSessionDO;
 import com.cloudmall.mybatisplus.model.PageReq;
 
 /**

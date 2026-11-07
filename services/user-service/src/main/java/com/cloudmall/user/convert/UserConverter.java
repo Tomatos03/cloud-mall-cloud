@@ -5,10 +5,10 @@ import java.util.List;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
-import com.cloudmall.user.api.request.RegisterReq;
-import com.cloudmall.user.api.response.LoginResp;
-import com.cloudmall.user.api.response.UserResp;
-import com.cloudmall.user.entity.UserDO;
+import com.cloudmall.user.api.model.req.RegisterReq;
+import com.cloudmall.user.api.model.resp.LoginResp;
+import com.cloudmall.user.api.model.resp.UserResp;
+import com.cloudmall.user.model.entity.UserDO;
 
 /**
  * UserDO 转换器

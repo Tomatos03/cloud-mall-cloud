@@ -4,13 +4,13 @@ import java.util.List;
 
 import org.mapstruct.Mapper;
 
-import com.cloudmall.seckill.api.response.ActivityDetailResp;
-import com.cloudmall.seckill.api.response.ActivityResp;
-import com.cloudmall.seckill.api.response.SeckillOrderResp;
-import com.cloudmall.seckill.api.response.SeckillProductResp;
-import com.cloudmall.seckill.entity.SeckillActivityDO;
-import com.cloudmall.seckill.entity.SeckillOrderDO;
-import com.cloudmall.seckill.entity.SeckillProductDO;
+import com.cloudmall.seckill.api.model.resp.ActivityDetailResp;
+import com.cloudmall.seckill.api.model.resp.ActivityResp;
+import com.cloudmall.seckill.api.model.resp.SeckillOrderResp;
+import com.cloudmall.seckill.api.model.resp.SeckillProductResp;
+import com.cloudmall.seckill.model.entity.SeckillActivityDO;
+import com.cloudmall.seckill.model.entity.SeckillOrderDO;
+import com.cloudmall.seckill.model.entity.SeckillProductDO;
 
 /**
  * 秒杀模块转换器

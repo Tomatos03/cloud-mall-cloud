@@ -7,8 +7,8 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
 
-import com.cloudmall.user.api.response.AddressResp;
-import com.cloudmall.user.api.response.UserResp;
+import com.cloudmall.user.api.model.resp.AddressResp;
+import com.cloudmall.user.api.model.resp.UserResp;
 
 /**
  * 用户内部 Feign 客户端

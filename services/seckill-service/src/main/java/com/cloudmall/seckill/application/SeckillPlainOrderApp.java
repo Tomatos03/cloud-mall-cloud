@@ -12,22 +12,22 @@ import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Component;
 
 import com.cloudmall.common.context.UserContextHolder;
-import com.cloudmall.common.enums.BizError;
+import com.cloudmall.common.enums.BizErrorEnum;
 import com.cloudmall.common.utils.Asserts;
 import com.cloudmall.order.api.client.InternalOrderClient;
-import com.cloudmall.order.api.request.PlainSeckillOrderReq;
+import com.cloudmall.order.api.model.req.PlainSeckillOrderReq;
 import com.cloudmall.product.api.client.SkuClient;
-import com.cloudmall.product.api.response.SkuResp;
-import com.cloudmall.seckill.api.request.SeckillPurchaseReq;
-import com.cloudmall.seckill.api.response.PurchaseResp;
-import com.cloudmall.seckill.entity.SeckillActivityDO;
-import com.cloudmall.seckill.entity.SeckillProductDO;
+import com.cloudmall.product.api.model.resp.SkuResp;
+import com.cloudmall.seckill.api.model.req.SeckillPurchaseReq;
+import com.cloudmall.seckill.api.model.resp.PurchaseResp;
+import com.cloudmall.seckill.model.entity.SeckillActivityDO;
+import com.cloudmall.seckill.model.entity.SeckillProductDO;
 import com.cloudmall.seckill.enums.SeckillOrderStatusEnum;
 import com.cloudmall.seckill.mapper.SeckillProductMapper;
 import com.cloudmall.seckill.service.ISeckillActivityService;
 import com.cloudmall.seckill.service.ISeckillProductService;
 import com.cloudmall.user.api.client.InternalUserClient;
-import com.cloudmall.user.api.response.AddressResp;
+import com.cloudmall.user.api.model.resp.AddressResp;
 
 /**
  * 普通流程秒杀抢购编排
@@ -70,18 +70,18 @@ public class SeckillPlainOrderApp {
      */
     public PurchaseResp purchase(SeckillPurchaseReq req) {
         Long userId = UserContextHolder.getUserId();
-        Asserts.notNull(userId, BizError.USER_NOT_AUTHENTICATED);
-        Asserts.notNull(req.getAddressId(), BizError.SECKILL_ADDRESS_REQUIRED);
+        Asserts.notNull(userId, BizErrorEnum.USER_NOT_AUTHENTICATED);
+        Asserts.notNull(req.getAddressId(), BizErrorEnum.SECKILL_ADDRESS_REQUIRED);
 
         SeckillActivityDO activity = activityService.getById(req.getActivityId());
         LocalDateTime now = LocalDateTime.now();
-        Asserts.isTrue(activity.isRunning(), BizError.INVALID_ACTIVITY_STATUS);
-        Asserts.isTrue(activity.isStarted(now), BizError.SECKILL_NOT_STARTED);
-        Asserts.isTrue(activity.isNotEnded(now), BizError.SECKILL_ALREADY_ENDED);
+        Asserts.isTrue(activity.isRunning(), BizErrorEnum.INVALID_ACTIVITY_STATUS);
+        Asserts.isTrue(activity.isStarted(now), BizErrorEnum.SECKILL_NOT_STARTED);
+        Asserts.isTrue(activity.isNotEnded(now), BizErrorEnum.SECKILL_ALREADY_ENDED);
 
         SeckillProductDO product = Asserts.requireNonNull(
                 productService.getApprovedByActivityAndSku(req.getActivityId(), req.getSkuId()),
-                BizError.SECKILL_PRODUCT_NOT_FOUND
+                BizErrorEnum.SECKILL_PRODUCT_NOT_FOUND
         );
 
         // 一人一单第一道防重（SETNX，TTL 取到活动结束）
@@ -90,11 +90,11 @@ public class SeckillPlainOrderApp {
                                      + userId;
         Boolean firstTime = stringRedisTemplate.opsForValue()
                                                .setIfAbsent(userFlagKey, "1", Duration.ofSeconds(ttlSeconds));
-        Asserts.isTrue(Boolean.TRUE.equals(firstTime), BizError.SECKILL_REPEAT_ORDER);
+        Asserts.isTrue(Boolean.TRUE.equals(firstTime), BizErrorEnum.SECKILL_REPEAT_ORDER);
 
         // DB 条件扣减秒杀池库存，0 行表示库存不足（库存以 DB 为准）
         int deducted = productMapper.deductStock(req.getActivityId(), req.getSkuId());
-        Asserts.isTrue(deducted > 0, BizError.SECKILL_STOCK_INSUFFICIENT);
+        Asserts.isTrue(deducted > 0, BizErrorEnum.SECKILL_STOCK_INSUFFICIENT);
 
         String orderNo = "SK" + IdUtil.getSnowflakeNextIdStr();
         try {
@@ -159,7 +159,7 @@ public class SeckillPlainOrderApp {
                          .stream()
                          .findFirst()
                          .orElse(null),
-                BizError.SECKILL_PRODUCT_NOT_FOUND
+                BizErrorEnum.SECKILL_PRODUCT_NOT_FOUND
         );
     }
 
@@ -173,7 +173,7 @@ public class SeckillPlainOrderApp {
     private AddressResp requireAddress(Long addressId, Long userId) {
         return Asserts.requireNonNull(
                 internalUserClient.getAddressById(addressId, userId),
-                BizError.ORDER_CREATE_ADDRESS_NOT_EXIST
+                BizErrorEnum.ORDER_CREATE_ADDRESS_NOT_EXIST
         );
     }
 }

@@ -6,10 +6,10 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import com.cloudmall.mybatisplus.annotation.Operator;
+import com.cloudmall.mybatisplus.annotation.OperatorEnum;
 import com.cloudmall.mybatisplus.annotation.QueryCondition;
 import com.cloudmall.mybatisplus.model.PageReq;
-import com.cloudmall.order.entity.OrderDO;
+import com.cloudmall.order.model.entity.OrderDO;
 
 /**
  * 订单分页查询请求。
@@ -26,7 +26,7 @@ import com.cloudmall.order.entity.OrderDO;
 public class OrderPageReq extends PageReq<OrderDO> {
 
     /** 用户 ID（等值匹配） */
-    @QueryCondition(operator = Operator.EQ)
+    @QueryCondition(operator = OperatorEnum.EQ)
     private Long userId;
 
     /**

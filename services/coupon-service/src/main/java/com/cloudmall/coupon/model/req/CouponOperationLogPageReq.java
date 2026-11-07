@@ -6,8 +6,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import com.cloudmall.coupon.entity.CouponOperationLogDO;
-import com.cloudmall.mybatisplus.annotation.Operator;
+import com.cloudmall.coupon.model.entity.CouponOperationLogDO;
+import com.cloudmall.mybatisplus.annotation.OperatorEnum;
 import com.cloudmall.mybatisplus.annotation.QueryCondition;
 import com.cloudmall.mybatisplus.model.PageReq;
 
@@ -25,11 +25,11 @@ import com.cloudmall.mybatisplus.model.PageReq;
 public class CouponOperationLogPageReq extends PageReq<CouponOperationLogDO> {
 
     /** 模板 ID（等值匹配） */
-    @QueryCondition(operator = Operator.EQ)
+    @QueryCondition(operator = OperatorEnum.EQ)
     private Long couponId;
 
     /** 操作类型 code（如 PUBLISH/PAUSE/END） */
-    @QueryCondition(operator = Operator.EQ)
+    @QueryCondition(operator = OperatorEnum.EQ)
     private String actionType;
 
     /**

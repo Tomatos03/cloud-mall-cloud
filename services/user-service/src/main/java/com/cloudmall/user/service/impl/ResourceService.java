@@ -14,12 +14,12 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.cloudmall.common.enums.BizError;
+import com.cloudmall.common.enums.BizErrorEnum;
 import com.cloudmall.common.utils.Asserts;
 import com.cloudmall.user.convert.ResourceConverter;
-import com.cloudmall.user.entity.ResourceDO;
-import com.cloudmall.user.entity.RoleResourceDO;
-import com.cloudmall.user.entity.UserRoleDO;
+import com.cloudmall.user.model.entity.ResourceDO;
+import com.cloudmall.user.model.entity.RoleResourceDO;
+import com.cloudmall.user.model.entity.UserRoleDO;
 import com.cloudmall.user.enums.ResourceTypeEnum;
 import com.cloudmall.user.mapper.ResourceMapper;
 import com.cloudmall.user.mapper.RoleResourceMapper;
@@ -123,7 +123,7 @@ public class ResourceService implements IResourceService {
     @Override
     public List<ResourceResp> listResources(String type) {
         if (type != null) {
-            Asserts.isTrue(ResourceTypeEnum.isValid(type), BizError.INVALID_RESOURCE_TYPE);
+            Asserts.isTrue(ResourceTypeEnum.isValid(type), BizErrorEnum.INVALID_RESOURCE_TYPE);
         }
 
         List<ResourceDO> resources = resourceMapper.selectEnabledByType(type);
@@ -136,7 +136,7 @@ public class ResourceService implements IResourceService {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public Long createResource(ResourceReq req) {
-        Asserts.isTrue(ResourceTypeEnum.isValid(req.getType()), BizError.INVALID_RESOURCE_TYPE);
+        Asserts.isTrue(ResourceTypeEnum.isValid(req.getType()), BizErrorEnum.INVALID_RESOURCE_TYPE);
 
         if (req.getParentId() != null) {
             Asserts.notNull(resourceMapper.selectById(req.getParentId()));
@@ -164,7 +164,7 @@ public class ResourceService implements IResourceService {
         ResourceDO existing = Asserts.requireNonNull(resourceMapper.selectById(id));
 
         if (req.getType() != null) {
-            Asserts.isTrue(ResourceTypeEnum.isValid(req.getType()), BizError.INVALID_RESOURCE_TYPE);
+            Asserts.isTrue(ResourceTypeEnum.isValid(req.getType()), BizErrorEnum.INVALID_RESOURCE_TYPE);
         }
         if (req.getParentId() != null) {
             Asserts.notNull(resourceMapper.selectById(req.getParentId()));
@@ -184,7 +184,7 @@ public class ResourceService implements IResourceService {
         ResourceDO existing = Asserts.requireNonNull(resourceMapper.selectById(resourceId));
 
         Long childCount = resourceMapper.countByParentId(resourceId);
-        Asserts.isZero(ObjectUtil.defaultIfNull(childCount, 0L), BizError.INVALID_PARAM);
+        Asserts.isZero(ObjectUtil.defaultIfNull(childCount, 0L), BizErrorEnum.INVALID_PARAM);
 
         resourceMapper.deleteById(resourceId);
     }

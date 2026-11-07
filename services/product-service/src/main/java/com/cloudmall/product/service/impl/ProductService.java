@@ -22,38 +22,38 @@ import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.cloudmall.common.enums.BizError;
+import com.cloudmall.common.enums.BizErrorEnum;
 import com.cloudmall.common.exception.BizException;
 import com.cloudmall.common.model.CursorReq;
 import com.cloudmall.common.model.CursorResult;
 import com.cloudmall.common.utils.Asserts;
-import com.cloudmall.product.api.event.ProductEvent;
-import com.cloudmall.product.api.event.ProductTagEnum;
-import com.cloudmall.product.api.model.ImageItem;
-import com.cloudmall.product.api.model.SkuItem;
-import com.cloudmall.product.api.model.SpecGroupItem;
-import com.cloudmall.product.api.model.SpecValueItem;
-import com.cloudmall.product.api.request.ProductCreateReq;
-import com.cloudmall.product.api.request.ProductUpdateReq;
-import com.cloudmall.product.api.response.ImageResp;
-import com.cloudmall.product.api.response.ProductDetailResp;
-import com.cloudmall.product.api.response.ProductDocResp;
-import com.cloudmall.product.api.response.ProductResp;
-import com.cloudmall.product.api.response.ProductSku;
-import com.cloudmall.product.api.response.SpecGroupResp;
+import com.cloudmall.product.api.model.bo.ProductEvent;
+import com.cloudmall.product.api.enums.ProductTagEnum;
+import com.cloudmall.product.api.model.bo.ImageItem;
+import com.cloudmall.product.api.model.bo.SkuItem;
+import com.cloudmall.product.api.model.bo.SpecGroupItem;
+import com.cloudmall.product.api.model.bo.SpecValueItem;
+import com.cloudmall.product.api.model.req.ProductCreateReq;
+import com.cloudmall.product.api.model.req.ProductUpdateReq;
+import com.cloudmall.product.api.model.resp.ImageResp;
+import com.cloudmall.product.api.model.resp.ProductDetailResp;
+import com.cloudmall.product.api.model.resp.ProductDocResp;
+import com.cloudmall.product.api.model.resp.ProductResp;
+import com.cloudmall.product.api.model.resp.ProductSku;
+import com.cloudmall.product.api.model.resp.SpecGroupResp;
 import com.cloudmall.product.convert.ImageConverter;
 import com.cloudmall.product.convert.ProductConverter;
 import com.cloudmall.product.convert.SkuConverter;
 import com.cloudmall.product.convert.SpecGroupConverter;
 import com.cloudmall.product.convert.SpecValueConverter;
-import com.cloudmall.product.entity.BrandDO;
-import com.cloudmall.product.entity.CategoryDO;
-import com.cloudmall.product.entity.ProductDO;
-import com.cloudmall.product.entity.ProductImageDO;
-import com.cloudmall.product.entity.ProductSkuDO;
-import com.cloudmall.product.entity.ProductSkuSpecDO;
-import com.cloudmall.product.entity.ProductSpecGroupDO;
-import com.cloudmall.product.entity.ProductSpecValueDO;
+import com.cloudmall.product.model.entity.BrandDO;
+import com.cloudmall.product.model.entity.CategoryDO;
+import com.cloudmall.product.model.entity.ProductDO;
+import com.cloudmall.product.model.entity.ProductImageDO;
+import com.cloudmall.product.model.entity.ProductSkuDO;
+import com.cloudmall.product.model.entity.ProductSkuSpecDO;
+import com.cloudmall.product.model.entity.ProductSpecGroupDO;
+import com.cloudmall.product.model.entity.ProductSpecValueDO;
 import com.cloudmall.product.mapper.BrandMapper;
 import com.cloudmall.product.mapper.CategoryMapper;
 import com.cloudmall.product.mapper.ProductImageMapper;
@@ -62,7 +62,7 @@ import com.cloudmall.product.mapper.ProductSkuMapper;
 import com.cloudmall.product.mapper.ProductSkuSpecMapper;
 import com.cloudmall.product.mapper.ProductSpecGroupMapper;
 import com.cloudmall.product.mapper.ProductSpecValueMapper;
-import com.cloudmall.product.model.ProductSkuPrice;
+import com.cloudmall.product.model.bo.ProductSkuPrice;
 import com.cloudmall.product.model.req.ProductGetReq;
 import com.cloudmall.product.service.IProductImageService;
 import com.cloudmall.product.service.IProductService;
@@ -338,7 +338,7 @@ public class ProductService implements IProductService {
     public void update(Long id, ProductUpdateReq req) {
         ProductDO product = Asserts.requireNonNull(
                 productMapper.selectById(id),
-                BizError.PRODUCT_OR_SHOP_NOT_EXIST
+                BizErrorEnum.PRODUCT_OR_SHOP_NOT_EXIST
         );
         validateBrandAndCategory(req.getBrandId(), req.getCategoryId());
         validateSkuTopology(req.getSpecGroups(), req.getSkus());
@@ -595,9 +595,9 @@ public class ProductService implements IProductService {
     public void delete(Long id) {
         ProductDO product = Asserts.requireNonNull(
                 productMapper.selectById(id),
-                BizError.PRODUCT_OR_SHOP_NOT_EXIST
+                BizErrorEnum.PRODUCT_OR_SHOP_NOT_EXIST
         );
-        Asserts.isTrue(productMapper.deleteById(id) > 0, BizError.SPU_DELETE_FAILED);
+        Asserts.isTrue(productMapper.deleteById(id) > 0, BizErrorEnum.SPU_DELETE_FAILED);
 
         syncEsEvent(id, product, ProductTagEnum.DELETED);
     }
@@ -609,8 +609,8 @@ public class ProductService implements IProductService {
      * @param categoryId 分类 ID
      */
     private void validateBrandAndCategory(Long brandId, Long categoryId) {
-        Asserts.notNull(brandMapper.selectById(brandId), BizError.BRAND_NOT_EXIST);
-        Asserts.notNull(categoryMapper.selectById(categoryId), BizError.CATEGORY_NOT_EXIST_OR_NO_ENABLE);
+        Asserts.notNull(brandMapper.selectById(brandId), BizErrorEnum.BRAND_NOT_EXIST);
+        Asserts.notNull(categoryMapper.selectById(categoryId), BizErrorEnum.CATEGORY_NOT_EXIST_OR_NO_ENABLE);
     }
 
     private ProductDO saveProductWithImages(ProductCreateReq req, Long shopId) {
@@ -755,7 +755,7 @@ public class ProductService implements IProductService {
     public ProductDetailResp detail(Long id) {
         ProductDO product = Asserts.requireNonNull(
                 productMapper.selectById(id),
-                BizError.PRODUCT_DETAIL_NOT_FOUND
+                BizErrorEnum.PRODUCT_DETAIL_NOT_FOUND
         );
         BrandDO brand = brandMapper.selectById(product.getBrandId());
         CategoryDO category = categoryMapper.selectById(product.getCategoryId());
@@ -785,10 +785,10 @@ public class ProductService implements IProductService {
         // 组名不重复、组内规格值不重复
         Set<String> groupNames = new HashSet<>();
         for (SpecGroupItem group : groups) {
-            Asserts.isTrue(groupNames.add(normalize(group.getName())), BizError.SPEC_VALUE_INVALID);
+            Asserts.isTrue(groupNames.add(normalize(group.getName())), BizErrorEnum.SPEC_VALUE_INVALID);
             Set<String> values = new HashSet<>();
             for (SpecValueItem value : group.getValues()) {
-                Asserts.isTrue(values.add(normalize(value.getValue())), BizError.SPEC_VALUE_INVALID);
+                Asserts.isTrue(values.add(normalize(value.getValue())), BizErrorEnum.SPEC_VALUE_INVALID);
             }
         }
 
@@ -797,8 +797,8 @@ public class ProductService implements IProductService {
             List<String> specValues = sku.getSpecValues();
 
             // 每个规格组恰好一个值
-            Asserts.notEmpty(specValues, BizError.SKU_SPECS_CANNOT_BE_EMPTY);
-            Asserts.isEqual(specValues.size(), groups.size(), BizError.SKU_SPEC_NOT_MATCH);
+            Asserts.notEmpty(specValues, BizErrorEnum.SKU_SPECS_CANNOT_BE_EMPTY);
+            Asserts.isEqual(specValues.size(), groups.size(), BizErrorEnum.SKU_SPEC_NOT_MATCH);
 
             // 按组隔离查找，第 g 位的值只在第 g 组的候选里匹配
             List<String> normalized = new ArrayList<>(specValues.size());
@@ -806,13 +806,13 @@ public class ProductService implements IProductService {
                 String target = normalize(specValues.get(g));
                 Asserts.isTrue(
                         indexOfValue(groups.get(g).getValues(), target) >= 0,
-                        BizError.SKU_SPEC_NOT_MATCH
+                        BizErrorEnum.SKU_SPEC_NOT_MATCH
                 );
                 normalized.add(target);
             }
 
             // 组合唯一。位置已固定，直接比较归一化后的列表，无需排序
-            Asserts.isTrue(seen.add(normalized), BizError.SKU_SPEC_NOT_MATCH);
+            Asserts.isTrue(seen.add(normalized), BizErrorEnum.SKU_SPEC_NOT_MATCH);
         }
     }
 
@@ -824,7 +824,7 @@ public class ProductService implements IProductService {
     private void validatePrices(List<SkuItem> skus) {
         for (SkuItem sku : skus) {
             if (sku.getMarketPrice() != null) {
-                Asserts.isTrue(sku.getPrice().compareTo(sku.getMarketPrice()) <= 0, BizError.INVALID_PARAM);
+                Asserts.isTrue(sku.getPrice().compareTo(sku.getMarketPrice()) <= 0, BizErrorEnum.INVALID_PARAM);
             }
         }
     }

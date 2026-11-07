@@ -11,15 +11,15 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.cloudmall.common.context.UserContextHolder;
-import com.cloudmall.common.enums.BizError;
+import com.cloudmall.common.enums.BizErrorEnum;
 import com.cloudmall.common.model.Result;
 import com.cloudmall.common.utils.Asserts;
-import com.cloudmall.coupon.api.response.CouponOrderCalcResp;
+import com.cloudmall.coupon.api.model.resp.CouponOrderCalcResp;
 import com.cloudmall.order.api.enums.CheckoutTypeEnum;
-import com.cloudmall.order.api.request.CreateOrderReq;
-import com.cloudmall.order.api.request.QuoteOrderReq;
-import com.cloudmall.order.api.response.OrderResp;
-import com.cloudmall.order.api.response.OrderSubResp;
+import com.cloudmall.order.api.model.req.CreateOrderReq;
+import com.cloudmall.order.api.model.req.QuoteOrderReq;
+import com.cloudmall.order.api.model.resp.OrderResp;
+import com.cloudmall.order.api.model.resp.OrderSubResp;
 import com.cloudmall.order.application.OrderApp;
 import com.cloudmall.order.model.req.OrderPageReq;
 import com.cloudmall.order.model.req.OrderSubPageReq;
@@ -90,7 +90,7 @@ public class OrderController {
      */
     @GetMapping
     public Result<IPage<OrderResp>> page(OrderPageReq req) {
-        Long userId = Asserts.requireNonNull(UserContextHolder.getUserId(), BizError.USER_NOT_AUTHENTICATED);
+        Long userId = Asserts.requireNonNull(UserContextHolder.getUserId(), BizErrorEnum.USER_NOT_AUTHENTICATED);
         req.setUserId(userId);
         return Result.success(orderService.page(req));
     }

@@ -6,12 +6,12 @@ import java.util.Map;
 
 import org.springframework.stereotype.Service;
 
-import com.cloudmall.common.enums.BizError;
+import com.cloudmall.common.enums.BizErrorEnum;
 import com.cloudmall.common.utils.Asserts;
 import com.cloudmall.order.api.enums.CheckoutTypeEnum;
-import com.cloudmall.order.api.request.CreateOrderReq;
-import com.cloudmall.order.model.CheckoutContext;
-import com.cloudmall.order.step.CheckoutStep;
+import com.cloudmall.order.api.model.req.CreateOrderReq;
+import com.cloudmall.order.model.bo.CheckoutContext;
+import com.cloudmall.order.step.ICheckoutStep;
 import com.cloudmall.order.step.CheckoutStepEnum;
 
 import static com.cloudmall.order.step.CheckoutStepEnum.CLEAN_CART;
@@ -27,7 +27,7 @@ import static com.cloudmall.order.step.CheckoutStepEnum.VALIDATE_SINGLE_ITEM;
  * 结算管道
  * <p>
  * 持有全部下单步骤，按结算类型映射的步骤列表顺序执行，
- * 步骤缺失或最终未落库订单时抛出 {@link BizError#INVALID_ORDER_TYPE}。
+ * 步骤缺失或最终未落库订单时抛出 {@link BizErrorEnum#INVALID_ORDER_TYPE}。
  *
  * @author : Tomatos
  */
@@ -72,16 +72,16 @@ public class CheckoutPipeline {
     }
 
     /** 步骤枚举 → 步骤实现（key 为步骤枚举，value 为对应步骤 Bean） */
-    private final Map<CheckoutStepEnum, CheckoutStep> stepByName;
+    private final Map<CheckoutStepEnum, ICheckoutStep> stepByName;
 
     /**
      * 构造结算管道。
      *
      * @param steps 全部下单步骤
      */
-    public CheckoutPipeline(List<CheckoutStep> steps) {
-        Map<CheckoutStepEnum, CheckoutStep> stepMap = new EnumMap<>(CheckoutStepEnum.class);
-        for (CheckoutStep step : steps) {
+    public CheckoutPipeline(List<ICheckoutStep> steps) {
+        Map<CheckoutStepEnum, ICheckoutStep> stepMap = new EnumMap<>(CheckoutStepEnum.class);
+        for (ICheckoutStep step : steps) {
             stepMap.put(step.name(), step);
         }
         this.stepByName = stepMap;
@@ -99,10 +99,10 @@ public class CheckoutPipeline {
         CheckoutContext context = buildBaseCheckoutContext(checkoutType, userId, req);
         List<CheckoutStepEnum> stepList = STEPS_BY_CHECKOUT_TYPE.getOrDefault(checkoutType, List.of());
         for (CheckoutStepEnum stepName : stepList) {
-            CheckoutStep step = Asserts.requireNonNull(stepByName.get(stepName), BizError.INVALID_ORDER_TYPE);
+            ICheckoutStep step = Asserts.requireNonNull(stepByName.get(stepName), BizErrorEnum.INVALID_ORDER_TYPE);
             step.process(context);
         }
-        return Asserts.requireNonNull(context.getOrder(), BizError.INVALID_ORDER_TYPE).getOrderNo();
+        return Asserts.requireNonNull(context.getOrder(), BizErrorEnum.INVALID_ORDER_TYPE).getOrderNo();
     }
 
     private static CheckoutContext buildBaseCheckoutContext(

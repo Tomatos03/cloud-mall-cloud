@@ -7,13 +7,13 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
-import com.cloudmall.consumer.handler.EventHandler;
+import com.cloudmall.consumer.handler.IEventHandler;
 import com.cloudmall.order.api.client.OrderClient;
 import com.cloudmall.order.api.enums.CheckoutTypeEnum;
-import com.cloudmall.order.api.model.OrderItem;
-import com.cloudmall.order.api.request.CreateOrderReq;
-import com.cloudmall.seckill.api.event.SeckillOrderCreateEvent;
-import com.cloudmall.seckill.api.event.SeckillTagEnum;
+import com.cloudmall.order.api.model.bo.OrderItem;
+import com.cloudmall.order.api.model.req.CreateOrderReq;
+import com.cloudmall.seckill.api.model.bo.SeckillOrderCreateEvent;
+import com.cloudmall.seckill.api.enums.SeckillTagEnum;
 
 /**
  * 秒杀建单处理器
@@ -26,7 +26,7 @@ import com.cloudmall.seckill.api.event.SeckillTagEnum;
 @Slf4j
 @Component
 @RequiredArgsConstructor
-public class SeckillOrderCreateHandler implements EventHandler<SeckillOrderCreateEvent> {
+public class SeckillOrderCreateHandler implements IEventHandler<SeckillOrderCreateEvent> {
 
     private final OrderClient orderClient;
 

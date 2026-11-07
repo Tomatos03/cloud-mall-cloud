@@ -9,16 +9,16 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.cloudmall.common.enums.BizError;
+import com.cloudmall.common.enums.BizErrorEnum;
 import com.cloudmall.common.exception.BizException;
 import com.cloudmall.common.utils.Asserts;
-import com.cloudmall.seckill.api.request.ActivityCreateReq;
-import com.cloudmall.seckill.api.request.ActivityUpdateReq;
-import com.cloudmall.seckill.api.response.ActivityDetailResp;
-import com.cloudmall.seckill.api.response.ActivityResp;
+import com.cloudmall.seckill.api.model.req.ActivityCreateReq;
+import com.cloudmall.seckill.api.model.req.ActivityUpdateReq;
+import com.cloudmall.seckill.api.model.resp.ActivityDetailResp;
+import com.cloudmall.seckill.api.model.resp.ActivityResp;
 import com.cloudmall.seckill.convert.SeckillConverter;
-import com.cloudmall.seckill.entity.SeckillActivityDO;
-import com.cloudmall.seckill.entity.SeckillProductDO;
+import com.cloudmall.seckill.model.entity.SeckillActivityDO;
+import com.cloudmall.seckill.model.entity.SeckillProductDO;
 import com.cloudmall.seckill.enums.SeckillActivityStatusEnum;
 import com.cloudmall.seckill.mapper.SeckillActivityMapper;
 import com.cloudmall.seckill.mapper.SeckillProductMapper;
@@ -59,16 +59,16 @@ public class SeckillActivityService implements ISeckillActivityService {
         LocalDateTime startTime = req.getStartTime();
 
         // 强校验：开始时间必须晚于当前 24 小时
-        Asserts.isTrue(startTime.isAfter(now.plusHours(24)), BizError.ACTIVITY_MUST_ADVANCE_24_HOURS);
+        Asserts.isTrue(startTime.isAfter(now.plusHours(24)), BizErrorEnum.ACTIVITY_MUST_ADVANCE_24_HOURS);
 
         // 强校验：开始时间必须为整点（分钟、秒、纳秒均为 0）
-        Asserts.isTrue(isOnTheHour(startTime), BizError.ACTIVITY_START_TIME_MUST_BE_ON_THE_HOUR);
+        Asserts.isTrue(isOnTheHour(startTime), BizErrorEnum.ACTIVITY_START_TIME_MUST_BE_ON_THE_HOUR);
 
         // 每活动最大商品数：不传默认 50，校验范围 1~500
         Integer maxProducts = ObjectUtil.defaultIfNull(req.getMaxProducts(), DEFAULT_MAX_PRODUCTS);
         Asserts.isTrue(
                 maxProducts >= 1 && maxProducts <= MAX_PRODUCTS_LIMIT,
-                BizError.ACTIVITY_MAX_PRODUCTS_INVALID
+                BizErrorEnum.ACTIVITY_MAX_PRODUCTS_INVALID
         );
 
         SeckillActivityDO activity = SeckillActivityDO.builder()
@@ -98,7 +98,7 @@ public class SeckillActivityService implements ISeckillActivityService {
     public void update(Long id, ActivityUpdateReq req) {
         SeckillActivityDO existing = Asserts.requireNonNull(
                 activityMapper.selectById(id),
-                BizError.SECKILL_ACTIVITY_NOT_EXIST
+                BizErrorEnum.SECKILL_ACTIVITY_NOT_EXIST
         );
 
         if (existing.isDraft()) {
@@ -108,16 +108,16 @@ public class SeckillActivityService implements ISeckillActivityService {
                 LocalDateTime newStart = req.getStartTime();
                 Asserts.isTrue(
                         newStart.isAfter(LocalDateTime.now().plusHours(24)),
-                        BizError.ACTIVITY_MUST_ADVANCE_24_HOURS
+                        BizErrorEnum.ACTIVITY_MUST_ADVANCE_24_HOURS
                 );
-                Asserts.isTrue(isOnTheHour(newStart), BizError.ACTIVITY_START_TIME_MUST_BE_ON_THE_HOUR);
+                Asserts.isTrue(isOnTheHour(newStart), BizErrorEnum.ACTIVITY_START_TIME_MUST_BE_ON_THE_HOUR);
                 existing.setStartTime(newStart);
                 existing.setEndTime(newStart.plusHours(1));
             }
             if (req.getMaxProducts() != null) {
                 Asserts.isTrue(
                         req.getMaxProducts() >= 1 && req.getMaxProducts() <= MAX_PRODUCTS_LIMIT,
-                        BizError.ACTIVITY_MAX_PRODUCTS_INVALID
+                        BizErrorEnum.ACTIVITY_MAX_PRODUCTS_INVALID
                 );
                 existing.setMaxProducts(req.getMaxProducts());
             }
@@ -125,7 +125,7 @@ public class SeckillActivityService implements ISeckillActivityService {
             // 报名期只允许改文案，时间调整需取消后重建
             applyText(existing, req);
         } else {
-            throw new BizException(BizError.INVALID_ACTIVITY_STATUS);
+            throw new BizException(BizErrorEnum.INVALID_ACTIVITY_STATUS);
         }
 
         activityMapper.updateById(existing);
@@ -167,19 +167,19 @@ public class SeckillActivityService implements ISeckillActivityService {
     public void publish(Long id, Long publishUserId) {
         SeckillActivityDO activity = Asserts.requireNonNull(
                 activityMapper.selectById(id),
-                BizError.SECKILL_ACTIVITY_NOT_EXIST
+                BizErrorEnum.SECKILL_ACTIVITY_NOT_EXIST
         );
         SeckillActivityStatusEnum currentStatus = SeckillActivityStatusEnum.fromCode(activity.getStatus());
 
         // 前置：信息完整 + 未开始；状态合法性由迁移表判定
-        Asserts.notBlank(activity.getName(), BizError.INVALID_PARAM);
-        Asserts.isTrue(activity.isNotStarted(LocalDateTime.now()), BizError.SECKILL_ACTIVITY_NOT_PUBLISHABLE);
+        Asserts.notBlank(activity.getName(), BizErrorEnum.INVALID_PARAM);
+        Asserts.isTrue(activity.isNotStarted(LocalDateTime.now()), BizErrorEnum.SECKILL_ACTIVITY_NOT_PUBLISHABLE);
         Asserts.isTrue(
                 SeckillActivityStateTransitions.canTransition(
                         currentStatus,
                         SeckillActivityStatusEnum.PUBLISHED
                 ),
-                BizError.SECKILL_ACTIVITY_NOT_PUBLISHABLE
+                BizErrorEnum.SECKILL_ACTIVITY_NOT_PUBLISHABLE
         );
 
         activity.setStatus(SeckillActivityStatusEnum.PUBLISHED.getCode());
@@ -199,7 +199,7 @@ public class SeckillActivityService implements ISeckillActivityService {
     public void cancel(Long id) {
         SeckillActivityDO activity = Asserts.requireNonNull(
                 activityMapper.selectById(id),
-                BizError.SECKILL_ACTIVITY_NOT_EXIST
+                BizErrorEnum.SECKILL_ACTIVITY_NOT_EXIST
         );
         SeckillActivityStatusEnum currentStatus = SeckillActivityStatusEnum.fromCode(activity.getStatus());
 
@@ -209,7 +209,7 @@ public class SeckillActivityService implements ISeckillActivityService {
                         currentStatus,
                         SeckillActivityStatusEnum.CANCELLED
                 ),
-                BizError.SECKILL_ACTIVITY_NOT_CANCELLABLE
+                BizErrorEnum.SECKILL_ACTIVITY_NOT_CANCELLABLE
         );
 
         activity.setStatus(SeckillActivityStatusEnum.CANCELLED.getCode());
@@ -224,7 +224,7 @@ public class SeckillActivityService implements ISeckillActivityService {
      */
     @Override
     public SeckillActivityDO getById(Long id) {
-        return Asserts.requireNonNull(activityMapper.selectById(id), BizError.SECKILL_ACTIVITY_NOT_EXIST);
+        return Asserts.requireNonNull(activityMapper.selectById(id), BizErrorEnum.SECKILL_ACTIVITY_NOT_EXIST);
     }
 
     /**
@@ -272,7 +272,7 @@ public class SeckillActivityService implements ISeckillActivityService {
     public ActivityDetailResp getActivityDetail(Long id) {
         SeckillActivityDO activity = Asserts.requireNonNull(
                 activityMapper.selectById(id),
-                BizError.SECKILL_ACTIVITY_NOT_EXIST
+                BizErrorEnum.SECKILL_ACTIVITY_NOT_EXIST
         );
         return toActivityDetail(activity);
     }
@@ -301,7 +301,7 @@ public class SeckillActivityService implements ISeckillActivityService {
     public ActivityDetailResp getSignupActivity(Long id) {
         SeckillActivityDO activity = Asserts.requireNonNull(
                 activityMapper.selectPublishedById(id),
-                BizError.SECKILL_ACTIVITY_NOT_EXIST
+                BizErrorEnum.SECKILL_ACTIVITY_NOT_EXIST
         );
         return toActivityDetail(activity);
     }

@@ -3,9 +3,9 @@ package com.cloudmall.product.convert;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
-import com.cloudmall.product.api.model.SpecValueItem;
-import com.cloudmall.product.api.response.SpecValueResp;
-import com.cloudmall.product.entity.ProductSpecValueDO;
+import com.cloudmall.product.api.model.bo.SpecValueItem;
+import com.cloudmall.product.api.model.resp.SpecValueResp;
+import com.cloudmall.product.model.entity.ProductSpecValueDO;
 
 /**
  * 规格值对象转换器。

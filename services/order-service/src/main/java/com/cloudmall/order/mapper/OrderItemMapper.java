@@ -7,7 +7,7 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import org.apache.ibatis.annotations.Mapper;
 
-import com.cloudmall.order.entity.OrderItemDO;
+import com.cloudmall.order.model.entity.OrderItemDO;
 
 /**
  * 订单明细 Mapper。

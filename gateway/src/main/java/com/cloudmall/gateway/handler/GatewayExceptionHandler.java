@@ -21,7 +21,7 @@ import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 
-import com.cloudmall.common.enums.BizError;
+import com.cloudmall.common.enums.BizErrorEnum;
 import com.cloudmall.common.model.Result;
 
 /**
@@ -53,9 +53,9 @@ public class GatewayExceptionHandler implements ErrorWebExceptionHandler {
 
         if (ex instanceof NotFoundException) {
             // 路由找不到（下游服务未注册等）
-            businessCode = BizError.SERVICE_UNAVAILABLE.getCode();
+            businessCode = BizErrorEnum.SERVICE_UNAVAILABLE.getCode();
             httpStatus = HttpStatus.SERVICE_UNAVAILABLE;
-            message = BizError.SERVICE_UNAVAILABLE.getErrorMessage();
+            message = BizErrorEnum.SERVICE_UNAVAILABLE.getMessage();
         } else if (ex instanceof ResponseStatusException statusException) {
             // 其他已知状态异常
             httpStatus = HttpStatus.resolve(statusException.getStatusCode().value());
@@ -69,9 +69,9 @@ public class GatewayExceptionHandler implements ErrorWebExceptionHandler {
             }
         } else if (ex instanceof TimeoutException || ex instanceof ConnectException) {
             // 超时或连接异常
-            businessCode = BizError.GATEWAY_TIMEOUT.getCode();
+            businessCode = BizErrorEnum.GATEWAY_TIMEOUT.getCode();
             httpStatus = HttpStatus.GATEWAY_TIMEOUT;
-            message = BizError.GATEWAY_TIMEOUT.getErrorMessage();
+            message = BizErrorEnum.GATEWAY_TIMEOUT.getMessage();
         } else {
             // 兜底
             businessCode = Result.INTERNAL_ERROR_CODE;

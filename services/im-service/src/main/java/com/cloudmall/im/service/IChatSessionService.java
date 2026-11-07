@@ -3,7 +3,7 @@ package com.cloudmall.im.service;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.service.IService;
 
-import com.cloudmall.im.entity.ChatSessionDO;
+import com.cloudmall.im.model.entity.ChatSessionDO;
 import com.cloudmall.im.model.req.SessionPageReq;
 
 /**

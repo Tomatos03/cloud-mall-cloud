@@ -7,7 +7,7 @@ import org.apache.rocketmq.spring.core.RocketMQLocalTransactionListener;
 import org.apache.rocketmq.spring.core.RocketMQLocalTransactionState;
 import org.springframework.messaging.Message;
 
-import com.cloudmall.product.entity.ProductDO;
+import com.cloudmall.product.model.entity.ProductDO;
 import com.cloudmall.product.mapper.ProductMapper;
 import com.cloudmall.rocketmq.producer.TxMessageHeader;
 

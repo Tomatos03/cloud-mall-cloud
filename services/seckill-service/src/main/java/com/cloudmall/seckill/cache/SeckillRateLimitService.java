@@ -9,7 +9,7 @@ import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.data.redis.core.script.RedisScript;
 import org.springframework.stereotype.Service;
 
-import com.cloudmall.common.enums.BizError;
+import com.cloudmall.common.enums.BizErrorEnum;
 import com.cloudmall.common.utils.Asserts;
 
 /**
@@ -53,6 +53,6 @@ public class SeckillRateLimitService {
         );
 
         // 超限抛异常
-        Asserts.isTrue(count == null || count <= MAX_PER_MINUTE, BizError.SECKILL_RATE_LIMIT_EXCEEDED);
+        Asserts.isTrue(count == null || count <= MAX_PER_MINUTE, BizErrorEnum.SECKILL_RATE_LIMIT_EXCEEDED);
     }
 }

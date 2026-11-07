@@ -11,9 +11,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.cloudmall.common.model.Result;
-import com.cloudmall.product.api.request.SkuMatchReq;
-import com.cloudmall.product.api.request.StockReq;
-import com.cloudmall.product.api.response.SkuResp;
+import com.cloudmall.product.api.model.req.SkuMatchReq;
+import com.cloudmall.product.api.model.req.StockReq;
+import com.cloudmall.product.api.model.resp.SkuResp;
 import com.cloudmall.product.service.ISkuService;
 
 /**

@@ -13,7 +13,7 @@ import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
 
-import com.cloudmall.jwt.config.JwtProperties;
+import com.cloudmall.jwt.properties.JwtProperties;
 import com.cloudmall.jwt.exception.ParseTokenException;
 
 /**

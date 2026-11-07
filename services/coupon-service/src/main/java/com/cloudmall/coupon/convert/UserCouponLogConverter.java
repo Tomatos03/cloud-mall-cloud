@@ -6,8 +6,8 @@ import cn.hutool.core.util.ObjectUtil;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
-import com.cloudmall.coupon.entity.UserCouponDO;
-import com.cloudmall.coupon.entity.UserCouponLogDO;
+import com.cloudmall.coupon.model.entity.UserCouponDO;
+import com.cloudmall.coupon.model.entity.UserCouponLogDO;
 import com.cloudmall.coupon.enums.UserCouponLogSourceEnum;
 import com.cloudmall.coupon.enums.UserCouponOperationTypeEnum;
 import com.cloudmall.coupon.enums.UserCouponStatusEnum;

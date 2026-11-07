@@ -6,7 +6,7 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import org.apache.ibatis.annotations.Mapper;
 
-import com.cloudmall.user.entity.UserRoleDO;
+import com.cloudmall.user.model.entity.UserRoleDO;
 
 /**
  * 用户-角色关联 Mapper

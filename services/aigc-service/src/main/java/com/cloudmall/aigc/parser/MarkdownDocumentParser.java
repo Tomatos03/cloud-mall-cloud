@@ -20,7 +20,7 @@ import org.springframework.web.multipart.MultipartFile;
  * @date 2026/7/22
  */
 @Component
-public class MarkdownDocumentParser implements DocumentParser {
+public class MarkdownDocumentParser implements IDocumentParser {
 
     /**
      * 解析 Markdown 文件
@@ -53,7 +53,7 @@ public class MarkdownDocumentParser implements DocumentParser {
      * @return MARKDOWN
      */
     @Override
-    public DocumentType getType() {
-        return DocumentType.MARKDOWN;
+    public DocumentTypeEnum getType() {
+        return DocumentTypeEnum.MARKDOWN;
     }
 }

@@ -6,7 +6,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import com.cloudmall.product.api.client.fallback.BannerClientFallbackFactory;
-import com.cloudmall.product.api.response.BannerResp;
+import com.cloudmall.product.api.model.resp.BannerResp;
 
 /**
  * 轮播图 Feign 客户端。

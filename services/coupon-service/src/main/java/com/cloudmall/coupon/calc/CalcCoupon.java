@@ -10,9 +10,9 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import com.cloudmall.coupon.api.dto.CouponCalcItem;
-import com.cloudmall.coupon.enums.CouponEnum;
-import com.cloudmall.coupon.enums.CouponOwnerEnum;
+import com.cloudmall.coupon.api.model.bo.CouponCalcItem;
+import com.cloudmall.coupon.api.enums.CouponEnum;
+import com.cloudmall.coupon.api.enums.CouponOwnerEnum;
 
 /**
  * 参与计算的一张券

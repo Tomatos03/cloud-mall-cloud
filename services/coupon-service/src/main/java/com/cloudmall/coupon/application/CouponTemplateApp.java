@@ -6,14 +6,14 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import com.cloudmall.common.context.UserContextHolder;
-import com.cloudmall.common.enums.BizError;
+import com.cloudmall.common.enums.BizErrorEnum;
 import com.cloudmall.common.utils.Asserts;
-import com.cloudmall.coupon.api.request.CouponReq;
+import com.cloudmall.coupon.api.model.req.CouponReq;
 import com.cloudmall.coupon.service.ICouponTemplateService;
 import com.cloudmall.product.api.client.CategoryClient;
 import com.cloudmall.product.api.client.ProductClient;
-import com.cloudmall.product.api.response.CategoryResp;
-import com.cloudmall.product.api.response.ProductResp;
+import com.cloudmall.product.api.model.resp.CategoryResp;
+import com.cloudmall.product.api.model.resp.ProductResp;
 
 /**
  * 优惠券模板应用服务。
@@ -89,7 +89,7 @@ public class CouponTemplateApp {
             for (Long productId : distinct) {
                 ProductResp product = requireProduct(productId);
                 if (req.isShop()) {
-                    Asserts.isTrue(shopId.equals(product.getShopId()), BizError.COUPON_SCOPE_INVALID);
+                    Asserts.isTrue(shopId.equals(product.getShopId()), BizErrorEnum.COUPON_SCOPE_INVALID);
                 }
             }
         } else if (req.isCategoryScope()) {
@@ -110,7 +110,7 @@ public class CouponTemplateApp {
      * @return 商品信息
      */
     private ProductResp requireProduct(Long productId) {
-        return Asserts.requireNonNull(productClient.getById(productId), BizError.PRODUCT_NOT_EXIST);
+        return Asserts.requireNonNull(productClient.getById(productId), BizErrorEnum.PRODUCT_NOT_EXIST);
     }
 
     /**
@@ -122,7 +122,7 @@ public class CouponTemplateApp {
     private CategoryResp requireCategory(Long categoryId) {
         return Asserts.requireNonNull(
                 categoryClient.getById(categoryId),
-                BizError.CATEGORY_NOT_EXIST_OR_NO_ENABLE
+                BizErrorEnum.CATEGORY_NOT_EXIST_OR_NO_ENABLE
         );
     }
 }

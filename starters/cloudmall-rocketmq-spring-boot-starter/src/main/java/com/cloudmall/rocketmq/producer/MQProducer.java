@@ -17,7 +17,7 @@ import org.apache.rocketmq.spring.core.RocketMQTemplate;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.support.MessageBuilder;
 
-import com.cloudmall.common.enums.BizError;
+import com.cloudmall.common.enums.BizErrorEnum;
 import com.cloudmall.common.utils.Asserts;
 import com.cloudmall.rocketmq.callback.DefaultSendCallback;
 
@@ -370,7 +370,7 @@ public class MQProducer {
      */
     @SuppressWarnings({"unchecked", "rawtypes"})
     public <T> SendResult sendBatch(String destination, Collection<T> payloads) {
-        Asserts.notEmpty(payloads, BizError.INVALID_PARAM);
+        Asserts.notEmpty(payloads, BizErrorEnum.INVALID_PARAM);
         Collection<Message> messages = payloads.stream()
                                                .map(p -> (Message) MessageBuilder.withPayload(p).build())
                                                .collect(Collectors.toList());
@@ -388,7 +388,7 @@ public class MQProducer {
      */
     @SuppressWarnings({"unchecked", "rawtypes"})
     public <T> SendResult sendBatch(String destination, Collection<T> payloads, long timeout) {
-        Asserts.notEmpty(payloads, BizError.INVALID_PARAM);
+        Asserts.notEmpty(payloads, BizErrorEnum.INVALID_PARAM);
         Collection<Message> messages = payloads.stream()
                                                .map(p -> (Message) MessageBuilder.withPayload(p).build())
                                                .collect(Collectors.toList());

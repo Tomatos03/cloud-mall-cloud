@@ -19,22 +19,22 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
-import com.cloudmall.common.enums.BizError;
+import com.cloudmall.common.enums.BizErrorEnum;
 import com.cloudmall.common.exception.BizException;
 import com.cloudmall.common.utils.Asserts;
-import com.cloudmall.order.api.model.CartItem;
-import com.cloudmall.order.api.model.CartShopGroup;
-import com.cloudmall.order.api.request.CartOperatorReq;
-import com.cloudmall.order.api.request.CartSelectReq;
-import com.cloudmall.order.api.response.CartDetailResp;
+import com.cloudmall.order.api.model.bo.CartItem;
+import com.cloudmall.order.api.model.bo.CartShopGroup;
+import com.cloudmall.order.api.model.req.CartOperatorReq;
+import com.cloudmall.order.api.model.req.CartSelectReq;
+import com.cloudmall.order.api.model.resp.CartDetailResp;
 import com.cloudmall.order.convert.CartConverter;
-import com.cloudmall.order.entity.CartDO;
+import com.cloudmall.order.model.entity.CartDO;
 import com.cloudmall.order.mapper.CartMapper;
 import com.cloudmall.order.service.ICartService;
 import com.cloudmall.product.api.client.SkuClient;
-import com.cloudmall.product.api.response.SkuResp;
+import com.cloudmall.product.api.model.resp.SkuResp;
 import com.cloudmall.user.api.client.ShopClient;
-import com.cloudmall.user.api.response.ShopResp;
+import com.cloudmall.user.api.model.resp.ShopResp;
 
 /**
  * 购物车服务实现
@@ -114,7 +114,7 @@ public class CartService implements ICartService {
     @Override
     public void selectItems(Long userId, CartSelectReq req) {
         int updated = cartMapper.updateSelectedByUserIdAndSkuId(userId, req.getSkuId(), req.getSelected());
-        Asserts.isTrue(updated > 0, BizError.CART_ITEM_NOT_EXIST);
+        Asserts.isTrue(updated > 0, BizErrorEnum.CART_ITEM_NOT_EXIST);
     }
 
     /**
@@ -125,7 +125,7 @@ public class CartService implements ICartService {
      */
     @Override
     public void selectAll(Long userId, Boolean selected) {
-        Asserts.notNull(selected, BizError.INVALID_PARAM);
+        Asserts.notNull(selected, BizErrorEnum.INVALID_PARAM);
         cartMapper.updateSelectedByUserId(userId, selected);
     }
 
@@ -195,7 +195,7 @@ public class CartService implements ICartService {
      */
     private Long mergeToExisting(CartDO existing, SkuResp sku, Integer quantity) {
         int newQuantity = existing.getQuantity() + quantity;
-        Asserts.isTrue(newQuantity <= MAX_QUANTITY, BizError.CART_LIMIT_EXCEEDED);
+        Asserts.isTrue(newQuantity <= MAX_QUANTITY, BizErrorEnum.CART_LIMIT_EXCEEDED);
         cartMapper.mergeQuantityAndPrice(
                 existing.getId(),
                 newQuantity,
@@ -213,7 +213,7 @@ public class CartService implements ICartService {
      */
     private void checkCartCapacity(Long userId) {
         Long count = cartMapper.countByUserId(userId);
-        Asserts.isTrue(count < MAX_ITEMS, BizError.CART_LIMIT_EXCEEDED);
+        Asserts.isTrue(count < MAX_ITEMS, BizErrorEnum.CART_LIMIT_EXCEEDED);
     }
 
     /**
@@ -238,7 +238,7 @@ public class CartService implements ICartService {
      */
     private SkuResp fetchSku(Long skuId) {
         List<SkuResp> skus = fetchSkus(Collections.singletonList(skuId));
-        Asserts.notEmpty(skus, BizError.CART_PRODUCT_NOT_EXIST);
+        Asserts.notEmpty(skus, BizErrorEnum.CART_PRODUCT_NOT_EXIST);
         return skus.get(0);
     }
 

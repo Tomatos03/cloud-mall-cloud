@@ -10,16 +10,16 @@ import org.springframework.ai.tool.annotation.Tool;
 import org.springframework.ai.tool.annotation.ToolParam;
 
 import com.cloudmall.aigc.agent.AgentTool;
-import com.cloudmall.aigc.agent.AgentType;
+import com.cloudmall.aigc.agent.AgentTypeEnum;
 import com.cloudmall.common.context.UserContextHolder;
 import com.cloudmall.order.api.client.OrderClient;
-import com.cloudmall.order.api.response.OrderResp;
+import com.cloudmall.order.api.model.resp.OrderResp;
 
 /**
  * 订单工具，提供订单查询能力。
  */
 @RequiredArgsConstructor
-@AgentTool(agents = AgentType.ORDER)
+@AgentTool(agents = AgentTypeEnum.ORDER)
 public class OrderTool {
 
     private final OrderClient orderClient;

@@ -11,13 +11,13 @@ import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import com.cloudmall.common.enums.BizError;
+import com.cloudmall.common.enums.BizErrorEnum;
 import com.cloudmall.common.utils.Asserts;
-import com.cloudmall.user.api.response.ShopInfoResp;
-import com.cloudmall.user.api.response.ShopResp;
+import com.cloudmall.user.api.model.resp.ShopInfoResp;
+import com.cloudmall.user.api.model.resp.ShopResp;
 import com.cloudmall.user.convert.ShopConverter;
-import com.cloudmall.user.entity.ShopDO;
-import com.cloudmall.user.entity.ShopStatDO;
+import com.cloudmall.user.model.entity.ShopDO;
+import com.cloudmall.user.model.entity.ShopStatDO;
 import com.cloudmall.user.mapper.ShopMapper;
 import com.cloudmall.user.mapper.ShopStatMapper;
 import com.cloudmall.user.model.req.ShopReq;
@@ -65,12 +65,12 @@ public class ShopService implements IShopService {
      */
     @Override
     public ShopInfoResp getShopInfo(Long shopId) {
-        Asserts.notNull(shopId, BizError.INVALID_PARAM);
+        Asserts.notNull(shopId, BizErrorEnum.INVALID_PARAM);
         ShopDO shop = Asserts.requireNonNull(
                 shopMapper.selectByReq(ShopReq.builder()
                                               .id(shopId)
                                               .build()),
-                BizError.MERCHANT_STORE_NOT_FOUND
+                BizErrorEnum.MERCHANT_STORE_NOT_FOUND
         );
         ShopStatDO stat = shopStatMapper.selectById(shopId);
         long totalReviewCount = stat == null ? 0 : stat.getTotalReviewCount();

@@ -12,14 +12,14 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.cloudmall.common.context.UserContextHolder;
-import com.cloudmall.common.enums.BizError;
+import com.cloudmall.common.enums.BizErrorEnum;
 import com.cloudmall.common.model.Result;
 import com.cloudmall.common.utils.Asserts;
-import com.cloudmall.seckill.api.request.ActivityCreateReq;
-import com.cloudmall.seckill.api.request.ActivityProductAuditReq;
-import com.cloudmall.seckill.api.request.ActivityUpdateReq;
-import com.cloudmall.seckill.api.response.ActivityResp;
-import com.cloudmall.seckill.api.response.SeckillProductResp;
+import com.cloudmall.seckill.api.model.req.ActivityCreateReq;
+import com.cloudmall.seckill.api.model.req.ActivityProductAuditReq;
+import com.cloudmall.seckill.api.model.req.ActivityUpdateReq;
+import com.cloudmall.seckill.api.model.resp.ActivityResp;
+import com.cloudmall.seckill.api.model.resp.SeckillProductResp;
 import com.cloudmall.seckill.model.req.SeckillActivityPageReq;
 import com.cloudmall.seckill.model.req.SeckillProductPageReq;
 import com.cloudmall.seckill.service.ISeckillActivityService;
@@ -50,7 +50,7 @@ public class SeckillOperatorController {
     public Result<Long> createActivity(@Valid @RequestBody ActivityCreateReq req) {
         Long createUserId = Asserts.requireNonNull(
                 UserContextHolder.getUserId(),
-                BizError.USER_NOT_AUTHENTICATED
+                BizErrorEnum.USER_NOT_AUTHENTICATED
         );
         return Result.success(activityService.createDraft(createUserId, req));
     }
@@ -78,7 +78,7 @@ public class SeckillOperatorController {
     public Result<Void> publishActivity(@PathVariable Long id) {
         Long publishUserId = Asserts.requireNonNull(
                 UserContextHolder.getUserId(),
-                BizError.USER_NOT_AUTHENTICATED
+                BizErrorEnum.USER_NOT_AUTHENTICATED
         );
         activityService.publish(id, publishUserId);
         return Result.success(null);
@@ -137,7 +137,7 @@ public class SeckillOperatorController {
     ) {
         Long auditorId = Asserts.requireNonNull(
                 UserContextHolder.getUserId(),
-                BizError.USER_NOT_AUTHENTICATED
+                BizErrorEnum.USER_NOT_AUTHENTICATED
         );
         productService.audit(productId, req.isApproved(), req.getAuditRemark(), auditorId);
         return Result.success(null);

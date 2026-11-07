@@ -8,7 +8,7 @@ import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import org.apache.ibatis.annotations.Mapper;
 
 import com.cloudmall.mybatisplus.enums.LimitEnum;
-import com.cloudmall.seckill.entity.SeckillOrderDO;
+import com.cloudmall.seckill.model.entity.SeckillOrderDO;
 import com.cloudmall.seckill.enums.SeckillOrderStatusEnum;
 
 /**

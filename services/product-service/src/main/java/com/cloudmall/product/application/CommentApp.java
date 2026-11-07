@@ -14,18 +14,18 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import com.cloudmall.common.enums.BizError;
+import com.cloudmall.common.enums.BizErrorEnum;
 import com.cloudmall.common.utils.Asserts;
-import com.cloudmall.product.api.response.CommentResp;
-import com.cloudmall.product.api.response.CommentSummaryResp;
-import com.cloudmall.product.api.response.StarDistributionResp;
+import com.cloudmall.product.api.model.resp.CommentResp;
+import com.cloudmall.product.api.model.resp.CommentSummaryResp;
+import com.cloudmall.product.api.model.resp.StarDistributionResp;
 import com.cloudmall.product.convert.CommentConverter;
-import com.cloudmall.product.entity.CommentDO;
+import com.cloudmall.product.model.entity.CommentDO;
 import com.cloudmall.product.mapper.CommentMapper;
 import com.cloudmall.product.model.req.CommentPageReq;
 import com.cloudmall.product.service.ICommentService;
 import com.cloudmall.user.api.client.InternalUserClient;
-import com.cloudmall.user.api.response.UserResp;
+import com.cloudmall.user.api.model.resp.UserResp;
 
 /**
  * 评论应用服务
@@ -59,7 +59,7 @@ public class CommentApp {
      * @return 评论统计
      */
     public CommentSummaryResp getSummary(Long productId) {
-        Asserts.notNull(productId, BizError.PRODUCT_ID_INVALID);
+        Asserts.notNull(productId, BizErrorEnum.PRODUCT_ID_INVALID);
         List<CommentDO> comments = commentMapper.selectVisibleByProduct(productId);
         return buildSummary(comments);
     }
@@ -71,7 +71,7 @@ public class CommentApp {
      * @return 评论分页结果
      */
     public IPage<CommentResp> page(CommentPageReq req) {
-        Asserts.notNull(req.getProductId(), BizError.PRODUCT_ID_INVALID);
+        Asserts.notNull(req.getProductId(), BizErrorEnum.PRODUCT_ID_INVALID);
         IPage<CommentResp> page = commentService.page(req);
         fillUsernames(page.getRecords());
         return page;

@@ -7,14 +7,14 @@ import java.util.function.Function;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
-import com.cloudmall.coupon.api.dto.CouponCalcItem;
-import com.cloudmall.coupon.api.response.CouponCandidateResp;
-import com.cloudmall.coupon.api.response.CouponItemResult;
-import com.cloudmall.coupon.api.response.CouponOrderCalcResp;
-import com.cloudmall.coupon.api.response.CouponSubOrderResult;
-import com.cloudmall.coupon.api.response.CouponUsageResult;
+import com.cloudmall.coupon.api.model.bo.CouponCalcItem;
+import com.cloudmall.coupon.api.model.resp.CouponCandidateResp;
+import com.cloudmall.coupon.api.model.resp.CouponItemResult;
+import com.cloudmall.coupon.api.model.resp.CouponOrderCalcResp;
+import com.cloudmall.coupon.api.model.resp.CouponSubOrderResult;
+import com.cloudmall.coupon.api.model.resp.CouponUsageResult;
 import com.cloudmall.coupon.calc.CalcCoupon;
-import com.cloudmall.coupon.entity.UserCouponDO;
+import com.cloudmall.coupon.model.entity.UserCouponDO;
 
 /**
  * 订单协同计算转换器

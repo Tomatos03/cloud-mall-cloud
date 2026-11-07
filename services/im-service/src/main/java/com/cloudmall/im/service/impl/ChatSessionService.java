@@ -4,7 +4,7 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.stereotype.Service;
 
-import com.cloudmall.im.entity.ChatSessionDO;
+import com.cloudmall.im.model.entity.ChatSessionDO;
 import com.cloudmall.im.mapper.ChatSessionMapper;
 import com.cloudmall.im.model.req.SessionPageReq;
 import com.cloudmall.im.service.IChatSessionService;

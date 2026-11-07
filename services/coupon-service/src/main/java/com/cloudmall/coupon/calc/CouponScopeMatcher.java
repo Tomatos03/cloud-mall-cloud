@@ -13,13 +13,13 @@ import cn.hutool.core.collection.CollUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
-import com.cloudmall.coupon.api.dto.CouponCalcItem;
-import com.cloudmall.coupon.entity.CouponDO;
-import com.cloudmall.coupon.enums.CouponScopeEnum;
+import com.cloudmall.coupon.api.model.bo.CouponCalcItem;
+import com.cloudmall.coupon.model.entity.CouponDO;
+import com.cloudmall.coupon.api.enums.CouponScopeEnum;
 import com.cloudmall.coupon.mapper.CouponCategoryMapper;
 import com.cloudmall.coupon.mapper.CouponProductMapper;
 import com.cloudmall.product.api.client.CategoryClient;
-import com.cloudmall.product.api.response.CategoryResp;
+import com.cloudmall.product.api.model.resp.CategoryResp;
 
 /**
  * 优惠券范围匹配器

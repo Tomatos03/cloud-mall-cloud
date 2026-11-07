@@ -5,11 +5,11 @@ import java.util.List;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
-import com.cloudmall.coupon.api.response.CouponOperationLogResp;
-import com.cloudmall.coupon.entity.CouponDO;
-import com.cloudmall.coupon.entity.CouponOperationLogDO;
-import com.cloudmall.coupon.enums.CouponOperationActionEnum;
-import com.cloudmall.coupon.enums.CouponStatusEnum;
+import com.cloudmall.coupon.api.model.resp.CouponOperationLogResp;
+import com.cloudmall.coupon.model.entity.CouponDO;
+import com.cloudmall.coupon.model.entity.CouponOperationLogDO;
+import com.cloudmall.coupon.api.enums.CouponOperationActionEnum;
+import com.cloudmall.coupon.api.enums.CouponStatusEnum;
 
 /**
  * 模板操作流水转换器
@@ -61,7 +61,7 @@ public interface CouponOperationLogConverter {
     )
     @Mapping(
             target = "operatorType",
-            expression = "java(com.cloudmall.common.context.UserContextHolder.isMerchant() ? com.cloudmall.coupon.enums.CouponOperatorEnum.MERCHANT : com.cloudmall.coupon.enums.CouponOperatorEnum.OPERATOR)"
+            expression = "java(com.cloudmall.common.context.UserContextHolder.isMerchant() ? com.cloudmall.coupon.api.enums.CouponOperatorEnum.MERCHANT : com.cloudmall.coupon.api.enums.CouponOperatorEnum.OPERATOR)"
     )
     CouponOperationLogDO toLog(
         CouponDO coupon,

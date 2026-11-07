@@ -10,8 +10,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.cloudmall.common.model.Result;
-import com.cloudmall.user.api.response.AddressResp;
-import com.cloudmall.user.api.response.UserResp;
+import com.cloudmall.user.api.model.resp.AddressResp;
+import com.cloudmall.user.api.model.resp.UserResp;
 import com.cloudmall.user.service.IAddressService;
 import com.cloudmall.user.service.IUserService;
 

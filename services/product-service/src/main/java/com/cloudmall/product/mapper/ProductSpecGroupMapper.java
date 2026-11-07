@@ -8,7 +8,7 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import org.apache.ibatis.annotations.Mapper;
 
-import com.cloudmall.product.entity.ProductSpecGroupDO;
+import com.cloudmall.product.model.entity.ProductSpecGroupDO;
 
 /**
  * Product Spec Group Mapper

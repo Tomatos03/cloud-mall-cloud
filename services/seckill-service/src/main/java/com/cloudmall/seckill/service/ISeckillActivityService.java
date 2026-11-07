@@ -4,11 +4,11 @@ import java.util.List;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
 
-import com.cloudmall.seckill.api.request.ActivityCreateReq;
-import com.cloudmall.seckill.api.request.ActivityUpdateReq;
-import com.cloudmall.seckill.api.response.ActivityDetailResp;
-import com.cloudmall.seckill.api.response.ActivityResp;
-import com.cloudmall.seckill.entity.SeckillActivityDO;
+import com.cloudmall.seckill.api.model.req.ActivityCreateReq;
+import com.cloudmall.seckill.api.model.req.ActivityUpdateReq;
+import com.cloudmall.seckill.api.model.resp.ActivityDetailResp;
+import com.cloudmall.seckill.api.model.resp.ActivityResp;
+import com.cloudmall.seckill.model.entity.SeckillActivityDO;
 import com.cloudmall.seckill.model.req.SeckillActivityPageReq;
 
 /**

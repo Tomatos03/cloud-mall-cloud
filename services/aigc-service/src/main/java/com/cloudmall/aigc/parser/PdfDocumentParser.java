@@ -23,7 +23,7 @@ import org.springframework.web.multipart.MultipartFile;
  * @date 2026/7/22
  */
 @Component
-public class PdfDocumentParser implements DocumentParser {
+public class PdfDocumentParser implements IDocumentParser {
 
     /**
      * 解析输入内容。
@@ -58,7 +58,7 @@ public class PdfDocumentParser implements DocumentParser {
      * @return 处理结果
      */
     @Override
-    public DocumentType getType() {
-        return DocumentType.PDF;
+    public DocumentTypeEnum getType() {
+        return DocumentTypeEnum.PDF;
     }
 }

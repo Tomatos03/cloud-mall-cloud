@@ -3,7 +3,7 @@ package com.cloudmall.product.service;
 import java.util.List;
 import java.util.Map;
 
-import com.cloudmall.product.api.response.SpecGroupResp;
+import com.cloudmall.product.api.model.resp.SpecGroupResp;
 
 public interface IProductSpecService {
 

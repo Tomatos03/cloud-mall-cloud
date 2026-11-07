@@ -7,8 +7,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.cloudmall.common.model.Result;
-import com.cloudmall.search.api.request.SearchProductReq;
-import com.cloudmall.search.api.response.SearchResultResp;
+import com.cloudmall.search.api.model.req.SearchProductReq;
+import com.cloudmall.search.api.model.resp.SearchResultResp;
 import com.cloudmall.search.service.ISearchService;
 
 /**

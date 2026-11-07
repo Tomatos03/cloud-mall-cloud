@@ -5,10 +5,10 @@ import java.util.Set;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
-import com.cloudmall.consumer.handler.EventHandler;
+import com.cloudmall.consumer.handler.IEventHandler;
 import com.cloudmall.coupon.api.client.InternalCouponClient;
-import com.cloudmall.coupon.api.request.AutoIssueRegisterReq;
-import com.cloudmall.user.api.event.UserRegisteredEvent;
+import com.cloudmall.coupon.api.model.req.AutoIssueRegisterReq;
+import com.cloudmall.user.api.model.bo.UserRegisteredEvent;
 
 /**
  * 用户注册自动发券处理器。
@@ -17,7 +17,7 @@ import com.cloudmall.user.api.event.UserRegisteredEvent;
  */
 @Component
 @RequiredArgsConstructor
-public class RegisterAutoIssueHandler implements EventHandler<UserRegisteredEvent> {
+public class RegisterAutoIssueHandler implements IEventHandler<UserRegisteredEvent> {
 
     private final InternalCouponClient internalCouponClient;
 

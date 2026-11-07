@@ -10,9 +10,9 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.cloudmall.common.model.Result;
-import com.cloudmall.order.api.request.OrderEventReq;
-import com.cloudmall.order.api.request.PlainSeckillOrderReq;
-import com.cloudmall.order.api.response.CouponUsageStatsResp;
+import com.cloudmall.order.api.model.req.OrderEventReq;
+import com.cloudmall.order.api.model.req.PlainSeckillOrderReq;
+import com.cloudmall.order.api.model.resp.CouponUsageStatsResp;
 import com.cloudmall.order.service.IOrderEventService;
 import com.cloudmall.order.service.IOrderService;
 import com.cloudmall.order.service.impl.PlainSeckillOrderService;

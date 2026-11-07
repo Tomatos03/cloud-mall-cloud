@@ -8,7 +8,7 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import org.apache.ibatis.annotations.Mapper;
 
-import com.cloudmall.user.entity.UserDO;
+import com.cloudmall.user.model.entity.UserDO;
 import com.cloudmall.user.model.req.UserPageReq;
 
 @Mapper

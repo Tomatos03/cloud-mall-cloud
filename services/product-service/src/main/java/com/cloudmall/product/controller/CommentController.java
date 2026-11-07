@@ -11,9 +11,9 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.cloudmall.common.model.Result;
-import com.cloudmall.product.api.request.CommentCreateReq;
-import com.cloudmall.product.api.response.CommentResp;
-import com.cloudmall.product.api.response.CommentSummaryResp;
+import com.cloudmall.product.api.model.req.CommentCreateReq;
+import com.cloudmall.product.api.model.resp.CommentResp;
+import com.cloudmall.product.api.model.resp.CommentSummaryResp;
 import com.cloudmall.product.application.CommentApp;
 import com.cloudmall.product.model.req.CommentPageReq;
 import com.cloudmall.product.service.ICommentService;

@@ -2,10 +2,10 @@ package com.cloudmall.seckill.handler;
 
 import com.alibaba.csp.sentinel.slots.block.BlockException;
 
-import com.cloudmall.common.enums.BizError;
+import com.cloudmall.common.enums.BizErrorEnum;
 import com.cloudmall.common.exception.BizException;
-import com.cloudmall.seckill.api.request.SeckillPurchaseReq;
-import com.cloudmall.seckill.api.response.PurchaseResp;
+import com.cloudmall.seckill.api.model.req.SeckillPurchaseReq;
+import com.cloudmall.seckill.api.model.resp.PurchaseResp;
 
 /**
  * 秒杀服务 Sentinel 兜底处理器
@@ -27,6 +27,6 @@ public final class SeckillBlockHandlers {
      * @return 不会返回，直接抛业务异常
      */
     public static PurchaseResp purchaseBlock(SeckillPurchaseReq req, BlockException ex) {
-        throw new BizException(BizError.FLOW_CONTROL_BLOCKED);
+        throw new BizException(BizErrorEnum.FLOW_CONTROL_BLOCKED);
     }
 }

@@ -4,7 +4,7 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import org.apache.ibatis.annotations.Mapper;
 
-import com.cloudmall.product.entity.UnitDO;
+import com.cloudmall.product.model.entity.UnitDO;
 import com.cloudmall.product.model.req.UnitPageReq;
 
 @Mapper

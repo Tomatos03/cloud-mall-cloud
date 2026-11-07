@@ -6,7 +6,7 @@ import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import org.apache.ibatis.annotations.Mapper;
 
-import com.cloudmall.aigc.entity.ChatSessionDO;
+import com.cloudmall.aigc.model.entity.ChatSessionDO;
 
 @Mapper
 public interface ChatSessionMapper extends BaseMapper<ChatSessionDO> {

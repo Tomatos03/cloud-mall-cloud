@@ -4,7 +4,7 @@ import java.util.List;
 
 import org.mapstruct.Mapper;
 
-import com.cloudmall.user.entity.NoticeDO;
+import com.cloudmall.user.model.entity.NoticeDO;
 import com.cloudmall.user.model.resp.NoticeResp;
 
 /**

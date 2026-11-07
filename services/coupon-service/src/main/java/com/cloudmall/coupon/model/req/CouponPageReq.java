@@ -6,11 +6,11 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import com.cloudmall.coupon.entity.CouponDO;
-import com.cloudmall.coupon.enums.CouponOwnerEnum;
-import com.cloudmall.coupon.enums.CouponStatusEnum;
-import com.cloudmall.coupon.enums.IssueChannelEnum;
-import com.cloudmall.mybatisplus.annotation.Operator;
+import com.cloudmall.coupon.model.entity.CouponDO;
+import com.cloudmall.coupon.api.enums.CouponOwnerEnum;
+import com.cloudmall.coupon.api.enums.CouponStatusEnum;
+import com.cloudmall.coupon.api.enums.IssueChannelEnum;
+import com.cloudmall.mybatisplus.annotation.OperatorEnum;
 import com.cloudmall.mybatisplus.annotation.QueryCondition;
 import com.cloudmall.mybatisplus.model.PageReq;
 
@@ -28,27 +28,27 @@ import com.cloudmall.mybatisplus.model.PageReq;
 public class CouponPageReq extends PageReq<CouponDO> {
 
     /** 模板 ID（等值匹配） */
-    @QueryCondition(operator = Operator.EQ)
+    @QueryCondition(operator = OperatorEnum.EQ)
     private Long id;
 
     /** 店铺 ID（等值匹配，商家端强制注入） */
-    @QueryCondition(operator = Operator.EQ)
+    @QueryCondition(operator = OperatorEnum.EQ)
     private Long shopId;
 
     /** 模板名称（模糊匹配） */
-    @QueryCondition(operator = Operator.LIKE)
+    @QueryCondition(operator = OperatorEnum.LIKE)
     private String name;
 
     /** 券归属（PLATFORM/SHOP） */
-    @QueryCondition(operator = Operator.EQ)
+    @QueryCondition(operator = OperatorEnum.EQ)
     private CouponOwnerEnum ownerType;
 
     /** 模板状态 */
-    @QueryCondition(operator = Operator.EQ)
+    @QueryCondition(operator = OperatorEnum.EQ)
     private CouponStatusEnum status;
 
     /** 发行渠道（PUBLIC_CLAIM / REGISTER_AUTO） */
-    @QueryCondition(operator = Operator.EQ)
+    @QueryCondition(operator = OperatorEnum.EQ)
     private IssueChannelEnum issueChannel;
 
     /**

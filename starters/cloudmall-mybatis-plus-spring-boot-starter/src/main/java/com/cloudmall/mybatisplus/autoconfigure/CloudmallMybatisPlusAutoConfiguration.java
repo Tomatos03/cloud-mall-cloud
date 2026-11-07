@@ -8,7 +8,7 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
 
-import com.cloudmall.mybatisplus.config.MyMetaObjectHandler;
+import com.cloudmall.mybatisplus.handler.MyMetaObjectHandler;
 
 @AutoConfiguration
 @Import(MyMetaObjectHandler.class)

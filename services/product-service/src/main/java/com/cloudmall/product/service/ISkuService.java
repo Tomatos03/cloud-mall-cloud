@@ -2,7 +2,7 @@ package com.cloudmall.product.service;
 
 import java.util.List;
 
-import com.cloudmall.product.api.response.SkuResp;
+import com.cloudmall.product.api.model.resp.SkuResp;
 
 /**
  * 商品 SKU 服务接口。

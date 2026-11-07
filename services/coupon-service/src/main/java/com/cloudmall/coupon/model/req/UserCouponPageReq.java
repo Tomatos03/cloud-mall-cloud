@@ -5,9 +5,9 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import com.cloudmall.coupon.entity.UserCouponDO;
+import com.cloudmall.coupon.model.entity.UserCouponDO;
 import com.cloudmall.coupon.enums.UserCouponStatusEnum;
-import com.cloudmall.mybatisplus.annotation.Operator;
+import com.cloudmall.mybatisplus.annotation.OperatorEnum;
 import com.cloudmall.mybatisplus.annotation.QueryCondition;
 import com.cloudmall.mybatisplus.model.PageReq;
 
@@ -25,7 +25,7 @@ import com.cloudmall.mybatisplus.model.PageReq;
 public class UserCouponPageReq extends PageReq<UserCouponDO> {
 
     /** 用户券状态过滤（null 表示全部） */
-    @QueryCondition(operator = Operator.EQ)
+    @QueryCondition(operator = OperatorEnum.EQ)
     private UserCouponStatusEnum status;
 
     /**

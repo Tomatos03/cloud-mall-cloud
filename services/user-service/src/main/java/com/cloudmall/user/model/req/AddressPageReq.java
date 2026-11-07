@@ -5,10 +5,10 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import com.cloudmall.mybatisplus.annotation.Operator;
+import com.cloudmall.mybatisplus.annotation.OperatorEnum;
 import com.cloudmall.mybatisplus.annotation.QueryCondition;
 import com.cloudmall.mybatisplus.model.PageReq;
-import com.cloudmall.user.entity.AddressDO;
+import com.cloudmall.user.model.entity.AddressDO;
 
 /**
  * 地址分页查询请求。
@@ -25,7 +25,7 @@ import com.cloudmall.user.entity.AddressDO;
 public class AddressPageReq extends PageReq<AddressDO> {
 
     /** 用户 ID（等值匹配） */
-    @QueryCondition(operator = Operator.EQ)
+    @QueryCondition(operator = OperatorEnum.EQ)
     private Long userId;
 
     /**

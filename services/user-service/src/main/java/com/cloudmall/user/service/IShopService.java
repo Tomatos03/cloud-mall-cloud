@@ -3,8 +3,8 @@ package com.cloudmall.user.service;
 import java.util.List;
 import java.util.Optional;
 
-import com.cloudmall.user.api.response.ShopInfoResp;
-import com.cloudmall.user.api.response.ShopResp;
+import com.cloudmall.user.api.model.resp.ShopInfoResp;
+import com.cloudmall.user.api.model.resp.ShopResp;
 import com.cloudmall.user.model.req.ShopReq;
 
 public interface IShopService {

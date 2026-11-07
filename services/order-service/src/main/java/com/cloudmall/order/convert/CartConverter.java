@@ -10,12 +10,12 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
 
-import com.cloudmall.order.api.model.CartItem;
-import com.cloudmall.order.api.model.CartShopGroup;
-import com.cloudmall.order.api.response.CartDetailResp;
-import com.cloudmall.order.entity.CartDO;
-import com.cloudmall.product.api.response.SkuResp;
-import com.cloudmall.user.api.response.ShopResp;
+import com.cloudmall.order.api.model.bo.CartItem;
+import com.cloudmall.order.api.model.bo.CartShopGroup;
+import com.cloudmall.order.api.model.resp.CartDetailResp;
+import com.cloudmall.order.model.entity.CartDO;
+import com.cloudmall.product.api.model.resp.SkuResp;
+import com.cloudmall.user.api.model.resp.ShopResp;
 
 /**
  * 购物车对象转换器

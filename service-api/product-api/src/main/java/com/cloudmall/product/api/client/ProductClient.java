@@ -7,8 +7,8 @@ import org.springframework.web.bind.annotation.PathVariable;
 
 import com.cloudmall.common.model.CursorReq;
 import com.cloudmall.common.model.CursorResult;
-import com.cloudmall.product.api.response.ProductDocResp;
-import com.cloudmall.product.api.response.ProductResp;
+import com.cloudmall.product.api.model.resp.ProductDocResp;
+import com.cloudmall.product.api.model.resp.ProductResp;
 
 @FeignClient(name = "product-service", contextId = "productClient", path = "/products")
 public interface ProductClient {

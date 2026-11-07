@@ -9,7 +9,7 @@ import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import org.apache.ibatis.annotations.Mapper;
 
 import com.cloudmall.mybatisplus.enums.LimitEnum;
-import com.cloudmall.product.entity.ProductImageDO;
+import com.cloudmall.product.model.entity.ProductImageDO;
 
 /**
  * Product Image Mapper

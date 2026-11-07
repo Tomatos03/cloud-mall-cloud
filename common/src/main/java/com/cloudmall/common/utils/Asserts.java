@@ -7,7 +7,7 @@ import java.util.function.Supplier;
 import cn.hutool.core.collection.CollUtil;
 import lombok.experimental.UtilityClass;
 
-import com.cloudmall.common.enums.BizError;
+import com.cloudmall.common.enums.BizErrorEnum;
 import com.cloudmall.common.exception.BizException;
 
 /**
@@ -27,7 +27,7 @@ public class Asserts {
      * @param errorCode 条件不满足时抛出的错误码
      * @throws BizException 当表达式为假时抛出
      */
-    public static void isTrue(boolean expression, BizError errorCode) {
+    public static void isTrue(boolean expression, BizErrorEnum errorCode) {
         if (!expression) {
             throw new BizException(errorCode);
         }
@@ -40,7 +40,7 @@ public class Asserts {
      * @param errorCode 条件不满足时抛出的错误码
      * @throws BizException 当表达式为真时抛出
      */
-    public static void isFalse(boolean expression, BizError errorCode) {
+    public static void isFalse(boolean expression, BizErrorEnum errorCode) {
         if (expression) {
             throw new BizException(errorCode);
         }
@@ -53,7 +53,7 @@ public class Asserts {
      * @param errorCode 对象为空时抛出的错误码
      * @throws BizException 当对象为空时抛出
      */
-    public static void notNull(Object obj, BizError errorCode) {
+    public static void notNull(Object obj, BizErrorEnum errorCode) {
         if (obj == null) {
             throw new BizException(errorCode);
         }
@@ -66,7 +66,7 @@ public class Asserts {
      * @throws BizException 当对象为空时抛出
      */
     public static void notNull(Object obj) {
-        notNull(obj, BizError.DATA_NOT_FOUND);
+        notNull(obj, BizErrorEnum.DATA_NOT_FOUND);
     }
 
     /**
@@ -80,7 +80,7 @@ public class Asserts {
      * @return 非空的原对象
      * @throws BizException 当对象为空时抛出
      */
-    public static <T> T requireNonNull(T obj, BizError errorCode) {
+    public static <T> T requireNonNull(T obj, BizErrorEnum errorCode) {
         if (obj == null) {
             throw new BizException(errorCode);
         }
@@ -97,7 +97,7 @@ public class Asserts {
      * @throws BizException 当对象为空时抛出
      */
     public static <T> T requireNonNull(T obj) {
-        return requireNonNull(obj, BizError.DATA_NOT_FOUND);
+        return requireNonNull(obj, BizErrorEnum.DATA_NOT_FOUND);
     }
 
     /**
@@ -119,7 +119,7 @@ public class Asserts {
      * @param errorCode 错误码
      * @throws BizException 处理过程中可能抛出该异常
      */
-    public static void isNull(Object obj, BizError errorCode) {
+    public static void isNull(Object obj, BizErrorEnum errorCode) {
         if (obj != null) {
             throw new BizException(errorCode);
         }
@@ -133,7 +133,7 @@ public class Asserts {
      * @param errorCode 对象不相等时抛出的错误码
      * @throws BizException 当两个对象不相等时抛出
      */
-    public static void isEqual(Object obj1, Object obj2, BizError errorCode) {
+    public static void isEqual(Object obj1, Object obj2, BizErrorEnum errorCode) {
         if (!Objects.equals(obj1, obj2)) {
             throw new BizException(errorCode);
         }
@@ -147,7 +147,7 @@ public class Asserts {
      * @param errorCode 对象相等时抛出的错误码
      * @throws BizException 当两个对象相等时抛出
      */
-    public static void notEqual(Object obj1, Object obj2, BizError errorCode) {
+    public static void notEqual(Object obj1, Object obj2, BizErrorEnum errorCode) {
         if (Objects.equals(obj1, obj2)) {
             throw new BizException(errorCode);
         }
@@ -160,7 +160,7 @@ public class Asserts {
      * @param errorCode 错误码
      * @throws BizException 处理过程中可能抛出该异常
      */
-    public static void isZero(long value, BizError errorCode) {
+    public static void isZero(long value, BizErrorEnum errorCode) {
         if (value != 0) {
             throw new BizException(errorCode);
         }
@@ -173,7 +173,7 @@ public class Asserts {
      * @param errorCode 错误码
      * @throws BizException 处理过程中可能抛出该异常
      */
-    public static void isNotZero(long value, BizError errorCode) {
+    public static void isNotZero(long value, BizErrorEnum errorCode) {
         if (value == 0) {
             throw new BizException(errorCode);
         }
@@ -186,7 +186,7 @@ public class Asserts {
      * @param errorCode 错误码
      * @throws BizException 处理过程中可能抛出该异常
      */
-    public static void isPositive(long value, BizError errorCode) {
+    public static void isPositive(long value, BizErrorEnum errorCode) {
         if (value <= 0) {
             throw new BizException(errorCode);
         }
@@ -200,7 +200,7 @@ public class Asserts {
      * @param errorCode 错误码
      * @throws BizException 处理过程中可能抛出该异常
      */
-    public static void greaterThan(long value, long min, BizError errorCode) {
+    public static void greaterThan(long value, long min, BizErrorEnum errorCode) {
         if (value <= min) {
             throw new BizException(errorCode);
         }
@@ -214,7 +214,7 @@ public class Asserts {
      * @param errorCode 错误码
      * @throws BizException 处理过程中可能抛出该异常
      */
-    public static void greaterOrEqual(long value, long min, BizError errorCode) {
+    public static void greaterOrEqual(long value, long min, BizErrorEnum errorCode) {
         if (value < min) {
             throw new BizException(errorCode);
         }
@@ -228,7 +228,7 @@ public class Asserts {
      * @param errorCode 错误码
      * @throws BizException 处理过程中可能抛出该异常
      */
-    public static void lessThan(long value, long max, BizError errorCode) {
+    public static void lessThan(long value, long max, BizErrorEnum errorCode) {
         if (value >= max) {
             throw new BizException(errorCode);
         }
@@ -243,7 +243,7 @@ public class Asserts {
      * @param errorCode 错误码
      * @throws BizException 处理过程中可能抛出该异常
      */
-    public static void inRange(long value, long min, long max, BizError errorCode) {
+    public static void inRange(long value, long min, long max, BizErrorEnum errorCode) {
         if (value < min || value > max) {
             throw new BizException(errorCode);
         }
@@ -256,7 +256,7 @@ public class Asserts {
      * @param errorCode 字符串为空或空字符串时抛出的错误码
      * @throws BizException 当字符串为空或空字符串时抛出
      */
-    public static void notBlank(String str, BizError errorCode) {
+    public static void notBlank(String str, BizErrorEnum errorCode) {
         if (str == null || str.trim().isEmpty()) {
             throw new BizException(errorCode);
         }
@@ -269,7 +269,7 @@ public class Asserts {
      * @param errorCode 集合为空或元素为空时抛出的错误码
      * @throws BizException 当集合为空或元素为空时抛出
      */
-    public static void notEmpty(Collection<?> collection, BizError errorCode) {
+    public static void notEmpty(Collection<?> collection, BizErrorEnum errorCode) {
         if (CollUtil.isEmpty(collection)) {
             throw new BizException(errorCode);
         }
@@ -282,7 +282,7 @@ public class Asserts {
      * @param expressions 布尔表达式列表
      * @throws BizException 处理过程中可能抛出该异常
      */
-    public static void anyTrue(BizError errorCode, boolean... expressions) {
+    public static void anyTrue(BizErrorEnum errorCode, boolean... expressions) {
         if (expressions == null || expressions.length == 0) {
             throw new BizException(errorCode);
         }
@@ -294,7 +294,7 @@ public class Asserts {
         throw new BizException(errorCode);
     }
 
-    public static void isIn(String value, String[] allowedValues, BizError errorCode) {
+    public static void isIn(String value, String[] allowedValues, BizErrorEnum errorCode) {
         if (value == null) {
             throw new BizException(errorCode);
         }
@@ -314,7 +314,7 @@ public class Asserts {
      * @param errorCode 条件不满足时抛出的错误码
      * @param <T> 集合元素类型
      */
-    public static <T> void contains(Collection<T> collection, T element, BizError errorCode) {
+    public static <T> void contains(Collection<T> collection, T element, BizErrorEnum errorCode) {
         if (collection == null || !collection.contains(element)) {
             throw new BizException(errorCode);
         }
@@ -328,7 +328,7 @@ public class Asserts {
      * @param errorCode 条件不满足时抛出的错误码
      * @param <T> 集合元素类型
      */
-    public static <T> void notContains(Collection<T> collection, T element, BizError errorCode) {
+    public static <T> void notContains(Collection<T> collection, T element, BizErrorEnum errorCode) {
         if (collection != null && collection.contains(element)) {
             throw new BizException(errorCode);
         }

@@ -5,10 +5,10 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
 
-import com.cloudmall.mybatisplus.annotation.Operator;
+import com.cloudmall.mybatisplus.annotation.OperatorEnum;
 import com.cloudmall.mybatisplus.annotation.QueryCondition;
 import com.cloudmall.mybatisplus.model.PageReq;
-import com.cloudmall.seckill.entity.SeckillActivityDO;
+import com.cloudmall.seckill.model.entity.SeckillActivityDO;
 
 /**
  * 秒杀活动分页查询请求。
@@ -23,7 +23,7 @@ import com.cloudmall.seckill.entity.SeckillActivityDO;
 public class SeckillActivityPageReq extends PageReq<SeckillActivityDO> {
 
     /** 活动状态（为空表示不限） */
-    @QueryCondition(operator = Operator.EQ)
+    @QueryCondition(operator = OperatorEnum.EQ)
     private String status;
 
     /**

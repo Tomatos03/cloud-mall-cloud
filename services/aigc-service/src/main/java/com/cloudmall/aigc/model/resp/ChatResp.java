@@ -7,7 +7,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import com.cloudmall.aigc.model.enums.ChatEventType;
+import com.cloudmall.aigc.enums.ChatEventTypeEnum;
 
 @Data
 @Builder
@@ -15,7 +15,7 @@ import com.cloudmall.aigc.model.enums.ChatEventType;
 @AllArgsConstructor
 public class ChatResp {
     private Object data;
-    private ChatEventType eventType;
+    private ChatEventTypeEnum eventType;
 
     /**
      * 创建聊天结束事件响应。
@@ -24,7 +24,7 @@ public class ChatResp {
      */
     public static ChatResp end() {
         return ChatResp.builder()
-                       .eventType(ChatEventType.DONE)
+                       .eventType(ChatEventTypeEnum.DONE)
                        .build();
     }
 
@@ -37,7 +37,7 @@ public class ChatResp {
     public static ChatResp param(Map<String, Object> params) {
         return ChatResp.builder()
                        .data(params)
-                       .eventType(ChatEventType.PARAM)
+                       .eventType(ChatEventTypeEnum.PARAM)
                        .build();
     }
 }

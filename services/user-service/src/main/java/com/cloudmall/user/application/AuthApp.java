@@ -11,14 +11,14 @@ import org.jspecify.annotations.NonNull;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import com.cloudmall.common.enums.BizError;
+import com.cloudmall.common.enums.BizErrorEnum;
 import com.cloudmall.common.utils.Asserts;
 import com.cloudmall.jwt.constant.JwtClaimNames;
 import com.cloudmall.jwt.service.ITokenService;
-import com.cloudmall.user.api.request.LoginReq;
-import com.cloudmall.user.api.response.LoginResp;
+import com.cloudmall.user.api.model.req.LoginReq;
+import com.cloudmall.user.api.model.resp.LoginResp;
 import com.cloudmall.user.convert.UserConverter;
-import com.cloudmall.user.entity.UserDO;
+import com.cloudmall.user.model.entity.UserDO;
 import com.cloudmall.user.service.IResourceService;
 import com.cloudmall.user.service.IShopService;
 import com.cloudmall.user.service.IUserService;
@@ -55,7 +55,7 @@ public class AuthApp {
     /**
      * 校验登录凭证：用户存在性、密码、用户类型。
      * <p>
-     * 用户不存在、密码错误、用户类型不匹配统一返回 {@link BizError#USERNAME_OR_PASSWORD_ERROR}，
+     * 用户不存在、密码错误、用户类型不匹配统一返回 {@link BizErrorEnum#USERNAME_OR_PASSWORD_ERROR}，
      * 避免账号是否存在与账号类型被探测。
      *
      * @param request 登录请求
@@ -64,13 +64,13 @@ public class AuthApp {
     private UserDO authenticate(LoginReq request) {
         UserDO user = Asserts.requireNonNull(
                 userService.findByUsername(request.getUsername()),
-                BizError.USERNAME_OR_PASSWORD_ERROR
+                BizErrorEnum.USERNAME_OR_PASSWORD_ERROR
         );
         Asserts.isTrue(
                 passwordEncoder.matches(request.getPassword(), user.getPassword()),
-                BizError.USERNAME_OR_PASSWORD_ERROR
+                BizErrorEnum.USERNAME_OR_PASSWORD_ERROR
         );
-        Asserts.isEqual(user.getTypes(), request.getUserType(), BizError.USERNAME_OR_PASSWORD_ERROR);
+        Asserts.isEqual(user.getTypes(), request.getUserType(), BizErrorEnum.USERNAME_OR_PASSWORD_ERROR);
         return user;
     }
 

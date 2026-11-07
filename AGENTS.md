@@ -11,8 +11,8 @@
 - 顶层：`common/`（共享工具与跨服务对象）、`gateway/`、`service-api/`（Feign 接口 + DTO 聚合，父 POM）、`services/`（业务服务，父 POM）、`starters/`（自研 Starter，父 POM）、`docs/`（设计/compose/Nacos 配置/SQL）。
 - 业务服务（`services/`）：`user-service`（UserApplication，认证/RBAC + 用户资料）、`product-service`（ProductApplication）、`order-service`（OrderApplication）、`coupon-service`（CouponApplication）、`seckill-service`（SeckillApplication）、`im-service`（IMApplication）、`aigc-service`（agent-service，AIGCApplication）。
 - 服务接口（`service-api/`）：`user-api`、`product-api`、`order-api`、`coupon-api`、`seckill-api`、`search-api`。
-- 自研 Starter（`starters/`）：`cloudmall-common`（Result/BizException/BizError/UserContextFilter）、`cloudmall-mybatis-plus`（MyMetaObjectHandler、PageReq/ConditionReq、LimitEnum、StatusEnum）、`cloudmall-jwt`、`cloudmall-rocketmq`（MQProducer/TxMessageHeader）、`cloudmall-outbox`（本地消息 Outbox）、`cloudmall-feign`（用户上下文透传 + Result 自动拆箱）、`cloudmall-elasticsearch`、`cloudmall-xxl-job`。
-- 业务服务分层：`controller`、`service`/`impl`、`mapper`、`entity`、`model/req` 与 `model/resp`、`convert`（MapStruct）、`enums`、`application`、`job`。
+- 自研 Starter（`starters/`）：`cloudmall-common`（Result/BizException/BizErrorEnum/UserContextFilter）、`cloudmall-mybatis-plus`（MyMetaObjectHandler、PageReq/ConditionReq、LimitEnum、StatusEnum）、`cloudmall-jwt`、`cloudmall-rocketmq`（MQProducer/TxMessageHeader）、`cloudmall-outbox`（本地消息 Outbox）、`cloudmall-feign`（用户上下文透传 + Result 自动拆箱）、`cloudmall-elasticsearch`、`cloudmall-xxl-job`。
+- 业务服务分层：`controller`、`service`/`impl`、`mapper`、`model/entity`、`model/req`、`model/resp`、`model/bo`、`convert`（MapStruct）、`enums`、`application`、`job`。
 - 服务端口统一在 Nacos 配置中心管理（导入 `common` + `{app-name}` 配置）。
 
 ## 构建、测试与开发命令
@@ -36,11 +36,31 @@ mvn test                                                  # 测试
 ## API 规范
 
 - RESTful Level 2：资源名复数（`/users`），操作由 HTTP 方法表达（GET 查 / POST 建 / PUT 改 / DELETE 删），认证接口用动词（`/auth/login`）。
-- 统一返回 `Result<T>`，业务异常使用 `BizException` + `BizError`。
+- 统一返回 `Result<T>`，业务异常使用 `BizException` + `BizErrorEnum`。
 
 ## 架构要点
 
 - Nacos (localhost:8848) 注册发现与配置管理；JWT 无状态认证（userId/username/userType）；Spring Security 鉴权在网关层；Feign 拦截器自动透传用户上下文。
+
+## 对象模型与目录边界
+
+业务服务内的对象按职责分为四类，**目录与命名必须遵循下表**：
+
+| 目录 | 对象 | 后缀 | 职责 | 允许出现的位置 |
+|---|---|---|---|---|
+| `model/entity/` | 持久化对象 | `XxxDO` | 与数据库表一一对应，字段即列 | Mapper、Service 内部 |
+| `model/req/` | 请求对象 | `XxxReq` | 本服务 HTTP 接口入参 | Controller、Service |
+| `model/resp/` | 响应对象 | `XxxResp` | 本服务 HTTP 接口出参 | Controller、Service |
+| `model/bo/` | 业务对象 | 领域名（不加 `BO` 后缀） | 多表聚合、跨领域组合、复杂计算结果 | Service、Application 内部 |
+
+边界规则：
+
+- **DO 不出 Service 层**：Controller 签名、Feign 接口、`service-api` 中禁止出现 `XxxDO`。
+- **Req/Resp 只服务本服务 HTTP 边界**：跨服务调用的入参/出参放 `service-api` 对应模块，不在本服务 `model` 中重复定义。
+- **BO 只在 Service/Application 内部流转**：禁止作为 Controller 入参/出参，禁止被 `service-api` 引用。
+- **转换统一走 `convert/XxxConverter`**（MapStruct）：DO ↔ BO ↔ Req/Resp，禁止在 Controller / Service 内联手写转换。
+- **没有聚合需求不建 BO**：BO 用于多表聚合或跨领域组合，不要为每张表机械地造一个 BO。
+- **BO 使用领域名，不强制 `BO` 后缀**：如 `CheckoutContext`、`ProductSkuPrice`；仅在与其它层对象重名时加限定词区分。
 
 ## 错误码分区
 
@@ -54,8 +74,10 @@ mvn test                                                  # 测试
 
 ### 命名
 
-- Service 接口 `I*Service`（如 `IAuthService`），实现去掉 `I` 前缀；分页查询方法命名 `page*`，Controller 方法名与 Service 保持一致。
+- 业务接口一律使用大写 `I` 前缀：Service `I*Service`、Application `I*AppService`、Handler `I*Handler`、Step `I*Step`、Publisher `I*Publisher`、Parser `I*Parser`、Agent `I*Agent` 等，实现类去掉 `I` 前缀；Mapper / Converter / Feign Client 遵循框架约定，不加 `I`；分页查询方法命名 `page*`，Controller 方法名与 Service 保持一致。
 - 请求对象以 `XxxReq` 结尾，独立接口响应对象以 `XxxResp` 结尾；响应内部嵌套结构（不单独对外返回，如 `ProductDetailResp.skus` 的元素）不需要 `Resp` 后缀，直接以领域名命名（如 `ProductSku`）。
+- 枚举类型统一以 `Enum` 结尾（如 `OrderStatusEnum`），枚举常量使用大写下划线（如 `ORDER_PAID`）。
+- 配置类与配置属性分离：`config/` 放 `@Configuration` / `@Bean` / `@AutoConfiguration`；`properties/` 放 `@ConfigurationProperties` 绑定类。
 
 ### 分层职责
 
@@ -71,7 +93,7 @@ mvn test                                                  # 测试
 
 ### 返回与异常
 
-- 统一 `Result<T>`（`Result.success()` / `Result.error()`）；业务异常用 `BizException` + `BizError`，禁止裸 `Exception` / `RuntimeException`。
+- 统一 `Result<T>`（`Result.success()` / `Result.error()`）；业务异常用 `BizException` + `BizErrorEnum`，禁止裸 `Exception` / `RuntimeException`。
 
 ### 条件校验
 

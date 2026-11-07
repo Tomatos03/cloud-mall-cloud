@@ -4,7 +4,7 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import org.apache.ibatis.annotations.Mapper;
 
-import com.cloudmall.coupon.entity.CouponOperationLogDO;
+import com.cloudmall.coupon.model.entity.CouponOperationLogDO;
 import com.cloudmall.coupon.model.req.CouponOperationLogPageReq;
 
 /**

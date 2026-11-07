@@ -4,9 +4,9 @@ import java.util.List;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
 
-import com.cloudmall.user.api.request.RegisterReq;
-import com.cloudmall.user.api.response.UserResp;
-import com.cloudmall.user.entity.UserDO;
+import com.cloudmall.user.api.model.req.RegisterReq;
+import com.cloudmall.user.api.model.resp.UserResp;
+import com.cloudmall.user.model.entity.UserDO;
 import com.cloudmall.user.model.req.UserPageReq;
 import com.cloudmall.user.model.resp.ResourceNodeResp;
 

@@ -8,16 +8,16 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.cloudmall.common.model.Result;
-import com.cloudmall.coupon.api.request.AutoIssueRegisterReq;
-import com.cloudmall.coupon.api.request.CouponOrderCommitByOrderReq;
-import com.cloudmall.coupon.api.request.CouponOrderCommitReq;
-import com.cloudmall.coupon.api.request.CouponOrderLockReq;
-import com.cloudmall.coupon.api.request.CouponOrderQuoteReq;
-import com.cloudmall.coupon.api.request.CouponOrderReleaseByOrderReq;
-import com.cloudmall.coupon.api.request.CouponOrderReleaseReq;
-import com.cloudmall.coupon.api.request.CouponOrderRevertByOrderReq;
-import com.cloudmall.coupon.api.request.CouponOrderRevertReq;
-import com.cloudmall.coupon.api.response.CouponOrderCalcResp;
+import com.cloudmall.coupon.api.model.req.AutoIssueRegisterReq;
+import com.cloudmall.coupon.api.model.req.CouponOrderCommitByOrderReq;
+import com.cloudmall.coupon.api.model.req.CouponOrderCommitReq;
+import com.cloudmall.coupon.api.model.req.CouponOrderLockReq;
+import com.cloudmall.coupon.api.model.req.CouponOrderQuoteReq;
+import com.cloudmall.coupon.api.model.req.CouponOrderReleaseByOrderReq;
+import com.cloudmall.coupon.api.model.req.CouponOrderReleaseReq;
+import com.cloudmall.coupon.api.model.req.CouponOrderRevertByOrderReq;
+import com.cloudmall.coupon.api.model.req.CouponOrderRevertReq;
+import com.cloudmall.coupon.api.model.resp.CouponOrderCalcResp;
 import com.cloudmall.coupon.service.ICouponOrderService;
 import com.cloudmall.coupon.service.IUserCouponService;
 

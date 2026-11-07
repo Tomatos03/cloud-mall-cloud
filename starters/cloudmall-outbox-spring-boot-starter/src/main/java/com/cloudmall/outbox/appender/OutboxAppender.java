@@ -6,7 +6,7 @@ import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.json.JSONUtil;
 import lombok.RequiredArgsConstructor;
 
-import com.cloudmall.outbox.entity.OutboxDO;
+import com.cloudmall.outbox.model.entity.OutboxDO;
 import com.cloudmall.outbox.enums.OutboxPublishStatusEnum;
 import com.cloudmall.outbox.mapper.OutboxMapper;
 import com.cloudmall.outbox.model.OutboxAppendReq;

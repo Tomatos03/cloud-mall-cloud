@@ -19,7 +19,7 @@ import org.springframework.web.multipart.MultipartFile;
  * @date 2026/7/22
  */
 @Component
-public class TikaDocumentParser implements DocumentParser {
+public class TikaDocumentParser implements IDocumentParser {
 
     /**
      * 使用 Tika 解析文件
@@ -47,7 +47,7 @@ public class TikaDocumentParser implements DocumentParser {
      * @return Tika
      */
     @Override
-    public DocumentType getType() {
-        return DocumentType.Tika;
+    public DocumentTypeEnum getType() {
+        return DocumentTypeEnum.Tika;
     }
 }

@@ -9,7 +9,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 
-import com.cloudmall.coupon.api.response.CouponResp;
+import com.cloudmall.coupon.api.model.resp.CouponResp;
 
 /**
  * 公开券中心缓存服务

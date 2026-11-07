@@ -7,18 +7,18 @@ import java.util.Map;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
-import com.cloudmall.product.api.request.ProductCreateReq;
-import com.cloudmall.product.api.response.CommentSummaryResp;
-import com.cloudmall.product.api.response.ImageResp;
-import com.cloudmall.product.api.response.ProductDetailResp;
-import com.cloudmall.product.api.response.ProductResp;
-import com.cloudmall.product.api.response.ProductSku;
-import com.cloudmall.product.api.response.SpecGroupResp;
-import com.cloudmall.product.entity.BrandDO;
-import com.cloudmall.product.entity.CategoryDO;
-import com.cloudmall.product.entity.ProductDO;
-import com.cloudmall.product.entity.ProductImageDO;
-import com.cloudmall.user.api.response.ShopInfoResp;
+import com.cloudmall.product.api.model.req.ProductCreateReq;
+import com.cloudmall.product.api.model.resp.CommentSummaryResp;
+import com.cloudmall.product.api.model.resp.ImageResp;
+import com.cloudmall.product.api.model.resp.ProductDetailResp;
+import com.cloudmall.product.api.model.resp.ProductResp;
+import com.cloudmall.product.api.model.resp.ProductSku;
+import com.cloudmall.product.api.model.resp.SpecGroupResp;
+import com.cloudmall.product.model.entity.BrandDO;
+import com.cloudmall.product.model.entity.CategoryDO;
+import com.cloudmall.product.model.entity.ProductDO;
+import com.cloudmall.product.model.entity.ProductImageDO;
+import com.cloudmall.user.api.model.resp.ShopInfoResp;
 
 /**
  * 商品相关对象转换器。

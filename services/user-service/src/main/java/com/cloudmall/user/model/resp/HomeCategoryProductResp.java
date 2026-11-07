@@ -8,8 +8,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import com.cloudmall.product.api.response.CategoryResp;
-import com.cloudmall.product.api.response.ProductDocResp;
+import com.cloudmall.product.api.model.resp.CategoryResp;
+import com.cloudmall.product.api.model.resp.ProductDocResp;
 
 /**
  * 首页分类展示商品分组

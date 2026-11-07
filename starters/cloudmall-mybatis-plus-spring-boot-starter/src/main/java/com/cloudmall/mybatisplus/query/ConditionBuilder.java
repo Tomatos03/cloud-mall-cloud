@@ -9,7 +9,7 @@ import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 
-import com.cloudmall.mybatisplus.annotation.Operator;
+import com.cloudmall.mybatisplus.annotation.OperatorEnum;
 import com.cloudmall.mybatisplus.annotation.QueryCondition;
 
 /**
@@ -26,10 +26,10 @@ import com.cloudmall.mybatisplus.annotation.QueryCondition;
  * &#064;Getter &#064;Setter
  * public class ProductListReq implements ConditionBuilder&lt;ProductDO&gt; {
  *
- *     &#064;QueryCondition(operator = Operator.EQ)
+ *     &#064;QueryCondition(operator = OperatorEnum.EQ)
  *     private Long categoryId;
  *
- *     &#064;QueryCondition(operator = Operator.LIKE)
+ *     &#064;QueryCondition(operator = OperatorEnum.LIKE)
  *     private String keyword;
  * }
  * }</pre>
@@ -67,8 +67,8 @@ public interface ConditionBuilder<T> {
             }
 
             Object value = ReflectUtil.getFieldValue(this, field);
-            boolean isSelfSufficient = ann.operator() == Operator.IS_NULL
-                                               || ann.operator() == Operator.IS_NOT_NULL;
+            boolean isSelfSufficient = ann.operator() == OperatorEnum.IS_NULL
+                                               || ann.operator() == OperatorEnum.IS_NOT_NULL;
             if (!isSelfSufficient && ann.ignoreNull() && QueryConditionHelper.isNullOrEmpty(value)) {
                 continue;
             }

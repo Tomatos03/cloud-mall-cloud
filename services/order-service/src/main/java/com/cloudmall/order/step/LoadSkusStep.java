@@ -8,11 +8,11 @@ import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
-import com.cloudmall.common.enums.BizError;
+import com.cloudmall.common.enums.BizErrorEnum;
 import com.cloudmall.common.utils.Asserts;
-import com.cloudmall.order.model.CheckoutContext;
+import com.cloudmall.order.model.bo.CheckoutContext;
 import com.cloudmall.product.api.client.SkuClient;
-import com.cloudmall.product.api.response.SkuResp;
+import com.cloudmall.product.api.model.resp.SkuResp;
 
 /**
  * SKU 加载与校验步骤：按结算项加载 SKU 快照并校验存在与库存，
@@ -22,7 +22,7 @@ import com.cloudmall.product.api.response.SkuResp;
  */
 @Component
 @RequiredArgsConstructor
-public class LoadSkusStep implements CheckoutStep {
+public class LoadSkusStep implements ICheckoutStep {
 
     private final SkuClient skuClient;
 
@@ -48,13 +48,13 @@ public class LoadSkusStep implements CheckoutStep {
                                                   .stream()
                                                   .toList();
         List<SkuResp> skus = skuClient.listSkusByIds(selectedSkuList);
-        Asserts.isTrue(skus.size() == selectedSkuList.size(), BizError.INVALID_PARAM);
+        Asserts.isTrue(skus.size() == selectedSkuList.size(), BizErrorEnum.INVALID_PARAM);
 
         Map<Long, SkuResp> skuMap = skus.stream()
                                         .collect(Collectors.toMap(SkuResp::getSkuId, Function.identity()));
         for (Map.Entry<Long, Integer> entry : checkoutItems.entrySet()) {
             Integer stock = skuMap.get(entry.getKey()).getStock();
-            Asserts.greaterThan(stock, entry.getValue(), BizError.STOCK_NOT_ENOUGH);
+            Asserts.greaterThan(stock, entry.getValue(), BizErrorEnum.STOCK_NOT_ENOUGH);
         }
         ctx.setSkuMap(skuMap);
     }

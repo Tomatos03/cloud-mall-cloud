@@ -10,8 +10,8 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import org.apache.ibatis.annotations.Mapper;
 
-import com.cloudmall.product.entity.ProductSkuDO;
-import com.cloudmall.product.model.ProductSkuPrice;
+import com.cloudmall.product.model.entity.ProductSkuDO;
+import com.cloudmall.product.model.bo.ProductSkuPrice;
 
 /**
  * 商品 SKU Mapper。

@@ -5,9 +5,9 @@ import java.util.List;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
-import com.cloudmall.coupon.api.response.CouponUsageResult;
-import com.cloudmall.order.api.response.OrderCouponResp;
-import com.cloudmall.order.entity.OrderCouponDO;
+import com.cloudmall.coupon.api.model.resp.CouponUsageResult;
+import com.cloudmall.order.api.model.resp.OrderCouponResp;
+import com.cloudmall.order.model.entity.OrderCouponDO;
 
 /**
  * 订单优惠关联转换器

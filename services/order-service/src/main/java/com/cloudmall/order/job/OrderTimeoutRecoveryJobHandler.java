@@ -10,13 +10,13 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
 import com.cloudmall.coupon.api.client.InternalCouponClient;
-import com.cloudmall.coupon.api.request.CouponOrderReleaseByOrderReq;
-import com.cloudmall.order.entity.OrderDO;
+import com.cloudmall.coupon.api.model.req.CouponOrderReleaseByOrderReq;
+import com.cloudmall.order.model.entity.OrderDO;
 import com.cloudmall.order.enums.ParentOrderStatusEnum;
 import com.cloudmall.order.mapper.OrderMapper;
 import com.cloudmall.order.service.impl.OrderService;
 import com.cloudmall.product.api.client.InternalProductClient;
-import com.cloudmall.product.api.request.StockReleaseByOrderReq;
+import com.cloudmall.product.api.model.req.StockReleaseByOrderReq;
 
 /**
  * 创建中超时恢复 JobHandler

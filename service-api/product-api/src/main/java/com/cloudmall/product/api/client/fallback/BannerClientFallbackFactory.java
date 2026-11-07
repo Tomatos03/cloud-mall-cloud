@@ -5,7 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.cloud.openfeign.FallbackFactory;
 
 import com.cloudmall.product.api.client.BannerClient;
-import com.cloudmall.product.api.response.BannerResp;
+import com.cloudmall.product.api.model.resp.BannerResp;
 
 /**
  * 轮播图客户端兜底工厂

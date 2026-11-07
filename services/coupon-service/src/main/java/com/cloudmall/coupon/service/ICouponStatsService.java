@@ -1,6 +1,6 @@
 package com.cloudmall.coupon.service;
 
-import com.cloudmall.coupon.api.response.CouponStatsResp;
+import com.cloudmall.coupon.api.model.resp.CouponStatsResp;
 
 /**
  * 优惠券统计服务

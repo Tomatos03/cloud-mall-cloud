@@ -6,9 +6,9 @@ import org.springframework.ai.tool.annotation.Tool;
 import org.springframework.ai.tool.annotation.ToolParam;
 
 import com.cloudmall.aigc.agent.AgentTool;
-import com.cloudmall.aigc.agent.AgentType;
+import com.cloudmall.aigc.agent.AgentTypeEnum;
 import com.cloudmall.product.api.client.ProductClient;
-import com.cloudmall.product.api.response.ProductResp;
+import com.cloudmall.product.api.model.resp.ProductResp;
 
 /**
  * 商品查询工具
@@ -17,7 +17,7 @@ import com.cloudmall.product.api.response.ProductResp;
  * @date : 2026/7/22
  */
 @RequiredArgsConstructor
-@AgentTool(agents = AgentType.PRODUCT)
+@AgentTool(agents = AgentTypeEnum.PRODUCT)
 public class ProductTool {
 
     private final ProductClient productClient;

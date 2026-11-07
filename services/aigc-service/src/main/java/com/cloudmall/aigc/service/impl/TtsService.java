@@ -11,7 +11,7 @@ import org.springframework.ai.openai.api.OpenAiAudioApi.SpeechRequest.AudioRespo
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 
-import com.cloudmall.aigc.model.enums.TtsAudioFormat;
+import com.cloudmall.aigc.enums.TtsAudioFormatEnum;
 import com.cloudmall.aigc.model.req.TtsReq;
 import com.cloudmall.aigc.model.resp.TtsResp;
 import com.cloudmall.aigc.service.ITtsService;
@@ -59,7 +59,7 @@ public class TtsService implements ITtsService {
     public TtsResp synthesizeAsBase64(TtsReq req) {
         byte[] audioBytes = synthesize(req);
         String base64Audio = Base64.getEncoder().encodeToString(audioBytes);
-        String format = ObjectUtil.defaultIfNull(req.getResponseFormat(), TtsAudioFormat.MP3).getCode();
+        String format = ObjectUtil.defaultIfNull(req.getResponseFormat(), TtsAudioFormatEnum.MP3).getCode();
 
         return TtsResp.builder()
                       .base64Audio(base64Audio)
@@ -114,7 +114,7 @@ public class TtsService implements ITtsService {
      * @param format 音频格式枚举
      * @return Spring AI 音频格式
      */
-    private AudioResponseFormat toAudioResponseFormat(TtsAudioFormat format) {
+    private AudioResponseFormat toAudioResponseFormat(TtsAudioFormatEnum format) {
         return switch (format) {
             case OPUS -> AudioResponseFormat.OPUS;
             case AAC -> AudioResponseFormat.AAC;

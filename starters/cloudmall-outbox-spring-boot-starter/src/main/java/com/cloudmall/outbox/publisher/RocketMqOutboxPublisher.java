@@ -15,7 +15,7 @@ import com.cloudmall.rocketmq.producer.MQProducer;
  * @author : Tomatos
  */
 @RequiredArgsConstructor
-public class RocketMqOutboxPublisher implements OutboxPublisher {
+public class RocketMqOutboxPublisher implements IOutboxPublisher {
 
     private final MQProducer mqProducer;
 

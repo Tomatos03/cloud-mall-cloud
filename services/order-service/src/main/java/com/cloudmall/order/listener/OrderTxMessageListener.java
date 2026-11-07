@@ -7,10 +7,10 @@ import org.apache.rocketmq.spring.core.RocketMQLocalTransactionListener;
 import org.apache.rocketmq.spring.core.RocketMQLocalTransactionState;
 import org.springframework.messaging.Message;
 
-import com.cloudmall.common.enums.BizError;
+import com.cloudmall.common.enums.BizErrorEnum;
 import com.cloudmall.common.utils.Asserts;
-import com.cloudmall.order.api.event.OrderTagEnum;
-import com.cloudmall.order.entity.OrderDO;
+import com.cloudmall.order.api.enums.OrderTagEnum;
+import com.cloudmall.order.model.entity.OrderDO;
 import com.cloudmall.order.enums.ParentOrderStatusEnum;
 import com.cloudmall.order.mapper.OrderMapper;
 import com.cloudmall.order.service.IOrderStateMachineService;
@@ -62,11 +62,11 @@ public class OrderTxMessageListener implements RocketMQLocalTransactionListener 
                 );
                 case CANCELLED -> {
                     int updated = orderMapper.markCancelled(order.getId(), ParentOrderStatusEnum.CANCELLED);
-                    Asserts.isTrue(updated > 0, BizError.INVALID_ORDER_STATUS);
+                    Asserts.isTrue(updated > 0, BizErrorEnum.INVALID_ORDER_STATUS);
                 }
                 case FULLY_REFUNDED -> {
                     int refundUpdated = orderMapper.markRefunded(order.getId());
-                    Asserts.isTrue(refundUpdated > 0, BizError.INVALID_ORDER_STATUS);
+                    Asserts.isTrue(refundUpdated > 0, BizErrorEnum.INVALID_ORDER_STATUS);
                 }
                 default -> {
                     log.warn("未知的订单事件类型 eventType={}", eventType);
@@ -117,6 +117,6 @@ public class OrderTxMessageListener implements RocketMQLocalTransactionListener 
      * 按订单号查询父订单。
      */
     private OrderDO requireOrder(String orderNo) {
-        return Asserts.requireNonNull(orderMapper.selectByOrderNo(orderNo), BizError.ORDER_NOT_EXIST);
+        return Asserts.requireNonNull(orderMapper.selectByOrderNo(orderNo), BizErrorEnum.ORDER_NOT_EXIST);
     }
 }

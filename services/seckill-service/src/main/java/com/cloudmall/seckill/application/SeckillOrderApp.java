@@ -14,18 +14,18 @@ import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Component;
 
 import com.cloudmall.common.context.UserContextHolder;
-import com.cloudmall.common.enums.BizError;
+import com.cloudmall.common.enums.BizErrorEnum;
 import com.cloudmall.common.exception.BizException;
 import com.cloudmall.common.utils.Asserts;
 import com.cloudmall.order.api.client.InternalOrderClient;
-import com.cloudmall.order.api.request.OrderEventReq;
-import com.cloudmall.seckill.api.request.SeckillPurchaseReq;
-import com.cloudmall.seckill.api.response.PurchaseResp;
+import com.cloudmall.order.api.model.req.OrderEventReq;
+import com.cloudmall.seckill.api.model.req.SeckillPurchaseReq;
+import com.cloudmall.seckill.api.model.resp.PurchaseResp;
 import com.cloudmall.seckill.cache.SeckillCacheService;
 import com.cloudmall.seckill.cache.SeckillRateLimitService;
-import com.cloudmall.seckill.entity.SeckillActivityDO;
-import com.cloudmall.seckill.entity.SeckillOrderDO;
-import com.cloudmall.seckill.entity.SeckillProductDO;
+import com.cloudmall.seckill.model.entity.SeckillActivityDO;
+import com.cloudmall.seckill.model.entity.SeckillOrderDO;
+import com.cloudmall.seckill.model.entity.SeckillProductDO;
 import com.cloudmall.seckill.enums.SeckillOrderStatusEnum;
 import com.cloudmall.seckill.enums.SeckillPurchaseResultEnum;
 import com.cloudmall.seckill.handler.SeckillBlockHandlers;
@@ -70,8 +70,8 @@ public class SeckillOrderApp {
     )
     public PurchaseResp purchase(SeckillPurchaseReq req) {
         Long userId = UserContextHolder.getUserId();
-        Asserts.notNull(userId, BizError.USER_NOT_AUTHENTICATED);
-        Asserts.notNull(req.getAddressId(), BizError.SECKILL_ADDRESS_REQUIRED);
+        Asserts.notNull(userId, BizErrorEnum.USER_NOT_AUTHENTICATED);
+        Asserts.notNull(req.getAddressId(), BizErrorEnum.SECKILL_ADDRESS_REQUIRED);
 
         // 黑名单拦截 + 固定窗口限流
         rateLimitService.checkRate(userId);
@@ -79,14 +79,14 @@ public class SeckillOrderApp {
         // 活动必须存在且处于进行中窗口
         SeckillActivityDO activity = activityService.getById(req.getActivityId());
         LocalDateTime now = LocalDateTime.now();
-        Asserts.isTrue(activity.isRunning(), BizError.INVALID_ACTIVITY_STATUS);
-        Asserts.isTrue(activity.isStarted(now), BizError.SECKILL_NOT_STARTED);
-        Asserts.isTrue(activity.isNotEnded(now), BizError.SECKILL_ALREADY_ENDED);
+        Asserts.isTrue(activity.isRunning(), BizErrorEnum.INVALID_ACTIVITY_STATUS);
+        Asserts.isTrue(activity.isStarted(now), BizErrorEnum.SECKILL_NOT_STARTED);
+        Asserts.isTrue(activity.isNotEnded(now), BizErrorEnum.SECKILL_ALREADY_ENDED);
 
         // 商品必须属于该活动且已审核通过
         SeckillProductDO product = Asserts.requireNonNull(
                 productService.getApprovedByActivityAndSku(req.getActivityId(), req.getSkuId()),
-                BizError.SECKILL_PRODUCT_NOT_FOUND
+                BizErrorEnum.SECKILL_PRODUCT_NOT_FOUND
         );
 
         // 一人一单标记 TTL 取到活动结束时刻
@@ -98,8 +98,8 @@ public class SeckillOrderApp {
                 FIXED_QUANTITY,
                 ttlSeconds
         );
-        Asserts.notEqual(result, SeckillPurchaseResultEnum.REPEAT, BizError.SECKILL_REPEAT_ORDER);
-        Asserts.notEqual(result, SeckillPurchaseResultEnum.NO_STOCK, BizError.SECKILL_STOCK_INSUFFICIENT);
+        Asserts.notEqual(result, SeckillPurchaseResultEnum.REPEAT, BizErrorEnum.SECKILL_REPEAT_ORDER);
+        Asserts.notEqual(result, SeckillPurchaseResultEnum.NO_STOCK, BizErrorEnum.SECKILL_STOCK_INSUFFICIENT);
 
         SeckillOrderDO order = buildSeckillOrder(req, product, userId);
 
@@ -109,7 +109,7 @@ public class SeckillOrderApp {
             // DB 唯一键是一人一单的最终权威：Redis 标记可能因过期或重建而失效
             cacheService.rollback(req.getActivityId(), req.getSkuId(), userId);
             log.warn("秒杀单唯一键冲突，已回补库存 userId={} skuId={}", userId, req.getSkuId());
-            throw new BizException(BizError.SECKILL_REPEAT_ORDER);
+            throw new BizException(BizErrorEnum.SECKILL_REPEAT_ORDER);
         }
 
         return PurchaseResp.builder()

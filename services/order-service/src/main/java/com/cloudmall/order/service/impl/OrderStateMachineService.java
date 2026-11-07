@@ -3,7 +3,7 @@ package com.cloudmall.order.service.impl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import com.cloudmall.common.enums.BizError;
+import com.cloudmall.common.enums.BizErrorEnum;
 import com.cloudmall.common.utils.Asserts;
 import com.cloudmall.order.enums.ParentOrderStateTransitions;
 import com.cloudmall.order.enums.ParentOrderStatusEnum;
@@ -36,9 +36,9 @@ public class OrderStateMachineService implements IOrderStateMachineService {
      */
     @Override
     public void transitionParent(Long orderId, ParentOrderStatusEnum from, ParentOrderStatusEnum to) {
-        Asserts.isTrue(canParentTransition(from, to), BizError.INVALID_ORDER_STATUS);
+        Asserts.isTrue(canParentTransition(from, to), BizErrorEnum.INVALID_ORDER_STATUS);
         int updated = orderMapper.transitionStatus(orderId, from, to);
-        Asserts.isTrue(updated > 0, BizError.INVALID_ORDER_STATUS);
+        Asserts.isTrue(updated > 0, BizErrorEnum.INVALID_ORDER_STATUS);
     }
 
     /**
@@ -50,9 +50,9 @@ public class OrderStateMachineService implements IOrderStateMachineService {
      */
     @Override
     public void transitionSub(Long subOrderId, SubOrderStatusEnum from, SubOrderStatusEnum to) {
-        Asserts.isTrue(canSubTransition(from, to), BizError.INVALID_ORDER_STATUS);
+        Asserts.isTrue(canSubTransition(from, to), BizErrorEnum.INVALID_ORDER_STATUS);
         int updated = orderSubMapper.transitionStatus(subOrderId, from, to);
-        Asserts.isTrue(updated > 0, BizError.INVALID_ORDER_STATUS);
+        Asserts.isTrue(updated > 0, BizErrorEnum.INVALID_ORDER_STATUS);
     }
 
     /**

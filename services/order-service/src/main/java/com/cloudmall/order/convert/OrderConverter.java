@@ -3,8 +3,8 @@ package com.cloudmall.order.convert;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
-import com.cloudmall.order.api.response.OrderResp;
-import com.cloudmall.order.entity.OrderDO;
+import com.cloudmall.order.api.model.resp.OrderResp;
+import com.cloudmall.order.model.entity.OrderDO;
 
 /**
  * 父订单转换器

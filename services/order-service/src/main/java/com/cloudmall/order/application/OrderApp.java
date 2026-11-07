@@ -12,18 +12,18 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import com.cloudmall.common.context.UserContextHolder;
-import com.cloudmall.common.enums.BizError;
+import com.cloudmall.common.enums.BizErrorEnum;
 import com.cloudmall.common.utils.Asserts;
 import com.cloudmall.coupon.api.client.InternalCouponClient;
-import com.cloudmall.coupon.api.dto.CouponCalcItem;
-import com.cloudmall.coupon.api.request.CouponOrderQuoteReq;
-import com.cloudmall.coupon.api.response.CouponOrderCalcResp;
+import com.cloudmall.coupon.api.model.bo.CouponCalcItem;
+import com.cloudmall.coupon.api.model.req.CouponOrderQuoteReq;
+import com.cloudmall.coupon.api.model.resp.CouponOrderCalcResp;
 import com.cloudmall.order.api.enums.CheckoutTypeEnum;
-import com.cloudmall.order.api.model.OrderItem;
-import com.cloudmall.order.api.request.CreateOrderReq;
-import com.cloudmall.order.api.request.QuoteOrderReq;
+import com.cloudmall.order.api.model.bo.OrderItem;
+import com.cloudmall.order.api.model.req.CreateOrderReq;
+import com.cloudmall.order.api.model.req.QuoteOrderReq;
 import com.cloudmall.product.api.client.SkuClient;
-import com.cloudmall.product.api.response.SkuResp;
+import com.cloudmall.product.api.model.resp.SkuResp;
 
 /**
  * 订单应用服务
@@ -61,10 +61,10 @@ public class OrderApp {
      * @return 三级价格明细 + 优惠券使用明细 + 推荐组合
      */
     public CouponOrderCalcResp quote(QuoteOrderReq req) {
-        Long userId = Asserts.requireNonNull(UserContextHolder.getUserId(), BizError.USER_NOT_AUTHENTICATED);
+        Long userId = Asserts.requireNonNull(UserContextHolder.getUserId(), BizErrorEnum.USER_NOT_AUTHENTICATED);
         Map<Long, Integer> quantities = new LinkedHashMap<>();
         for (OrderItem item : req.getItems()) {
-            Asserts.isFalse(quantities.containsKey(item.getSkuId()), BizError.INVALID_PARAM);
+            Asserts.isFalse(quantities.containsKey(item.getSkuId()), BizErrorEnum.INVALID_PARAM);
             quantities.put(item.getSkuId(), item.getQuantity());
         }
         Map<Long, SkuResp> skuMap = requireAvailableSkus(quantities);
@@ -86,17 +86,17 @@ public class OrderApp {
      */
     private Map<Long, SkuResp> requireAvailableSkus(Map<Long, Integer> quantities) {
         List<SkuResp> skus = skuClient.listSkusByIds(new ArrayList<>(quantities.keySet()));
-        Asserts.notEmpty(skus, BizError.ORDER_CREATE_SKU_NOT_AVAILABLE);
+        Asserts.notEmpty(skus, BizErrorEnum.ORDER_CREATE_SKU_NOT_AVAILABLE);
         Map<Long, SkuResp> skuMap = skus.stream()
                                         .collect(Collectors.toMap(SkuResp::getSkuId, Function.identity()));
         for (Map.Entry<Long, Integer> entry : quantities.entrySet()) {
             SkuResp sku = Asserts.requireNonNull(
                     skuMap.get(entry.getKey()),
-                    BizError.ORDER_CREATE_SKU_NOT_AVAILABLE
+                    BizErrorEnum.ORDER_CREATE_SKU_NOT_AVAILABLE
             );
             Asserts.isTrue(
                     sku.getStock() != null && sku.getStock() >= entry.getValue(),
-                    BizError.ORDER_CREATE_SKU_INVENTORY_NOT_ENOUGH
+                    BizErrorEnum.ORDER_CREATE_SKU_INVENTORY_NOT_ENOUGH
             );
         }
         return skuMap;

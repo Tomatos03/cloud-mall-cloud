@@ -5,14 +5,14 @@ import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import com.cloudmall.common.enums.BizError;
+import com.cloudmall.common.enums.BizErrorEnum;
 import com.cloudmall.common.exception.BizException;
 import com.cloudmall.common.utils.Asserts;
-import com.cloudmall.user.api.request.AddressUpdateReq;
-import com.cloudmall.user.api.request.CreateReq;
-import com.cloudmall.user.api.response.AddressResp;
+import com.cloudmall.user.api.model.req.AddressUpdateReq;
+import com.cloudmall.user.api.model.req.CreateReq;
+import com.cloudmall.user.api.model.resp.AddressResp;
 import com.cloudmall.user.convert.AddressConverter;
-import com.cloudmall.user.entity.AddressDO;
+import com.cloudmall.user.model.entity.AddressDO;
 import com.cloudmall.user.mapper.AddressMapper;
 import com.cloudmall.user.service.IAddressService;
 
@@ -60,7 +60,7 @@ public class AddressService implements IAddressService {
     @Override
     public Long create(CreateReq request, Long userId) {
         long count = addressMapper.countByUserId(userId);
-        Asserts.isFalse(count >= MAX_ADDRESS_COUNT, BizError.ADDRESS_LIMIT_EXCEEDED);
+        Asserts.isFalse(count >= MAX_ADDRESS_COUNT, BizErrorEnum.ADDRESS_LIMIT_EXCEEDED);
 
         AddressDO address = addressConverter.toDO(request, userId);
         addressMapper.insert(address);
@@ -89,10 +89,10 @@ public class AddressService implements IAddressService {
     @Override
     public void delete(List<Long> ids) {
         List<AddressDO> addresses = addressMapper.selectBatchIds(ids);
-        Asserts.notEmpty(addresses, BizError.ADDRESS_NOT_EXIST);
+        Asserts.notEmpty(addresses, BizErrorEnum.ADDRESS_NOT_EXIST);
 
         boolean hasDefault = addresses.stream().anyMatch(AddressDO::getIsDefault);
-        Asserts.isFalse(hasDefault, BizError.ADDRESS_DEFAULT_CANNOT_DELETE);
+        Asserts.isFalse(hasDefault, BizErrorEnum.ADDRESS_DEFAULT_CANNOT_DELETE);
         addressMapper.deleteByIds(ids);
     }
 }

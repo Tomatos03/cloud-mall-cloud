@@ -5,9 +5,9 @@ import java.util.List;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
-import com.cloudmall.product.api.request.CategoryCreateReq;
-import com.cloudmall.product.api.response.CategoryResp;
-import com.cloudmall.product.entity.CategoryDO;
+import com.cloudmall.product.api.model.req.CategoryCreateReq;
+import com.cloudmall.product.api.model.resp.CategoryResp;
+import com.cloudmall.product.model.entity.CategoryDO;
 
 @Mapper(componentModel = "spring")
 public interface CategoryConverter {

@@ -8,7 +8,7 @@ import org.springframework.web.reactive.function.server.ServerResponse;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 
-import com.cloudmall.common.enums.BizError;
+import com.cloudmall.common.enums.BizErrorEnum;
 import com.cloudmall.common.model.Result;
 
 /**
@@ -31,6 +31,6 @@ public class SentinelGatewayBlockHandler implements BlockRequestHandler {
     public Mono<ServerResponse> handleRequest(ServerWebExchange exchange, Throwable ex) {
         return ServerResponse.status(HttpStatus.TOO_MANY_REQUESTS)
                              .contentType(MediaType.APPLICATION_JSON)
-                             .body(BodyInserters.fromValue(Result.error(BizError.FLOW_CONTROL_BLOCKED)));
+                             .body(BodyInserters.fromValue(Result.error(BizErrorEnum.FLOW_CONTROL_BLOCKED)));
     }
 }

@@ -6,7 +6,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.cloudmall.common.model.Result;
-import com.cloudmall.search.model.RebuildResultResp;
+import com.cloudmall.search.model.resp.RebuildResultResp;
 import com.cloudmall.search.service.ISearchService;
 
 /**

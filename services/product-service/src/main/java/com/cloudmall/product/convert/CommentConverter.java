@@ -9,9 +9,9 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
 
-import com.cloudmall.product.api.request.CommentCreateReq;
-import com.cloudmall.product.api.response.CommentResp;
-import com.cloudmall.product.entity.CommentDO;
+import com.cloudmall.product.api.model.req.CommentCreateReq;
+import com.cloudmall.product.api.model.resp.CommentResp;
+import com.cloudmall.product.model.entity.CommentDO;
 
 /**
  * 评论对象转换器。

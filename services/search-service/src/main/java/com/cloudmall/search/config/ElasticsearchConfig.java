@@ -14,6 +14,9 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+import com.cloudmall.search.properties.SearchProperties;
+import com.cloudmall.search.properties.SearchSyncProperties;
+
 /**
  * Elasticsearch 客户端配置
  * <p>

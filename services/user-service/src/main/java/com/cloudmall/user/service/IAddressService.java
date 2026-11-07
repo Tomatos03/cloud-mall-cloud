@@ -2,9 +2,9 @@ package com.cloudmall.user.service;
 
 import java.util.List;
 
-import com.cloudmall.user.api.request.AddressUpdateReq;
-import com.cloudmall.user.api.request.CreateReq;
-import com.cloudmall.user.api.response.AddressResp;
+import com.cloudmall.user.api.model.req.AddressUpdateReq;
+import com.cloudmall.user.api.model.req.CreateReq;
+import com.cloudmall.user.api.model.resp.AddressResp;
 
 public interface IAddressService {
 

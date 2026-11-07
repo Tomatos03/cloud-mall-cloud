@@ -60,11 +60,11 @@ public class ProductAgent extends AbstractAgent {
     /**
      * 获取智能体类型。
      *
-     * @return {@link AgentType#PRODUCT}
+     * @return {@link AgentTypeEnum#PRODUCT}
      */
     @Override
-    public AgentType getType() {
-        return AgentType.PRODUCT;
+    public AgentTypeEnum getType() {
+        return AgentTypeEnum.PRODUCT;
     }
 
     /**

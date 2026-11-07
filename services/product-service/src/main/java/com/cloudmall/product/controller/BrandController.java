@@ -14,9 +14,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.cloudmall.common.model.Result;
-import com.cloudmall.product.api.request.BrandCreateReq;
-import com.cloudmall.product.api.request.BrandUpdateReq;
-import com.cloudmall.product.api.response.BrandResp;
+import com.cloudmall.product.api.model.req.BrandCreateReq;
+import com.cloudmall.product.api.model.req.BrandUpdateReq;
+import com.cloudmall.product.api.model.resp.BrandResp;
 import com.cloudmall.product.model.req.BrandPageReq;
 import com.cloudmall.product.service.IBrandService;
 

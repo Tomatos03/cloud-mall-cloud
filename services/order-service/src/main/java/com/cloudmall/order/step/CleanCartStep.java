@@ -5,7 +5,7 @@ import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
-import com.cloudmall.order.model.CheckoutContext;
+import com.cloudmall.order.model.bo.CheckoutContext;
 import com.cloudmall.order.service.ICartService;
 
 /**
@@ -15,7 +15,7 @@ import com.cloudmall.order.service.ICartService;
  */
 @Component
 @RequiredArgsConstructor
-public class CleanCartStep implements CheckoutStep {
+public class CleanCartStep implements ICheckoutStep {
 
     private final ICartService cartService;
 

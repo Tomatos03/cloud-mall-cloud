@@ -15,26 +15,26 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.cloudmall.common.enums.BizError;
+import com.cloudmall.common.enums.BizErrorEnum;
 import com.cloudmall.common.utils.Asserts;
-import com.cloudmall.coupon.api.dto.CouponCalcItem;
-import com.cloudmall.coupon.api.request.CouponOrderCommitByOrderReq;
-import com.cloudmall.coupon.api.request.CouponOrderCommitReq;
-import com.cloudmall.coupon.api.request.CouponOrderLockReq;
-import com.cloudmall.coupon.api.request.CouponOrderQuoteReq;
-import com.cloudmall.coupon.api.request.CouponOrderReleaseByOrderReq;
-import com.cloudmall.coupon.api.request.CouponOrderReleaseReq;
-import com.cloudmall.coupon.api.request.CouponOrderRevertByOrderReq;
-import com.cloudmall.coupon.api.request.CouponOrderRevertReq;
-import com.cloudmall.coupon.api.response.CouponCandidateResp;
-import com.cloudmall.coupon.api.response.CouponOrderCalcResp;
-import com.cloudmall.coupon.api.response.CouponUsageResult;
+import com.cloudmall.coupon.api.model.bo.CouponCalcItem;
+import com.cloudmall.coupon.api.model.req.CouponOrderCommitByOrderReq;
+import com.cloudmall.coupon.api.model.req.CouponOrderCommitReq;
+import com.cloudmall.coupon.api.model.req.CouponOrderLockReq;
+import com.cloudmall.coupon.api.model.req.CouponOrderQuoteReq;
+import com.cloudmall.coupon.api.model.req.CouponOrderReleaseByOrderReq;
+import com.cloudmall.coupon.api.model.req.CouponOrderReleaseReq;
+import com.cloudmall.coupon.api.model.req.CouponOrderRevertByOrderReq;
+import com.cloudmall.coupon.api.model.req.CouponOrderRevertReq;
+import com.cloudmall.coupon.api.model.resp.CouponCandidateResp;
+import com.cloudmall.coupon.api.model.resp.CouponOrderCalcResp;
+import com.cloudmall.coupon.api.model.resp.CouponUsageResult;
 import com.cloudmall.coupon.calc.CalcCoupon;
 import com.cloudmall.coupon.calc.CouponCalculator;
 import com.cloudmall.coupon.calc.CouponScopeMatcher;
 import com.cloudmall.coupon.convert.CouponOrderConverter;
-import com.cloudmall.coupon.entity.CouponDO;
-import com.cloudmall.coupon.entity.UserCouponDO;
+import com.cloudmall.coupon.model.entity.CouponDO;
+import com.cloudmall.coupon.model.entity.UserCouponDO;
 import com.cloudmall.coupon.mapper.CouponMapper;
 import com.cloudmall.coupon.mapper.UserCouponMapper;
 import com.cloudmall.coupon.service.ICouponOrderService;
@@ -203,7 +203,7 @@ public class CouponOrderService implements ICouponOrderService {
      */
     private CouponOrderCalcResp doCalculate(CouponOrderQuoteReq req) {
         List<CouponCalcItem> items = req.getItems();
-        Asserts.notEmpty(items, BizError.INVALID_PARAM);
+        Asserts.notEmpty(items, BizErrorEnum.INVALID_PARAM);
         Long platformId = resolvePlatformCouponId(req);
         Map<Long, Long> shopIds = resolveShopCouponIds(req);
         CalcCoupon platformCoupon = resolveSelectedPlatform(req.getUserId(), platformId, items);
@@ -262,7 +262,7 @@ public class CouponOrderService implements ICouponOrderService {
             return null;
         }
         UserCouponDO uc = requireOwnedAvailable(userId, userCouponId);
-        Asserts.isTrue(uc.isPlatform(), BizError.COUPON_OWNER_INVALID);
+        Asserts.isTrue(uc.isPlatform(), BizErrorEnum.COUPON_OWNER_INVALID);
         return toCalcCoupon(uc, items);
     }
 
@@ -290,8 +290,8 @@ public class CouponOrderService implements ICouponOrderService {
                 continue;
             }
             UserCouponDO uc = requireOwnedAvailable(userId, ucId);
-            Asserts.isTrue(uc.isShopCoupon(), BizError.COUPON_OWNER_INVALID);
-            Asserts.isEqual(uc.getShopId(), entry.getKey(), BizError.COUPON_OWNER_INVALID);
+            Asserts.isTrue(uc.isShopCoupon(), BizErrorEnum.COUPON_OWNER_INVALID);
+            Asserts.isEqual(uc.getShopId(), entry.getKey(), BizErrorEnum.COUPON_OWNER_INVALID);
             result.add(toCalcCoupon(uc, items));
         }
         return result;
@@ -307,13 +307,13 @@ public class CouponOrderService implements ICouponOrderService {
     private UserCouponDO requireOwnedAvailable(Long userId, Long userCouponId) {
         UserCouponDO uc = Asserts.requireNonNull(
                 userCouponMapper.selectById(userCouponId),
-                BizError.USER_COUPON_NOT_FOUND
+                BizErrorEnum.USER_COUPON_NOT_FOUND
         );
-        Asserts.isEqual(uc.getUserId(), userId, BizError.USER_COUPON_NOT_BELONG_TO_USER);
-        Asserts.isFalse(uc.isOverdue(), BizError.USER_COUPON_EXPIRED);
-        Asserts.isFalse(uc.isLocked(), BizError.USER_COUPON_LOCKED);
-        Asserts.isFalse(uc.isUsed(), BizError.USER_COUPON_USED);
-        Asserts.isTrue(uc.isAvailable(), BizError.USER_COUPON_STATE_CONFLICT);
+        Asserts.isEqual(uc.getUserId(), userId, BizErrorEnum.USER_COUPON_NOT_BELONG_TO_USER);
+        Asserts.isFalse(uc.isOverdue(), BizErrorEnum.USER_COUPON_EXPIRED);
+        Asserts.isFalse(uc.isLocked(), BizErrorEnum.USER_COUPON_LOCKED);
+        Asserts.isFalse(uc.isUsed(), BizErrorEnum.USER_COUPON_USED);
+        Asserts.isTrue(uc.isAvailable(), BizErrorEnum.USER_COUPON_STATE_CONFLICT);
         return uc;
     }
 
@@ -327,7 +327,7 @@ public class CouponOrderService implements ICouponOrderService {
     private CalcCoupon toCalcCoupon(UserCouponDO uc, List<CouponCalcItem> items) {
         CouponDO template = Asserts.requireNonNull(
                 couponMapper.selectById(uc.getCouponId()),
-                BizError.COUPON_TEMPLATE_NOT_FOUND
+                BizErrorEnum.COUPON_TEMPLATE_NOT_FOUND
         );
         List<CouponCalcItem> applicable = scopeMatcher.matchItems(template, items);
         return couponOrderConverter.toCalcCoupon(uc, applicable);
@@ -592,7 +592,7 @@ public class CouponOrderService implements ICouponOrderService {
                 req.getUserId(),
                 req.getOrderNo()
         );
-        Asserts.notEmpty(locked, BizError.COUPON_LOCK_FAILED);
+        Asserts.notEmpty(locked, BizErrorEnum.COUPON_LOCK_FAILED);
         CalcCoupon platform = null;
         List<CalcCoupon> shops = new ArrayList<>();
         for (UserCouponDO uc : locked) {

@@ -13,18 +13,18 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
 import com.cloudmall.coupon.api.client.InternalCouponClient;
-import com.cloudmall.coupon.api.dto.CouponCalcItem;
-import com.cloudmall.coupon.api.request.CouponOrderLockReq;
-import com.cloudmall.coupon.api.request.CouponOrderReleaseReq;
-import com.cloudmall.coupon.api.response.CouponOrderCalcResp;
-import com.cloudmall.coupon.api.response.CouponUsageResult;
-import com.cloudmall.order.entity.OrderDO;
-import com.cloudmall.order.model.CheckoutContext;
+import com.cloudmall.coupon.api.model.bo.CouponCalcItem;
+import com.cloudmall.coupon.api.model.req.CouponOrderLockReq;
+import com.cloudmall.coupon.api.model.req.CouponOrderReleaseReq;
+import com.cloudmall.coupon.api.model.resp.CouponOrderCalcResp;
+import com.cloudmall.coupon.api.model.resp.CouponUsageResult;
+import com.cloudmall.order.model.entity.OrderDO;
+import com.cloudmall.order.model.bo.CheckoutContext;
 import com.cloudmall.order.service.impl.OrderService;
 import com.cloudmall.product.api.client.InternalProductClient;
-import com.cloudmall.product.api.request.StockOpReq;
-import com.cloudmall.product.api.request.StockReserveItem;
-import com.cloudmall.product.api.response.SkuResp;
+import com.cloudmall.product.api.model.req.StockOpReq;
+import com.cloudmall.product.api.model.req.StockReserveItem;
+import com.cloudmall.product.api.model.resp.SkuResp;
 
 /**
  * 预订单落库步骤
@@ -37,7 +37,7 @@ import com.cloudmall.product.api.response.SkuResp;
 @Slf4j
 @Component
 @RequiredArgsConstructor
-public class PlacePreOrderStep implements CheckoutStep {
+public class PlacePreOrderStep implements ICheckoutStep {
 
     /** 锁券过期时长（订单支付超时窗口） */
     private static final int LOCK_EXPIRE_MINUTES = 30;

@@ -11,10 +11,10 @@ import com.cloudmall.mybatisplus.query.ConditionBuilder;
  * <pre>{@code
  * &#064;Getter &#064;Setter
  * public class ProductConditionReq extends ConditionReq&lt;ProductDO&gt; {
- *     &#064;QueryCondition(operator = Operator.EQ)
+ *     &#064;QueryCondition(operator = OperatorEnum.EQ)
  *     private Long categoryId;
  *
- *     &#064;QueryCondition(operator = Operator.LIKE)
+ *     &#064;QueryCondition(operator = OperatorEnum.LIKE)
  *     private String keyword;
  * }
  * }</pre>

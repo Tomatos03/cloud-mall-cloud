@@ -6,9 +6,9 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 
-import com.cloudmall.order.api.request.OrderEventReq;
-import com.cloudmall.order.api.request.PlainSeckillOrderReq;
-import com.cloudmall.order.api.response.CouponUsageStatsResp;
+import com.cloudmall.order.api.model.req.OrderEventReq;
+import com.cloudmall.order.api.model.req.PlainSeckillOrderReq;
+import com.cloudmall.order.api.model.resp.CouponUsageStatsResp;
 
 /**
  * 订单内部 Feign 客户端

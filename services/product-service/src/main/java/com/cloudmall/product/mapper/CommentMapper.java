@@ -8,7 +8,7 @@ import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import org.apache.ibatis.annotations.Mapper;
 
 import com.cloudmall.mybatisplus.enums.StatusEnum;
-import com.cloudmall.product.entity.CommentDO;
+import com.cloudmall.product.model.entity.CommentDO;
 import com.cloudmall.product.model.req.CommentPageReq;
 
 @Mapper

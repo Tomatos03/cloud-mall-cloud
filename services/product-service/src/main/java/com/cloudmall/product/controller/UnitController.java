@@ -14,9 +14,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.cloudmall.common.model.Result;
-import com.cloudmall.product.api.request.UnitCreateReq;
-import com.cloudmall.product.api.request.UnitUpdateReq;
-import com.cloudmall.product.api.response.UnitResp;
+import com.cloudmall.product.api.model.req.UnitCreateReq;
+import com.cloudmall.product.api.model.req.UnitUpdateReq;
+import com.cloudmall.product.api.model.resp.UnitResp;
 import com.cloudmall.product.model.req.UnitPageReq;
 import com.cloudmall.product.service.IUnitService;
 

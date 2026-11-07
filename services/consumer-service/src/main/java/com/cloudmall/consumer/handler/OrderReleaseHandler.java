@@ -5,11 +5,11 @@ import java.util.Set;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
-import com.cloudmall.consumer.handler.EventHandler;
+import com.cloudmall.consumer.handler.IEventHandler;
 import com.cloudmall.coupon.api.client.InternalCouponClient;
-import com.cloudmall.coupon.api.request.CouponOrderReleaseByOrderReq;
-import com.cloudmall.order.api.event.OrderEvent;
-import com.cloudmall.order.api.event.OrderTagEnum;
+import com.cloudmall.coupon.api.model.req.CouponOrderReleaseByOrderReq;
+import com.cloudmall.order.api.model.bo.OrderEvent;
+import com.cloudmall.order.api.enums.OrderTagEnum;
 
 /**
  * 订单释放处理器：超时/取消共享同一动作，注册两个 tag。
@@ -18,7 +18,7 @@ import com.cloudmall.order.api.event.OrderTagEnum;
  */
 @Component
 @RequiredArgsConstructor
-public class OrderReleaseHandler implements EventHandler<OrderEvent> {
+public class OrderReleaseHandler implements IEventHandler<OrderEvent> {
 
     private final InternalCouponClient internalCouponClient;
 

@@ -10,21 +10,21 @@ import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.cloudmall.common.enums.BizError;
+import com.cloudmall.common.enums.BizErrorEnum;
 import com.cloudmall.common.utils.Asserts;
 import com.cloudmall.order.api.enums.CheckoutTypeEnum;
-import com.cloudmall.order.entity.OrderDO;
-import com.cloudmall.order.entity.OrderItemDO;
-import com.cloudmall.order.entity.OrderSubDO;
+import com.cloudmall.order.model.entity.OrderDO;
+import com.cloudmall.order.model.entity.OrderItemDO;
+import com.cloudmall.order.model.entity.OrderSubDO;
 import com.cloudmall.order.enums.ParentOrderStatusEnum;
 import com.cloudmall.order.enums.SubOrderStatusEnum;
 import com.cloudmall.order.mapper.OrderItemMapper;
 import com.cloudmall.order.mapper.OrderMapper;
 import com.cloudmall.order.mapper.OrderSubMapper;
-import com.cloudmall.order.model.CheckoutContext;
-import com.cloudmall.product.api.response.SkuResp;
+import com.cloudmall.order.model.bo.CheckoutContext;
+import com.cloudmall.product.api.model.resp.SkuResp;
 import com.cloudmall.seckill.api.client.InternalSeckillClient;
-import com.cloudmall.seckill.api.response.SeckillOrderResp;
+import com.cloudmall.seckill.api.model.resp.SeckillOrderResp;
 
 /**
  * 秒杀订单落库步骤
@@ -37,7 +37,7 @@ import com.cloudmall.seckill.api.response.SeckillOrderResp;
 @Slf4j
 @Component
 @RequiredArgsConstructor
-public class PlaceSeckillOrderStep implements CheckoutStep {
+public class PlaceSeckillOrderStep implements ICheckoutStep {
 
     private final OrderMapper orderMapper;
     private final OrderSubMapper orderSubMapper;
@@ -63,7 +63,7 @@ public class PlaceSeckillOrderStep implements CheckoutStep {
     @Transactional(rollbackFor = Exception.class)
     public void process(CheckoutContext ctx) {
         String orderNo = ctx.getReq().getOrderNo();
-        Asserts.notBlank(orderNo, BizError.INVALID_PARAM);
+        Asserts.notBlank(orderNo, BizErrorEnum.INVALID_PARAM);
         OrderDO existing = orderMapper.selectByOrderNo(orderNo);
         if (existing != null) {
             log.info("秒杀订单已存在，幂等返回 orderNo={}", orderNo);
@@ -90,7 +90,7 @@ public class PlaceSeckillOrderStep implements CheckoutStep {
      * @return 秒杀单快照
      */
     private SeckillOrderResp requireSeckillOrder(String orderNo) {
-        return Asserts.requireNonNull(internalSeckillClient.getByOrderNo(orderNo), BizError.INVALID_PARAM);
+        return Asserts.requireNonNull(internalSeckillClient.getByOrderNo(orderNo), BizErrorEnum.INVALID_PARAM);
     }
 
     /**

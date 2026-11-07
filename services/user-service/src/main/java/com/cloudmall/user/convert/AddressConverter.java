@@ -6,10 +6,10 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
 
-import com.cloudmall.user.api.request.AddressUpdateReq;
-import com.cloudmall.user.api.request.CreateReq;
-import com.cloudmall.user.api.response.AddressResp;
-import com.cloudmall.user.entity.AddressDO;
+import com.cloudmall.user.api.model.req.AddressUpdateReq;
+import com.cloudmall.user.api.model.req.CreateReq;
+import com.cloudmall.user.api.model.resp.AddressResp;
+import com.cloudmall.user.model.entity.AddressDO;
 
 @Mapper(componentModel = "spring")
 public interface AddressConverter {

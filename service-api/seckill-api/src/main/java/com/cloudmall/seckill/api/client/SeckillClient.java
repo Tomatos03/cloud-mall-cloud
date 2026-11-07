@@ -5,7 +5,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 
 import com.cloudmall.seckill.api.client.fallback.SeckillClientFallbackFactory;
-import com.cloudmall.seckill.api.response.ActivityDetailResp;
+import com.cloudmall.seckill.api.model.resp.ActivityDetailResp;
 
 /**
  * 秒杀对外 Feign 客户端
