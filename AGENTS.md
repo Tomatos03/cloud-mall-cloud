@@ -9,8 +9,8 @@
 ## 模块结构
 
 - 顶层：`common/`（共享工具与跨服务对象）、`gateway/`、`service-api/`（Feign 接口 + DTO 聚合，父 POM）、`services/`（业务服务，父 POM）、`starters/`（自研 Starter，父 POM）、`docs/`（设计/compose/Nacos 配置/SQL）。
-- 业务服务（`services/`）：`user-service`（UserApplication，认证/RBAC + 用户资料）、`product-service`（ProductApplication）、`order-service`（OrderApplication）、`coupon-service`（CouponApplication）、`seckill-service`（SeckillApplication）、`im-service`（IMApplication）、`aigc-service`（agent-service，AIGCApplication）。
-- 服务接口（`service-api/`）：`user-api`、`product-api`、`order-api`、`coupon-api`、`seckill-api`、`search-api`。
+- 业务服务（`services/`）：`user-service`（UserApplication，认证/RBAC + 用户资料 + 商家入驻）、`product-service`（ProductApplication）、`order-service`（OrderApplication）、`coupon-service`（CouponApplication）、`seckill-service`（SeckillApplication）、`im-service`（IMApplication）、`aigc-service`（agent-service，AIGCApplication）、`mock-payment-service`（MockPaymentApplication，微信支付 API v3 模拟渠道）。
+- 服务接口（`service-api/`）：`user-api`、`product-api`、`order-api`、`coupon-api`、`seckill-api`、`search-api`、`payment-api`。
 - 自研 Starter（`starters/`）：`cloudmall-common`（Result/BizException/BizErrorEnum/UserContextFilter）、`cloudmall-mybatis-plus`（MyMetaObjectHandler、PageReq/ConditionReq、LimitEnum、StatusEnum）、`cloudmall-jwt`、`cloudmall-rocketmq`（MQProducer/TxMessageHeader）、`cloudmall-outbox`（本地消息 Outbox）、`cloudmall-feign`（用户上下文透传 + Result 自动拆箱）、`cloudmall-elasticsearch`、`cloudmall-xxl-job`。
 - 业务服务分层：`controller`、`service`/`impl`、`mapper`、`model/entity`、`model/req`、`model/resp`、`model/bo`、`convert`（MapStruct）、`enums`、`application`、`job`。
 - 服务端口统一在 Nacos 配置中心管理（导入 `common` + `{app-name}` 配置）。
@@ -64,11 +64,23 @@ mvn test                                                  # 测试
 
 ## 错误码分区
 
-- 1xxx 通用、10xxx 认证、20xxx 商品、30xxx 地址、40xxx 搜索、45xxx 轮播图、50xxx 订单、60xxx 购物车、70xxx 评论、80xxx 文件、85xxx 资源、90xxx 审核、91xxx AI Agent、92xxx 秒杀、93xxx 优惠券、94xxx IM、500xx 权限与店铺。
+- 1xxx 通用、10xxx 认证、20xxx 商品、30xxx 地址、40xxx 搜索、45xxx 轮播图、50xxx 订单、60xxx 购物车、70xxx 评论、80xxx 文件、85xxx 资源、90xxx 审核、91xxx AI Agent、92xxx 秒杀、93xxx 优惠券、94xxx IM、95xxx 支付、96xxx 商家入驻、500xx 权限与店铺。
 
 ## aigc-service 特性
 
 - 应用名 `agent-service`，集成 Spring AI 1.1.8：OpenAI 大模型 + ES 向量存储（`cm-agent-knowledge`）+ RAG、文档解析（Tika）、Redis 聊天记忆、OpenAI TTS；项目内 `org/springframework/ai/` 为 Spring AI 补丁类。
+
+## 商家入驻
+
+- 用户端接口：`GET/POST /shops/onboarding` 查询状态与提交资料；管理员通过 `POST /shops/onboarding/review` 审核。
+- 审核通过后自动创建 `cm_shop`、补充 `merchant` 角色并更新用户类型；本地 Nacos 配置可用 `cloudmall.merchant.auto-review-delay-seconds` 开启自动审核（生产设为 0）。
+- 图片上传走 `POST /files/upload`，静态访问 `/files/**`；网关白名单已配置 `GET:/files/**`。
+
+## mock-payment-service 特性
+
+- 以微信支付 API v3 为蓝本模拟第三方渠道：`/v3/pay/transactions/{jsapi,native}` 下单、`out-trade-no`/`id` 查询、关单，`/mock/payments/**` 提供模拟支付成功、回调重发与支付单浏览，`/mock/cashier/{outTradeNo}` 为可视化收银台。
+- 回调报文按微信规范使用 AES-256-GCM 加密，`Wechatpay-*` 头携带 RSA-SHA256 签名；`payment-api` 提供共享 DTO 与 `WechatPayCrypto` 工具。
+- 业务侧调用内部接口 `/internal/mock-payment/**`（Feign 自动拆箱 Result）；order-service 的 `/orders/payment/**` 已接入创建、查询与回调处理。
 
 ## Coding Style & Naming Conventions
 

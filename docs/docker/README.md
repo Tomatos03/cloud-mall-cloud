@@ -59,6 +59,8 @@ docker compose -f docs/docker/compose.yaml down -v
 2. `cm_mall/02-seed.sql` — seed 数据
 3. `xxl_job/01-schema.sql` — xxl-job 调度库（容器内挂载为 `03-xxl_job-schema.sql`）
 
+已有数据库升级时，额外执行 `cm_mall/04-im-session-interactions.sql`（IM 会话置顶与删除字段）、`cm_mall/03-profile-extensions.sql`（个人中心资料/积分/浏览记录）、`cm_mall/05-profile-center.sql`（账户安全、积分任务/兑换、地址区域代码）与 `cm_mall/06-region-data.sql`（行政区划种子数据）。
+
 ### Nacos 配置同步
 
 配置源统一存放在 `docs/nacos/config/`（各服务 `*.yaml` + Sentinel 规则 `*.json`）。修改后两种方式生效：

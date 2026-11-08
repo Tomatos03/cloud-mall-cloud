@@ -34,9 +34,10 @@ cloud-mall-cloud/
 │   ├── order-api
 │   ├── coupon-api
 │   ├── seckill-api
-│   └── search-api
+│   ├── search-api
+│   └── payment-api            # 模拟支付渠道 Feign 契约 + 微信 v3 加解密工具
 ├── services/                 # 业务服务（父 POM）
-│   ├── user-service          # 认证/RBAC + 用户资料
+│   ├── user-service          # 认证/RBAC + 用户资料 + 商家入驻
 │   ├── product-service       # 商品管理
 │   ├── order-service         # 订单管理
 │   ├── coupon-service        # 优惠券
@@ -44,7 +45,8 @@ cloud-mall-cloud/
 │   ├── im-service            # 即时通讯
 │   ├── aigc-service          # AI 生成内容（agent-service）
 │   ├── search-service        # 搜索服务
-│   └── consumer-service      # 消费者服务
+│   ├── consumer-service      # 消费者服务
+│   └── mock-payment-service  # 模拟微信支付渠道（下单/查询/回调/收银台）
 ├── starters/                 # 自研 Spring Boot Starter
 │   ├── cloudmall-common      # Result/BizException/BizErrorEnum/UserContextFilter
 │   ├── cloudmall-mybatis-plus# MyMetaObjectHandler/PageReq/LimitEnum/StatusEnum
@@ -206,12 +208,15 @@ jstyle format
 | 92xxx | 秒杀 |
 | 93xxx | 优惠券 |
 | 94xxx | IM |
+| 95xxx | 支付 |
+| 96xxx | 商家入驻 |
 | 500xx | 权限与店铺 |
 
 ## 文档
 
 - [Docker 环境说明](docs/docker/README.md)
 - [设计文档](docs/design/README.md)
+- [模拟支付服务说明](services/mock-payment-service/README.md)
 
 ## License
 
