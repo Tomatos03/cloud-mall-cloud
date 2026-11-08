@@ -8,8 +8,8 @@ import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import org.apache.ibatis.annotations.Mapper;
 
 import com.cloudmall.mybatisplus.enums.StatusEnum;
-import com.cloudmall.user.model.entity.ResourceDO;
 import com.cloudmall.user.enums.ResourceTypeEnum;
+import com.cloudmall.user.model.entity.ResourceDO;
 
 /**
  * 资源权限 Mapper

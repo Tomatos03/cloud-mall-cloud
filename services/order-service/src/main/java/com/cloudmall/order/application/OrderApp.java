@@ -61,7 +61,10 @@ public class OrderApp {
      * @return 三级价格明细 + 优惠券使用明细 + 推荐组合
      */
     public CouponOrderCalcResp quote(QuoteOrderReq req) {
-        Long userId = Asserts.requireNonNull(UserContextHolder.getUserId(), BizErrorEnum.USER_NOT_AUTHENTICATED);
+        Long userId = Asserts.requireNonNull(
+                UserContextHolder.getUserId(),
+                BizErrorEnum.USER_NOT_AUTHENTICATED
+        );
         Map<Long, Integer> quantities = new LinkedHashMap<>();
         for (OrderItem item : req.getItems()) {
             Asserts.isFalse(quantities.containsKey(item.getSkuId()), BizErrorEnum.INVALID_PARAM);

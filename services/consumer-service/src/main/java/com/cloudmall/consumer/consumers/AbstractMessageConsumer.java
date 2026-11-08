@@ -54,11 +54,9 @@ public abstract class AbstractMessageConsumer<T> implements RocketMQListener<Mes
     }
 
     /**
-     * 处理处理器执行异常。
-     * <p>
-     * 默认记录失败日志并原样上抛，由 RocketMQ 重试机制兜底；
-     * 子类可覆写以自定义处理策略（如降级、告警，
-     * 或吞掉异常继续后续处理器）。
+     * 处理处理器执行异常。 <p>
+     * 默认记录失败日志并原样上抛，由 RocketMQ 重试机制兜底； 子类可覆写以自定义处理策略（如降级
+     * 、告警， 或吞掉异常继续后续处理器）。
      *
      * @param tag 消息 tag
      * @param eventHandler 发生异常的处理器

@@ -53,10 +53,10 @@ public class AuthApp {
     }
 
     /**
-     * 校验登录凭证：用户存在性、密码、用户类型。
-     * <p>
-     * 用户不存在、密码错误、用户类型不匹配统一返回 {@link BizErrorEnum#USERNAME_OR_PASSWORD_ERROR}，
-     * 避免账号是否存在与账号类型被探测。
+     * 校验登录凭证：用户存在性、密码、用户类型。 <p>
+     * 用户不存在、密码错误、用户类型不匹配统一返回
+     * {@link BizErrorEnum#USERNAME_OR_PASSWORD_ERROR}， 避
+     * 免账号是否存在与账号类型被探测。
      *
      * @param request 登录请求
      * @return 认证通过的用户

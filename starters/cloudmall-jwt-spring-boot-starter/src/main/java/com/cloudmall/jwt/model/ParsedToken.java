@@ -1,15 +1,17 @@
 package com.cloudmall.jwt.model;
 
-import com.cloudmall.jwt.constant.JwtClaimNames;
-import com.cloudmall.jwt.exception.ParseTokenException;
-import com.cloudmall.jwt.service.JwtTokenService;
-import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.JwtException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.JwtException;
 import lombok.NonNull;
+
+import com.cloudmall.jwt.constant.JwtClaimNames;
+import com.cloudmall.jwt.exception.ParseTokenException;
+import com.cloudmall.jwt.service.JwtTokenService;
 
 /**
  * 已完成签名校验的 JWT 只读对象。
@@ -22,7 +24,8 @@ public final class ParsedToken {
     private final Claims claims;
 
     /**
-     * 包级构造器，只允许同包的 {@link JwtTokenService} 创建，避免包装未经校验的 Claims。
+     * 包级构造器，只允许同包的 {@link JwtTokenService} 创建，避免包装未经校验的
+     * Claims。
      *
      * @param claims 已完成签名与有效期校验的声明集合
      */

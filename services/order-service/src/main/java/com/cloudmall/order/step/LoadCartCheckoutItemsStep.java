@@ -9,8 +9,8 @@ import org.springframework.stereotype.Component;
 
 import com.cloudmall.common.enums.BizErrorEnum;
 import com.cloudmall.common.utils.Asserts;
-import com.cloudmall.order.model.entity.CartDO;
 import com.cloudmall.order.model.bo.CheckoutContext;
+import com.cloudmall.order.model.entity.CartDO;
 import com.cloudmall.order.service.ICartService;
 
 /**

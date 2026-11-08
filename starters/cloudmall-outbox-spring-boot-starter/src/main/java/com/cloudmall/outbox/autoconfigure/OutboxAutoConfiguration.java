@@ -11,10 +11,10 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.core.env.Environment;
 
 import com.cloudmall.outbox.appender.OutboxAppender;
-import com.cloudmall.outbox.properties.OutboxProperties;
 import com.cloudmall.outbox.dispatcher.OutboxDispatcher;
 import com.cloudmall.outbox.job.OutboxJobHandlers;
 import com.cloudmall.outbox.mapper.OutboxMapper;
+import com.cloudmall.outbox.properties.OutboxProperties;
 import com.cloudmall.outbox.publisher.IOutboxPublisher;
 import com.cloudmall.outbox.publisher.RocketMqOutboxPublisher;
 import com.cloudmall.rocketmq.producer.MQProducer;

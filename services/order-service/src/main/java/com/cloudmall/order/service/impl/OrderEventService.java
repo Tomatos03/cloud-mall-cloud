@@ -7,10 +7,10 @@ import org.springframework.stereotype.Service;
 
 import com.cloudmall.common.enums.BizErrorEnum;
 import com.cloudmall.common.utils.Asserts;
-import com.cloudmall.order.api.model.bo.OrderEvent;
 import com.cloudmall.order.api.enums.OrderTagEnum;
-import com.cloudmall.order.model.entity.OrderDO;
+import com.cloudmall.order.api.model.bo.OrderEvent;
 import com.cloudmall.order.mapper.OrderMapper;
+import com.cloudmall.order.model.entity.OrderDO;
 import com.cloudmall.order.service.IOrderEventService;
 import com.cloudmall.rocketmq.producer.MQProducer;
 
@@ -117,7 +117,10 @@ public class OrderEventService implements IOrderEventService {
      * @return 父订单
      */
     private OrderDO requireOrder(String orderNo) {
-        OrderDO order = Asserts.requireNonNull(orderMapper.selectByOrderNo(orderNo), BizErrorEnum.ORDER_NOT_EXIST);
+        OrderDO order = Asserts.requireNonNull(
+                orderMapper.selectByOrderNo(orderNo),
+                BizErrorEnum.ORDER_NOT_EXIST
+        );
         return order;
     }
 

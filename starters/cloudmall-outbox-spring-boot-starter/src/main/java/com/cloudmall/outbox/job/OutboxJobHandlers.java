@@ -4,8 +4,8 @@ import com.xxl.job.core.handler.annotation.XxlJob;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
-import com.cloudmall.outbox.properties.OutboxProperties;
 import com.cloudmall.outbox.dispatcher.OutboxDispatcher;
+import com.cloudmall.outbox.properties.OutboxProperties;
 
 /**
  * Outbox 默认调度任务

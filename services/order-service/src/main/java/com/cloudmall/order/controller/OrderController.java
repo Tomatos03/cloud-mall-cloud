@@ -90,7 +90,10 @@ public class OrderController {
      */
     @GetMapping
     public Result<IPage<OrderResp>> page(OrderPageReq req) {
-        Long userId = Asserts.requireNonNull(UserContextHolder.getUserId(), BizErrorEnum.USER_NOT_AUTHENTICATED);
+        Long userId = Asserts.requireNonNull(
+                UserContextHolder.getUserId(),
+                BizErrorEnum.USER_NOT_AUTHENTICATED
+        );
         req.setUserId(userId);
         return Result.success(orderService.page(req));
     }

@@ -12,9 +12,9 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
-import com.cloudmall.outbox.properties.OutboxProperties;
-import com.cloudmall.outbox.model.entity.OutboxDO;
 import com.cloudmall.outbox.mapper.OutboxMapper;
+import com.cloudmall.outbox.model.entity.OutboxDO;
+import com.cloudmall.outbox.properties.OutboxProperties;
 import com.cloudmall.outbox.publisher.IOutboxPublisher;
 
 /**

@@ -27,7 +27,8 @@ public interface ITokenService {
 
     /**
      * 解析令牌 <p>
-     * 校验签名与有效期后返回只读的 {@link ParsedToken}。解析失败应抛出异常，而非返回 null。
+     * 校验签名与有效期后返回只读的 {@link ParsedToken}。解析失败应抛出异常，而非返回
+     * null。
      *
      * @param token token 字符串
      * @return 解析后的 token

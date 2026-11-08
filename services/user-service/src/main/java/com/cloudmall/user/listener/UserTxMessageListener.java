@@ -8,8 +8,8 @@ import org.apache.rocketmq.spring.core.RocketMQLocalTransactionState;
 import org.springframework.messaging.Message;
 
 import com.cloudmall.rocketmq.producer.TxMessageHeader;
-import com.cloudmall.user.model.entity.UserDO;
 import com.cloudmall.user.mapper.UserMapper;
+import com.cloudmall.user.model.entity.UserDO;
 
 /**
  * 用户事务消息监听器

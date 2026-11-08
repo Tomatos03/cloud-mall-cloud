@@ -10,8 +10,8 @@ import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import org.apache.ibatis.annotations.Mapper;
 
-import com.cloudmall.outbox.model.entity.OutboxDO;
 import com.cloudmall.outbox.enums.OutboxPublishStatusEnum;
+import com.cloudmall.outbox.model.entity.OutboxDO;
 
 /**
  * 通用本地消息 Outbox Mapper

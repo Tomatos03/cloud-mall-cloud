@@ -11,8 +11,8 @@ import com.cloudmall.common.utils.Asserts;
 import com.cloudmall.order.api.enums.CheckoutTypeEnum;
 import com.cloudmall.order.api.model.req.CreateOrderReq;
 import com.cloudmall.order.model.bo.CheckoutContext;
-import com.cloudmall.order.step.ICheckoutStep;
 import com.cloudmall.order.step.CheckoutStepEnum;
+import com.cloudmall.order.step.ICheckoutStep;
 
 import static com.cloudmall.order.step.CheckoutStepEnum.CLEAN_CART;
 import static com.cloudmall.order.step.CheckoutStepEnum.LOAD_ADDRESS;
@@ -99,7 +99,10 @@ public class CheckoutPipeline {
         CheckoutContext context = buildBaseCheckoutContext(checkoutType, userId, req);
         List<CheckoutStepEnum> stepList = STEPS_BY_CHECKOUT_TYPE.getOrDefault(checkoutType, List.of());
         for (CheckoutStepEnum stepName : stepList) {
-            ICheckoutStep step = Asserts.requireNonNull(stepByName.get(stepName), BizErrorEnum.INVALID_ORDER_TYPE);
+            ICheckoutStep step = Asserts.requireNonNull(
+                    stepByName.get(stepName),
+                    BizErrorEnum.INVALID_ORDER_TYPE
+            );
             step.process(context);
         }
         return Asserts.requireNonNull(context.getOrder(), BizErrorEnum.INVALID_ORDER_TYPE).getOrderNo();

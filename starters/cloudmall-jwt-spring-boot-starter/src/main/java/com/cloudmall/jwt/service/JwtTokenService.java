@@ -6,15 +6,15 @@ import java.util.Map;
 import javax.crypto.SecretKey;
 
 import cn.hutool.core.util.StrUtil;
-import com.cloudmall.jwt.model.ParsedToken;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwtBuilder;
 import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
 
-import com.cloudmall.jwt.properties.JwtProperties;
 import com.cloudmall.jwt.exception.ParseTokenException;
+import com.cloudmall.jwt.model.ParsedToken;
+import com.cloudmall.jwt.properties.JwtProperties;
 
 /**
  * 基于 JJWT 的认证令牌实现
@@ -62,11 +62,13 @@ public class JwtTokenService implements ITokenService {
                                  .expiration(new Date(now.getTime() + properties.getExpiration()))
                                  .signWith(secretKey());
 
-        claims.forEach((name, value) -> {
-            if (StrUtil.isNotBlank(name) && value != null) {
-                builder.claim(name, value);
-            }
-        });
+        claims.forEach(
+                (name, value) -> {
+                    if (StrUtil.isNotBlank(name) && value != null) {
+                        builder.claim(name, value);
+                    }
+                }
+        );
 
         return builder.compact();
     }
