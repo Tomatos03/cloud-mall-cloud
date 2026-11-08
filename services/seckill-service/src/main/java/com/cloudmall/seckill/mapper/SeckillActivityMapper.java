@@ -9,8 +9,8 @@ import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import org.apache.ibatis.annotations.Mapper;
 
 import com.cloudmall.mybatisplus.enums.LimitEnum;
-import com.cloudmall.seckill.model.entity.SeckillActivityDO;
 import com.cloudmall.seckill.enums.SeckillActivityStatusEnum;
+import com.cloudmall.seckill.model.entity.SeckillActivityDO;
 import com.cloudmall.seckill.model.req.SeckillActivityPageReq;
 
 @Mapper
@@ -26,6 +26,38 @@ public interface SeckillActivityMapper extends BaseMapper<SeckillActivityDO> {
      */
     default IPage<SeckillActivityDO> selectActivityPage(SeckillActivityPageReq req) {
         return selectPage(req, req.buildLambdaWrapper());
+    }
+
+    /**
+     * 判断指定整点小时是否已存在活动。
+     *
+     * @param hourStart 整点小时的起始时间
+     * @return true 表示该整点已被占用
+     */
+    default boolean existsByActivityHour(LocalDateTime hourStart) {
+        Long count = selectCount(
+                Wrappers.<SeckillActivityDO>lambdaQuery()
+                        .ge(SeckillActivityDO::getStartTime, hourStart)
+                        .lt(SeckillActivityDO::getStartTime, hourStart.plusHours(1))
+        );
+        return count != null && count > 0;
+    }
+
+    /**
+     * 判断指定整点小时是否已被其他活动占用。
+     *
+     * @param hourStart 整点小时的起始时间
+     * @param excludeId 需要排除的活动 ID
+     * @return true 表示该整点已被其他活动占用
+     */
+    default boolean existsByActivityHourExcludingId(LocalDateTime hourStart, Long excludeId) {
+        Long count = selectCount(
+                Wrappers.<SeckillActivityDO>lambdaQuery()
+                        .ge(SeckillActivityDO::getStartTime, hourStart)
+                        .lt(SeckillActivityDO::getStartTime, hourStart.plusHours(1))
+                        .ne(SeckillActivityDO::getId, excludeId)
+        );
+        return count != null && count > 0;
     }
 
     /**
@@ -59,12 +91,14 @@ public interface SeckillActivityMapper extends BaseMapper<SeckillActivityDO> {
     }
 
     /**
-     * 查询临近开始（报名中/进行中）的活动，供库存预热。
+     * 查询当前进行中（已开始且未结束）的活动，供库存预热。 <p>
+     * 活动开始后商家禁止新增商品，此时预热不会与后续报名数据冲突； 保留 PUBLISHED 状态是为了兼
+     * 容状态流转 Job 尚未执行的同一分钟。
      *
-     * @param startBefore 开始时间阈值（早于该时间的视为临近开始）
+     * @param now 当前时间
      * @return 待预热活动列表
      */
-    default List<SeckillActivityDO> listPreheatActivities(LocalDateTime startBefore) {
+    default List<SeckillActivityDO> listPreheatActivities(LocalDateTime now) {
         return selectList(
                 Wrappers.<SeckillActivityDO>lambdaQuery()
                         .in(
@@ -72,7 +106,8 @@ public interface SeckillActivityMapper extends BaseMapper<SeckillActivityDO> {
                                 SeckillActivityStatusEnum.PUBLISHED,
                                 SeckillActivityStatusEnum.RUNNING
                         )
-                        .le(SeckillActivityDO::getStartTime, startBefore)
+                        .le(SeckillActivityDO::getStartTime, now)
+                        .gt(SeckillActivityDO::getEndTime, now)
         );
     }
 
@@ -104,6 +139,28 @@ public interface SeckillActivityMapper extends BaseMapper<SeckillActivityDO> {
                 Wrappers.<SeckillActivityDO>lambdaQuery()
                         .eq(SeckillActivityDO::getStatus, SeckillActivityStatusEnum.RUNNING)
                         .orderByDesc(SeckillActivityDO::getStartTime)
+        );
+    }
+
+    /**
+     * 查询与指定时间窗有交集的可见活动（报名中/进行中/已结束），按开始时间升序。
+     *
+     * @param dayStart 当天零点
+     * @param dayEnd 次日零点
+     * @return 当天活动列表
+     */
+    default List<SeckillActivityDO> listTodayActivities(LocalDateTime dayStart, LocalDateTime dayEnd) {
+        return selectList(
+                Wrappers.<SeckillActivityDO>lambdaQuery()
+                        .in(
+                                SeckillActivityDO::getStatus,
+                                SeckillActivityStatusEnum.PUBLISHED,
+                                SeckillActivityStatusEnum.RUNNING,
+                                SeckillActivityStatusEnum.FINISHED
+                        )
+                        .lt(SeckillActivityDO::getStartTime, dayEnd)
+                        .gt(SeckillActivityDO::getEndTime, dayStart)
+                        .orderByAsc(SeckillActivityDO::getStartTime)
         );
     }
 

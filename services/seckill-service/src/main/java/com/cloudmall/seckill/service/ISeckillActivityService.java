@@ -8,6 +8,7 @@ import com.cloudmall.seckill.api.model.req.ActivityCreateReq;
 import com.cloudmall.seckill.api.model.req.ActivityUpdateReq;
 import com.cloudmall.seckill.api.model.resp.ActivityDetailResp;
 import com.cloudmall.seckill.api.model.resp.ActivityResp;
+import com.cloudmall.seckill.api.model.resp.SeckillSessionResp;
 import com.cloudmall.seckill.model.entity.SeckillActivityDO;
 import com.cloudmall.seckill.model.req.SeckillActivityPageReq;
 
@@ -79,6 +80,14 @@ public interface ISeckillActivityService {
      * @return 进行中活动列表
      */
     List<ActivityResp> listRunningActivities();
+
+    /**
+     * 查询当天全部整点场次（用户端，免登录）。 <p>
+     * 固定返回 00:00 - 23:00 共 24 个场次，没有对应活动的场次状态为未开放。
+     *
+     * @return 当天 24 个整点场次
+     */
+    List<SeckillSessionResp> listTodaySessions();
 
     /**
      * 查询报名中的活动（商家端可报名列表）。

@@ -7,8 +7,8 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import org.apache.ibatis.annotations.Mapper;
 
-import com.cloudmall.seckill.model.entity.SeckillProductDO;
 import com.cloudmall.seckill.enums.SeckillProductAuditStatusEnum;
+import com.cloudmall.seckill.model.entity.SeckillProductDO;
 import com.cloudmall.seckill.model.req.SeckillProductPageReq;
 
 /**
@@ -57,6 +57,20 @@ public interface SeckillProductMapper extends BaseMapper<SeckillProductDO> {
                 Wrappers.<SeckillProductDO>lambdaQuery()
                         .eq(SeckillProductDO::getActivityId, activityId)
                         .eq(SeckillProductDO::getSkuId, skuId)
+                        .eq(SeckillProductDO::getAuditStatus, SeckillProductAuditStatusEnum.APPROVED)
+        );
+    }
+
+    /**
+     * 按 ID 查询已审核通过的商品。
+     *
+     * @param id 秒杀商品 ID
+     * @return 已审核通过的商品，不存在时返回 null
+     */
+    default SeckillProductDO selectApprovedById(Long id) {
+        return selectOne(
+                Wrappers.<SeckillProductDO>lambdaQuery()
+                        .eq(SeckillProductDO::getId, id)
                         .eq(SeckillProductDO::getAuditStatus, SeckillProductAuditStatusEnum.APPROVED)
         );
     }

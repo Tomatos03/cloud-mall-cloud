@@ -8,8 +8,8 @@ import org.apache.rocketmq.spring.core.RocketMQLocalTransactionState;
 import org.springframework.messaging.Message;
 
 import com.cloudmall.rocketmq.producer.TxMessageHeader;
-import com.cloudmall.seckill.model.entity.SeckillOrderDO;
 import com.cloudmall.seckill.mapper.SeckillOrderMapper;
+import com.cloudmall.seckill.model.entity.SeckillOrderDO;
 
 /**
  * 秒杀事务消息监听器

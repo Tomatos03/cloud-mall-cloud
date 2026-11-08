@@ -1,7 +1,11 @@
 package com.cloudmall.seckill.service.impl;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import cn.hutool.core.util.ObjectUtil;
 import com.baomidou.mybatisplus.core.metadata.IPage;
@@ -16,14 +20,17 @@ import com.cloudmall.seckill.api.model.req.ActivityCreateReq;
 import com.cloudmall.seckill.api.model.req.ActivityUpdateReq;
 import com.cloudmall.seckill.api.model.resp.ActivityDetailResp;
 import com.cloudmall.seckill.api.model.resp.ActivityResp;
+import com.cloudmall.seckill.api.model.resp.SeckillProductResp;
+import com.cloudmall.seckill.api.model.resp.SeckillSessionResp;
 import com.cloudmall.seckill.convert.SeckillConverter;
-import com.cloudmall.seckill.model.entity.SeckillActivityDO;
-import com.cloudmall.seckill.model.entity.SeckillProductDO;
 import com.cloudmall.seckill.enums.SeckillActivityStatusEnum;
 import com.cloudmall.seckill.mapper.SeckillActivityMapper;
 import com.cloudmall.seckill.mapper.SeckillProductMapper;
+import com.cloudmall.seckill.model.entity.SeckillActivityDO;
+import com.cloudmall.seckill.model.entity.SeckillProductDO;
 import com.cloudmall.seckill.model.req.SeckillActivityPageReq;
 import com.cloudmall.seckill.service.ISeckillActivityService;
+import com.cloudmall.seckill.service.ISeckillProductService;
 import com.cloudmall.seckill.statemachine.SeckillActivityStateTransitions;
 
 /**
@@ -44,6 +51,7 @@ public class SeckillActivityService implements ISeckillActivityService {
     private final SeckillActivityMapper activityMapper;
     private final SeckillProductMapper productMapper;
     private final SeckillConverter seckillConverter;
+    private final ISeckillProductService seckillProductService;
 
     /**
      * 创建活动草稿：校验提前量并推导结束时间。
@@ -63,6 +71,10 @@ public class SeckillActivityService implements ISeckillActivityService {
 
         // 强校验：开始时间必须为整点（分钟、秒、纳秒均为 0）
         Asserts.isTrue(isOnTheHour(startTime), BizErrorEnum.ACTIVITY_START_TIME_MUST_BE_ON_THE_HOUR);
+
+        // 一个整点只允许存在一场活动，创建后该场次不可被覆盖
+        boolean occupied = activityMapper.existsByActivityHour(startTime);
+        Asserts.isFalse(occupied, BizErrorEnum.ACTIVITY_TIME_SLOT_OCCUPIED);
 
         // 每活动最大商品数：不传默认 50，校验范围 1~500
         Integer maxProducts = ObjectUtil.defaultIfNull(req.getMaxProducts(), DEFAULT_MAX_PRODUCTS);
@@ -111,6 +123,10 @@ public class SeckillActivityService implements ISeckillActivityService {
                         BizErrorEnum.ACTIVITY_MUST_ADVANCE_24_HOURS
                 );
                 Asserts.isTrue(isOnTheHour(newStart), BizErrorEnum.ACTIVITY_START_TIME_MUST_BE_ON_THE_HOUR);
+                Asserts.isFalse(
+                        activityMapper.existsByActivityHourExcludingId(newStart, existing.getId()),
+                        BizErrorEnum.ACTIVITY_TIME_SLOT_OCCUPIED
+                );
                 existing.setStartTime(newStart);
                 existing.setEndTime(newStart.plusHours(1));
             }
@@ -173,7 +189,10 @@ public class SeckillActivityService implements ISeckillActivityService {
 
         // 前置：信息完整 + 未开始；状态合法性由迁移表判定
         Asserts.notBlank(activity.getName(), BizErrorEnum.INVALID_PARAM);
-        Asserts.isTrue(activity.isNotStarted(LocalDateTime.now()), BizErrorEnum.SECKILL_ACTIVITY_NOT_PUBLISHABLE);
+        Asserts.isTrue(
+                activity.isNotStarted(LocalDateTime.now()),
+                BizErrorEnum.SECKILL_ACTIVITY_NOT_PUBLISHABLE
+        );
         Asserts.isTrue(
                 SeckillActivityStateTransitions.canTransition(
                         currentStatus,
@@ -252,6 +271,82 @@ public class SeckillActivityService implements ISeckillActivityService {
     }
 
     /**
+     * 查询当天全部整点场次（用户端，免登录）。
+     *
+     * @return 当天 24 个整点场次
+     */
+    @Override
+    public List<SeckillSessionResp> listTodaySessions() {
+        LocalDate today = LocalDate.now();
+        LocalDateTime now = LocalDateTime.now();
+        List<SeckillActivityDO> activities = activityMapper.listTodayActivities(
+                today.atStartOfDay(),
+                today.plusDays(1).atStartOfDay()
+        );
+
+        Map<Integer, SeckillActivityDO> activitiesByHour = groupActivitiesByHour(activities, today, now);
+        List<SeckillSessionResp> sessions = new ArrayList<>(24);
+        for (int hour = 0; hour < 24; hour++) {
+            sessions.add(seckillConverter.toSessionResp(hour, activitiesByHour.get(hour), today, now));
+        }
+        return sessions;
+    }
+
+    /**
+     * 按开始整点归组当天活动，同一整点优先保留当前进行中的活动。
+     *
+     * @param activities 当天活动列表
+     * @param today 当天日期
+     * @param now 当前时间
+     * @return 整点 -> 活动
+     */
+    private static Map<Integer, SeckillActivityDO> groupActivitiesByHour(
+        List<SeckillActivityDO> activities,
+        LocalDate today,
+        LocalDateTime now
+    ) {
+        Map<Integer, SeckillActivityDO> activitiesByHour = new HashMap<>(24);
+        for (SeckillActivityDO activity : activities) {
+            if (!today.equals(activity.getStartTime().toLocalDate())) {
+                continue;
+            }
+            int hour = activity.getStartTime().getHour();
+            SeckillActivityDO existing = activitiesByHour.get(hour);
+            if (existing == null || shouldReplace(existing, activity, now)) {
+                activitiesByHour.put(hour, activity);
+            }
+        }
+        return activitiesByHour;
+    }
+
+    /**
+     * 判断候选活动是否应替换同整点已保留的活动。
+     *
+     * @param existing 已保留活动
+     * @param candidate 候选活动
+     * @param now 当前时间
+     * @return true 表示应替换
+     */
+    private static boolean shouldReplace(
+        SeckillActivityDO existing,
+        SeckillActivityDO candidate,
+        LocalDateTime now
+    ) {
+        return !isOngoing(existing, now) && isOngoing(candidate, now);
+    }
+
+    /**
+     * 判断活动是否处于进行中时间窗口。
+     *
+     * @param activity 活动实体
+     * @param now 当前时间
+     * @return true 表示进行中
+     */
+    private static boolean isOngoing(SeckillActivityDO activity, LocalDateTime now) {
+        return !now.isBefore(activity.getStartTime()) && now.isBefore(activity.getEndTime());
+    }
+
+    /**
      * 查询报名中的活动（商家端可报名列表）。
      *
      * @return 报名中活动列表
@@ -316,7 +411,9 @@ public class SeckillActivityService implements ISeckillActivityService {
         List<SeckillProductDO> products = productMapper.listApprovedByActivityId(activity.getId());
 
         ActivityDetailResp resp = seckillConverter.toActivityDetailResp(activity);
-        resp.setProducts(seckillConverter.toSeckillProductRespList(products));
+        List<SeckillProductResp> productResps = seckillConverter.toSeckillProductRespList(products);
+        seckillProductService.enrich(productResps);
+        resp.setProducts(productResps);
         return resp;
     }
 }

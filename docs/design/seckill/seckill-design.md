@@ -199,8 +199,10 @@
 ![用户浏览进行中活动图](svg/seckill-browse-activity.svg)
 
 - 流程涉及接口（完整接口定义见「接口设计」用户端 API）：
+  - 当天场次：`GET /seckill/activities/today`
   - 进行中活动列表：`GET /seckill/activities`
   - 活动详情 + 已审核商品：`GET /seckill/activities/{id}`
+  - 秒杀商品详情：`GET /seckill/products/{id}`
 - 校验链（任一失败即终止，错误码见「错误码表」）：
   - 免登录（gateway 白名单）
   - 用户端只返回 `RUNNING` 状态活动
@@ -328,6 +330,7 @@ ARGV[2] = userFlagTtlSeconds
 - 校验链（任一失败即终止，错误码见「错误码表」）：
   - 时长必须 1 小时
   - 开始时间必须晚于当前 24 小时且为整点
+  - 同一开始整点只允许存在一场活动，已占用时不可重复创建或移动到该整点
   - 每活动商品数上限创建时可配（默认 50，范围 1~500）
   - 发布前置：状态 DRAFT + 信息完整（name/description 非空）+ `start_time > now`；不要求已有已审核商品
 - 状态转换：创建 → `DRAFT`；发布 → `PUBLISHED`（开放商家报名）。
@@ -357,11 +360,11 @@ ARGV[2] = userFlagTtlSeconds
 
 ### 系统机制
 
-#### Redis 预热（xxl-job `seckillCachePreheatJob`，每分钟）
+#### Redis 预热（xxl-job `seckillCachePreheat`，每分钟）
 
 - 扣减模型：**扣的是秒杀池自身 `cm_seckill_product.stock`**，不联动真实 SKU 库存。三层：预热 `SET NX`（DB 初始值）→ 抢购 Redis `DECR` 预扣（并发控制）→ 支付落库扣减 DB stock（最终一致）；超时未付 DB 未扣过无需回补，Redis 归还。
-- 预热提前量：**30 分钟**（`start_time - 30min` 起预热，与报名截止 = start_time 联动，报名期审核通过的商品在开始前有充足时间预热）。
-- 扫描 `PUBLISHED / RUNNING` 且 `start_time <= now + 30min` 的活动商品：
+- 预热时点：**活动开始后、结束前**（报名截止 = `start_time`，商家禁止新增商品），避免预热后商家继续报名或调整库存导致缓存与数据库不一致。
+- 扫描进行中（`start_time <= now < end_time`）的 `PUBLISHED / RUNNING` 活动商品：
   - 库存 key 不存在 → `SET NX`（取自 `cm_seckill_product.stock`）。
   - 库存 key 已存在 → 不覆盖（保留 Redis 运行时值）。
 - 扫描 `FINISHED / CANCELLED` 活动商品：删除对应 stock / user key。
@@ -434,7 +437,7 @@ ARGV[2] = userFlagTtlSeconds
 
 ### 缓存预热与清理
 
-1. 预热：为临近开始（30 分钟内）的活动商品写入库存缓存，仅当缓存不存在时写入（取自 DB 库存，不覆盖运行时值）。
+1. 预热：为进行中（已开始且未结束、商家禁止新增商品）的活动商品写入库存缓存，仅当缓存不存在时写入（取自 DB 库存，不覆盖运行时值）。
 2. 清理：删除已结束/取消活动的库存缓存（一人一单标记随 TTL 自然过期，无需清理）。
 
 **每分钟执行一次。**
@@ -458,10 +461,13 @@ ARGV[2] = userFlagTtlSeconds
 
 | 方法 | 路径 | 说明 | 认证 |
 |------|------|------|------|
-| GET | `/seckill/activities` | 进行中活动列表（RUNNING，分页） | 匿名可访问（gateway 白名单） |
+| GET | `/seckill/activities` | 进行中活动列表（RUNNING） | 匿名可访问（gateway 白名单） |
+| GET | `/seckill/activities/today` | 当天固定 24 个整点场次（00:00-23:00，无活动场次 `NOT_OPENED`） | 匿名可访问 |
+| GET | `/seckill/activities/current-hour` | 当前整点进行中活动 + 已审核商品 | 匿名可访问 |
 | GET | `/seckill/activities/{id}` | 活动详情 + 已审核商品 | 匿名可访问 |
+| GET | `/seckill/products/{id}` | 秒杀商品详情（仅已审核通过） | 匿名可访问 |
 | POST | `/seckill/purchase` | 抢购（`activityId` + `skuId` + `addressId`） | 需登录 |
-| GET | `/seckill/orders` | 我的秒杀单（分页，按 userId） | 需登录 |
+| GET | `/seckill/orders` | 我的秒杀单（按 userId，倒序） | 需登录 |
 
 请求示例：
 

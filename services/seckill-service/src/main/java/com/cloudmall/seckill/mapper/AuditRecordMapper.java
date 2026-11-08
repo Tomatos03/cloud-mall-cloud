@@ -4,8 +4,8 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import org.apache.ibatis.annotations.Mapper;
 
-import com.cloudmall.seckill.model.entity.AuditRecordDO;
 import com.cloudmall.seckill.enums.AuditStatusEnum;
+import com.cloudmall.seckill.model.entity.AuditRecordDO;
 
 /**
  * 通用审核单 Mapper

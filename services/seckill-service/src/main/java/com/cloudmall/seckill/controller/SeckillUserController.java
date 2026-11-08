@@ -20,15 +20,18 @@ import com.cloudmall.seckill.api.model.resp.ActivityDetailResp;
 import com.cloudmall.seckill.api.model.resp.ActivityResp;
 import com.cloudmall.seckill.api.model.resp.PurchaseResp;
 import com.cloudmall.seckill.api.model.resp.SeckillOrderResp;
+import com.cloudmall.seckill.api.model.resp.SeckillProductResp;
+import com.cloudmall.seckill.api.model.resp.SeckillSessionResp;
 import com.cloudmall.seckill.application.SeckillOrderApp;
 import com.cloudmall.seckill.application.SeckillPlainOrderApp;
 import com.cloudmall.seckill.service.ISeckillActivityService;
 import com.cloudmall.seckill.service.ISeckillOrderService;
+import com.cloudmall.seckill.service.ISeckillProductService;
 
 /**
  * 秒杀用户端控制器
  * <p>
- * 进行中活动列表与详情免登录（gateway 白名单）；抢购与我的秒杀单需登录。
+ * 活动列表/详情与秒杀商品详情免登录（gateway 白名单）；抢购与我的秒杀单需登录。
  * 本地查询走 service，抢购编排走 {@link SeckillOrderApp}。
  *
  * @author : Tomatos
@@ -41,6 +44,7 @@ public class SeckillUserController {
     private final SeckillOrderApp seckillOrderApp;
     private final SeckillPlainOrderApp seckillPlainOrderApp;
     private final ISeckillActivityService activityService;
+    private final ISeckillProductService productService;
     private final ISeckillOrderService orderService;
 
     /**
@@ -65,6 +69,16 @@ public class SeckillUserController {
     }
 
     /**
+     * 当天全部整点场次（固定 24 场，含未开放场次，免登录）。
+     *
+     * @return 当天 24 个整点场次
+     */
+    @GetMapping("/activities/today")
+    public Result<List<SeckillSessionResp>> listTodaySessions() {
+        return Result.success(activityService.listTodaySessions());
+    }
+
+    /**
      * 当前整点场次的进行中活动（含已审核商品，免登录）。
      *
      * @return 活动详情，当前无进行中场次时返回 null
@@ -72,6 +86,17 @@ public class SeckillUserController {
     @GetMapping("/activities/current-hour")
     public Result<ActivityDetailResp> getCurrentHourActivity() {
         return Result.success(activityService.getCurrentHourActivity());
+    }
+
+    /**
+     * 秒杀商品详情（仅已审核通过，免登录）。
+     *
+     * @param id 秒杀商品 ID
+     * @return 秒杀商品
+     */
+    @GetMapping("/products/{id}")
+    public Result<SeckillProductResp> getApprovedById(@PathVariable Long id) {
+        return Result.success(productService.getApprovedById(id));
     }
 
     /**

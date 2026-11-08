@@ -52,6 +52,14 @@ public interface ISeckillProductService {
     SeckillProductDO getApprovedByActivityAndSku(Long activityId, Long skuId);
 
     /**
+     * 按秒杀商品 ID 查询已审核通过的商品（用户端详情用）。
+     *
+     * @param id 秒杀商品 ID
+     * @return 秒杀商品响应
+     */
+    SeckillProductResp getApprovedById(Long id);
+
+    /**
      * 查询店铺提交的全部商品（商家端“我的提交”）。
      *
      * @param shopId 店铺 ID
@@ -67,4 +75,11 @@ public interface ISeckillProductService {
      * @return 已审核通过返回 true
      */
     boolean isApproved(Long activityId, Long productId);
+
+    /**
+     * 为秒杀商品响应批量补充商品名称与主图。
+     *
+     * @param products 秒杀商品响应列表
+     */
+    void enrich(List<SeckillProductResp> products);
 }

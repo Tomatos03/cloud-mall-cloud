@@ -11,13 +11,13 @@ import org.springframework.transaction.annotation.Transactional;
 import com.cloudmall.common.enums.BizErrorEnum;
 import com.cloudmall.common.utils.Asserts;
 import com.cloudmall.rocketmq.producer.MQProducer;
-import com.cloudmall.seckill.api.model.bo.SeckillOrderCreateEvent;
 import com.cloudmall.seckill.api.enums.SeckillTagEnum;
+import com.cloudmall.seckill.api.model.bo.SeckillOrderCreateEvent;
 import com.cloudmall.seckill.api.model.resp.SeckillOrderResp;
 import com.cloudmall.seckill.convert.SeckillConverter;
-import com.cloudmall.seckill.model.entity.SeckillOrderDO;
 import com.cloudmall.seckill.mapper.SeckillOrderMapper;
 import com.cloudmall.seckill.mapper.SeckillProductMapper;
+import com.cloudmall.seckill.model.entity.SeckillOrderDO;
 import com.cloudmall.seckill.service.ISeckillOrderService;
 
 /**
@@ -146,7 +146,10 @@ public class SeckillOrderService implements ISeckillOrderService {
      */
     @Override
     public SeckillOrderDO getByOrderNo(String orderNo) {
-        return Asserts.requireNonNull(orderMapper.selectByOrderNo(orderNo), BizErrorEnum.SECKILL_ORDER_NOT_EXIST);
+        return Asserts.requireNonNull(
+                orderMapper.selectByOrderNo(orderNo),
+                BizErrorEnum.SECKILL_ORDER_NOT_EXIST
+        );
     }
 
     /**

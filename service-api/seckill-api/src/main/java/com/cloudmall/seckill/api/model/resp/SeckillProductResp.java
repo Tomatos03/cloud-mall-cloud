@@ -27,6 +27,12 @@ public class SeckillProductResp {
     /** 商品 SPU ID */
     private Long productId;
 
+    /** 商品名称（来自商品服务，展示用） */
+    private String productName;
+
+    /** 商品主图 URL（来自商品服务，展示用） */
+    private String image;
+
     /** SKU ID */
     private Long skuId;
 
@@ -35,6 +41,9 @@ public class SeckillProductResp {
 
     /** 秒杀价 */
     private BigDecimal seckillPrice;
+
+    /** 商品原价（SKU 市场价/划线价，展示用） */
+    private BigDecimal originalPrice;
 
     /** 秒杀库存 */
     private Integer stock;
