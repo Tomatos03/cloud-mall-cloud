@@ -34,6 +34,9 @@ public final class QueryConditionHelper {
         if (tableInfo == null) {
             return null;
         }
+        if (property.equals(tableInfo.getKeyProperty())) {
+            return tableInfo.getKeyColumn();
+        }
         return tableInfo.getFieldList()
                         .stream()
                         .filter(f -> f.getProperty().equals(property))
@@ -76,7 +79,12 @@ public final class QueryConditionHelper {
      * @param operator 操作符
      * @param value 条件值
      */
-    public static void applyCondition(QueryWrapper<?> wrapper, String column, OperatorEnum operator, Object value) {
+    public static void applyCondition(
+        QueryWrapper<?> wrapper,
+        String column,
+        OperatorEnum operator,
+        Object value
+    ) {
         switch (operator) {
             case EQ -> wrapper.eq(column, value);
             case NE -> wrapper.ne(column, value);

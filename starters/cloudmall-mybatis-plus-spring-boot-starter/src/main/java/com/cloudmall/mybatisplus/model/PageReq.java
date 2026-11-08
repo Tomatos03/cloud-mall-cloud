@@ -50,4 +50,22 @@ public class PageReq<T> extends Page<T> implements ConditionBuilder<T> {
     public PageReq(long current, long size) {
         super(current, size);
     }
+
+    /**
+     * 兼容前端 page 参数。
+     *
+     * @param page 页码，从 1 开始
+     */
+    public void setPage(long page) {
+        setCurrent(page);
+    }
+
+    /**
+     * 兼容前端 pageSize 参数。
+     *
+     * @param pageSize 每页条数
+     */
+    public void setPageSize(long pageSize) {
+        setSize(pageSize);
+    }
 }
