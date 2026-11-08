@@ -30,8 +30,8 @@ import com.cloudmall.common.enums.UserTypeEnum;
 import com.cloudmall.common.model.Result;
 import com.cloudmall.jwt.constant.JwtClaimNames;
 import com.cloudmall.jwt.exception.ParseTokenException;
-import com.cloudmall.jwt.service.ITokenService;
 import com.cloudmall.jwt.model.ParsedToken;
+import com.cloudmall.jwt.service.ITokenService;
 
 /**
  * JWT 认证过滤器
@@ -82,12 +82,15 @@ public class JwtAuthenticationWebFilter implements WebFilter {
 
         String token = header.substring(TOKEN_PREFIX.length());
 
-        return Mono.fromCallable(() -> toUserContext(authTokenService.parseToken(token)))
-                   .subscribeOn(Schedulers.boundedElastic())
-                   .onErrorMap(IllegalArgumentException.class,
-                               e -> new ParseTokenException("token 的 userType 非法", token, e))
-                   .flatMap(userContext -> handleAuthenticated(exchange, chain, userContext))
-                   .onErrorResume(ParseTokenException.class, e -> handleAuthError(exchange, e));
+        return Mono
+                .fromCallable(() -> toUserContext(authTokenService.parseToken(token)))
+                .subscribeOn(Schedulers.boundedElastic())
+                .onErrorMap(
+                        IllegalArgumentException.class,
+                        e -> new ParseTokenException("token 的 userType 非法", token, e)
+                )
+                .flatMap(userContext -> handleAuthenticated(exchange, chain, userContext))
+                .onErrorResume(ParseTokenException.class, e -> handleAuthError(exchange, e));
     }
 
     /**
@@ -139,9 +142,13 @@ public class JwtAuthenticationWebFilter implements WebFilter {
                                                         .request(mutatedRequest)
                                                         .build();
 
+            // ReactiveSecurityContextHolder 约定 Reactor Context 中存放 Mono<SecurityContext>
             return chain.filter(mutatedExchange)
                         .contextWrite(
-                                ctx -> ctx.put(SecurityContext.class, new SecurityContextImpl(authentication))
+                                ctx -> ctx.put(
+                                        SecurityContext.class,
+                                        Mono.just(new SecurityContextImpl(authentication))
+                                )
                         );
         } catch (JsonProcessingException e) {
             log.error("序列化 UserContext 失败", e);
