@@ -1,13 +1,21 @@
 -- ============================================================
 -- cm_mall — 种子数据（供开发 / 测试环境使用）
 -- 执行前请先执行 01-schema.sql 初始化表结构
+-- 除 cm_category（保留原始 25 条分类数据）及 cm_role / cm_resource / cm_role_resource
+-- 等权限表外，其余业务表至少 100 条数据
 -- 与 01-schema.sql 当前表结构严格对齐（优惠券新模型 + 父子订单 + 商品多规格 + cm_shop
 -- + 库存流水 + 消息 Outbox + IM 会话消息）
+-- 商品数据扩展至 10000 条（含 SKU / 规格 / 图片）
+-- 图片统一使用 picsum.photos 可展示占位图（允许重复）
+-- 秒杀数据以执行时整点为基准，覆盖今天/明天/后天共 72 个整点场次，各 50 个已审核商品
 -- ============================================================
 
 SET NAMES utf8mb4;
 
 USE cm_mall;
+
+-- 业务时间统一使用 Asia/Shanghai 本地时间，与 Java LocalDateTime.now() 对齐
+SET time_zone = '+08:00';
 
 -- ============================================================
 -- 用户模块 - 用户表
@@ -174,25 +182,25 @@ ALTER TABLE cm_brand AUTO_INCREMENT = 100;
 -- 主图按商品 ID 查询 cm_product_image，取 is_main=1 的首行
 -- ============================================================
 INSERT INTO cm_product_image (id, product_id, url, is_main, sort) VALUES
-(1,  1, 'https://img.cloudmall.dev/product/mate70/main.jpg',    1, 0),
-(2,  1, 'https://img.cloudmall.dev/product/mate70/2.jpg',       0, 1),
-(3,  1, 'https://img.cloudmall.dev/product/mate70/3.jpg',       0, 2),
-(4,  2, 'https://img.cloudmall.dev/product/iphone16/main.jpg',  1, 0),
-(5,  2, 'https://img.cloudmall.dev/product/iphone16/2.jpg',     0, 1),
-(6,  2, 'https://img.cloudmall.dev/product/iphone16/3.jpg',     0, 2),
-(7,  3, 'https://img.cloudmall.dev/product/thinkpad/main.jpg',  1, 0),
-(8,  3, 'https://img.cloudmall.dev/product/thinkpad/2.jpg',     0, 1),
-(9,  4, 'https://img.cloudmall.dev/product/sony1000/main.jpg',  1, 0),
-(10, 4, 'https://img.cloudmall.dev/product/sony1000/2.jpg',     0, 1),
-(11, 5, 'https://img.cloudmall.dev/product/dress/main.jpg',     1, 0),
-(12, 5, 'https://img.cloudmall.dev/product/dress/2.jpg',        0, 1),
-(13, 5, 'https://img.cloudmall.dev/product/dress/3.jpg',        0, 2),
-(14, 6, 'https://img.cloudmall.dev/product/shirt/main.jpg',     1, 0),
-(15, 6, 'https://img.cloudmall.dev/product/shirt/2.jpg',        0, 1),
-(16, 7, 'https://img.cloudmall.dev/product/nuts/main.jpg',      1, 0),
-(17, 7, 'https://img.cloudmall.dev/product/nuts/2.jpg',         0, 1),
-(18, 8, 'https://img.cloudmall.dev/product/beer/main.jpg',      1, 0),
-(19, 8, 'https://img.cloudmall.dev/product/beer/2.jpg',         0, 1);
+(1,  1, 'https://picsum.photos/seed/cm-product-mate70-main-jpg/600/600',    1, 0),
+(2,  1, 'https://picsum.photos/seed/cm-product-mate70-2-jpg/600/600',       0, 1),
+(3,  1, 'https://picsum.photos/seed/cm-product-mate70-3-jpg/600/600',       0, 2),
+(4,  2, 'https://picsum.photos/seed/cm-product-iphone16-main-jpg/600/600',  1, 0),
+(5,  2, 'https://picsum.photos/seed/cm-product-iphone16-2-jpg/600/600',     0, 1),
+(6,  2, 'https://picsum.photos/seed/cm-product-iphone16-3-jpg/600/600',     0, 2),
+(7,  3, 'https://picsum.photos/seed/cm-product-thinkpad-main-jpg/600/600',  1, 0),
+(8,  3, 'https://picsum.photos/seed/cm-product-thinkpad-2-jpg/600/600',     0, 1),
+(9,  4, 'https://picsum.photos/seed/cm-product-sony1000-main-jpg/600/600',  1, 0),
+(10, 4, 'https://picsum.photos/seed/cm-product-sony1000-2-jpg/600/600',     0, 1),
+(11, 5, 'https://picsum.photos/seed/cm-product-dress-main-jpg/600/600',     1, 0),
+(12, 5, 'https://picsum.photos/seed/cm-product-dress-2-jpg/600/600',        0, 1),
+(13, 5, 'https://picsum.photos/seed/cm-product-dress-3-jpg/600/600',        0, 2),
+(14, 6, 'https://picsum.photos/seed/cm-product-shirt-main-jpg/600/600',     1, 0),
+(15, 6, 'https://picsum.photos/seed/cm-product-shirt-2-jpg/600/600',        0, 1),
+(16, 7, 'https://picsum.photos/seed/cm-product-nuts-main-jpg/600/600',      1, 0),
+(17, 7, 'https://picsum.photos/seed/cm-product-nuts-2-jpg/600/600',         0, 1),
+(18, 8, 'https://picsum.photos/seed/cm-product-beer-main-jpg/600/600',      1, 0),
+(19, 8, 'https://picsum.photos/seed/cm-product-beer-2-jpg/600/600',         0, 1);
 
 ALTER TABLE cm_product_image AUTO_INCREMENT = 1000;
 
@@ -244,16 +252,16 @@ ALTER TABLE cm_product_spec_group AUTO_INCREMENT = 1000;
 -- ============================================================
 INSERT INTO cm_product_spec_value (id, group_id, value, image, sort) VALUES
 -- 华为 Mate 70 Pro：颜色
-(1,  1, '曜金黑',   'https://img.cloudmall.dev/spec/color/gold-black.jpg', 0),
-(2,  1, '雪域白',   'https://img.cloudmall.dev/spec/color/snow-white.jpg',  1),
-(3,  1, '罗兰紫',   'https://img.cloudmall.dev/spec/color/purple.jpg',      2),
+(1,  1, '曜金黑',   'https://picsum.photos/seed/cm-spec-gold-black-jpg/100/100', 0),
+(2,  1, '雪域白',   'https://picsum.photos/seed/cm-spec-snow-white-jpg/100/100',  1),
+(3,  1, '罗兰紫',   'https://picsum.photos/seed/cm-spec-purple-jpg/100/100',      2),
 -- 华为 Mate 70 Pro：存储
 (4,  2, '256GB', NULL, 0),
 (5,  2, '512GB', NULL, 1),
 (6,  2, '1TB',   NULL, 2),
 -- iPhone 16 Pro Max：颜色
-(7,  3, '原色钛金属', 'https://img.cloudmall.dev/spec/color/natural-ti.jpg', 0),
-(8,  3, '白色钛金属', 'https://img.cloudmall.dev/spec/color/white-ti.jpg',   1),
+(7,  3, '原色钛金属', 'https://picsum.photos/seed/cm-spec-natural-ti-jpg/100/100', 0),
+(8,  3, '白色钛金属', 'https://picsum.photos/seed/cm-spec-white-ti-jpg/100/100',   1),
 -- iPhone 16 Pro Max：存储
 (9,  4, '256GB', NULL, 0),
 (10, 4, '512GB', NULL, 1),
@@ -261,16 +269,16 @@ INSERT INTO cm_product_spec_value (id, group_id, value, image, sort) VALUES
 -- ThinkPad X1 Carbon：配置
 (12, 5, 'Ultra7 32G 1TB', NULL, 0),
 -- Sony 耳机：颜色
-(13, 6, '黑色',   'https://img.cloudmall.dev/spec/color/black.jpg',    0),
-(14, 6, '铂金银', 'https://img.cloudmall.dev/spec/color/platinum.jpg', 1),
-(15, 6, '午夜蓝', 'https://img.cloudmall.dev/spec/color/midnight.jpg', 2),
+(13, 6, '黑色',   'https://picsum.photos/seed/cm-spec-black-jpg/100/100',    0),
+(14, 6, '铂金银', 'https://picsum.photos/seed/cm-spec-platinum-jpg/100/100', 1),
+(15, 6, '午夜蓝', 'https://picsum.photos/seed/cm-spec-midnight-jpg/100/100', 2),
 -- 连衣裙：尺码
 (16, 7, 'S', NULL, 0),
 (17, 7, 'M', NULL, 1),
 (18, 7, 'L', NULL, 2),
 -- 连衣裙：颜色
-(19, 8, '米白色', 'https://img.cloudmall.dev/spec/color/rice-white.jpg', 0),
-(20, 8, '樱花粉', 'https://img.cloudmall.dev/spec/color/sakura-pink.jpg', 1),
+(19, 8, '米白色', 'https://picsum.photos/seed/cm-spec-rice-white-jpg/100/100', 0),
+(20, 8, '樱花粉', 'https://picsum.photos/seed/cm-spec-sakura-pink-jpg/100/100', 1),
 -- 衬衫：尺码（单规格）
 (21, 9, 'M', NULL, 0),
 -- 每日坚果：规格（单规格）
@@ -340,10 +348,10 @@ INSERT INTO cm_product_sku_spec (sku_id, spec_value_id) VALUES
 -- 首页轮播图（image 为 NOT NULL）
 -- ============================================================
 INSERT INTO cm_banner (id, title, image, link_url, sort, status) VALUES
-(1, '华为 Mate 70 Pro 新品首发',   'https://img.cloudmall.dev/banner/1.jpg', '/product/1',  1, 1),
-(2, '夏季清仓 全场低至5折',        'https://img.cloudmall.dev/banner/2.jpg', '/category/20', 2, 1),
-(3, 'iPhone 16 Pro Max 限时特惠',  'https://img.cloudmall.dev/banner/3.jpg', '/product/2',  3, 1),
-(4, '新用户注册即领100元优惠券',   'https://img.cloudmall.dev/banner/4.jpg', '/register', 4, 0);  -- 已下架
+(1, '华为 Mate 70 Pro 新品首发',   'https://picsum.photos/seed/cm-banner-1-jpg/1200/400', '/product/1',  1, 1),
+(2, '夏季清仓 全场低至5折',        'https://picsum.photos/seed/cm-banner-2-jpg/1200/400', '/category/20', 2, 1),
+(3, 'iPhone 16 Pro Max 限时特惠',  'https://picsum.photos/seed/cm-banner-3-jpg/1200/400', '/product/2',  3, 1),
+(4, '新用户注册即领100元优惠券',   'https://picsum.photos/seed/cm-banner-4-jpg/1200/400', '/register', 4, 0);  -- 已下架
 
 ALTER TABLE cm_banner AUTO_INCREMENT = 100;
 
@@ -369,6 +377,22 @@ INSERT INTO cm_favorite (id, user_id, product_id) VALUES
 (5, 5, 6);
 
 ALTER TABLE cm_favorite AUTO_INCREMENT = 100;
+
+-- ============================================================
+-- 商品问答
+-- ============================================================
+INSERT INTO cm_product_qa (id, product_id, question, answer, helpful_count, status, create_time, update_time) VALUES
+(1, 1, '支持卫星通信吗？', '支持北斗卫星消息，在无地面网络时可发送文字和位置信息。', 126, 1, NOW(), NOW()),
+(2, 1, '充电器和耳机在包装内吗？', '包装内含 100W 充电器，不附赠耳机，请按需单独购买。', 86, 1, NOW(), NOW()),
+(3, 1, '可以插几张 SIM 卡？', '支持双卡双待，可同时使用两张 Nano SIM 卡。', 64, 1, NOW(), NOW()),
+(4, 4, '降噪效果和上一代比提升大吗？', '新一代降噪芯片对低频噪音抑制更明显，地铁和飞机场景提升较明显。', 95, 1, NOW(), NOW()),
+(5, 4, '支持同时连接两台设备吗？', '支持多点连接，可在手机和电脑之间自动切换。', 48, 1, NOW(), NOW()),
+(6, 7, '保质期多久？', '常温阴凉干燥处保存，保质期 6 个月，开封后请尽快食用。', 32, 1, NOW(), NOW()),
+(7, 7, '里面有独立小包装吗？', '有，每盒 30 袋独立小包装，方便随身携带。', 27, 1, NOW(), NOW()),
+(8, 5, '尺码偏大还是偏小？', '版型标准，建议按平时尺码选择；喜欢宽松效果可大一码。', 19, 1, NOW(), NOW()),
+(9, 6, '需要熨烫吗？', '采用免烫面料，日常悬挂即可保持平整，重要场合可低温熨烫。', 15, 1, NOW(), NOW());
+
+ALTER TABLE cm_product_qa AUTO_INCREMENT = 100;
 
 -- ============================================================
 -- 商品评论
@@ -534,21 +558,24 @@ ALTER TABLE cm_cart AUTO_INCREMENT = 1000;
 
 -- 补充购物车数据（覆盖张三/赵六的多店铺混合场景，sku/价格与 cm_product_sku 严格一致）
 INSERT INTO cm_cart (id, user_id, shop_id, product_id, sku_id, product_name, product_image, price, quantity, selected) VALUES
-(5,  4, 1, 1, 1,  '华为 Mate 70 Pro（曜金黑 256GB）',           'https://img.cloudmall.dev/product/mate70/main.jpg',   6999.00,  1, 1),
-(6,  4, 1, 3, 8,  '联想 ThinkPad X1 Carbon（Ultra7 32G 1TB）',  'https://img.cloudmall.dev/product/thinkpad/main.jpg', 12999.00, 1, 1),
-(7,  4, 3, 7, 16, '三只松鼠每日坚果礼盒（750g/30包）',          'https://img.cloudmall.dev/product/nuts/main.jpg',     89.90,    4, 0),
-(8,  5, 1, 2, 7,  'Apple iPhone 16 Pro Max（白色钛金属 256GB）', 'https://img.cloudmall.dev/product/iphone16/main.jpg', 9999.00,  2, 1),
-(9,  5, 1, 4, 9,  'Sony WH-1000XM6 降噪耳机（黑色）',            'https://img.cloudmall.dev/product/sony1000/main.jpg', 2999.00,  1, 0),
-(10, 5, 2, 5, 12, '女士蕾丝刺绣连衣裙（S 米白色）',              'https://img.cloudmall.dev/product/dress/main.jpg',    399.00,   1, 1);
+(5,  4, 1, 1, 1,  '华为 Mate 70 Pro（曜金黑 256GB）',           'https://picsum.photos/seed/cm-product-mate70-main-jpg/600/600',   6999.00,  1, 1),
+(6,  4, 1, 3, 8,  '联想 ThinkPad X1 Carbon（Ultra7 32G 1TB）',  'https://picsum.photos/seed/cm-product-thinkpad-main-jpg/600/600', 12999.00, 1, 1),
+(7,  4, 3, 7, 16, '三只松鼠每日坚果礼盒（750g/30包）',          'https://picsum.photos/seed/cm-product-nuts-main-jpg/600/600',     89.90,    4, 0),
+(8,  5, 1, 2, 7,  'Apple iPhone 16 Pro Max（白色钛金属 256GB）', 'https://picsum.photos/seed/cm-product-iphone16-main-jpg/600/600', 9999.00,  2, 1),
+(9,  5, 1, 4, 9,  'Sony WH-1000XM6 降噪耳机（黑色）',            'https://picsum.photos/seed/cm-product-sony1000-main-jpg/600/600', 2999.00,  1, 0),
+(10, 5, 2, 5, 12, '女士蕾丝刺绣连衣裙（S 米白色）',              'https://picsum.photos/seed/cm-product-dress-main-jpg/600/600',    399.00,   1, 1);
 
 -- ============================================================
 -- 秒杀活动（时长固定1小时；DRAFT/PUBLISHED 满足开始时间晚于当前24小时）
 -- ============================================================
+-- 当前整点：所有活动必须整点开始且固定 1 小时
+SET @current_hour = DATE_FORMAT(NOW(), '%Y-%m-%d %H:00:00');
+
 INSERT INTO cm_seckill_activity (id, name, description, start_time, end_time, status, create_user_id, publish_user_id, publish_time) VALUES
-(1, '618数码狂欢节',         '数码爆品限时秒杀，先到先得', DATE_SUB(NOW(), INTERVAL 30 MINUTE), DATE_ADD(NOW(), INTERVAL 30 MINUTE), 'RUNNING',   1, 1, DATE_SUB(NOW(), INTERVAL 10 DAY)),
-(2, '暑期清凉特卖',           '夏日服饰食品专场报名中',     DATE_ADD(NOW(), INTERVAL 2 DAY),     DATE_ADD(NOW(), INTERVAL 2 DAY) + INTERVAL 1 HOUR, 'PUBLISHED', 1, 1, NOW()),
-(3, '618服饰专场（已结束）', '春季服饰清仓',               DATE_SUB(NOW(), INTERVAL 30 DAY),    DATE_SUB(NOW(), INTERVAL 30 DAY) + INTERVAL 1 HOUR, 'FINISHED',  1, 1, DATE_SUB(NOW(), INTERVAL 40 DAY)),
-(4, '中秋食品专场',           '运营排期中，尚未开放报名',   DATE_ADD(NOW(), INTERVAL 5 DAY),     DATE_ADD(NOW(), INTERVAL 5 DAY) + INTERVAL 1 HOUR,  'DRAFT',     1, NULL, NULL);
+(1, '618数码狂欢节',         '数码爆品限时秒杀，先到先得', @current_hour,                              DATE_ADD(@current_hour, INTERVAL 1 HOUR),   'RUNNING',   1, 1, DATE_SUB(NOW(), INTERVAL 10 DAY)),
+(2, '暑期清凉特卖',           '夏日服饰食品专场报名中',     DATE_ADD(@current_hour, INTERVAL 4 DAY),    DATE_ADD(@current_hour, INTERVAL 97 HOUR),  'PUBLISHED', 1, 1, NOW()),
+(3, '618服饰专场（已结束）', '春季服饰清仓',               DATE_SUB(@current_hour, INTERVAL 30 DAY),   DATE_SUB(@current_hour, INTERVAL 719 HOUR), 'FINISHED',  1, 1, DATE_SUB(NOW(), INTERVAL 40 DAY)),
+(4, '中秋食品专场',           '运营排期中，尚未开放报名',   DATE_ADD(@current_hour, INTERVAL 5 DAY),    DATE_ADD(@current_hour, INTERVAL 121 HOUR), 'DRAFT',     1, NULL, NULL);
 
 ALTER TABLE cm_seckill_activity AUTO_INCREMENT = 100;
 
@@ -679,6 +706,894 @@ INSERT INTO cm_im_message (id, session_id, sender_id, content, type, is_read, cr
 -- 会话3：张三咨询坚果礼盒
 (8,  3, 4, '每日坚果礼盒的保质期到什么时候？',                       'text',  1, DATE_SUB(NOW(), INTERVAL 2 DAY)),
 (9,  3, 6, '保质期到明年 6 月，日期很新鲜，放心购买',                'text',  1, DATE_SUB(NOW(), INTERVAL 2 DAY)),
-(10, 3, 6, 'https://img.cloudmall.dev/im/receipt.jpg',               'image', 0, DATE_SUB(NOW(), INTERVAL 1 DAY));
+(10, 3, 6, 'https://picsum.photos/seed/cm-im-receipt-jpg/600/400',               'image', 0, DATE_SUB(NOW(), INTERVAL 1 DAY));
 
 ALTER TABLE cm_im_message AUTO_INCREMENT = 100;
+
+-- ============================================================
+-- 商城批量种子数据（分类保持原始数据，其余业务表补齐至 >= 100 条）
+-- 权限相关表（cm_role / cm_resource / cm_role_resource）沿用原有数据
+-- 图片统一使用可直接访问的 picsum.photos 占位图，允许重复
+-- ============================================================
+DROP TEMPORARY TABLE IF EXISTS tmp_seed_seq;
+CREATE TEMPORARY TABLE tmp_seed_seq
+(
+    n INT NOT NULL PRIMARY KEY
+);
+INSERT INTO tmp_seed_seq (n)
+WITH RECURSIVE seq AS (SELECT 1 AS n
+                       UNION ALL
+                       SELECT n + 1
+                       FROM seq
+                       WHERE n < 100)
+SELECT n
+FROM seq;
+
+-- ============================================================
+-- 用户：100 个商家 + 100 个普通用户
+-- ============================================================
+INSERT INTO cm_user (id, username, password, nickname, phone, email, bio, avatar_url, types, create_time, update_time)
+SELECT 1000 + n,
+       CONCAT('merchant_bulk_', LPAD(n, 3, '0')),
+       '$2b$10$1dhvaWKeqZDhFP0N4wnphu71zmIgPQGDDWcYCMDE.wVKrzG0LubMO',
+       CONCAT('批量商家', LPAD(n, 3, '0')),
+       CONCAT('139', LPAD(n, 8, '0')),
+       CONCAT('merchant_bulk_', LPAD(n, 3, '0'), '@cloudmall.com'),
+       '商城批量种子数据商家',
+       CONCAT('https://picsum.photos/seed/cm-merchant-', n, '/200/200'),
+       'MERCHANT',
+       DATE_SUB(NOW(), INTERVAL (300 - n) DAY),
+       NOW()
+FROM tmp_seed_seq;
+
+INSERT INTO cm_user (id, username, password, nickname, phone, email, bio, avatar_url, types, create_time, update_time)
+SELECT 1100 + n,
+       CONCAT('user_bulk_', LPAD(n, 3, '0')),
+       '$2b$10$1dhvaWKeqZDhFP0N4wnphu71zmIgPQGDDWcYCMDE.wVKrzG0LubMO',
+       CONCAT('批量用户', LPAD(n, 3, '0')),
+       CONCAT('138', LPAD(n, 8, '0')),
+       CONCAT('user_bulk_', LPAD(n, 3, '0'), '@cloudmall.com'),
+       '商城批量种子数据普通用户',
+       CONCAT('https://picsum.photos/seed/cm-user-', n, '/200/200'),
+       'NORMAL',
+       DATE_SUB(NOW(), INTERVAL (250 - n) DAY),
+       NOW()
+FROM tmp_seed_seq;
+
+INSERT INTO cm_user_role (user_id, role_id, create_time)
+SELECT 1000 + n, 2, NOW()
+FROM tmp_seed_seq;
+
+INSERT INTO cm_user_role (user_id, role_id, create_time)
+SELECT 1100 + n, 3, NOW()
+FROM tmp_seed_seq;
+
+-- ============================================================
+-- 店铺及店铺统计
+-- ============================================================
+INSERT INTO cm_shop (id, user_id, name, logo, description, status, create_time, update_time)
+SELECT 1000 + n,
+       1000 + n,
+       CONCAT('云选优品旗舰店 ', LPAD(n, 3, '0')),
+       CONCAT('https://picsum.photos/seed/cm-shop-', n, '/200/200'),
+       CONCAT('商城批量种子店铺 ', n, '，主营精选好物，全场包邮。'),
+       1,
+       DATE_SUB(NOW(), INTERVAL (200 - n) DAY),
+       NOW()
+FROM tmp_seed_seq;
+
+INSERT INTO cm_shop_stat (shop_id, product_count, total_review_count, positive_review_count, total_score, follow_count, update_time)
+SELECT 1000 + n, 1, 1, 1, 5, 1, NOW()
+FROM tmp_seed_seq;
+
+-- ============================================================
+-- 用户收货地址
+-- ============================================================
+INSERT INTO cm_address (id, user_id, consignee, phone, province, city, district, detail, zip_code, is_default,
+                        create_time, update_time)
+SELECT 1000 + n,
+       1100 + n,
+       CONCAT('批量用户', LPAD(n, 3, '0')),
+       CONCAT('138', LPAD(n, 8, '0')),
+       CASE MOD(n, 5)
+           WHEN 0 THEN '北京市'
+           WHEN 1 THEN '上海市'
+           WHEN 2 THEN '广东省'
+           WHEN 3 THEN '浙江省'
+           ELSE '江苏省'
+           END,
+       CASE MOD(n, 5)
+           WHEN 0 THEN '北京市'
+           WHEN 1 THEN '上海市'
+           WHEN 2 THEN '深圳市'
+           WHEN 3 THEN '杭州市'
+           ELSE '南京市'
+           END,
+       CASE MOD(n, 5)
+           WHEN 0 THEN '朝阳区'
+           WHEN 1 THEN '浦东新区'
+           WHEN 2 THEN '南山区'
+           WHEN 3 THEN '西湖区'
+           ELSE '鼓楼区'
+           END,
+       CONCAT('种子数据街道 ', n, ' 号 ', n, ' 室'),
+       CONCAT('200', LPAD(n, 3, '0')),
+       IF(n = 1, 1, 0),
+       DATE_SUB(NOW(), INTERVAL (150 - n) DAY),
+       NOW()
+FROM tmp_seed_seq;
+
+-- ============================================================
+-- 品牌 / 单位（分类保持原有 25 条，不再批量生成一级分类）
+-- ============================================================
+INSERT INTO cm_brand (id, name, name_en, logo, description, country, website, status, sort, create_time, update_time)
+SELECT 1000 + n,
+       CONCAT('云选品牌 ', LPAD(n, 3, '0')),
+       CONCAT('CloudBrand ', LPAD(n, 3, '0')),
+       CONCAT('https://picsum.photos/seed/cm-brand-', n, '/200/200'),
+       CONCAT('云选品牌 ', n, '，专注品质好物。'),
+       CASE MOD(n, 4)
+           WHEN 0 THEN '中国'
+           WHEN 1 THEN '美国'
+           WHEN 2 THEN '日本'
+           ELSE '德国'
+           END,
+       CONCAT('https://brand', n, '.example.com'),
+       1,
+       n,
+       DATE_SUB(NOW(), INTERVAL (250 - n) DAY),
+       NOW()
+FROM tmp_seed_seq;
+
+INSERT INTO cm_unit (id, name, status, sort, create_time, update_time)
+SELECT 1000 + n, CONCAT('单位', LPAD(n, 3, '0')), 1, n, DATE_SUB(NOW(), INTERVAL (100 - n) DAY), NOW()
+FROM tmp_seed_seq;
+
+-- ============================================================
+-- 商品 SPU / 规格 / SKU / 图片
+-- ============================================================
+INSERT INTO cm_product (id, name, spu_code, description, category_id, brand_id, shop_id, status, create_time, update_time)
+SELECT 1000 + n,
+       CONCAT('云选精选商品 ', LPAD(n, 3, '0')),
+       CONCAT('SPU2026', LPAD(n, 4, '0')),
+       CONCAT('商城批量种子商品 ', n, '，品质保障，支持七天无理由退换。'),
+       ELT(MOD(n - 1, 15) + 1, 101, 102, 111, 112, 121, 122, 201, 202, 211, 212, 22, 301, 302, 31, 40),
+       1000 + n,
+       1000 + n,
+       1,
+       DATE_SUB(NOW(), INTERVAL (200 - n) DAY),
+       NOW()
+FROM tmp_seed_seq;
+
+INSERT INTO cm_product_spec_group (id, product_id, name, sort, create_time, update_time)
+SELECT 1000 + n, 1000 + n, '规格', 0, DATE_SUB(NOW(), INTERVAL (200 - n) DAY), NOW()
+FROM tmp_seed_seq;
+
+INSERT INTO cm_product_spec_value (id, group_id, value, image, sort, create_time, update_time)
+SELECT 1000 + n,
+       1000 + n,
+       CONCAT('标准款 ', LPAD(n, 3, '0')),
+       CONCAT('https://picsum.photos/seed/cm-spec-', n, '/100/100'),
+       0,
+       DATE_SUB(NOW(), INTERVAL (200 - n) DAY),
+       NOW()
+FROM tmp_seed_seq;
+
+INSERT INTO cm_product_sku (id, product_id, sku_code, price, market_price, stock, weight, image, spec_hash,
+                            create_time, update_time)
+SELECT 1000 + n,
+       1000 + n,
+       CONCAT('SKU2026', LPAD(n, 4, '0')),
+       ROUND(99 + n * 1.35, 2),
+       ROUND(129 + n * 1.75, 2),
+       100 + n,
+       ROUND(0.10 + n * 0.01, 2),
+       CONCAT('https://picsum.photos/seed/cm-sku-', n, '/600/600'),
+       CAST(1000 + n AS CHAR),
+       DATE_SUB(NOW(), INTERVAL (200 - n) DAY),
+       NOW()
+FROM tmp_seed_seq;
+
+INSERT INTO cm_product_sku_spec (sku_id, spec_value_id, create_time)
+SELECT 1000 + n, 1000 + n, DATE_SUB(NOW(), INTERVAL (200 - n) DAY)
+FROM tmp_seed_seq;
+
+-- 每个商品 2 张图片：主图 + 轮播图
+INSERT INTO cm_product_image (id, product_id, url, is_main, sort, create_time)
+SELECT 1000 + (n - 1) * 2 + 1,
+       1000 + n,
+       CONCAT('https://picsum.photos/seed/cm-product-', n, '-main/600/600'),
+       1,
+       0,
+       DATE_SUB(NOW(), INTERVAL (200 - n) DAY)
+FROM tmp_seed_seq;
+
+INSERT INTO cm_product_image (id, product_id, url, is_main, sort, create_time)
+SELECT 1000 + (n - 1) * 2 + 2,
+       1000 + n,
+       CONCAT('https://picsum.photos/seed/cm-product-', n, '-2/600/600'),
+       0,
+       1,
+       DATE_SUB(NOW(), INTERVAL (200 - n) DAY)
+FROM tmp_seed_seq;
+
+-- ============================================================
+-- 商品扩展至 10000 条（追加 9892 条，含 SKU / 规格 / 图片）
+-- ============================================================
+SET SESSION cte_max_recursion_depth = 20000;
+
+DROP TEMPORARY TABLE IF EXISTS tmp_product_seq;
+CREATE TEMPORARY TABLE tmp_product_seq
+(
+    n INT NOT NULL PRIMARY KEY
+);
+INSERT INTO tmp_product_seq (n)
+WITH RECURSIVE seq AS (SELECT 1 AS n
+                       UNION ALL
+                       SELECT n + 1
+                       FROM seq
+                       WHERE n < 9892)
+SELECT n
+FROM seq;
+
+INSERT INTO cm_product (id, name, spu_code, description, category_id, brand_id, shop_id, status, create_time, update_time)
+SELECT 1100 + n,
+       CONCAT('云选精选商品 ', 1000 + n),
+       CONCAT('SPU2027', LPAD(n, 5, '0')),
+       CONCAT('商城批量种子商品扩展 ', n, '，品质保障，支持七天无理由退换。'),
+       ELT(MOD(n - 1, 15) + 1, 101, 102, 111, 112, 121, 122, 201, 202, 211, 212, 22, 301, 302, 31, 40),
+       1001 + MOD(n - 1, 100),
+       1001 + MOD(n - 1, 100),
+       1,
+       DATE_SUB(NOW(), INTERVAL (9892 - n) MINUTE),
+       NOW()
+FROM tmp_product_seq;
+
+INSERT INTO cm_product_spec_group (id, product_id, name, sort, create_time, update_time)
+SELECT 1100 + n,
+       1100 + n,
+       '规格',
+       0,
+       DATE_SUB(NOW(), INTERVAL (9892 - n) MINUTE),
+       NOW()
+FROM tmp_product_seq;
+
+INSERT INTO cm_product_spec_value (id, group_id, value, image, sort, create_time, update_time)
+SELECT 1100 + n,
+       1100 + n,
+       CONCAT('标准款 ', 1000 + n),
+       CONCAT('https://picsum.photos/seed/cm-spec-', 1000 + n, '/100/100'),
+       0,
+       DATE_SUB(NOW(), INTERVAL (9892 - n) MINUTE),
+       NOW()
+FROM tmp_product_seq;
+
+INSERT INTO cm_product_sku (id, product_id, sku_code, price, market_price, stock, weight, image, spec_hash,
+                            create_time, update_time)
+SELECT 1100 + n,
+       1100 + n,
+       CONCAT('SKU2027', LPAD(n, 5, '0')),
+       ROUND(29 + MOD(n, 1000) * 1.35, 2),
+       ROUND(79 + MOD(n, 1000) * 1.35, 2),
+       50 + MOD(n, 450),
+       ROUND(0.10 + MOD(n, 100) * 0.01, 2),
+       CONCAT('https://picsum.photos/seed/cm-sku-', 1000 + n, '/600/600'),
+       CAST(1100 + n AS CHAR),
+       DATE_SUB(NOW(), INTERVAL (9892 - n) MINUTE),
+       NOW()
+FROM tmp_product_seq;
+
+INSERT INTO cm_product_sku_spec (sku_id, spec_value_id, create_time)
+SELECT 1100 + n,
+       1100 + n,
+       DATE_SUB(NOW(), INTERVAL (9892 - n) MINUTE)
+FROM tmp_product_seq;
+
+INSERT INTO cm_product_image (id, product_id, url, is_main, sort, create_time)
+SELECT 1200 + (n - 1) * 2 + 1,
+       1100 + n,
+       CONCAT('https://picsum.photos/seed/cm-product-', 1000 + n, '-main/600/600'),
+       1,
+       0,
+       DATE_SUB(NOW(), INTERVAL (9892 - n) MINUTE)
+FROM tmp_product_seq;
+
+INSERT INTO cm_product_image (id, product_id, url, is_main, sort, create_time)
+SELECT 1200 + (n - 1) * 2 + 2,
+       1100 + n,
+       CONCAT('https://picsum.photos/seed/cm-product-', 1000 + n, '-2/600/600'),
+       0,
+       1,
+       DATE_SUB(NOW(), INTERVAL (9892 - n) MINUTE)
+FROM tmp_product_seq;
+
+UPDATE cm_shop_stat s
+    JOIN (SELECT shop_id, COUNT(*) AS product_count
+          FROM cm_product
+          WHERE shop_id BETWEEN 1001 AND 1100
+            AND status = 1
+          GROUP BY shop_id) p ON p.shop_id = s.shop_id
+SET s.product_count = p.product_count,
+    s.update_time   = NOW();
+
+DROP TEMPORARY TABLE IF EXISTS tmp_product_seq;
+
+-- ============================================================
+-- 轮播图 / 公告 / 收藏 / 店铺关注
+-- ============================================================
+INSERT INTO cm_banner (id, title, image, link_url, sort, status, create_time, update_time)
+SELECT 1000 + n,
+       CONCAT('批量轮播 ', LPAD(n, 3, '0')),
+       CONCAT('https://picsum.photos/seed/cm-banner-', n, '/1200/400'),
+       CONCAT('/product/', 1000 + n),
+       n,
+       IF(MOD(n, 10) = 0, 0, 1),
+       DATE_SUB(NOW(), INTERVAL (100 - n) DAY),
+       NOW()
+FROM tmp_seed_seq;
+
+INSERT INTO cm_notice (id, content, sort, status, create_time, update_time)
+SELECT 1000 + n,
+       CONCAT('商城批量公告 ', n, '：精选好物持续上新，满 299 元包邮。'),
+       n,
+       IF(MOD(n, 10) = 0, 0, 1),
+       DATE_SUB(NOW(), INTERVAL (100 - n) DAY),
+       NOW()
+FROM tmp_seed_seq;
+
+INSERT INTO cm_favorite (id, user_id, product_id, create_time, update_time)
+SELECT 1000 + n, 1100 + n, 1000 + n, DATE_SUB(NOW(), INTERVAL (90 - n) DAY), NOW()
+FROM tmp_seed_seq;
+
+INSERT INTO cm_shop_follow (id, user_id, shop_id, create_time)
+SELECT 1000 + n, 1100 + n, 1000 + n, DATE_SUB(NOW(), INTERVAL (90 - n) DAY)
+FROM tmp_seed_seq;
+
+-- ============================================================
+-- 优惠券模板 / 范围 / 用户券 / 流水
+-- ============================================================
+-- 100 张指定商品券（奇数平台券、偶数店铺券）
+INSERT INTO cm_coupon (id, name, owner_type, shop_id, created_by, type, scope_type, threshold, discount_amount,
+                       discount_rate, total_count, claimed_count, issue_channel, validity_mode, issue_start_time,
+                       issue_end_time, fixed_start_time, fixed_expire_time, valid_days, status, first_issued_time,
+                       create_time, update_time)
+SELECT 1000 + n,
+       CONCAT('批量商品券 ', LPAD(n, 3, '0')),
+       IF(MOD(n, 2) = 1, 'PLATFORM', 'SHOP'),
+       IF(MOD(n, 2) = 1, NULL, 1000 + n),
+       1,
+       'FULL_REDUCTION',
+       'PRODUCT',
+       100.00,
+       10.00,
+       NULL,
+       1000,
+       1,
+       'PUBLIC_CLAIM',
+       'FIXED',
+       DATE_SUB(NOW(), INTERVAL 7 DAY),
+       DATE_ADD(NOW(), INTERVAL 30 DAY),
+       NOW(),
+       DATE_ADD(NOW(), INTERVAL 90 DAY),
+       NULL,
+       'ACTIVE',
+       DATE_SUB(NOW(), INTERVAL 5 DAY),
+       DATE_SUB(NOW(), INTERVAL 20 DAY),
+       NOW()
+FROM tmp_seed_seq;
+
+-- 100 张指定分类折扣券
+INSERT INTO cm_coupon (id, name, owner_type, shop_id, created_by, type, scope_type, threshold, discount_amount,
+                       discount_rate, total_count, claimed_count, issue_channel, validity_mode, issue_start_time,
+                       issue_end_time, fixed_start_time, fixed_expire_time, valid_days, status, first_issued_time,
+                       create_time, update_time)
+SELECT 1100 + n,
+       CONCAT('批量分类券 ', LPAD(n, 3, '0')),
+       'PLATFORM',
+       NULL,
+       1,
+       'DISCOUNT',
+       'CATEGORY',
+       0.00,
+       NULL,
+       0.050000,
+       2000,
+       0,
+       'PUBLIC_CLAIM',
+       'FIXED',
+       DATE_SUB(NOW(), INTERVAL 7 DAY),
+       DATE_ADD(NOW(), INTERVAL 30 DAY),
+       NOW(),
+       DATE_ADD(NOW(), INTERVAL 90 DAY),
+       NULL,
+       'ACTIVE',
+       NULL,
+       DATE_SUB(NOW(), INTERVAL 20 DAY),
+       NOW()
+FROM tmp_seed_seq;
+
+INSERT INTO cm_coupon_product (coupon_id, product_id, create_time)
+SELECT 1000 + n, 1000 + n, DATE_SUB(NOW(), INTERVAL 20 DAY)
+FROM tmp_seed_seq;
+
+INSERT INTO cm_coupon_category (coupon_id, category_id, create_time)
+SELECT 1100 + n,
+       ELT(MOD(n - 1, 15) + 1, 101, 102, 111, 112, 121, 122, 201, 202, 211, 212, 22, 301, 302, 31, 40),
+       DATE_SUB(NOW(), INTERVAL 20 DAY)
+FROM tmp_seed_seq;
+
+INSERT INTO cm_user_coupon (id, user_id, coupon_id, owner_type, shop_id, name_snapshot, type_snapshot,
+                            scope_type_snapshot, threshold_snapshot, discount_amount_snapshot,
+                            discount_rate_snapshot, effective_time, expire_time, status, locked_order_no,
+                            lock_expire_time, state_time, issued_source, issued_event_id, create_time, update_time)
+SELECT 1000 + n,
+       1100 + n,
+       1000 + n,
+       IF(MOD(n, 2) = 1, 'PLATFORM', 'SHOP'),
+       IF(MOD(n, 2) = 1, NULL, 1000 + n),
+       CONCAT('批量商品券 ', LPAD(n, 3, '0')),
+       'FULL_REDUCTION',
+       'PRODUCT',
+       100.00,
+       10.00,
+       NULL,
+       DATE_SUB(NOW(), INTERVAL 5 DAY),
+       DATE_ADD(NOW(), INTERVAL 60 DAY),
+       'USED',
+       CONCAT('ORD202608', LPAD(n, 4, '0')),
+       NULL,
+       NOW(),
+       'PUBLIC_CLAIM',
+       NULL,
+       DATE_SUB(NOW(), INTERVAL 5 DAY),
+       NOW()
+FROM tmp_seed_seq;
+
+INSERT INTO cm_user_coupon_log (id, user_coupon_id, coupon_id, user_id, order_no, event_id, operation_type,
+                                from_status, to_status, source, operator_id, reason, create_time)
+SELECT 1000 + (n - 1) * 3 + 1,
+       1000 + n,
+       1000 + n,
+       1100 + n,
+       CONCAT('ORD202608', LPAD(n, 4, '0')),
+       CONCAT('EVT-BULK-UC-', LPAD(n, 4, '0')),
+       'ISSUE',
+       NULL,
+       'AVAILABLE',
+       'SYSTEM',
+       NULL,
+       '批量种子数据发放',
+       DATE_SUB(NOW(), INTERVAL 5 DAY)
+FROM tmp_seed_seq;
+
+INSERT INTO cm_user_coupon_log (id, user_coupon_id, coupon_id, user_id, order_no, event_id, operation_type,
+                                from_status, to_status, source, operator_id, reason, create_time)
+SELECT 1000 + (n - 1) * 3 + 2,
+       1000 + n,
+       1000 + n,
+       1100 + n,
+       CONCAT('ORD202608', LPAD(n, 4, '0')),
+       CONCAT('EVT-BULK-UC-', LPAD(n, 4, '0')),
+       'LOCK',
+       'AVAILABLE',
+       'LOCKED',
+       'ORDER',
+       NULL,
+       '订单创建锁券',
+       DATE_SUB(NOW(), INTERVAL 3 DAY)
+FROM tmp_seed_seq;
+
+INSERT INTO cm_user_coupon_log (id, user_coupon_id, coupon_id, user_id, order_no, event_id, operation_type,
+                                from_status, to_status, source, operator_id, reason, create_time)
+SELECT 1000 + (n - 1) * 3 + 3,
+       1000 + n,
+       1000 + n,
+       1100 + n,
+       CONCAT('ORD202608', LPAD(n, 4, '0')),
+       CONCAT('EVT-BULK-UC-', LPAD(n, 4, '0')),
+       'COMMIT',
+       'LOCKED',
+       'USED',
+       'PAYMENT',
+       NULL,
+       '支付成功核销',
+       DATE_SUB(NOW(), INTERVAL 3 DAY)
+FROM tmp_seed_seq;
+
+INSERT INTO cm_coupon_operation_log (id, coupon_id, operator_id, operator_type, shop_id, from_status, to_status,
+                                     action_type, change_summary, reason, create_time)
+SELECT 1000 + n,
+       1000 + n,
+       1,
+       IF(MOD(n, 2) = 1, 'OPERATOR', 'MERCHANT'),
+       IF(MOD(n, 2) = 1, NULL, 1000 + n),
+       'DRAFT',
+       'ACTIVE',
+       'PUBLISH',
+       CONCAT('批量发布优惠券 ', n),
+       '种子数据批量发布',
+       DATE_SUB(NOW(), INTERVAL 20 DAY)
+FROM tmp_seed_seq;
+
+-- ============================================================
+-- 订单主表 / 子订单 / 明细 / 优惠关联
+-- ============================================================
+INSERT INTO cm_order (id, order_no, user_id, total_original_amount, total_shop_discount_amount,
+                      total_platform_discount_amount, goods_payable_amount, freight_amount, payable_amount, status,
+                      order_type, address_snapshot, remark, create_time, update_time)
+SELECT 1000 + n,
+       CONCAT('ORD202608', LPAD(n, 4, '0')),
+       1100 + n,
+       ROUND(99 + n * 1.35, 2),
+       IF(MOD(n, 2) = 1, 0.00, 10.00),
+       IF(MOD(n, 2) = 1, 10.00, 0.00),
+       ROUND(99 + n * 1.35 - 10, 2),
+       0.00,
+       ROUND(99 + n * 1.35 - 10, 2),
+       'PAID',
+       'CART',
+       JSON_OBJECT('consignee', CONCAT('批量用户', LPAD(n, 3, '0')),
+                   'phone', CONCAT('138', LPAD(n, 8, '0')),
+                   'province', '广东省',
+                   'city', '深圳市',
+                   'district', '南山区',
+                   'detail', CONCAT('种子数据街道 ', n, ' 号')),
+       '批量种子订单',
+       DATE_SUB(NOW(), INTERVAL (100 - n) DAY),
+       NOW()
+FROM tmp_seed_seq;
+
+INSERT INTO cm_order_sub (id, sub_order_no, parent_order_id, shop_id, original_amount, shop_discount_amount,
+                          platform_discount_amount, payable_amount, merchant_settlement_amount, remark, status,
+                          create_time, update_time)
+SELECT 1000 + n,
+       CONCAT('SUB202608', LPAD(n, 4, '0')),
+       1000 + n,
+       1000 + n,
+       ROUND(99 + n * 1.35, 2),
+       IF(MOD(n, 2) = 1, 0.00, 10.00),
+       IF(MOD(n, 2) = 1, 10.00, 0.00),
+       ROUND(99 + n * 1.35 - 10, 2),
+       ROUND(99 + n * 1.35 - 10, 2),
+       NULL,
+       'COMPLETED',
+       DATE_SUB(NOW(), INTERVAL (100 - n) DAY),
+       NOW()
+FROM tmp_seed_seq;
+
+INSERT INTO cm_order_item (id, sub_order_id, product_id, sku_id, shop_id, category_id, product_name, product_image,
+                           spec_snapshot, unit_price, quantity, original_amount, shop_discount_amount,
+                           platform_discount_amount, payable_amount, create_time, update_time)
+SELECT 1000 + n,
+       1000 + n,
+       1000 + n,
+       1000 + n,
+       1000 + n,
+       ELT(MOD(n - 1, 15) + 1, 101, 102, 111, 112, 121, 122, 201, 202, 211, 212, 22, 301, 302, 31, 40),
+       CONCAT('云选精选商品 ', LPAD(n, 3, '0')),
+       CONCAT('https://picsum.photos/seed/cm-product-', n, '-main/600/600'),
+       CONCAT('标准款 ', LPAD(n, 3, '0')),
+       ROUND(99 + n * 1.35, 2),
+       1,
+       ROUND(99 + n * 1.35, 2),
+       IF(MOD(n, 2) = 1, 0.00, 10.00),
+       IF(MOD(n, 2) = 1, 10.00, 0.00),
+       ROUND(99 + n * 1.35 - 10, 2),
+       DATE_SUB(NOW(), INTERVAL (100 - n) DAY),
+       NOW()
+FROM tmp_seed_seq;
+
+INSERT INTO cm_order_coupon (id, parent_order_id, sub_order_id, user_coupon_id, coupon_id, owner_type, shop_id,
+                             type_snapshot, threshold_snapshot, discount_amount_snapshot, discount_rate_snapshot,
+                             applicable_amount, discount_amount, create_time, update_time)
+SELECT 1000 + n,
+       1000 + n,
+       IF(MOD(n, 2) = 1, NULL, 1000 + n),
+       1000 + n,
+       1000 + n,
+       IF(MOD(n, 2) = 1, 'PLATFORM', 'SHOP'),
+       IF(MOD(n, 2) = 1, NULL, 1000 + n),
+       'FULL_REDUCTION',
+       100.00,
+       10.00,
+       NULL,
+       ROUND(99 + n * 1.35, 2),
+       10.00,
+       DATE_SUB(NOW(), INTERVAL (100 - n) DAY),
+       NOW()
+FROM tmp_seed_seq;
+
+-- ============================================================
+-- 购物车 / 商品评论
+-- ============================================================
+INSERT INTO cm_cart (id, user_id, shop_id, product_id, sku_id, product_name, product_image, price, quantity, selected,
+                     create_time, update_time)
+SELECT 1000 + n,
+       1100 + n,
+       1000 + n,
+       1000 + n,
+       1000 + n,
+       CONCAT('云选精选商品 ', LPAD(n, 3, '0')),
+       CONCAT('https://picsum.photos/seed/cm-product-', n, '-main/600/600'),
+       ROUND(99 + n * 1.35, 2),
+       1 + MOD(n, 3),
+       IF(MOD(n, 2) = 1, 1, 0),
+       DATE_SUB(NOW(), INTERVAL (60 - n) DAY),
+       NOW()
+FROM tmp_seed_seq;
+
+INSERT INTO cm_comment (id, product_id, sku_id, shop_id, user_id, order_id, order_item_id, content, rating, images,
+                        useful_count, status, create_time, update_time)
+SELECT 1000 + n,
+       1000 + n,
+       1000 + n,
+       1000 + n,
+       1100 + n,
+       1000 + n,
+       1000 + n,
+       CONCAT('批量种子评价 ', n, '：商品质量不错，物流很快，值得推荐。'),
+       4 + MOD(n, 2),
+       JSON_ARRAY(CONCAT('https://picsum.photos/seed/cm-review-', n, '/600/600')),
+       MOD(n, 20),
+       IF(MOD(n, 20) = 0, 0, 1),
+       DATE_SUB(NOW(), INTERVAL (100 - n) DAY),
+       NOW()
+FROM tmp_seed_seq;
+
+-- ============================================================
+-- 秒杀活动 / 商品 / 审核单 / 秒杀订单（批量历史与远期数据）
+-- ============================================================
+INSERT INTO cm_seckill_activity (id, name, description, start_time, end_time, max_products, status, create_user_id,
+                                 publish_user_id, publish_time, create_time, update_time)
+SELECT 1000 + n,
+       CONCAT('批量秒杀活动 ', LPAD(n, 3, '0')),
+       '种子数据秒杀活动，限时抢购。',
+       CASE
+           WHEN n <= 50 THEN DATE_SUB(@current_hour, INTERVAL (100 - n) HOUR)
+           ELSE DATE_ADD(@current_hour, INTERVAL (720 + n - 50) HOUR)
+       END,
+       CASE
+           WHEN n <= 50 THEN DATE_SUB(@current_hour, INTERVAL (99 - n) HOUR)
+           ELSE DATE_ADD(@current_hour, INTERVAL (721 + n - 50) HOUR)
+       END,
+       50,
+       IF(n <= 50, 'FINISHED', 'PUBLISHED'),
+       1,
+       1,
+       DATE_SUB(NOW(), INTERVAL 3 DAY),
+       DATE_SUB(NOW(), INTERVAL 4 DAY),
+       NOW()
+FROM tmp_seed_seq;
+
+INSERT INTO cm_seckill_product (id, activity_id, product_id, sku_id, shop_id, seckill_price, stock, sold_count,
+                                audit_status, create_time, update_time)
+SELECT 1000 + n,
+       1000 + n,
+       1000 + n,
+       1000 + n,
+       1000 + n,
+       9.90,
+       100,
+       IF(n <= 50, 1, 0),
+       'APPROVED',
+       DATE_SUB(NOW(), INTERVAL 4 DAY),
+       NOW()
+FROM tmp_seed_seq;
+
+INSERT INTO cm_audit_record (id, biz_type, biz_id, submitter_id, auditor_id, status, audit_remark, extra_info,
+                             create_time, update_time)
+SELECT 1000 + n,
+       'SECKILL_PRODUCT',
+       1000 + n,
+       1000 + n,
+       1,
+       'APPROVED',
+       '秒杀价格与库存符合要求',
+       JSON_OBJECT('skuId', 1000 + n, 'seckillPrice', 9.90, 'stock', 100),
+       DATE_SUB(NOW(), INTERVAL 4 DAY),
+       NOW()
+FROM tmp_seed_seq;
+
+INSERT INTO cm_seckill_order (id, activity_id, product_id, sku_id, user_id, quantity, seckill_price, order_no, status,
+                              create_time, update_time)
+SELECT 1000 + n,
+       1000 + n,
+       1000 + n,
+       1000 + n,
+       1100 + n,
+       1,
+       9.90,
+       CONCAT('SK202608', LPAD(n, 6, '0')),
+       IF(n <= 50, 'PAID', 'PENDING_PAYMENT'),
+       DATE_SUB(NOW(), INTERVAL (50 - n) DAY),
+       NOW()
+FROM tmp_seed_seq;
+
+-- ============================================================
+-- 72 小时整点场次：今天 + 明天 + 后天，共 72 场
+-- 当前整点由活动 1 覆盖，其余 71 场由本段生成；每场固定 50 个已审核商品
+-- ============================================================
+INSERT INTO cm_seckill_activity (id, name, description, start_time, end_time, max_products, status,
+                                 create_user_id, publish_user_id, publish_time, create_time, update_time)
+SELECT 2000 + n,
+       CONCAT('整点秒杀 ', DATE_FORMAT(DATE_ADD(DATE(@current_hour), INTERVAL (n - 1) HOUR), '%m-%d %H:00')),
+       '72 小时整点场次演示数据，秒杀商品已全部上架。',
+       DATE_ADD(DATE(@current_hour), INTERVAL (n - 1) HOUR),
+       DATE_ADD(DATE(@current_hour), INTERVAL n HOUR),
+       50,
+       IF(DATE_ADD(DATE(@current_hour), INTERVAL (n - 1) HOUR) < @current_hour, 'FINISHED', 'PUBLISHED'),
+       1,
+       1,
+       DATE_SUB(@current_hour, INTERVAL 2 DAY),
+       DATE_SUB(@current_hour, INTERVAL 3 DAY),
+       NOW()
+FROM tmp_seed_seq
+WHERE n <= 72
+  AND n <> HOUR(@current_hour) + 1;
+
+-- 71 个非当前整点场次：每场 50 个商品，SKU 取自扩展商品池（1101 起）
+DROP TEMPORARY TABLE IF EXISTS tmp_seckill_slot;
+CREATE TEMPORARY TABLE tmp_seckill_slot
+(
+    n INT NOT NULL PRIMARY KEY
+);
+INSERT INTO tmp_seckill_slot (n)
+WITH RECURSIVE seq AS (SELECT 1 AS n
+                       UNION ALL
+                       SELECT n + 1
+                       FROM seq
+                       WHERE n < 50)
+SELECT n
+FROM seq;
+
+INSERT INTO cm_seckill_product (id, activity_id, product_id, sku_id, shop_id, seckill_price, stock,
+                                sold_count, audit_status, create_time, update_time)
+SELECT 2000 + (a.n - 1) * 50 + b.n,
+       2000 + a.n,
+       1100 + (a.n - 1) * 50 + b.n,
+       1100 + (a.n - 1) * 50 + b.n,
+       1001 + MOD((a.n - 1) * 50 + b.n - 1, 100),
+       ROUND(9.90 + MOD(1100 + (a.n - 1) * 50 + b.n, 5), 2),
+       50,
+       0,
+       'APPROVED',
+       DATE_SUB(@current_hour, INTERVAL 3 DAY),
+       NOW()
+FROM tmp_seed_seq a
+         CROSS JOIN tmp_seckill_slot b
+WHERE a.n <= 72
+  AND a.n <> HOUR(@current_hour) + 1;
+
+-- 当前整点场次（活动 1）已有 3 个商品，补齐至 50 个
+INSERT INTO cm_seckill_product (id, activity_id, product_id, sku_id, shop_id, seckill_price, stock,
+                                sold_count, audit_status, create_time, update_time)
+SELECT 5700 + n,
+       1,
+       5600 + n,
+       5600 + n,
+       1001 + MOD(n - 1, 100),
+       ROUND(9.90 + MOD(5600 + n, 5), 2),
+       50,
+       0,
+       'APPROVED',
+       DATE_SUB(@current_hour, INTERVAL 3 DAY),
+       NOW()
+FROM tmp_seed_seq
+WHERE n <= 47;
+
+-- 补齐上述新增秒杀商品的审核单（与商品 ID 一一对应）
+INSERT INTO cm_audit_record (id, biz_type, biz_id, submitter_id, auditor_id, status, audit_remark,
+                             extra_info, create_time, update_time)
+SELECT p.id,
+       'SECKILL_PRODUCT',
+       p.id,
+       p.shop_id,
+       1,
+       'APPROVED',
+       '秒杀价格与库存符合要求',
+       JSON_OBJECT('skuId', p.sku_id, 'seckillPrice', p.seckill_price, 'stock', p.stock),
+       p.create_time,
+       NOW()
+FROM cm_seckill_product p
+WHERE p.id >= 2001;
+
+DROP TEMPORARY TABLE IF EXISTS tmp_seckill_slot;
+
+-- ============================================================
+-- 库存流水 / Outbox / AI 会话 / IM 会话与消息
+-- ============================================================
+INSERT INTO cm_stock_op_log (id, order_no, sku_id, product_id, shop_id, op_type, quantity, before_stock, after_stock,
+                             source, operator_id, reason, create_time)
+SELECT 1000 + n,
+       CONCAT('ORD202608', LPAD(n, 4, '0')),
+       1000 + n,
+       1000 + n,
+       1000 + n,
+       'CONFIRM',
+       1,
+       100 + n,
+       100 + n,
+       'ORDER',
+       NULL,
+       '支付成功确认扣减',
+       DATE_SUB(NOW(), INTERVAL (100 - n) DAY)
+FROM tmp_seed_seq;
+
+INSERT INTO cm_message_outbox (id, app_name, event_id, topic, biz_type, biz_id, event_type, payload, publish_status,
+                               retry_count, next_retry_time, publish_time, last_error, create_time, update_time)
+SELECT 1000 + n,
+       'product-service',
+       CONCAT('EVT-BULK-PROD-', LPAD(n, 4, '0')),
+       'PRODUCT_EVENTS',
+       'PRODUCT',
+       CAST(1000 + n AS CHAR),
+       'ProductUpdated',
+       JSON_OBJECT('eventId', CONCAT('EVT-BULK-PROD-', LPAD(n, 4, '0')),
+                   'productId', 1000 + n,
+                   'spuCode', CONCAT('SPU2026', LPAD(n, 4, '0'))),
+       'PUBLISHED',
+       0,
+       NULL,
+       DATE_SUB(NOW(), INTERVAL (100 - n) DAY),
+       NULL,
+       DATE_SUB(NOW(), INTERVAL (100 - n) DAY),
+       NOW()
+FROM tmp_seed_seq;
+
+INSERT INTO cm_chat_session (id, session_id, user_id, title, create_time, update_time)
+SELECT 1000 + n,
+       CONCAT('seed-chat-', LPAD(n, 4, '0')),
+       1100 + n,
+       CONCAT('批量咨询会话 ', n),
+       DATE_SUB(NOW(), INTERVAL (60 - n) DAY),
+       NOW()
+FROM tmp_seed_seq;
+
+INSERT INTO cm_im_session (id, buyer_id, merchant_id, create_time, update_time)
+SELECT 1000 + n, 1100 + n, 1000 + n, DATE_SUB(NOW(), INTERVAL (60 - n) DAY), NOW()
+FROM tmp_seed_seq;
+
+INSERT INTO cm_im_message (id, session_id, sender_id, content, type, is_read, create_time)
+SELECT 1000 + n,
+       1000 + n,
+       1100 + n,
+       IF(MOD(n, 5) = 0,
+          CONCAT('https://picsum.photos/seed/cm-im-', n, '/600/400'),
+          CONCAT('批量聊天消息 ', n, '：您好，请问这件商品什么时候发货？')),
+       IF(MOD(n, 5) = 0, 'image', 'text'),
+       IF(MOD(n, 2) = 1, 1, 0),
+       DATE_SUB(NOW(), INTERVAL (60 - n) DAY)
+FROM tmp_seed_seq;
+
+-- ============================================================
+-- 补齐存量数据中的空图片字段，确保前端可直接展示
+-- ============================================================
+UPDATE cm_user
+SET avatar_url = CONCAT('https://picsum.photos/seed/cm-user-', id, '/200/200')
+WHERE avatar_url IS NULL;
+
+UPDATE cm_shop
+SET logo = CONCAT('https://picsum.photos/seed/cm-shop-', id, '/200/200')
+WHERE logo IS NULL;
+
+UPDATE cm_brand
+SET logo = CONCAT('https://picsum.photos/seed/cm-brand-', id, '/200/200')
+WHERE logo IS NULL;
+
+UPDATE cm_product_sku
+SET image = CONCAT('https://picsum.photos/seed/cm-sku-', id, '/600/600')
+WHERE image IS NULL;
+
+UPDATE cm_order_item
+SET product_image = CONCAT('https://picsum.photos/seed/cm-order-item-', id, '/600/600')
+WHERE product_image IS NULL;
+
+UPDATE cm_cart
+SET product_image = CONCAT('https://picsum.photos/seed/cm-cart-', id, '/600/600')
+WHERE product_image IS NULL;
+
+UPDATE cm_comment
+SET images = JSON_ARRAY(CONCAT('https://picsum.photos/seed/cm-review-', id, '/600/600'))
+WHERE images IS NULL;
+
+DROP TEMPORARY TABLE IF EXISTS tmp_seed_seq;
