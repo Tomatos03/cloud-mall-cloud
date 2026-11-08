@@ -20,7 +20,10 @@ public enum IssuedSourceEnum {
     PUBLIC_CLAIM("PUBLIC_CLAIM", "公开领取"),
 
     /** 注册自动发放 — 注册事件触发的平台新人券 */
-    REGISTER_AUTO("REGISTER_AUTO", "注册自动发放");
+    REGISTER_AUTO("REGISTER_AUTO", "注册自动发放"),
+
+    /** 积分兑换 — 用户使用积分兑换的券 */
+    POINT_EXCHANGE("POINT_EXCHANGE", "积分兑换");
     /** 数据库存储值 */
     @EnumValue
     private final String code;
@@ -31,7 +34,6 @@ public enum IssuedSourceEnum {
      *
      * @param code 来源编码，如 "PUBLIC_CLAIM"
      * @return 匹配的发放来源
-     * @throws IllegalArgumentException 编码非法或为 null 时抛出
      */
     public static IssuedSourceEnum fromCode(String code) {
         return Arrays

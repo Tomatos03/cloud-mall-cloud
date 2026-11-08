@@ -5,8 +5,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import com.cloudmall.coupon.model.entity.UserCouponDO;
 import com.cloudmall.coupon.enums.UserCouponStatusEnum;
+import com.cloudmall.coupon.model.entity.UserCouponDO;
 import com.cloudmall.mybatisplus.annotation.OperatorEnum;
 import com.cloudmall.mybatisplus.annotation.QueryCondition;
 import com.cloudmall.mybatisplus.model.PageReq;

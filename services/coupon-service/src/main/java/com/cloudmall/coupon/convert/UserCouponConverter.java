@@ -7,9 +7,9 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
 import com.cloudmall.coupon.api.model.resp.UserCouponResp;
+import com.cloudmall.coupon.enums.IssuedSourceEnum;
 import com.cloudmall.coupon.model.entity.CouponDO;
 import com.cloudmall.coupon.model.entity.UserCouponDO;
-import com.cloudmall.coupon.enums.IssuedSourceEnum;
 
 /**
  * 用户券转换器。

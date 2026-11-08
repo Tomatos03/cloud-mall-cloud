@@ -6,12 +6,13 @@ import java.util.List;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import org.apache.ibatis.annotations.Mapper;
 
-import com.cloudmall.coupon.model.entity.CouponDO;
 import com.cloudmall.coupon.api.enums.CouponOwnerEnum;
 import com.cloudmall.coupon.api.enums.CouponStatusEnum;
 import com.cloudmall.coupon.api.enums.IssueChannelEnum;
+import com.cloudmall.coupon.model.entity.CouponDO;
 import com.cloudmall.coupon.model.req.CouponPageReq;
 
 /**
@@ -62,6 +63,22 @@ public interface CouponMapper extends BaseMapper<CouponDO> {
                         .eq(CouponDO::getIssueChannel, IssueChannelEnum.PUBLIC_CLAIM)
                         .orderByAsc(CouponDO::getId)
         );
+    }
+
+    /**
+     * 按 ID 游标查询公开券中心模板（升序）。
+     *
+     * @param cursor 上一页最后一条模板 ID（首次传 0）
+     * @param size 单页条数
+     * @return 模板列表
+     */
+    default List<CouponDO> selectPublicClaimTemplatesAfter(Long cursor, int size) {
+        Page<CouponDO> page = new Page<>(1, size, false);
+        return selectPage(page, Wrappers.<CouponDO>lambdaQuery()
+                                        .eq(CouponDO::getIssueChannel, IssueChannelEnum.PUBLIC_CLAIM)
+                                        .gt(CouponDO::getId, cursor)
+                                        .orderByAsc(CouponDO::getId))
+                .getRecords();
     }
 
     /**

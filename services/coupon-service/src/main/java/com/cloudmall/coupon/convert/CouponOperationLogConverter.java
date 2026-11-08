@@ -5,11 +5,11 @@ import java.util.List;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
+import com.cloudmall.coupon.api.enums.CouponOperationActionEnum;
+import com.cloudmall.coupon.api.enums.CouponStatusEnum;
 import com.cloudmall.coupon.api.model.resp.CouponOperationLogResp;
 import com.cloudmall.coupon.model.entity.CouponDO;
 import com.cloudmall.coupon.model.entity.CouponOperationLogDO;
-import com.cloudmall.coupon.api.enums.CouponOperationActionEnum;
-import com.cloudmall.coupon.api.enums.CouponStatusEnum;
 
 /**
  * 模板操作流水转换器

@@ -10,8 +10,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
-import com.cloudmall.coupon.model.entity.UserCouponDO;
 import com.cloudmall.coupon.mapper.UserCouponMapper;
+import com.cloudmall.coupon.model.entity.UserCouponDO;
 import com.cloudmall.coupon.service.IUserCouponService;
 
 /**

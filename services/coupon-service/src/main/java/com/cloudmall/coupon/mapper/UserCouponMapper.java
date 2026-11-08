@@ -13,8 +13,8 @@ import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import org.apache.ibatis.annotations.Mapper;
 
-import com.cloudmall.coupon.model.entity.UserCouponDO;
 import com.cloudmall.coupon.enums.UserCouponStatusEnum;
+import com.cloudmall.coupon.model.entity.UserCouponDO;
 import com.cloudmall.coupon.model.req.UserCouponCursorReq;
 import com.cloudmall.coupon.model.req.UserCouponPageReq;
 

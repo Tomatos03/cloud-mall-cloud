@@ -13,11 +13,13 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.cloudmall.common.context.UserContextHolder;
+import com.cloudmall.common.model.CursorReq;
 import com.cloudmall.common.model.CursorResult;
 import com.cloudmall.common.model.Result;
+import com.cloudmall.coupon.api.enums.IssueChannelEnum;
 import com.cloudmall.coupon.api.model.resp.CouponResp;
 import com.cloudmall.coupon.api.model.resp.UserCouponResp;
-import com.cloudmall.coupon.api.enums.IssueChannelEnum;
+import com.cloudmall.coupon.api.model.resp.UserCouponScopeResp;
 import com.cloudmall.coupon.model.req.CouponPageReq;
 import com.cloudmall.coupon.model.req.UserCouponCursorReq;
 import com.cloudmall.coupon.model.req.UserCouponPageReq;
@@ -58,6 +60,17 @@ public class CouponController {
     public Result<IPage<CouponResp>> page(CouponPageReq req) {
         req.setIssueChannel(IssueChannelEnum.PUBLIC_CLAIM);
         return Result.success(userCouponService.pagePublic(UserContextHolder.getUserId(), req));
+    }
+
+    /**
+     * 游标分页查询公开券中心（按模板 ID 升序，供前端滚动加载）。
+     *
+     * @param req 游标请求（首次 cursor=0，size 默认 10）
+     * @return 游标分页结果
+     */
+    @GetMapping("/cursor")
+    public Result<CursorResult<CouponResp>> cursor(CursorReq req) {
+        return Result.success(userCouponService.cursorPublic(UserContextHolder.getUserId(), req));
     }
 
     /**
@@ -103,6 +116,17 @@ public class CouponController {
     @PostMapping("/me/cursor")
     public Result<CursorResult<UserCouponResp>> pageMineCursor(@RequestBody @Valid UserCouponCursorReq req) {
         return Result.success(userCouponService.pageMineByCursor(UserContextHolder.getUserId(), req));
+    }
+
+    /**
+     * 查看我的单张用户券适用范围。
+     *
+     * @param id 用户券 ID
+     * @return 适用范围
+     */
+    @GetMapping("/me/{id}/scope")
+    public Result<UserCouponScopeResp> getMineScope(@PathVariable Long id) {
+        return Result.success(userCouponService.getMineScope(UserContextHolder.getUserId(), id));
     }
 
     /**

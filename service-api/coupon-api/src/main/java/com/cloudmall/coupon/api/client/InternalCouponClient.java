@@ -1,8 +1,12 @@
 package com.cloudmall.coupon.api.client;
 
+import java.util.List;
+
 import org.springframework.cloud.openfeign.FeignClient;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import com.cloudmall.coupon.api.model.req.AutoIssueRegisterReq;
 import com.cloudmall.coupon.api.model.req.CouponOrderCommitByOrderReq;
@@ -13,7 +17,9 @@ import com.cloudmall.coupon.api.model.req.CouponOrderReleaseByOrderReq;
 import com.cloudmall.coupon.api.model.req.CouponOrderReleaseReq;
 import com.cloudmall.coupon.api.model.req.CouponOrderRevertByOrderReq;
 import com.cloudmall.coupon.api.model.req.CouponOrderRevertReq;
+import com.cloudmall.coupon.api.model.req.IssueCouponReq;
 import com.cloudmall.coupon.api.model.resp.CouponOrderCalcResp;
+import com.cloudmall.coupon.api.model.resp.UserCouponResp;
 
 /**
  * 优惠券内部 Feign 客户端
@@ -34,6 +40,15 @@ public interface InternalCouponClient {
      */
     @PostMapping("/auto-issue-register")
     void autoIssueForRegister(@RequestBody AutoIssueRegisterReq req);
+
+    /**
+     * 内部发券（积分兑换等场景）。
+     *
+     * @param req 发券请求
+     * @return 用户券
+     */
+    @PostMapping("/issue")
+    UserCouponResp issue(@RequestBody IssueCouponReq req);
 
     /**
      * 无副作用试算。
@@ -100,4 +115,19 @@ public interface InternalCouponClient {
      */
     @PostMapping("/revert-by-order")
     void revertByOrder(@RequestBody CouponOrderRevertByOrderReq req);
+
+    /**
+     * 查询当前用户的优惠券列表（AI 客服使用）。
+     *
+     * @param current 当前页码
+     * @param size 每页条数
+     * @param status 用户券状态，可为空
+     * @return 用户券列表
+     */
+    @GetMapping("/user-coupons")
+    List<UserCouponResp> listUserCoupons(
+        @RequestParam("current") long current,
+        @RequestParam("size") long size,
+        @RequestParam(value = "status", required = false) String status
+    );
 }

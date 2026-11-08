@@ -6,8 +6,8 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import org.apache.ibatis.annotations.Mapper;
 
-import com.cloudmall.coupon.model.entity.UserCouponLogDO;
 import com.cloudmall.coupon.enums.UserCouponOperationTypeEnum;
+import com.cloudmall.coupon.model.entity.UserCouponLogDO;
 
 /**
  * 用户券状态流水 Mapper。

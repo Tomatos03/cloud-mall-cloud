@@ -13,11 +13,11 @@ import cn.hutool.core.collection.CollUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
-import com.cloudmall.coupon.api.model.bo.CouponCalcItem;
-import com.cloudmall.coupon.model.entity.CouponDO;
 import com.cloudmall.coupon.api.enums.CouponScopeEnum;
+import com.cloudmall.coupon.api.model.bo.CouponCalcItem;
 import com.cloudmall.coupon.mapper.CouponCategoryMapper;
 import com.cloudmall.coupon.mapper.CouponProductMapper;
+import com.cloudmall.coupon.model.entity.CouponDO;
 import com.cloudmall.product.api.client.CategoryClient;
 import com.cloudmall.product.api.model.resp.CategoryResp;
 

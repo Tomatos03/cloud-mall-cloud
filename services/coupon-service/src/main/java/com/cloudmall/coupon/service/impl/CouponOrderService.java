@@ -33,10 +33,10 @@ import com.cloudmall.coupon.calc.CalcCoupon;
 import com.cloudmall.coupon.calc.CouponCalculator;
 import com.cloudmall.coupon.calc.CouponScopeMatcher;
 import com.cloudmall.coupon.convert.CouponOrderConverter;
-import com.cloudmall.coupon.model.entity.CouponDO;
-import com.cloudmall.coupon.model.entity.UserCouponDO;
 import com.cloudmall.coupon.mapper.CouponMapper;
 import com.cloudmall.coupon.mapper.UserCouponMapper;
+import com.cloudmall.coupon.model.entity.CouponDO;
+import com.cloudmall.coupon.model.entity.UserCouponDO;
 import com.cloudmall.coupon.service.ICouponOrderService;
 import com.cloudmall.coupon.service.IUserCouponService;
 

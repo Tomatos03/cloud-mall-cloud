@@ -13,23 +13,23 @@ import org.springframework.transaction.annotation.Transactional;
 import com.cloudmall.common.context.UserContextHolder;
 import com.cloudmall.common.enums.BizErrorEnum;
 import com.cloudmall.common.utils.Asserts;
+import com.cloudmall.coupon.api.enums.CouponOperationActionEnum;
+import com.cloudmall.coupon.api.enums.CouponScopeEnum;
+import com.cloudmall.coupon.api.enums.CouponStatusEnum;
 import com.cloudmall.coupon.api.model.req.CouponReq;
 import com.cloudmall.coupon.api.model.resp.CouponOperationLogResp;
 import com.cloudmall.coupon.api.model.resp.CouponResp;
 import com.cloudmall.coupon.cache.CouponCacheService;
 import com.cloudmall.coupon.convert.CouponConverter;
 import com.cloudmall.coupon.convert.CouponOperationLogConverter;
-import com.cloudmall.coupon.model.entity.CouponCategoryDO;
-import com.cloudmall.coupon.model.entity.CouponDO;
-import com.cloudmall.coupon.model.entity.CouponOperationLogDO;
-import com.cloudmall.coupon.model.entity.CouponProductDO;
-import com.cloudmall.coupon.api.enums.CouponOperationActionEnum;
-import com.cloudmall.coupon.api.enums.CouponScopeEnum;
-import com.cloudmall.coupon.api.enums.CouponStatusEnum;
 import com.cloudmall.coupon.mapper.CouponCategoryMapper;
 import com.cloudmall.coupon.mapper.CouponMapper;
 import com.cloudmall.coupon.mapper.CouponOperationLogMapper;
 import com.cloudmall.coupon.mapper.CouponProductMapper;
+import com.cloudmall.coupon.model.entity.CouponCategoryDO;
+import com.cloudmall.coupon.model.entity.CouponDO;
+import com.cloudmall.coupon.model.entity.CouponOperationLogDO;
+import com.cloudmall.coupon.model.entity.CouponProductDO;
 import com.cloudmall.coupon.model.req.CouponOperationLogPageReq;
 import com.cloudmall.coupon.model.req.CouponPageReq;
 import com.cloudmall.coupon.service.ICouponTemplateService;
@@ -117,7 +117,10 @@ public class CouponTemplateService implements ICouponTemplateService {
     public void publish(Long id) {
         CouponDO coupon = getTemplate(id);
         requireManageable(coupon);
-        Asserts.isTrue(coupon.getStatus() == CouponStatusEnum.DRAFT, BizErrorEnum.COUPON_OPERATION_NOT_ALLOWED);
+        Asserts.isTrue(
+                coupon.getStatus() == CouponStatusEnum.DRAFT,
+                BizErrorEnum.COUPON_OPERATION_NOT_ALLOWED
+        );
         validatePublish(coupon);
         coupon.setStatus(CouponStatusEnum.ACTIVE);
         couponMapper.updateById(coupon);
@@ -142,7 +145,10 @@ public class CouponTemplateService implements ICouponTemplateService {
     public void pause(Long id) {
         CouponDO coupon = getTemplate(id);
         requireManageable(coupon);
-        Asserts.isTrue(coupon.getStatus() == CouponStatusEnum.ACTIVE, BizErrorEnum.COUPON_OPERATION_NOT_ALLOWED);
+        Asserts.isTrue(
+                coupon.getStatus() == CouponStatusEnum.ACTIVE,
+                BizErrorEnum.COUPON_OPERATION_NOT_ALLOWED
+        );
         coupon.setStatus(CouponStatusEnum.PAUSED);
         coupon.setUpdateTime(LocalDateTime.now());
         couponMapper.updateById(coupon);
@@ -167,7 +173,10 @@ public class CouponTemplateService implements ICouponTemplateService {
     public void resume(Long id) {
         CouponDO coupon = getTemplate(id);
         requireManageable(coupon);
-        Asserts.isTrue(coupon.getStatus() == CouponStatusEnum.PAUSED, BizErrorEnum.COUPON_OPERATION_NOT_ALLOWED);
+        Asserts.isTrue(
+                coupon.getStatus() == CouponStatusEnum.PAUSED,
+                BizErrorEnum.COUPON_OPERATION_NOT_ALLOWED
+        );
         coupon.setStatus(CouponStatusEnum.ACTIVE);
         coupon.setUpdateTime(LocalDateTime.now());
         couponMapper.updateById(coupon);

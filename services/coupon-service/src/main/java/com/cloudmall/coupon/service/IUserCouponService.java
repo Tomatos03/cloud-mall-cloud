@@ -7,6 +7,7 @@ import java.util.Set;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
 
+import com.cloudmall.common.model.CursorReq;
 import com.cloudmall.common.model.CursorResult;
 import com.cloudmall.coupon.api.model.resp.CouponResp;
 import com.cloudmall.coupon.api.model.resp.UserCouponResp;
@@ -74,6 +75,16 @@ public interface IUserCouponService {
     IPage<CouponResp> pagePublic(Long userId, CouponPageReq req);
 
     /**
+     * 游标分页查询公开券中心（按模板 ID 升序），附带
+     * claimed/claimable/stock_remaining。
+     *
+     * @param userId 用户 ID（匿名为 null）
+     * @param req 游标请求（首次 cursor=0）
+     * @return 游标分页结果
+     */
+    CursorResult<CouponResp> cursorPublic(Long userId, CursorReq req);
+
+    /**
      * 查询我的单张用户券，校验归属并实时过期。
      *
      * @param userId 用户 ID
@@ -81,6 +92,25 @@ public interface IUserCouponService {
      * @return 用户券
      */
     UserCouponResp getMine(Long userId, Long userCouponId);
+
+    /**
+     * 查询用户券适用范围。
+     *
+     * @param userId 用户 ID
+     * @param userCouponId 用户券 ID
+     * @return 适用范围
+     */
+    com.cloudmall.coupon.api.model.resp.UserCouponScopeResp getMineScope(Long userId, Long userCouponId);
+
+    /**
+     * 积分兑换发券（内部调用）。
+     *
+     * @param userId 用户 ID
+     * @param couponId 优惠券模板 ID
+     * @param idempotencyKey 幂等键
+     * @return 用户券
+     */
+    UserCouponResp issueForExchange(Long userId, Long couponId, String idempotencyKey);
 
     /**
      * 查询公开券中心（仅 PUBLIC_CLAIM 渠道模板），附带

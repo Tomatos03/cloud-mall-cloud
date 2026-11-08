@@ -27,9 +27,13 @@ import com.cloudmall.common.exception.BizException;
 import com.cloudmall.common.model.CursorReq;
 import com.cloudmall.common.model.CursorResult;
 import com.cloudmall.common.utils.Asserts;
+import com.cloudmall.coupon.api.enums.CouponStatusEnum;
+import com.cloudmall.coupon.api.enums.IssueChannelEnum;
+import com.cloudmall.coupon.api.enums.ValidityModeEnum;
 import com.cloudmall.coupon.api.model.bo.CouponCalcItem;
 import com.cloudmall.coupon.api.model.resp.CouponResp;
 import com.cloudmall.coupon.api.model.resp.UserCouponResp;
+import com.cloudmall.coupon.api.model.resp.UserCouponScopeResp;
 import com.cloudmall.coupon.cache.CouponCacheService;
 import com.cloudmall.coupon.cache.CouponRateLimitService;
 import com.cloudmall.coupon.calc.CouponScopeMatcher;
@@ -37,19 +41,18 @@ import com.cloudmall.coupon.convert.CouponConverter;
 import com.cloudmall.coupon.convert.CouponOrderConverter;
 import com.cloudmall.coupon.convert.UserCouponConverter;
 import com.cloudmall.coupon.convert.UserCouponLogConverter;
-import com.cloudmall.coupon.model.entity.CouponDO;
-import com.cloudmall.coupon.model.entity.UserCouponDO;
-import com.cloudmall.coupon.api.enums.CouponStatusEnum;
-import com.cloudmall.coupon.api.enums.IssueChannelEnum;
 import com.cloudmall.coupon.enums.IssuedSourceEnum;
 import com.cloudmall.coupon.enums.UserCouponLogSourceEnum;
 import com.cloudmall.coupon.enums.UserCouponOperationTypeEnum;
 import com.cloudmall.coupon.enums.UserCouponStatusEnum;
 import com.cloudmall.coupon.enums.UserCouponUsableEnum;
-import com.cloudmall.coupon.api.enums.ValidityModeEnum;
+import com.cloudmall.coupon.mapper.CouponCategoryMapper;
 import com.cloudmall.coupon.mapper.CouponMapper;
+import com.cloudmall.coupon.mapper.CouponProductMapper;
 import com.cloudmall.coupon.mapper.UserCouponLogMapper;
 import com.cloudmall.coupon.mapper.UserCouponMapper;
+import com.cloudmall.coupon.model.entity.CouponDO;
+import com.cloudmall.coupon.model.entity.UserCouponDO;
 import com.cloudmall.coupon.model.req.CouponCursorItemReq;
 import com.cloudmall.coupon.model.req.CouponPageReq;
 import com.cloudmall.coupon.model.req.UserCouponCursorReq;
@@ -72,6 +75,8 @@ public class UserCouponService implements IUserCouponService {
     private final UserCouponMapper userCouponMapper;
     private final UserCouponLogMapper userCouponLogMapper;
     private final CouponMapper couponMapper;
+    private final CouponProductMapper couponProductMapper;
+    private final CouponCategoryMapper couponCategoryMapper;
     private final CouponCacheService couponCacheService;
     private final CouponRateLimitService couponRateLimitService;
     private final CouponScopeMatcher scopeMatcher;
@@ -322,6 +327,32 @@ public class UserCouponService implements IUserCouponService {
     }
 
     /**
+     * 游标分页查询公开券中心（按模板 ID 升序）。
+     *
+     * @param userId 用户 ID（匿名为 null）
+     * @param req 游标请求
+     * @return 游标分页结果
+     */
+    @Override
+    public CursorResult<CouponResp> cursorPublic(Long userId, CursorReq req) {
+        int size = ObjectUtil.defaultIfNull(req.getSize(), 10);
+        size = Math.min(Math.max(size, 1), CursorReq.MAX_SIZE);
+        long cursor = ObjectUtil.defaultIfNull(req.getCursor(), 0L);
+        List<CouponDO> templates = couponMapper.selectPublicClaimTemplatesAfter(cursor, size + 1);
+        boolean hasMore = templates.size() > size;
+        if (hasMore) {
+            templates = templates.subList(0, size);
+        }
+        List<CouponResp> items = toPublicResps(templates, userId);
+        Long nextCursor = hasMore && !items.isEmpty() ? items.get(items.size() - 1).getId() : 0L;
+        return CursorResult.<CouponResp>builder()
+                           .items(items)
+                           .cursor(nextCursor)
+                           .hasMore(hasMore)
+                           .build();
+    }
+
+    /**
      * 查询我的单张用户券，校验归属并实时过期。
      *
      * @param userId 用户 ID
@@ -334,6 +365,71 @@ public class UserCouponService implements IUserCouponService {
         UserCouponDO uc = requireOwned(userId, userCouponId);
         expireIfOverdue(uc);
         return userCouponConverter.toResp(uc);
+    }
+
+    /**
+     * 查询用户券适用范围。
+     *
+     * @param userId 用户 ID
+     * @param userCouponId 用户券 ID
+     * @return 适用范围
+     */
+    @Override
+    public UserCouponScopeResp getMineScope(Long userId, Long userCouponId) {
+        UserCouponDO uc = requireOwned(userId, userCouponId);
+        expireIfOverdue(uc);
+        CouponDO template = couponTemplateService.getTemplate(uc.getCouponId());
+        String scopeType = template.getScopeType() == null ? "ALL" : template.getScopeType().getCode();
+        UserCouponScopeResp resp = UserCouponScopeResp
+                .builder()
+                .userCouponId(uc.getId())
+                .couponId(uc.getCouponId())
+                .scopeType(scopeType)
+                .threshold(uc.getThresholdSnapshot())
+                .usable(uc.getStatus() == UserCouponStatusEnum.AVAILABLE)
+                .build();
+        if ("PRODUCT".equals(scopeType)) {
+            resp.setProductIds(couponProductMapper.selectIdsByCouponId(uc.getCouponId()));
+        }
+        if ("CATEGORY".equals(scopeType)) {
+            resp.setCategoryIds(couponCategoryMapper.selectIdsByCouponId(uc.getCouponId()));
+        }
+        return resp;
+    }
+
+    /**
+     * 积分兑换发券（内部调用，按幂等键防重）。
+     *
+     * @param userId 用户 ID
+     * @param couponId 优惠券模板 ID
+     * @param idempotencyKey 幂等键
+     * @return 用户券
+     */
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public UserCouponResp issueForExchange(Long userId, Long couponId, String idempotencyKey) {
+        Asserts.notNull(userId, BizErrorEnum.INVALID_PARAM);
+        Asserts.notNull(couponId, BizErrorEnum.INVALID_PARAM);
+        Asserts.notBlank(idempotencyKey, BizErrorEnum.INVALID_PARAM);
+        String eventId = "EXCHANGE:" + idempotencyKey;
+        List<UserCouponDO> issued = userCouponMapper.selectByUserAndEvent(userId, eventId);
+        if (CollUtil.isNotEmpty(issued)) {
+            return userCouponConverter.toResp(issued.get(0));
+        }
+        CouponDO template = couponTemplateService.getTemplate(couponId);
+        Asserts.isTrue(template.getStatus() == CouponStatusEnum.ACTIVE, BizErrorEnum.COUPON_NOT_CLAIMABLE);
+        if (template.getTotalCount() != null) {
+            Asserts.isTrue(template.isStockAvailable(), BizErrorEnum.COUPON_STOCK_NOT_ENOUGH);
+        }
+        return issueOne(
+                template,
+                userId,
+                IssuedSourceEnum.POINT_EXCHANGE,
+                eventId,
+                userId,
+                UserCouponLogSourceEnum.SYSTEM,
+                "积分兑换"
+        );
     }
 
     /**

@@ -1,12 +1,18 @@
 package com.cloudmall.coupon.controller;
 
+import java.util.List;
+
+import cn.hutool.core.util.StrUtil;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.cloudmall.common.context.UserContextHolder;
 import com.cloudmall.common.model.Result;
 import com.cloudmall.coupon.api.model.req.AutoIssueRegisterReq;
 import com.cloudmall.coupon.api.model.req.CouponOrderCommitByOrderReq;
@@ -17,7 +23,11 @@ import com.cloudmall.coupon.api.model.req.CouponOrderReleaseByOrderReq;
 import com.cloudmall.coupon.api.model.req.CouponOrderReleaseReq;
 import com.cloudmall.coupon.api.model.req.CouponOrderRevertByOrderReq;
 import com.cloudmall.coupon.api.model.req.CouponOrderRevertReq;
+import com.cloudmall.coupon.api.model.req.IssueCouponReq;
 import com.cloudmall.coupon.api.model.resp.CouponOrderCalcResp;
+import com.cloudmall.coupon.api.model.resp.UserCouponResp;
+import com.cloudmall.coupon.enums.UserCouponStatusEnum;
+import com.cloudmall.coupon.model.req.UserCouponPageReq;
 import com.cloudmall.coupon.service.ICouponOrderService;
 import com.cloudmall.coupon.service.IUserCouponService;
 
@@ -47,6 +57,23 @@ public class InternalCouponController {
     public Result<Void> autoIssueForRegister(@RequestBody @Valid AutoIssueRegisterReq req) {
         userCouponService.autoIssueForRegister(req.getUserId(), req.getEventId());
         return Result.success();
+    }
+
+    /**
+     * 内部发券（积分兑换等场景，按幂等键防重）。
+     *
+     * @param req 发券请求
+     * @return 用户券
+     */
+    @PostMapping("/issue")
+    public Result<UserCouponResp> issue(@RequestBody @Valid IssueCouponReq req) {
+        return Result.success(
+                userCouponService.issueForExchange(
+                        req.getUserId(),
+                        req.getCouponId(),
+                        req.getIdempotencyKey()
+                )
+        );
     }
 
     /**
@@ -141,5 +168,26 @@ public class InternalCouponController {
     public Result<Void> revertByOrder(@RequestBody @Valid CouponOrderRevertByOrderReq req) {
         couponOrderService.revertByOrder(req);
         return Result.success();
+    }
+
+    /**
+     * 查询当前用户的优惠券列表（AI 客服使用）。
+     *
+     * @param current 当前页码
+     * @param size 每页条数
+     * @param status 用户券状态，可为空
+     * @return 用户券列表
+     */
+    @GetMapping("/user-coupons")
+    public Result<List<UserCouponResp>> listUserCoupons(
+        @RequestParam(defaultValue = "1") long current,
+        @RequestParam(defaultValue = "5") long size,
+        @RequestParam(required = false) String status
+    ) {
+        UserCouponPageReq req = new UserCouponPageReq(current, size);
+        if (StrUtil.isNotBlank(status)) {
+            req.setStatus(UserCouponStatusEnum.fromCode(status));
+        }
+        return Result.success(userCouponService.pageMine(UserContextHolder.getUserId(), req).getRecords());
     }
 }
