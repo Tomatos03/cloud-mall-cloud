@@ -1,0 +1,41 @@
+server:
+  port: 9011
+
+spring:
+  application:
+    name: mock-payment-service
+  cloud:
+    nacos:
+      discovery:
+        server-addr: localhost:8848
+      config:
+        server-addr: localhost:8848
+        file-extension: yaml
+        group: DEFAULT_GROUP
+        refresh-enabled: true
+  config:
+    import:
+      - nacos:common
+      - nacos:mock-payment-service
+  jackson:
+    serialization:
+      write-dates-as-timestamps: false
+
+mock-payment:
+  appid: wxmock000000000001
+  mchid: 1900000001
+  public-base-url: http://localhost:9011
+  api-v3-key: cloudmall-mock-payment-apiv3-key
+  merchant-serial-no: MOCKMERCHANT20260101
+  platform-serial-no: MOCKPLATFORM20260101
+  merchant-public-key: classpath:keys/merchant-public.pem
+  platform-private-key: classpath:keys/platform-private.pem
+  platform-public-key: classpath:keys/platform-public.pem
+  signature:
+    verify-request: false
+  notify:
+    max-retry: 5
+    retry-interval-ms: 30000
+    connect-timeout-ms: 2000
+    read-timeout-ms: 5000
+  default-expire-minutes: 15
