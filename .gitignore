@@ -3,6 +3,8 @@ target/
 .idea/
 *.class
 *.jar
+# ES IK 插件通过 bind mount 加载，jar 必须随仓库保留
+!docs/docker/es-plugins/ik/*.jar
 *.log
 logs/
 application-local.yml

@@ -9,8 +9,10 @@
 | 文件/目录 | 说明 |
 |-----------|------|
 | `elasticsearch-analysis-ik-8.15.5.zip` | IK 8.15.5 离线安装包（官方 CDN 下载，4.6MB） |
-| `ik/` | 解压后的插件目录（含 `plugin-descriptor.properties`），compose 挂载目标 |
+| `ik/` | 解压后的完整插件目录（`plugin-descriptor.properties` + `config/` + 6 个 jar），compose 挂载目标 |
 | `README.md` | 本文档 |
+
+> `docs/docker/es-plugins/ik/*.jar` 在仓库 `.gitignore` 中做了例外保留，确保 clone 后 bind mount 可直接启动 ES；不要只拷贝 `config/` 和描述文件，否则 ES 会报 `Could not find plugin class [com.infinilabs.ik.elasticsearch.AnalysisIkPlugin]`。
 
 ## 加载机制（compose.yaml）
 

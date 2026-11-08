@@ -17,8 +17,8 @@ import com.cloudmall.common.model.CursorReq;
 import com.cloudmall.common.model.CursorResult;
 import com.cloudmall.product.api.client.ProductClient;
 import com.cloudmall.product.api.model.resp.ProductDocResp;
-import com.cloudmall.search.properties.SearchSyncProperties;
 import com.cloudmall.search.index.ProductIndexRepository;
+import com.cloudmall.search.properties.SearchSyncProperties;
 
 /**
  * 商品索引定时增量同步 JobHandler

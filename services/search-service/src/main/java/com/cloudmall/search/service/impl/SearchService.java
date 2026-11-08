@@ -36,11 +36,11 @@ import com.cloudmall.search.api.model.resp.FacetItemResp;
 import com.cloudmall.search.api.model.resp.SearchFacetsResp;
 import com.cloudmall.search.api.model.resp.SearchProductResp;
 import com.cloudmall.search.api.model.resp.SearchResultResp;
-import com.cloudmall.search.properties.SearchProperties;
-import com.cloudmall.search.properties.SearchSyncProperties;
 import com.cloudmall.search.index.ProductIndexRepository;
 import com.cloudmall.search.model.bo.ProductHit;
 import com.cloudmall.search.model.resp.RebuildResultResp;
+import com.cloudmall.search.properties.SearchProperties;
+import com.cloudmall.search.properties.SearchSyncProperties;
 import com.cloudmall.search.service.ISearchService;
 
 /**

@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringReader;
 import java.nio.charset.StandardCharsets;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import co.elastic.clients.elasticsearch.ElasticsearchClient;
 import lombok.RequiredArgsConstructor;
@@ -11,6 +12,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.core.io.ClassPathResource;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 import com.cloudmall.search.properties.SearchProperties;
@@ -20,8 +22,9 @@ import com.cloudmall.search.properties.SearchProperties;
  * <p>
  * 应用启动时幂等创建商品索引：索引已存在则跳过，
  * 不存在则按 {@code es/cm_product-mapping.json} 创建。
- * 注意：mapping 依赖 IK 分词插件（analyzer: ik_max_word / ik_smart），
- * 未安装插件时创建会失败并阻止启动。
+ * <p>
+ * Elasticsearch 暂不可用时仅记录错误，不阻断应用启动，
+ * 并由定时任务持续重试，待 ES 恢复后自动创建索引。
  *
  * @author : Tomatos
  */
@@ -34,6 +37,8 @@ public class IndexInitializer implements ApplicationRunner {
 
     private final ElasticsearchClient client;
     private final SearchProperties props;
+    private final AtomicBoolean initialized = new AtomicBoolean(false);
+    private final AtomicBoolean failureLogged = new AtomicBoolean(false);
 
     /**
      * 启动时执行索引初始化。
@@ -42,10 +47,35 @@ public class IndexInitializer implements ApplicationRunner {
      */
     @Override
     public void run(ApplicationArguments args) {
+        initializeIndex();
+    }
+
+    /**
+     * ES 暂不可用时的重试入口。
+     */
+    @Scheduled(
+            fixedDelayString = "${search.elasticsearch.init-retry-ms:60000}",
+            initialDelayString = "${search.elasticsearch.init-retry-ms:60000}"
+    )
+    public void retryInitializeIndex() {
+        if (!initialized.get()) {
+            initializeIndex();
+        }
+    }
+
+    /**
+     * 初始化索引，失败时保留服务运行并等待下一次重试。
+     */
+    private void initializeIndex() {
         try {
             createIndexIfAbsent();
-        } catch (IOException e) {
-            throw new IllegalStateException("初始化 ES 索引失败", e);
+            initialized.set(true);
+        } catch (Exception e) {
+            if (failureLogged.compareAndSet(false, true)) {
+                log.error("ES 索引初始化失败，search-service 将以降级状态运行并自动重试，ES={}", props.getUris(), e);
+                return;
+            }
+            log.warn("ES 索引初始化重试失败，ES={}: {}", props.getUris(), e.getMessage());
         }
     }
 
