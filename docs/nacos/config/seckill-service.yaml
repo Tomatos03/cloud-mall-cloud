@@ -1,3 +1,25 @@
+xxl:
+  job:
+    executor:
+      app-name: seckill-service
+      port: 9999
+      # 宿主机 host.docker.internal 被代理 DNS 解析为 198.18.7.61，调度中心容器不可达；
+      # 使用 Docker 网桥网关，确保 cm-xxl-job-admin 能回连本机执行器
+      ip: 172.18.0.1
+    auto-register:
+      enabled: true
+      jobs:
+        # 先流转活动状态，保证预热清理能识别已结束场次
+        - handler: seckillActivityStatus
+          desc: 秒杀活动状态流转
+          schedule-type: CRON
+          schedule-conf: "0 * * * * ?"
+        # 活动开始后（报名截止）才预热，避免预热后商家继续新增商品导致缓存不一致
+        - handler: seckillCachePreheat
+          desc: 秒杀缓存预热
+          schedule-type: CRON
+          schedule-conf: "0 * * * * ?"
+
 mybatis-plus:
   type-aliases-package: com.cloudmall.seckill.entity
 

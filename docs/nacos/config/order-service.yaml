@@ -1,6 +1,17 @@
 mybatis-plus:
   type-aliases-package: com.cloudmall.order.entity
 
+cloudmall:
+  payment:
+    # 模拟支付服务直接回调订单服务，未经网关
+    notify-url: http://localhost:9005/orders/payment/notify/wechat
+    appid: wxmock000000000001
+    mchid: "1900000001"
+    api-v3-key: cloudmall-mock-payment-apiv3-key
+    platform-serial-no: MOCKPLATFORM20260101
+    platform-public-key: classpath:keys/mock-payment-platform-public.pem
+    verify-signature: true
+
 xxl:
   job:
     executor:

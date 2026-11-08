@@ -1,0 +1,22 @@
+mybatis-plus:
+  type-aliases-package: com.cloudmall.mockpayment.model.entity
+
+mock-payment:
+  appid: wxmock000000000001
+  mchid: "1900000001"
+  public-base-url: http://localhost:9011
+  api-v3-key: cloudmall-mock-payment-apiv3-key
+  merchant-serial-no: MOCKMERCHANT20260101
+  platform-serial-no: MOCKPLATFORM20260101
+  merchant-public-key: classpath:keys/merchant-public.pem
+  platform-private-key: classpath:keys/platform-private.pem
+  platform-public-key: classpath:keys/platform-public.pem
+  signature:
+    # 本地联调默认关闭商户请求验签；打开后需按微信 APIv3 规则对 /v3/** 请求签名
+    verify-request: false
+  notify:
+    max-retry: 5
+    retry-interval-ms: 30000
+    connect-timeout-ms: 2000
+    read-timeout-ms: 5000
+  default-expire-minutes: 15

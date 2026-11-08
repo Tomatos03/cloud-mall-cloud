@@ -10,3 +10,17 @@ feign:
 mybatis-plus:
   mapper-locations: classpath:mapper/**/*.xml
   type-aliases-package: com.cloudmall.user.entity
+
+spring:
+  servlet:
+    multipart:
+      max-file-size: 10MB
+      max-request-size: 10MB
+
+cloudmall:
+  upload:
+    dir: tmp/uploads
+  merchant:
+    # 本地联调自动审核延迟（秒）；生产环境设为 0，改用 POST /shops/onboarding/review 人工审核
+    auto-review-delay-seconds: 15
+    review-scan-interval-ms: 5000

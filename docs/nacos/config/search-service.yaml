@@ -28,7 +28,8 @@ xxl:
   job:
     executor:
       app-name: search-service
-      port: 9999
+      # 与 seckill-service 默认的 9999 错开，避免执行器端口冲突
+      port: 9998
     auto-register:
       enabled: true
       jobs:
