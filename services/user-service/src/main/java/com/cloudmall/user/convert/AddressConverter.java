@@ -2,9 +2,11 @@ package com.cloudmall.user.convert;
 
 import java.util.List;
 
+import org.mapstruct.BeanMapping;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
+import org.mapstruct.NullValuePropertyMappingStrategy;
 
 import com.cloudmall.user.api.model.req.AddressUpdateReq;
 import com.cloudmall.user.api.model.req.CreateReq;
@@ -50,5 +52,6 @@ public interface AddressConverter {
      * @param address 地址实体
      */
     @Mapping(target = "id", ignore = true)
+    @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
     void updateEntity(AddressUpdateReq req, @MappingTarget AddressDO address);
 }

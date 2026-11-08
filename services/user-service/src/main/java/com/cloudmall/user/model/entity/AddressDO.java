@@ -24,6 +24,9 @@ public class AddressDO {
     private String province;
     private String city;
     private String district;
+    private String provinceCode;
+    private String cityCode;
+    private String districtCode;
     private String detail;
     private String zipCode;
     private Boolean isDefault;

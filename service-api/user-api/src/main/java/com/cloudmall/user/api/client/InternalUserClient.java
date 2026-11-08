@@ -5,8 +5,11 @@ import java.util.List;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import com.cloudmall.user.api.model.req.OrderPointAwardReq;
 import com.cloudmall.user.api.model.resp.AddressResp;
 import com.cloudmall.user.api.model.resp.UserResp;
 
@@ -39,4 +42,21 @@ public interface InternalUserClient {
      */
     @GetMapping("/addresses/{id}")
     AddressResp getAddressById(@PathVariable("id") Long id, @RequestParam("userId") Long userId);
+
+    /**
+     * 完成积分任务事件。
+     *
+     * @param code 任务编码
+     * @param userId 用户 ID
+     */
+    @PostMapping("/points/tasks/{code}/complete")
+    void completePointTask(@PathVariable("code") String code, @RequestParam("userId") Long userId);
+
+    /**
+     * 订单支付成功发放积分。
+     *
+     * @param req 发放请求
+     */
+    @PostMapping("/points/award-order")
+    void awardOrderPoints(@RequestBody OrderPointAwardReq req);
 }

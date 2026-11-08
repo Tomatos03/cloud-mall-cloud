@@ -46,6 +46,23 @@ public interface AddressMapper extends BaseMapper<AddressDO> {
     }
 
     /**
+     * 清除用户其它地址的默认标记。
+     *
+     * @param userId 用户 ID
+     * @param excludeId 需要保留默认标记的地址 ID，可为 null
+     * @return 影响行数
+     */
+    default int clearDefault(Long userId, Long excludeId) {
+        return update(
+                Wrappers.<AddressDO>lambdaUpdate()
+                        .set(AddressDO::getIsDefault, false)
+                        .eq(AddressDO::getUserId, userId)
+                        .eq(AddressDO::getIsDefault, true)
+                        .ne(excludeId != null, AddressDO::getId, excludeId)
+        );
+    }
+
+    /**
      * 查询用户指定收货地址（归属校验）。
      *
      * @param id 地址 ID

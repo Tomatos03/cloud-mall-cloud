@@ -22,6 +22,9 @@ public class AddressUpdateReq {
     private String city;
     @NotBlank
     private String district;
+    private String provinceCode;
+    private String cityCode;
+    private String districtCode;
     @NotBlank
     private String detail;
     private String zipCode;

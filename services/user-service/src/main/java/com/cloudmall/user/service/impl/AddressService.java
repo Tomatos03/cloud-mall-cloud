@@ -2,6 +2,7 @@ package com.cloudmall.user.service.impl;
 
 import java.util.List;
 
+import cn.hutool.core.util.BooleanUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -12,8 +13,8 @@ import com.cloudmall.user.api.model.req.AddressUpdateReq;
 import com.cloudmall.user.api.model.req.CreateReq;
 import com.cloudmall.user.api.model.resp.AddressResp;
 import com.cloudmall.user.convert.AddressConverter;
-import com.cloudmall.user.model.entity.AddressDO;
 import com.cloudmall.user.mapper.AddressMapper;
+import com.cloudmall.user.model.entity.AddressDO;
 import com.cloudmall.user.service.IAddressService;
 
 @Service
@@ -63,6 +64,11 @@ public class AddressService implements IAddressService {
         Asserts.isFalse(count >= MAX_ADDRESS_COUNT, BizErrorEnum.ADDRESS_LIMIT_EXCEEDED);
 
         AddressDO address = addressConverter.toDO(request, userId);
+        boolean makeDefault = BooleanUtil.isTrue(request.getIsDefault()) || count == 0;
+        if (makeDefault) {
+            addressMapper.clearDefault(userId, null);
+        }
+        address.setIsDefault(makeDefault);
         addressMapper.insert(address);
         return address.getId();
     }
@@ -77,6 +83,9 @@ public class AddressService implements IAddressService {
     public void update(AddressUpdateReq request) {
         AddressDO address = Asserts.requireNonNull(addressMapper.selectById(request.getId()));
         addressConverter.updateEntity(request, address);
+        if (BooleanUtil.isTrue(request.getIsDefault())) {
+            addressMapper.clearDefault(address.getUserId(), address.getId());
+        }
         addressMapper.updateById(address);
     }
 
