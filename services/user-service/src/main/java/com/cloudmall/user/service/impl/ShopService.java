@@ -2,6 +2,7 @@ package com.cloudmall.user.service.impl;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -10,16 +11,19 @@ import cn.hutool.core.collection.CollUtil;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.cloudmall.common.enums.BizErrorEnum;
 import com.cloudmall.common.utils.Asserts;
 import com.cloudmall.user.api.model.resp.ShopInfoResp;
 import com.cloudmall.user.api.model.resp.ShopResp;
 import com.cloudmall.user.convert.ShopConverter;
-import com.cloudmall.user.model.entity.ShopDO;
-import com.cloudmall.user.model.entity.ShopStatDO;
+import com.cloudmall.user.mapper.ShopFollowMapper;
 import com.cloudmall.user.mapper.ShopMapper;
 import com.cloudmall.user.mapper.ShopStatMapper;
+import com.cloudmall.user.model.entity.ShopDO;
+import com.cloudmall.user.model.entity.ShopFollowDO;
+import com.cloudmall.user.model.entity.ShopStatDO;
 import com.cloudmall.user.model.req.ShopReq;
 import com.cloudmall.user.service.IShopService;
 
@@ -36,6 +40,7 @@ public class ShopService implements IShopService {
     private final ShopMapper shopMapper;
     private final ShopConverter shopConverter;
     private final ShopStatMapper shopStatMapper;
+    private final ShopFollowMapper shopFollowMapper;
 
     /**
      * 获取相关数据。
@@ -84,6 +89,27 @@ public class ShopService implements IShopService {
                 calculatePositiveRate(positiveReviewCount(stat), totalReviewCount),
                 followCount
         );
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public Long createForUser(Long userId, String name, String description) {
+        Asserts.notNull(userId, BizErrorEnum.INVALID_PARAM);
+        Asserts.notBlank(name, BizErrorEnum.INVALID_PARAM);
+        Asserts.isFalse(
+                findShopIdByUserId(userId).isPresent(),
+                BizErrorEnum.STORE_APPLICATION_ALREADY_MERCHANT
+        );
+        ShopDO shop = ShopDO.builder()
+                            .userId(userId)
+                            .name(name)
+                            .description(description)
+                            .build();
+        shopMapper.insert(shop);
+        return shop.getId();
     }
 
     /**
@@ -150,5 +176,61 @@ public class ShopService implements IShopService {
         }
         List<ShopDO> shops = shopMapper.selectByIds(shopIds);
         return shopConverter.toRespList(shops);
+    }
+
+    /**
+     * 查询当前用户是否已关注店铺。
+     *
+     * @param userId 用户 ID
+     * @param shopId 店铺 ID
+     * @return true 表示已关注
+     */
+    @Override
+    public boolean isFollowed(Long userId, Long shopId) {
+        Asserts.notNull(userId, BizErrorEnum.INVALID_PARAM);
+        Asserts.notNull(shopId, BizErrorEnum.INVALID_PARAM);
+        return shopFollowMapper.selectByUserAndShop(userId, shopId) != null;
+    }
+
+    /**
+     * 关注或取消关注店铺，并同步维护店铺统计中的关注数。
+     *
+     * @param userId 用户 ID
+     * @param shopId 店铺 ID
+     * @return true 表示关注成功，false 表示已取消关注
+     */
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public boolean toggleFollow(Long userId, Long shopId) {
+        Asserts.notNull(userId, BizErrorEnum.INVALID_PARAM);
+        Asserts.notNull(shopId, BizErrorEnum.INVALID_PARAM);
+        Asserts.requireNonNull(shopMapper.selectById(shopId), BizErrorEnum.MERCHANT_STORE_NOT_FOUND);
+
+        ShopFollowDO existing = shopFollowMapper.selectByUserAndShop(userId, shopId);
+        if (existing != null) {
+            shopFollowMapper.deleteByUserAndShop(userId, shopId);
+            shopStatMapper.decrementFollowCount(shopId);
+            return false;
+        }
+
+        shopFollowMapper.insert(ShopFollowDO.builder()
+                                            .userId(userId)
+                                            .shopId(shopId)
+                                            .build());
+        int updated = shopStatMapper.incrementFollowCount(shopId);
+        if (updated == 0) {
+            shopStatMapper.insert(
+                    ShopStatDO.builder()
+                              .shopId(shopId)
+                              .productCount(0)
+                              .totalReviewCount(0)
+                              .positiveReviewCount(0)
+                              .totalScore(0)
+                              .followCount(1L)
+                              .updateTime(LocalDateTime.now())
+                              .build()
+            );
+        }
+        return true;
     }
 }

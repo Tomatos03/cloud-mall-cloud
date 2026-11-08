@@ -40,4 +40,32 @@ public interface IShopService {
      * @return 店铺信息列表
      */
     List<ShopResp> listByIds(List<Long> shopIds);
+
+    /**
+     * 查询当前用户是否已关注店铺。
+     *
+     * @param userId 用户 ID
+     * @param shopId 店铺 ID
+     * @return true 表示已关注
+     */
+    boolean isFollowed(Long userId, Long shopId);
+
+    /**
+     * 关注或取消关注店铺。
+     *
+     * @param userId 用户 ID
+     * @param shopId 店铺 ID
+     * @return true 表示关注成功，false 表示已取消关注
+     */
+    boolean toggleFollow(Long userId, Long shopId);
+
+    /**
+     * 为入驻审核通过的用户开通店铺。
+     *
+     * @param userId 用户 ID
+     * @param name 店铺名称
+     * @param description 店铺描述
+     * @return 新店铺 ID
+     */
+    Long createForUser(Long userId, String name, String description);
 }

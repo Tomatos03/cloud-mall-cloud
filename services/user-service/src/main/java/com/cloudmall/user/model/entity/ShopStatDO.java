@@ -2,6 +2,8 @@ package com.cloudmall.user.model.entity;
 
 import java.time.LocalDateTime;
 
+import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -21,6 +23,7 @@ import lombok.NoArgsConstructor;
 public class ShopStatDO {
 
     /** 店铺 ID */
+    @TableId(value = "shop_id", type = IdType.INPUT)
     private Long shopId;
 
     /** 出售中商品数量 */

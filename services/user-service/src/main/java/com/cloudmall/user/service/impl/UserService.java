@@ -25,13 +25,14 @@ import com.cloudmall.rocketmq.producer.MQProducer;
 import com.cloudmall.user.api.model.bo.UserRegisteredEvent;
 import com.cloudmall.user.api.model.req.RegisterReq;
 import com.cloudmall.user.api.model.resp.UserResp;
+import com.cloudmall.user.constant.StoreConstants;
 import com.cloudmall.user.convert.UserConverter;
-import com.cloudmall.user.model.entity.ResourceDO;
-import com.cloudmall.user.model.entity.UserDO;
-import com.cloudmall.user.model.entity.UserRoleDO;
 import com.cloudmall.user.mapper.ResourceMapper;
 import com.cloudmall.user.mapper.UserMapper;
 import com.cloudmall.user.mapper.UserRoleMapper;
+import com.cloudmall.user.model.entity.ResourceDO;
+import com.cloudmall.user.model.entity.UserDO;
+import com.cloudmall.user.model.entity.UserRoleDO;
 import com.cloudmall.user.model.req.UserPageReq;
 import com.cloudmall.user.model.resp.ResourceNodeResp;
 import com.cloudmall.user.service.IUserService;
@@ -79,6 +80,11 @@ public class UserService implements IUserService {
         return user.getId();
     }
 
+    /**
+     * 发送用户注册事务消息。
+     *
+     * @param user 注册用户
+     */
     private void userRegisterEvent(UserDO user) {
         UserRegisteredEvent event = UserRegisteredEvent.builder()
                                                        .userId(user.getId())
@@ -92,6 +98,12 @@ public class UserService implements IUserService {
         );
     }
 
+    /**
+     * 构建并落库新用户。
+     *
+     * @param request 注册请求
+     * @return 新用户
+     */
     @NonNull
     private UserDO addNewUser(RegisterReq request) {
         UserDO user = userConverter.toDO(request);
@@ -225,5 +237,29 @@ public class UserService implements IUserService {
         return userRoles.stream()
                         .map(UserRoleDO::getRoleId)
                         .toList();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public void grantMerchant(Long userId) {
+        UserDO user = Asserts.requireNonNull(userMapper.selectById(userId), BizErrorEnum.USER_NOT_EXISTS);
+        if (user.getTypes() != UserTypeEnum.MERCHANT) {
+            user.setTypes(UserTypeEnum.MERCHANT);
+            userMapper.updateById(user);
+        }
+        List<UserRoleDO> roles = userRoleMapper.selectByUserId(userId);
+        boolean hasMerchantRole = roles.stream()
+                                       .anyMatch(role -> role.getRoleId() == StoreConstants.MERCHANT_ROLE_ID);
+        if (!hasMerchantRole) {
+            userRoleMapper.insert(
+                    UserRoleDO.builder()
+                              .userId(userId)
+                              .roleId(StoreConstants.MERCHANT_ROLE_ID)
+                              .build()
+            );
+        }
     }
 }

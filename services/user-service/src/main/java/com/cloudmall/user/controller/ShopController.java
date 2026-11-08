@@ -12,7 +12,9 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.cloudmall.common.context.UserContextHolder;
+import com.cloudmall.common.enums.BizErrorEnum;
 import com.cloudmall.common.model.Result;
+import com.cloudmall.common.utils.Asserts;
 import com.cloudmall.user.api.model.resp.ShopInfoResp;
 import com.cloudmall.user.api.model.resp.ShopResp;
 import com.cloudmall.user.model.req.ShopReq;
@@ -86,5 +88,35 @@ public class ShopController {
     @PostMapping("/batch-query")
     public Result<List<ShopResp>> listByIds(@RequestBody List<Long> shopIds) {
         return Result.success(shopService.listByIds(shopIds));
+    }
+
+    /**
+     * 查询当前用户是否已关注店铺。
+     *
+     * @param id 店铺 ID
+     * @return true 表示已关注
+     */
+    @GetMapping("/{id}/follow/status")
+    public Result<Boolean> getFollowStatus(@PathVariable Long id) {
+        Long userId = Asserts.requireNonNull(
+                UserContextHolder.getUserId(),
+                BizErrorEnum.USER_NOT_AUTHENTICATED
+        );
+        return Result.success(shopService.isFollowed(userId, id));
+    }
+
+    /**
+     * 关注或取消关注店铺。
+     *
+     * @param id 店铺 ID
+     * @return true 表示关注成功，false 表示已取消关注
+     */
+    @PostMapping("/{id}/follow")
+    public Result<Boolean> toggleFollow(@PathVariable Long id) {
+        Long userId = Asserts.requireNonNull(
+                UserContextHolder.getUserId(),
+                BizErrorEnum.USER_NOT_AUTHENTICATED
+        );
+        return Result.success(shopService.toggleFollow(userId, id));
     }
 }

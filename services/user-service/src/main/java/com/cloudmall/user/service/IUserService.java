@@ -76,4 +76,11 @@ public interface IUserService {
      * @return 资源树的根节点列表（children 引用子节点）
      */
     List<ResourceNodeResp> getMenuResourceTree();
+
+    /**
+     * 授予商家身份（更新用户类型并补充商家角色）。
+     *
+     * @param userId 用户 ID
+     */
+    void grantMerchant(Long userId);
 }
