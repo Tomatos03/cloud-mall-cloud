@@ -34,6 +34,29 @@ public enum BizErrorEnum {
     INVALID_CLIENT_TYPE(10009, "无效的客户端类型"),
     USER_TYPE_MISMATCH(10011, "用户类型不匹配"),
 
+    // 个人中心账户安全相关错误码 (101xx)
+    PAY_PASSWORD_NOT_SET(10101, "尚未设置支付密码"),
+    PAY_PASSWORD_ERROR(10102, "支付密码错误"),
+    PAY_PASSWORD_RETRY_LIMIT(10103, "支付密码尝试次数过多，请稍后再试"),
+    REAL_NAME_ALREADY_VERIFIED(10104, "已完成实名认证，不能重复提交"),
+    REAL_NAME_PENDING(10105, "实名认证审核中，请勿重复提交"),
+    REAL_NAME_INVALID(10106, "姓名或身份证号格式不正确"),
+    REAL_NAME_NOT_FOUND(10107, "实名认证信息不存在"),
+
+    // 个人中心积分相关错误码 (102xx)
+    POINT_BALANCE_NOT_ENOUGH(10201, "积分余额不足"),
+    POINT_TASK_NOT_COMPLETED(10202, "任务尚未完成"),
+    POINT_TASK_ALREADY_CLAIMED(10203, "任务奖励已领取"),
+    POINT_SIGN_IN_ALREADY_DONE(10204, "今日已签到"),
+    POINT_EXCHANGE_OUT_OF_STOCK(10205, "兑换商品库存不足"),
+    POINT_EXCHANGE_ITEM_NOT_FOUND(10206, "兑换商品不存在或已下架"),
+    POINT_EXCHANGE_FAILED(10207, "积分兑换失败"),
+    POINT_EXCHANGE_ALREADY_DONE(10208, "该商品已兑换过"),
+
+    // 个人中心区域相关错误码 (103xx)
+    REGION_NOT_FOUND(10301, "区域不存在"),
+    REGION_LEVEL_INVALID(10302, "区域层级不合法"),
+
     // 商品分类相关错误码 (20xxx)
     STOCK_NOT_ENOUGH(21000, "库存不足"),
     CATEGORY_BEYOND_MAX_LEVEL(20000, "分类层级超出最大限制"),
@@ -157,12 +180,38 @@ public enum BizErrorEnum {
     // 资源相关错误码 (85xxx)
     INVALID_RESOURCE_TYPE(85000, "无效的资源类型"),
 
+    // 支付相关错误码 (95xxx)
+    MOCK_PAYMENT_ORDER_NOT_EXIST(95000, "支付单不存在", HttpStatus.NOT_FOUND),
+    MOCK_PAYMENT_ORDER_CLOSED(95001, "支付单已关闭"),
+    MOCK_PAYMENT_ORDER_PAID(95002, "支付单已支付"),
+    MOCK_PAYMENT_OUT_TRADE_NO_USED(95003, "商户订单号已被使用"),
+    MOCK_PAYMENT_SIGNATURE_INVALID(95004, "支付请求签名校验失败", HttpStatus.UNAUTHORIZED),
+    MOCK_PAYMENT_AMOUNT_INVALID(95005, "支付金额无效"),
+    PAYMENT_CALLBACK_INVALID(95006, "支付回调数据无效"),
+    PAYMENT_CALLBACK_SIGNATURE_INVALID(95007, "支付回调签名校验失败", HttpStatus.UNAUTHORIZED),
+    PAYMENT_CREATE_FAILED(95008, "创建支付单失败"),
+    PAYMENT_QUERY_FAILED(95009, "查询支付单失败"),
+    PAYMENT_ORDER_NOT_PAYABLE(95010, "当前订单状态不可支付"),
+    PAYMENT_NOTIFY_FAILED(95011, "支付回调处理失败"),
+
+    // 商家入驻相关错误码 (96xxx)
+    STORE_APPLICATION_PENDING(96000, "入驻申请审核中，请勿重复提交"),
+    STORE_APPLICATION_ALREADY_MERCHANT(96001, "当前账号已开通店铺，无需重复入驻"),
+    STORE_APPLICATION_NOT_EXIST(96002, "入驻申请不存在"),
+    STORE_APPLICATION_STATUS_INVALID(96003, "入驻申请当前状态不允许该操作"),
+    STORE_APPLICATION_REJECT_REASON_REQUIRED(96004, "请填写驳回原因"),
+    STORE_APPLICATION_SUBMIT_INVALID(96005, "入驻资料不完整或格式有误"),
+
     // IM 聊天相关错误码 (94xxx)
     INVALID_MESSAGE_STATUS(94000, "无效的消息状态"),
     INVALID_MESSAGE_TYPE(94001, "无效的消息类型"),
     CONVERSATION_NOT_EXIST(94002, "会话不存在"),
     MESSAGE_CONTENT_EMPTY(94003, "消息内容不能为空"),
     CONVERSATION_NOT_MEMBER(94005, "无权访问该会话"),
+    IM_FILE_EMPTY(94006, "文件不能为空"),
+    IM_FILE_TYPE_NOT_ALLOWED(94007, "仅支持图片或视频文件"),
+    IM_FILE_TOO_LARGE(94008, "文件大小超出限制"),
+    IM_FILE_SAVE_FAILED(94009, "文件保存失败"),
 
     // 审核相关错误码 (90xxx)
     AUDIT_SUBMIT_PARAMS_INCOMPLETE(90000, "审核申请参数不完整"),
@@ -228,6 +277,7 @@ public enum BizErrorEnum {
     SECKILL_ORDER_TIMEOUT_CANCEL_FAILED(92037, "秒杀单超时取消失败"),
     ACTIVITY_START_TIME_MUST_BE_ON_THE_HOUR(92038, "秒杀活动开始时间必须为整点"),
     ACTIVITY_MAX_PRODUCTS_INVALID(92039, "活动最大商品数必须在1到500之间"),
+    ACTIVITY_TIME_SLOT_OCCUPIED(92040, "该整点已存在秒杀活动，不可重复创建"),
 
     // 优惠券相关错误码 (93xxx)
     COUPON_NOT_EXIST(93000, "优惠券不存在"),
