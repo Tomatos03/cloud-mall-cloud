@@ -6,7 +6,9 @@ import java.time.Duration;
 import java.util.List;
 import java.util.Map;
 
-import cn.hutool.json.JSONUtil;
+import cn.hutool.core.util.StrUtil;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -19,9 +21,10 @@ import org.springframework.web.socket.adapter.standard.StandardWebSocketSession;
 import org.springframework.web.socket.handler.TextWebSocketHandler;
 
 import com.cloudmall.im.convert.ChatMessageConverter;
+import com.cloudmall.im.enums.ReadStatusEnum;
+import com.cloudmall.im.manager.WebSocketSessionManager;
 import com.cloudmall.im.model.entity.ChatMessageDO;
 import com.cloudmall.im.model.entity.ChatSessionDO;
-import com.cloudmall.im.manager.WebSocketSessionManager;
 import com.cloudmall.im.model.req.MessageReq;
 import com.cloudmall.im.model.resp.MessageResp;
 import com.cloudmall.im.service.IChatMessageService;
@@ -46,6 +49,7 @@ public class ChatWebSocketHandler extends TextWebSocketHandler {
     private final IChatMessageService chatMessageService;
     private final IChatSessionService chatSessionService;
     private final ChatMessageConverter messageConverter;
+    private final ObjectMapper objectMapper;
 
     @Override
     public void afterConnectionEstablished(WebSocketSession session) {
@@ -64,8 +68,19 @@ public class ChatWebSocketHandler extends TextWebSocketHandler {
 
         webSocketSessionManager.recordHeartbeat(senderId);
 
-        MessageReq messageReq = JSONUtil.toBean(message.getPayload(), MessageReq.class);
+        MessageReq messageReq;
+        try {
+            messageReq = objectMapper.readValue(message.getPayload(), MessageReq.class);
+        } catch (JsonProcessingException e) {
+            log.warn("WebSocket 消息解析失败: {}", e.getMessage());
+            sendError(session, "消息格式错误");
+            return;
+        }
         Long sessionId = messageReq.getSessionId();
+        if (sessionId == null || messageReq.getType() == null || StrUtil.isBlank(messageReq.getContent())) {
+            sendError(session, "消息内容不能为空");
+            return;
+        }
 
         // 会话必须已存在且当前用户为会话成员
         ChatSessionDO chatSession = chatSessionService.getById(sessionId);
@@ -88,16 +103,20 @@ public class ChatWebSocketHandler extends TextWebSocketHandler {
                                                  .senderId(senderId)
                                                  .content(messageReq.getContent())
                                                  .type(messageReq.getType())
-                                                 .isRead(receiverOnline)
+                                                 .isRead(ReadStatusEnum.UNREAD.getValue())
                                                  .build();
         chatMessageService.save(chatMessage);
+        if (chatSession.isHiddenBy(receiverId)) {
+            // 收到新消息时恢复接收方已删除的会话
+            chatSessionService.updateHidden(chatSession, receiverId, false);
+        }
 
         if (receiverOnline) {
             WebSocketSession receiverSession = webSocketSessionManager.getSession(receiverId);
             if (receiverSession != null && receiverSession.isOpen()) {
                 MessageResp resp = messageConverter.toResp(chatMessage);
                 try {
-                    receiverSession.sendMessage(new TextMessage(JSONUtil.toJsonStr(resp)));
+                    receiverSession.sendMessage(new TextMessage(objectMapper.writeValueAsString(resp)));
                     log.info("消息已转发给在线用户 {}", receiverId);
                 } catch (IOException e) {
                     // 发送失败说明接收方连接已不可用，立即清理
@@ -176,7 +195,7 @@ public class ChatWebSocketHandler extends TextWebSocketHandler {
     private void sendError(WebSocketSession session, String content) throws IOException {
         if (session.isOpen()) {
             Map<String, String> error = Map.of("type", ERROR_TYPE, "content", content);
-            session.sendMessage(new TextMessage(JSONUtil.toJsonStr(error)));
+            session.sendMessage(new TextMessage(objectMapper.writeValueAsString(error)));
         }
     }
 }

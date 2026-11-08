@@ -34,9 +34,9 @@ public interface ChatSessionMapper extends BaseMapper<ChatSessionDO> {
     }
 
     /**
-     * 分页查询当前用户参与的会话，按创建时间倒序。 <p>
+     * 分页查询当前用户参与的会话，置顶会话优先，其余按创建时间倒序。 <p>
      * 常见条件由 {@link SessionPageReq} 的
-     * {@code @QueryCondition} 注解声明， 成员 OR 条件为特殊查询，在此追加。
+     * {@code @QueryCondition} 注解声明，成员与隐藏条件为特殊查询，在此追加。
      *
      * @param currentUserId 当前用户ID
      * @param req 分页请求
@@ -45,10 +45,20 @@ public interface ChatSessionMapper extends BaseMapper<ChatSessionDO> {
     default IPage<ChatSessionDO> pageByMember(Long currentUserId, SessionPageReq req) {
         LambdaQueryWrapper<ChatSessionDO> wrapper = req.buildLambdaWrapper();
         wrapper.and(
-                w -> w.eq(ChatSessionDO::getBuyerId, currentUserId)
-                      .or()
-                      .eq(ChatSessionDO::getMerchantId, currentUserId)
+                w -> w.and(
+                              buyer -> buyer.eq(ChatSessionDO::getBuyerId, currentUserId)
+                                            .eq(ChatSessionDO::getBuyerHidden, false)
+                      )
+                      .or(
+                              merchant -> merchant.eq(ChatSessionDO::getMerchantId, currentUserId)
+                                                  .eq(ChatSessionDO::getMerchantHidden, false)
+                      )
         );
+        String pinnedOrder = """
+                ORDER BY CASE WHEN buyer_id = %d THEN buyer_pinned ELSE merchant_pinned END DESC,
+                         create_time DESC
+                """.formatted(currentUserId);
+        wrapper.last(pinnedOrder);
         return selectPage(req, wrapper);
     }
 }

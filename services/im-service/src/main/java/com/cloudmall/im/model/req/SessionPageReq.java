@@ -1,6 +1,5 @@
 package com.cloudmall.im.model.req;
 
-import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -16,6 +15,13 @@ import com.cloudmall.mybatisplus.model.PageReq;
 @Getter
 @Setter
 public class SessionPageReq extends PageReq<ChatSessionDO> {
+
+    /**
+     * 使用默认分页参数构造对象，供 Spring MVC 绑定查询参数。
+     */
+    public SessionPageReq() {
+        super();
+    }
 
     /**
      * 使用指定参数构造对象。
@@ -43,17 +49,5 @@ public class SessionPageReq extends PageReq<ChatSessionDO> {
      */
     public void setPageSize(int pageSize) {
         setSize(pageSize);
-    }
-
-    /**
-     * 构建查询条件：按创建时间倒序。
-     *
-     * @return 查询条件
-     */
-    @Override
-    public LambdaQueryWrapper<ChatSessionDO> buildLambdaWrapper() {
-        LambdaQueryWrapper<ChatSessionDO> wrapper = super.buildLambdaWrapper();
-        wrapper.orderByDesc(ChatSessionDO::getCreateTime);
-        return wrapper;
     }
 }

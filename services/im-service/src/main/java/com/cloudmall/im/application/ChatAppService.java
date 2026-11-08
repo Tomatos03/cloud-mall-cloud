@@ -1,8 +1,14 @@
 package com.cloudmall.im.application;
 
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Set;
+
+import cn.hutool.core.collection.CollUtil;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.cloudmall.common.enums.BizErrorEnum;
 import com.cloudmall.common.model.CursorResult;
@@ -50,6 +56,9 @@ public class ChatAppService implements IChatAppService {
                                    .merchantId(shop.getUserId())
                                    .build();
             chatSessionService.save(session);
+        } else if (session.isHiddenBy(buyerId)) {
+            // 从店铺页重新发起会话时恢复被删除的会话
+            chatSessionService.updateHidden(session, buyerId, false);
         }
         return CreateSessionResp.builder()
                                 .sessionId(session.getId())
@@ -72,6 +81,32 @@ public class ChatAppService implements IChatAppService {
     public void markReadForChatSession(Long currentUserId, Long sessionId) {
         requireMember(sessionId, currentUserId);
         chatMessageService.markRead(sessionId, currentUserId);
+    }
+
+    @Override
+    public void setSessionPinned(Long currentUserId, Long sessionId, Boolean pinned) {
+        ChatSessionDO session = requireMember(sessionId, currentUserId);
+        chatSessionService.updatePinned(session, currentUserId, Boolean.TRUE.equals(pinned));
+    }
+
+    @Override
+    public void deleteChatSession(Long currentUserId, Long sessionId) {
+        ChatSessionDO session = requireMember(sessionId, currentUserId);
+        chatSessionService.updateHidden(session, currentUserId, true);
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public void deleteChatSessions(Long currentUserId, List<Long> sessionIds) {
+        if (CollUtil.isEmpty(sessionIds)) {
+            return;
+        }
+
+        Set<Long> uniqueSessionIds = new LinkedHashSet<>(sessionIds);
+        for (Long sessionId : uniqueSessionIds) {
+            ChatSessionDO session = requireMember(sessionId, currentUserId);
+            chatSessionService.updateHidden(session, currentUserId, true);
+        }
     }
 
     /**
@@ -110,7 +145,9 @@ public class ChatAppService implements IChatAppService {
                               .avatar(other != null ? other.getAvatar() : null)
                               .lastMessageContent(lastMessage != null ? lastMessage.getContent() : null)
                               .lastTime(lastMessage != null ? lastMessage.getCreateTime() : null)
+                              .createTime(session.getCreateTime())
                               .unreadCount(chatMessageService.countUnread(session.getId(), currentUserId))
+                              .pinned(session.isPinnedBy(currentUserId))
                               .build();
     }
 }

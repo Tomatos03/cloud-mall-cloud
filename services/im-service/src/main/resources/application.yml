@@ -4,6 +4,10 @@ server:
 spring:
   application:
     name: im-service
+  servlet:
+    multipart:
+      max-file-size: 100MB
+      max-request-size: 110MB
   cloud:
     nacos:
       discovery:
@@ -17,3 +21,8 @@ spring:
     import:
       - nacos:common
       - nacos:im-service
+
+im:
+  upload-dir: ${IM_UPLOAD_DIR:tmp/im-uploads}
+  max-image-size: 10485760
+  max-video-size: 104857600

@@ -3,6 +3,7 @@ package com.cloudmall.im.model.entity;
 import java.io.Serializable;
 import java.time.LocalDateTime;
 
+import cn.hutool.core.util.BooleanUtil;
 import com.baomidou.mybatisplus.annotation.FieldFill;
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
@@ -37,6 +38,18 @@ public class ChatSessionDO implements Serializable {
     /** 商家用户ID */
     private Long merchantId;
 
+    /** 买家是否置顶 */
+    private Boolean buyerPinned;
+
+    /** 商家是否置顶 */
+    private Boolean merchantPinned;
+
+    /** 买家是否隐藏会话 */
+    private Boolean buyerHidden;
+
+    /** 商家是否隐藏会话 */
+    private Boolean merchantHidden;
+
     @TableField(fill = FieldFill.INSERT)
     private LocalDateTime createTime;
 
@@ -53,6 +66,58 @@ public class ChatSessionDO implements Serializable {
      * @return true 表示用户是买家或商家成员
      */
     public boolean isMember(Long userId) {
-        return userId.equals(buyerId) || userId.equals(merchantId);
+        return isBuyer(userId) || isMerchant(userId);
+    }
+
+    /**
+     * 判断用户是否为买家。
+     *
+     * @param userId 用户ID
+     * @return true 表示用户是买家
+     */
+    public boolean isBuyer(Long userId) {
+        return userId != null && userId.equals(buyerId);
+    }
+
+    /**
+     * 判断用户是否为商家。
+     *
+     * @param userId 用户ID
+     * @return true 表示用户是商家
+     */
+    public boolean isMerchant(Long userId) {
+        return userId != null && userId.equals(merchantId);
+    }
+
+    /**
+     * 判断会话是否被指定用户置顶。
+     *
+     * @param userId 用户ID
+     * @return true 表示当前用户已置顶该会话
+     */
+    public boolean isPinnedBy(Long userId) {
+        if (isBuyer(userId)) {
+            return BooleanUtil.isTrue(buyerPinned);
+        }
+        if (isMerchant(userId)) {
+            return BooleanUtil.isTrue(merchantPinned);
+        }
+        return false;
+    }
+
+    /**
+     * 判断会话是否被指定用户隐藏。
+     *
+     * @param userId 用户ID
+     * @return true 表示当前用户已隐藏该会话
+     */
+    public boolean isHiddenBy(Long userId) {
+        if (isBuyer(userId)) {
+            return BooleanUtil.isTrue(buyerHidden);
+        }
+        if (isMerchant(userId)) {
+            return BooleanUtil.isTrue(merchantHidden);
+        }
+        return false;
     }
 }

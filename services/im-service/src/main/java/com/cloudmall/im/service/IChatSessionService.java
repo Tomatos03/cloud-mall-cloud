@@ -31,4 +31,22 @@ public interface IChatSessionService extends IService<ChatSessionDO> {
      * @return 会话分页数据
      */
     IPage<ChatSessionDO> pageByMember(Long currentUserId, SessionPageReq req);
+
+    /**
+     * 更新指定用户对会话的置顶状态。
+     *
+     * @param session 会话实体
+     * @param userId 用户ID
+     * @param pinned 是否置顶
+     */
+    void updatePinned(ChatSessionDO session, Long userId, boolean pinned);
+
+    /**
+     * 更新指定用户对会话的隐藏状态。
+     *
+     * @param session 会话实体
+     * @param userId 用户ID
+     * @param hidden 是否隐藏
+     */
+    void updateHidden(ChatSessionDO session, Long userId, boolean hidden);
 }

@@ -21,7 +21,13 @@ public enum MessageTypeEnum {
     TEXT("text", "文本"),
 
     /** 图片消息 */
-    IMAGE("image", "图片");
+    IMAGE("image", "图片"),
+
+    /** 视频消息 */
+    VIDEO("video", "视频"),
+
+    /** 商品卡片消息（content 为商品快照 JSON） */
+    PRODUCT("product", "商品卡片");
     /** 数据库存储值及 JSON 序列化值 */
     @EnumValue
     @JsonValue

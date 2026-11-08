@@ -1,5 +1,7 @@
 package com.cloudmall.im.application;
 
+import java.util.List;
+
 import com.baomidou.mybatisplus.core.metadata.IPage;
 
 import com.cloudmall.common.model.CursorResult;
@@ -51,4 +53,29 @@ public interface IChatAppService {
      * @param sessionId 会话ID
      */
     void markReadForChatSession(Long currentUserId, Long sessionId);
+
+    /**
+     * 设置当前用户对会话的置顶状态。
+     *
+     * @param currentUserId 当前用户ID
+     * @param sessionId 会话ID
+     * @param pinned 是否置顶
+     */
+    void setSessionPinned(Long currentUserId, Long sessionId, Boolean pinned);
+
+    /**
+     * 删除当前用户的会话（仅从当前用户列表隐藏，不影响对方）。
+     *
+     * @param currentUserId 当前用户ID
+     * @param sessionId 会话ID
+     */
+    void deleteChatSession(Long currentUserId, Long sessionId);
+
+    /**
+     * 批量删除当前用户的会话（仅从当前用户列表隐藏，不影响对方）。
+     *
+     * @param currentUserId 当前用户ID
+     * @param sessionIds 会话ID列表
+     */
+    void deleteChatSessions(Long currentUserId, List<Long> sessionIds);
 }

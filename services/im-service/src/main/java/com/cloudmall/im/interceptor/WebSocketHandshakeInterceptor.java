@@ -16,8 +16,8 @@ import org.springframework.web.socket.server.HandshakeInterceptor;
 
 import com.cloudmall.jwt.constant.JwtClaimNames;
 import com.cloudmall.jwt.exception.ParseTokenException;
-import com.cloudmall.jwt.service.ITokenService;
 import com.cloudmall.jwt.model.ParsedToken;
+import com.cloudmall.jwt.service.ITokenService;
 
 /**
  * WebSocket 握手拦截器

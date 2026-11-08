@@ -13,8 +13,8 @@ import org.apache.ibatis.annotations.Mapper;
 
 import com.cloudmall.common.model.CursorReq;
 import com.cloudmall.common.model.CursorResult;
-import com.cloudmall.im.model.entity.ChatMessageDO;
 import com.cloudmall.im.enums.ReadStatusEnum;
+import com.cloudmall.im.model.entity.ChatMessageDO;
 import com.cloudmall.im.model.req.MessageCursorReq;
 import com.cloudmall.mybatisplus.enums.LimitEnum;
 
@@ -83,7 +83,7 @@ public interface ChatMessageMapper extends BaseMapper<ChatMessageDO> {
         return selectCount(
                 Wrappers.<ChatMessageDO>lambdaQuery()
                         .eq(ChatMessageDO::getSessionId, sessionId)
-                        .eq(ChatMessageDO::getIsRead, ReadStatusEnum.UNREAD)
+                        .eq(ChatMessageDO::getIsRead, ReadStatusEnum.UNREAD.getValue())
                         .ne(ChatMessageDO::getSenderId, currentUserId)
         );
     }
@@ -100,7 +100,7 @@ public interface ChatMessageMapper extends BaseMapper<ChatMessageDO> {
                 Wrappers.<ChatMessageDO>lambdaUpdate()
                         .eq(ChatMessageDO::getSessionId, sessionId)
                         .ne(ChatMessageDO::getSenderId, excludeSenderId)
-                        .set(ChatMessageDO::getIsRead, ReadStatusEnum.READ)
+                        .set(ChatMessageDO::getIsRead, ReadStatusEnum.READ.getValue())
         );
     }
 }

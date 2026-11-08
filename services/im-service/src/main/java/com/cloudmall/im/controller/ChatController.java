@@ -1,8 +1,11 @@
 package com.cloudmall.im.controller;
 
+import java.util.List;
+
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -82,6 +85,43 @@ public class ChatController {
     @PutMapping("/sessions/{sessionId}/read")
     public Result<Void> markAsRead(@PathVariable Long sessionId) {
         chatAppService.markReadForChatSession(UserContextHolder.getUserId(), sessionId);
+        return Result.success();
+    }
+
+    /**
+     * 置顶或取消置顶会话。
+     *
+     * @param sessionId 会话ID
+     * @param pinned 是否置顶
+     * @return 处理结果
+     */
+    @PutMapping("/sessions/{sessionId}/pin")
+    public Result<Void> setSessionPinned(@PathVariable Long sessionId, @RequestParam Boolean pinned) {
+        chatAppService.setSessionPinned(UserContextHolder.getUserId(), sessionId, pinned);
+        return Result.success();
+    }
+
+    /**
+     * 删除当前用户的会话（仅从当前用户列表隐藏）。
+     *
+     * @param sessionId 会话ID
+     * @return 处理结果
+     */
+    @DeleteMapping("/sessions/{sessionId}")
+    public Result<Void> deleteChatSession(@PathVariable Long sessionId) {
+        chatAppService.deleteChatSession(UserContextHolder.getUserId(), sessionId);
+        return Result.success();
+    }
+
+    /**
+     * 批量删除当前用户的会话（仅从当前用户列表隐藏）。
+     *
+     * @param sessionIds 会话ID列表
+     * @return 处理结果
+     */
+    @DeleteMapping("/sessions")
+    public Result<Void> deleteChatSessions(@RequestParam List<Long> sessionIds) {
+        chatAppService.deleteChatSessions(UserContextHolder.getUserId(), sessionIds);
         return Result.success();
     }
 }

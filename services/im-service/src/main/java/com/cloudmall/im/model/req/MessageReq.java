@@ -25,7 +25,7 @@ public class MessageReq {
     @NotNull(message = "会话ID不能为空")
     private Long sessionId;
 
-    /** 消息内容（文本或图片URL） */
+    /** 消息内容（文本、图片/视频地址或商品卡片 JSON） */
     @NotBlank(message = "消息内容不能为空")
     private String content;
 

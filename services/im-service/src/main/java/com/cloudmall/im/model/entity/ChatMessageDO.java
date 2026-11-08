@@ -39,7 +39,7 @@ public class ChatMessageDO implements Serializable {
     /** 发送者用户ID */
     private Long senderId;
 
-    /** 消息内容（文本或图片URL） */
+    /** 消息内容（文本、图片/视频地址或商品卡片 JSON） */
     private String content;
 
     /** 消息类型 */

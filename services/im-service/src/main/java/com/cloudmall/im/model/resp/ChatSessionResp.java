@@ -37,6 +37,12 @@ public class ChatSessionResp {
     /** 最后一条消息时间 */
     private LocalDateTime lastTime;
 
+    /** 会话创建时间 */
+    private LocalDateTime createTime;
+
     /** 未读消息数 */
     private Long unreadCount;
+
+    /** 当前用户是否置顶 */
+    private Boolean pinned;
 }
