@@ -12,9 +12,9 @@ import com.cloudmall.mybatisplus.annotation.OperatorEnum;
 import com.cloudmall.mybatisplus.annotation.QueryCondition;
 import com.cloudmall.mybatisplus.enums.StatusEnum;
 import com.cloudmall.mybatisplus.model.PageReq;
-import com.cloudmall.product.model.entity.CommentDO;
 import com.cloudmall.product.enums.CommentRatingTypeEnum;
 import com.cloudmall.product.enums.CommentSortEnum;
+import com.cloudmall.product.model.entity.CommentDO;
 
 /**
  * 评论分页查询请求。

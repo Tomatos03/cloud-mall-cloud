@@ -6,8 +6,8 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import org.apache.ibatis.annotations.Mapper;
 
-import com.cloudmall.product.model.entity.StockOpLogDO;
 import com.cloudmall.product.enums.StockOpTypeEnum;
+import com.cloudmall.product.model.entity.StockOpLogDO;
 
 /**
  * 库存操作流水 Mapper。

@@ -3,9 +3,9 @@ package com.cloudmall.product.convert;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
-import com.cloudmall.product.model.entity.StockOpLogDO;
 import com.cloudmall.product.enums.StockOpSourceEnum;
 import com.cloudmall.product.enums.StockOpTypeEnum;
+import com.cloudmall.product.model.entity.StockOpLogDO;
 
 /**
  * 库存流水转换器

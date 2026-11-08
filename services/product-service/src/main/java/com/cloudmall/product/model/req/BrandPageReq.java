@@ -48,6 +48,24 @@ public class BrandPageReq extends PageReq<BrandDO> {
     }
 
     /**
+     * 兼容 URL 参数 ?page=。
+     *
+     * @param page 页码
+     */
+    public void setPage(int page) {
+        setCurrent(page);
+    }
+
+    /**
+     * 兼容 URL 参数 ?pageSize=。
+     *
+     * @param pageSize 每页条数
+     */
+    public void setPageSize(int pageSize) {
+        setSize(pageSize);
+    }
+
+    /**
      * 构建所需对象。
      *
      * @return 处理结果

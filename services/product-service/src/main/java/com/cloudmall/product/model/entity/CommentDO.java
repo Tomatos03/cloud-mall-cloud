@@ -22,6 +22,7 @@ public class CommentDO {
     private Long id;
     @TableField("product_id")
     private Long productId;
+    private Long shopId;
     private Long userId;
     private Long orderId;
     private String content;

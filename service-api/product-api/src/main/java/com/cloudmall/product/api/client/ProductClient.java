@@ -1,12 +1,17 @@
 package com.cloudmall.product.api.client;
 
+import java.util.List;
+
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.cloud.openfeign.SpringQueryMap;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 
 import com.cloudmall.common.model.CursorReq;
 import com.cloudmall.common.model.CursorResult;
+import com.cloudmall.product.api.model.resp.ProductDetailResp;
 import com.cloudmall.product.api.model.resp.ProductDocResp;
 import com.cloudmall.product.api.model.resp.ProductResp;
 
@@ -21,6 +26,24 @@ public interface ProductClient {
      */
     @GetMapping("/{id}")
     ProductResp getById(@PathVariable("id") Long id);
+
+    /**
+     * 获取商品完整详情。
+     *
+     * @param id 商品 ID
+     * @return 商品详情
+     */
+    @GetMapping("/{id}/detail")
+    ProductDetailResp detail(@PathVariable("id") Long id);
+
+    /**
+     * 按商品 ID 批量查询列表信息。
+     *
+     * @param ids 商品 ID 列表
+     * @return 商品列表
+     */
+    @PostMapping("/batch")
+    List<ProductResp> listByIds(@RequestBody List<Long> ids);
 
     /**
      * 获取相关数据。

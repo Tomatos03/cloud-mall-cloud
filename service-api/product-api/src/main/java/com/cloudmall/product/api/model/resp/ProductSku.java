@@ -22,6 +22,9 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class ProductSku {
 
+    /** SKU ID */
+    private Long skuId;
+
     /** SKU 编码 */
     private String skuCode;
 

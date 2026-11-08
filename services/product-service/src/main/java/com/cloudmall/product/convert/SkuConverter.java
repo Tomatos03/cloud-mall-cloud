@@ -56,6 +56,7 @@ public interface SkuConverter {
      * @param specValueIds 该 SKU 关联的规格值 ID 列表
      * @return 商品详情 SKU 结构
      */
+    @Mapping(target = "skuId", source = "sku.id")
     @Mapping(target = "specValueIds", source = "specValueIds")
     ProductSku toResp(ProductSkuDO sku, List<Long> specValueIds);
 

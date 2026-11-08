@@ -3,8 +3,10 @@ package com.cloudmall.product.service.impl;
 import java.math.BigDecimal;
 import java.text.Normalizer;
 import java.time.LocalDateTime;
+import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Deque;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -17,6 +19,8 @@ import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.IdUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import lombok.RequiredArgsConstructor;
 import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Service;
@@ -27,9 +31,10 @@ import com.cloudmall.common.exception.BizException;
 import com.cloudmall.common.model.CursorReq;
 import com.cloudmall.common.model.CursorResult;
 import com.cloudmall.common.utils.Asserts;
-import com.cloudmall.product.api.model.bo.ProductEvent;
+import com.cloudmall.mybatisplus.enums.StatusEnum;
 import com.cloudmall.product.api.enums.ProductTagEnum;
 import com.cloudmall.product.api.model.bo.ImageItem;
+import com.cloudmall.product.api.model.bo.ProductEvent;
 import com.cloudmall.product.api.model.bo.SkuItem;
 import com.cloudmall.product.api.model.bo.SpecGroupItem;
 import com.cloudmall.product.api.model.bo.SpecValueItem;
@@ -46,14 +51,6 @@ import com.cloudmall.product.convert.ProductConverter;
 import com.cloudmall.product.convert.SkuConverter;
 import com.cloudmall.product.convert.SpecGroupConverter;
 import com.cloudmall.product.convert.SpecValueConverter;
-import com.cloudmall.product.model.entity.BrandDO;
-import com.cloudmall.product.model.entity.CategoryDO;
-import com.cloudmall.product.model.entity.ProductDO;
-import com.cloudmall.product.model.entity.ProductImageDO;
-import com.cloudmall.product.model.entity.ProductSkuDO;
-import com.cloudmall.product.model.entity.ProductSkuSpecDO;
-import com.cloudmall.product.model.entity.ProductSpecGroupDO;
-import com.cloudmall.product.model.entity.ProductSpecValueDO;
 import com.cloudmall.product.mapper.BrandMapper;
 import com.cloudmall.product.mapper.CategoryMapper;
 import com.cloudmall.product.mapper.ProductImageMapper;
@@ -63,6 +60,15 @@ import com.cloudmall.product.mapper.ProductSkuSpecMapper;
 import com.cloudmall.product.mapper.ProductSpecGroupMapper;
 import com.cloudmall.product.mapper.ProductSpecValueMapper;
 import com.cloudmall.product.model.bo.ProductSkuPrice;
+import com.cloudmall.product.model.entity.BrandDO;
+import com.cloudmall.product.model.entity.CategoryDO;
+import com.cloudmall.product.model.entity.ProductDO;
+import com.cloudmall.product.model.entity.ProductImageDO;
+import com.cloudmall.product.model.entity.ProductSkuDO;
+import com.cloudmall.product.model.entity.ProductSkuSpecDO;
+import com.cloudmall.product.model.entity.ProductSpecGroupDO;
+import com.cloudmall.product.model.entity.ProductSpecValueDO;
+import com.cloudmall.product.model.req.BrandProductPageReq;
 import com.cloudmall.product.model.req.ProductGetReq;
 import com.cloudmall.product.service.IProductImageService;
 import com.cloudmall.product.service.IProductService;
@@ -214,6 +220,129 @@ public class ProductService implements IProductService {
             return List.of();
         }
         return assembleSearchDocs(records);
+    }
+
+    /**
+     * 按商品 ID 批量查询商品列表信息（含主图、品牌、最低价）。
+     *
+     * @param ids 商品 ID 列表
+     * @return 商品列表
+     */
+    @Override
+    public List<ProductResp> listByIds(List<Long> ids) {
+        if (CollUtil.isEmpty(ids)) {
+            return List.of();
+        }
+        List<ProductDO> records = productMapper.selectBatchIds(ids);
+        if (CollUtil.isEmpty(records)) {
+            return List.of();
+        }
+        return assembleSearchDocs(records).stream()
+                                          .map(productConverter::toResp)
+                                          .toList();
+    }
+
+    /**
+     * 猜你喜欢：随机查询已上架商品，可按分类及其子分类限定范围。
+     *
+     * @param categoryId 分类 ID，为空时全站随机
+     * @param limit 查询条数上限（1~50，默认 10）
+     * @return 推荐商品列表
+     */
+    @Override
+    public List<ProductResp> recommend(Long categoryId, Integer limit) {
+        int size = Math.min(Math.max(ObjectUtil.defaultIfNull(limit, 10), 1), 50);
+        Set<Long> categoryIds = resolveCategoryIds(categoryId);
+        List<ProductDO> records = productMapper.selectRandomEnabled(categoryIds, size);
+        if (CollUtil.isEmpty(records)) {
+            return List.of();
+        }
+        return assembleSearchDocs(records).stream()
+                                          .map(productConverter::toResp)
+                                          .toList();
+    }
+
+    /**
+     * 分页查询指定品牌的已上架商品。
+     *
+     * @param brandId 品牌 ID
+     * @param req 分页请求
+     * @return 商品分页数据
+     */
+    @Override
+    public IPage<ProductResp> pageByBrand(Long brandId, BrandProductPageReq req) {
+        Asserts.notNull(brandId, BizErrorEnum.INVALID_PARAM);
+        req.setBrandId(brandId);
+        req.setStatus(StatusEnum.ENABLED);
+
+        IPage<ProductDO> page = productMapper.selectPage(req, req.buildLambdaWrapper());
+        List<ProductResp> records = assembleSearchDocs(page.getRecords()).stream()
+                                                                         .map(productConverter::toResp)
+                                                                         .toList();
+        Page<ProductResp> result = new Page<>(page.getCurrent(), page.getSize(), page.getTotal());
+        result.setRecords(records);
+        return result;
+    }
+
+    /**
+     * 游标查询指定品牌的已上架商品（按商品 ID 倒序）。
+     *
+     * @param brandId 品牌 ID
+     * @param req 游标请求
+     * @return 游标分页结果
+     */
+    @Override
+    public CursorResult<ProductResp> cursorByBrand(Long brandId, CursorReq req) {
+        Asserts.notNull(brandId, BizErrorEnum.INVALID_PARAM);
+        int size = ObjectUtil.defaultIfNull(req.getSize(), 10);
+        size = Math.min(Math.max(size, 1), CursorReq.MAX_SIZE);
+        Long cursor = ObjectUtil.defaultIfNull(req.getCursor(), 0L);
+        List<ProductDO> records = productMapper.selectBrandProductsAfter(brandId, cursor, size + 1);
+        boolean hasMore = records.size() > size;
+        if (hasMore) {
+            records = records.subList(0, size);
+        }
+        List<ProductResp> items = assembleSearchDocs(records).stream()
+                                                             .map(productConverter::toResp)
+                                                             .toList();
+        Long nextCursor = hasMore && !items.isEmpty() ? records.get(records.size() - 1).getId() : 0L;
+        return CursorResult.<ProductResp>builder()
+                           .items(items)
+                           .cursor(nextCursor)
+                           .hasMore(hasMore)
+                           .build();
+    }
+
+    /**
+     * 解析分类及其全部后代分类 ID。分类为空或非正数时返回空集合，表示不限分类。
+     *
+     * @param categoryId 分类 ID
+     * @return 分类及其后代分类 ID 集合
+     */
+    private Set<Long> resolveCategoryIds(Long categoryId) {
+        if (categoryId == null || categoryId <= 0L) {
+            return Set.of();
+        }
+        Map<Long, List<Long>> childrenMap = categoryMapper
+                .selectEnabledOrdered()
+                .stream()
+                .filter(cat -> cat.getParentId() != null)
+                .collect(
+                        Collectors.groupingBy(
+                                CategoryDO::getParentId,
+                                Collectors.mapping(CategoryDO::getId, Collectors.toList())
+                        )
+                );
+        Set<Long> categoryIds = new HashSet<>();
+        Deque<Long> queue = new ArrayDeque<>();
+        queue.add(categoryId);
+        while (!queue.isEmpty()) {
+            Long current = queue.poll();
+            if (categoryIds.add(current)) {
+                queue.addAll(childrenMap.getOrDefault(current, List.of()));
+            }
+        }
+        return categoryIds;
     }
 
     /**
@@ -824,7 +953,10 @@ public class ProductService implements IProductService {
     private void validatePrices(List<SkuItem> skus) {
         for (SkuItem sku : skus) {
             if (sku.getMarketPrice() != null) {
-                Asserts.isTrue(sku.getPrice().compareTo(sku.getMarketPrice()) <= 0, BizErrorEnum.INVALID_PARAM);
+                Asserts.isTrue(
+                        sku.getPrice().compareTo(sku.getMarketPrice()) <= 0,
+                        BizErrorEnum.INVALID_PARAM
+                );
             }
         }
     }

@@ -11,6 +11,7 @@ import com.cloudmall.product.api.model.req.ProductCreateReq;
 import com.cloudmall.product.api.model.resp.CommentSummaryResp;
 import com.cloudmall.product.api.model.resp.ImageResp;
 import com.cloudmall.product.api.model.resp.ProductDetailResp;
+import com.cloudmall.product.api.model.resp.ProductDocResp;
 import com.cloudmall.product.api.model.resp.ProductResp;
 import com.cloudmall.product.api.model.resp.ProductSku;
 import com.cloudmall.product.api.model.resp.SpecGroupResp;
@@ -92,6 +93,30 @@ public interface ProductConverter {
             resp.setPrice(lowestPriceMap.get(product.getId()));
         }
         return resp;
+    }
+
+    /**
+     * 将已组装好的搜索文档转换为列表页响应，供猜你喜欢等批量推荐场景使用。
+     *
+     * @param doc 商品搜索文档
+     * @return 商品列表响应
+     */
+    default ProductResp toResp(ProductDocResp doc) {
+        if (doc == null) {
+            return null;
+        }
+        return ProductResp.builder()
+                          .id(doc.getId())
+                          .name(doc.getName())
+                          .spuCode(doc.getSpuCode())
+                          .image(doc.getMainImage())
+                          .price(doc.getPriceMin())
+                          .categoryId(doc.getCategoryId())
+                          .categoryName(doc.getCategoryName())
+                          .brand(doc.getBrandName())
+                          .description(doc.getDescription())
+                          .shopId(doc.getShopId())
+                          .build();
     }
 
     /**

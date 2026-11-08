@@ -11,12 +11,12 @@ import org.springframework.stereotype.Service;
 
 import com.cloudmall.product.api.model.resp.SpecGroupResp;
 import com.cloudmall.product.convert.SpecGroupConverter;
-import com.cloudmall.product.model.entity.ProductSkuSpecDO;
-import com.cloudmall.product.model.entity.ProductSpecGroupDO;
-import com.cloudmall.product.model.entity.ProductSpecValueDO;
 import com.cloudmall.product.mapper.ProductSkuSpecMapper;
 import com.cloudmall.product.mapper.ProductSpecGroupMapper;
 import com.cloudmall.product.mapper.ProductSpecValueMapper;
+import com.cloudmall.product.model.entity.ProductSkuSpecDO;
+import com.cloudmall.product.model.entity.ProductSpecGroupDO;
+import com.cloudmall.product.model.entity.ProductSpecValueDO;
 import com.cloudmall.product.service.IProductSpecService;
 
 @Service

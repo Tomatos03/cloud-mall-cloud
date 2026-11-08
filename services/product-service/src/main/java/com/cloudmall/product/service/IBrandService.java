@@ -4,6 +4,8 @@ import java.util.List;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
 
+import com.cloudmall.common.model.CursorReq;
+import com.cloudmall.common.model.CursorResult;
 import com.cloudmall.product.api.model.req.BrandCreateReq;
 import com.cloudmall.product.api.model.req.BrandUpdateReq;
 import com.cloudmall.product.api.model.resp.BrandResp;
@@ -39,6 +41,14 @@ public interface IBrandService {
      * @return 品牌分页列表
      */
     IPage<BrandResp> page(BrandPageReq req);
+
+    /**
+     * 游标查询启用品牌（按品牌 ID 升序）。
+     *
+     * @param req 游标请求（首次 cursor=0）
+     * @return 游标分页结果
+     */
+    CursorResult<BrandResp> cursor(CursorReq req);
 
     /**
      * 创建品牌。

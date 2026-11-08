@@ -13,12 +13,17 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.cloudmall.common.model.CursorReq;
+import com.cloudmall.common.model.CursorResult;
 import com.cloudmall.common.model.Result;
 import com.cloudmall.product.api.model.req.BrandCreateReq;
 import com.cloudmall.product.api.model.req.BrandUpdateReq;
 import com.cloudmall.product.api.model.resp.BrandResp;
+import com.cloudmall.product.api.model.resp.ProductResp;
 import com.cloudmall.product.model.req.BrandPageReq;
+import com.cloudmall.product.model.req.BrandProductPageReq;
 import com.cloudmall.product.service.IBrandService;
+import com.cloudmall.product.service.IProductService;
 
 /**
  * 品牌 Controller。
@@ -33,6 +38,18 @@ import com.cloudmall.product.service.IBrandService;
 public class BrandController {
 
     private final IBrandService brandService;
+    private final IProductService productService;
+
+    /**
+     * 游标查询启用品牌（按品牌 ID 升序，供品牌专场滚动加载）。
+     *
+     * @param req 游标请求（首次 cursor=0，size 默认 10）
+     * @return 游标分页结果
+     */
+    @GetMapping("/cursor")
+    public Result<CursorResult<BrandResp>> cursor(CursorReq req) {
+        return Result.success(brandService.cursor(req));
+    }
 
     /**
      * 根据 ID 获取品牌。
@@ -43,6 +60,32 @@ public class BrandController {
     @GetMapping("/{id}")
     public Result<BrandResp> getById(@PathVariable Long id) {
         return Result.success(brandService.getById(id));
+    }
+
+    /**
+     * 分页查询品牌下的已上架商品。
+     *
+     * @param id 品牌 ID
+     * @param req 分页请求
+     * @return 商品分页数据
+     */
+    @GetMapping("/{id}/products")
+    public Result<IPage<ProductResp>> products(@PathVariable Long id, BrandProductPageReq req) {
+        brandService.getById(id);
+        return Result.success(productService.pageByBrand(id, req));
+    }
+
+    /**
+     * 游标查询品牌下的已上架商品（按商品 ID 倒序，供品牌详情滚动加载）。
+     *
+     * @param id 品牌 ID
+     * @param req 游标请求（首次 cursor=0，size 默认 10）
+     * @return 游标分页结果
+     */
+    @GetMapping("/{id}/products/cursor")
+    public Result<CursorResult<ProductResp>> productCursor(@PathVariable Long id, CursorReq req) {
+        brandService.getById(id);
+        return Result.success(productService.cursorByBrand(id, req));
     }
 
     /**

@@ -85,6 +85,23 @@ public class ProductController {
     }
 
     /**
+     * 猜你喜欢：随机查询已上架商品，支持按分类及其子分类筛选。
+     *
+     * @param categoryId 分类 ID，为空时全站随机
+     * @param limit 查询条数上限（1~50，默认 10）
+     * @return 推荐商品列表
+     */
+    @GetMapping("/recommend")
+    public Result<List<ProductResp>> recommend(
+        @RequestParam(value = "categoryId", required = false)
+        Long categoryId,
+        @RequestParam(value = "limit", defaultValue = "10")
+        Integer limit
+    ) {
+        return Result.success(productService.recommend(categoryId, limit));
+    }
+
+    /**
      * 根据商品 ID 获取商品详情（含品牌、图片、SKU、规格）。
      *
      * @param id 商品 ID
@@ -93,6 +110,17 @@ public class ProductController {
     @GetMapping("/{id}/detail")
     public Result<ProductDetailResp> detail(@PathVariable Long id) {
         return Result.success(productApp.detail(id));
+    }
+
+    /**
+     * 按商品 ID 批量查询商品列表信息（供秒杀等聚合场景使用）。
+     *
+     * @param ids 商品 ID 列表
+     * @return 商品列表
+     */
+    @PostMapping("/batch")
+    public Result<List<ProductResp>> listByIds(@RequestBody List<Long> ids) {
+        return Result.success(productService.listByIds(ids));
     }
 
     /**

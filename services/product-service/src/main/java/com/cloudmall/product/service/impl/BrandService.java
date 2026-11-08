@@ -3,6 +3,7 @@ package com.cloudmall.product.service.impl;
 import java.util.List;
 
 import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.util.ObjectUtil;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -10,13 +11,15 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.cloudmall.common.enums.BizErrorEnum;
 import com.cloudmall.common.exception.BizException;
+import com.cloudmall.common.model.CursorReq;
+import com.cloudmall.common.model.CursorResult;
 import com.cloudmall.common.utils.Asserts;
 import com.cloudmall.product.api.model.req.BrandCreateReq;
 import com.cloudmall.product.api.model.req.BrandUpdateReq;
 import com.cloudmall.product.api.model.resp.BrandResp;
 import com.cloudmall.product.convert.BrandConverter;
-import com.cloudmall.product.model.entity.BrandDO;
 import com.cloudmall.product.mapper.BrandMapper;
+import com.cloudmall.product.model.entity.BrandDO;
 import com.cloudmall.product.model.req.BrandPageReq;
 import com.cloudmall.product.service.IBrandService;
 
@@ -28,6 +31,9 @@ import com.cloudmall.product.service.IBrandService;
 @Service
 @RequiredArgsConstructor
 public class BrandService implements IBrandService {
+
+    /** 品牌复合游标（排序值 + ID）的进位基数 */
+    private static final long CURSOR_SORT_FACTOR = 1_000_000_000L;
 
     private final BrandMapper brandMapper;
     private final BrandConverter brandConverter;
@@ -70,6 +76,38 @@ public class BrandService implements IBrandService {
     public IPage<BrandResp> page(BrandPageReq req) {
         IPage<BrandDO> page = brandMapper.selectBrandPage(req);
         return page.convert(brandConverter::toResp);
+    }
+
+    /**
+     * 游标查询启用品牌（按品牌 ID 升序）。
+     *
+     * @param req 游标请求
+     * @return 游标分页结果
+     */
+    @Override
+    public CursorResult<BrandResp> cursor(CursorReq req) {
+        int size = ObjectUtil.defaultIfNull(req.getSize(), 10);
+        size = Math.min(Math.max(size, 1), CursorReq.MAX_SIZE);
+        long cursor = ObjectUtil.defaultIfNull(req.getCursor(), 0L);
+        long cursorSort = cursor / CURSOR_SORT_FACTOR;
+        long cursorId = cursor % CURSOR_SORT_FACTOR;
+        List<BrandDO> records = brandMapper.selectBrandsAfter(cursorSort, cursorId, size + 1);
+        boolean hasMore = records.size() > size;
+        if (hasMore) {
+            records = records.subList(0, size);
+        }
+        List<BrandResp> items = brandConverter.toRespList(records);
+        Long nextCursor = 0L;
+        if (hasMore && !records.isEmpty()) {
+            BrandDO last = records.get(records.size() - 1);
+            nextCursor = (long) ObjectUtil.defaultIfNull(last.getSort(), 0) * CURSOR_SORT_FACTOR
+                                 + last.getId();
+        }
+        return CursorResult.<BrandResp>builder()
+                           .items(items)
+                           .cursor(nextCursor)
+                           .hasMore(hasMore)
+                           .build();
     }
 
     /**

@@ -77,6 +77,43 @@ public interface ProductMapper extends BaseMapper<ProductDO> {
     }
 
     /**
+     * 随机查询已上架商品，供猜你喜欢使用。 <p>
+     * 分类 ID 为空时从全部上架商品中随机抽取；分类 ID 非空时仅在指定分类范围内随机抽取。
+     *
+     * @param categoryIds 分类 ID 集合，空集合表示不限分类
+     * @param limit 查询条数上限
+     * @return 随机商品列表
+     */
+    default List<ProductDO> selectRandomEnabled(Collection<Long> categoryIds, int limit) {
+        LambdaQueryWrapper<ProductDO> wrapper = Wrappers.lambdaQuery();
+        wrapper.eq(ProductDO::getStatus, StatusEnum.ENABLED);
+        if (CollUtil.isNotEmpty(categoryIds)) {
+            wrapper.in(ProductDO::getCategoryId, categoryIds);
+        }
+        wrapper.last("ORDER BY RAND()");
+        return selectPage(new Page<>(1, limit, false), wrapper).getRecords();
+    }
+
+    /**
+     * 按品牌与 ID 游标查询已上架商品（倒序）。
+     *
+     * @param brandId 品牌 ID
+     * @param cursor 上一页最后一条商品 ID（首次传 0）
+     * @param querySize 查询条数
+     * @return 商品列表
+     */
+    default List<ProductDO> selectBrandProductsAfter(Long brandId, Long cursor, int querySize) {
+        LambdaQueryWrapper<ProductDO> wrapper = Wrappers.lambdaQuery();
+        wrapper.eq(ProductDO::getBrandId, brandId)
+               .eq(ProductDO::getStatus, StatusEnum.ENABLED)
+               .orderByDesc(ProductDO::getId);
+        if (ObjectUtil.defaultIfNull(cursor, 0L) > 0L) {
+            wrapper.lt(ProductDO::getId, cursor);
+        }
+        return selectPage(new Page<>(1, querySize, false), wrapper).getRecords();
+    }
+
+    /**
      * 游标拉取商品搜索文档，支持 ID 游标与时间游标两种模式。 <p>
      * 每次查询 querySize 条，由 Service 层据此判断是否还有更多数据。
      * cursorTime 非空走时间游标（按更新时间升序），否则走 ID 游标（按 ID 升序）。

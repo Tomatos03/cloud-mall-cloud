@@ -3,6 +3,8 @@ package com.cloudmall.product.service;
 import java.util.Collection;
 import java.util.List;
 
+import com.baomidou.mybatisplus.core.metadata.IPage;
+
 import com.cloudmall.common.model.CursorReq;
 import com.cloudmall.common.model.CursorResult;
 import com.cloudmall.product.api.model.req.ProductCreateReq;
@@ -10,6 +12,7 @@ import com.cloudmall.product.api.model.req.ProductUpdateReq;
 import com.cloudmall.product.api.model.resp.ProductDetailResp;
 import com.cloudmall.product.api.model.resp.ProductDocResp;
 import com.cloudmall.product.api.model.resp.ProductResp;
+import com.cloudmall.product.model.req.BrandProductPageReq;
 import com.cloudmall.product.model.req.ProductGetReq;
 
 /**
@@ -59,6 +62,42 @@ public interface IProductService {
      * @return 商品搜索文档列表
      */
     List<ProductDocResp> listByCategoryIds(Collection<Long> categoryIds, Integer limit);
+
+    /**
+     * 分页查询指定品牌的已上架商品。
+     *
+     * @param brandId 品牌 ID
+     * @param req 分页请求
+     * @return 商品分页数据
+     */
+    IPage<ProductResp> pageByBrand(Long brandId, BrandProductPageReq req);
+
+    /**
+     * 游标查询指定品牌的已上架商品（按商品 ID 倒序）。
+     *
+     * @param brandId 品牌 ID
+     * @param req 游标请求（首次 cursor=0）
+     * @return 游标分页结果
+     */
+    CursorResult<ProductResp> cursorByBrand(Long brandId, CursorReq req);
+
+    /**
+     * 猜你喜欢：随机查询已上架商品，可按一级/任意分类及其子分类限定范围。 <p>
+     * 返回商品列表页响应，供首页猜你喜欢模块直接展示。
+     *
+     * @param categoryId 分类 ID，为空时全站随机
+     * @param limit 查询条数上限（1~50，默认 10）
+     * @return 推荐商品列表
+     */
+    List<ProductResp> recommend(Long categoryId, Integer limit);
+
+    /**
+     * 按商品 ID 批量查询商品列表信息（含主图、品牌、最低价）。
+     *
+     * @param ids 商品 ID 列表
+     * @return 商品列表
+     */
+    List<ProductResp> listByIds(List<Long> ids);
 
     /**
      * 创建商品。 <p>

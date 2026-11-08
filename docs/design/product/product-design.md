@@ -351,6 +351,7 @@ MQ 增量消费（`ProductCreated / ProductUpdated / ProductDeleted` 事务消�
 | DELETE | `/products/{id}` | 删除商品（软删，发布 `ProductDeleted`） |
 | GET | `/products/{id}/detail` | 详情（品牌/图片/SKU/规格 + 店铺/评论聚合） |
 | GET | `/products/{id}` | 商品基本信息（含最低价/主图/品牌/分类） |
+| GET | `/products/{id}/qas` | 商品问答列表（按有用数、创建时间倒序） |
 | GET | `/products/spu/{spu}` | 按 SPU 编码查询 |
 | GET | `/products` | 按分类 ID 集合查询已上架商品（首页分类展示） |
 | GET | `/products/docs`、`/products/docs/{id}` | 搜索文档游标拉取/单条（search-service 同步用） |

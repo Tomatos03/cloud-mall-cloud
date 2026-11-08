@@ -16,14 +16,14 @@ import com.cloudmall.product.api.model.req.StockConfirmReq;
 import com.cloudmall.product.api.model.req.StockOpReq;
 import com.cloudmall.product.api.model.req.StockReserveItem;
 import com.cloudmall.product.convert.StockOpConverter;
-import com.cloudmall.product.model.entity.ProductDO;
-import com.cloudmall.product.model.entity.ProductSkuDO;
-import com.cloudmall.product.model.entity.StockOpLogDO;
 import com.cloudmall.product.enums.StockOpSourceEnum;
 import com.cloudmall.product.enums.StockOpTypeEnum;
 import com.cloudmall.product.mapper.ProductMapper;
 import com.cloudmall.product.mapper.ProductSkuMapper;
 import com.cloudmall.product.mapper.StockOpLogMapper;
+import com.cloudmall.product.model.entity.ProductDO;
+import com.cloudmall.product.model.entity.ProductSkuDO;
+import com.cloudmall.product.model.entity.StockOpLogDO;
 import com.cloudmall.product.service.IStockService;
 
 /**
