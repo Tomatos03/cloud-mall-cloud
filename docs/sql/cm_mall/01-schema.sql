@@ -136,6 +136,45 @@ CREATE TABLE IF NOT EXISTS cm_shop (
     UNIQUE KEY uk_user_id (user_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 comment '商家店铺表（一个商家最多一个店铺）';
 
+-- 商家入驻申请（一人一条，驳回后可覆盖重提）
+CREATE TABLE IF NOT EXISTS cm_store_application (
+    id                   bigint       NOT NULL AUTO_INCREMENT comment '入驻申请ID',
+    user_id              bigint       NOT NULL comment '申请用户ID',
+    status               varchar(20)  NOT NULL DEFAULT 'PENDING' comment '状态(NONE/PENDING/APPROVED/REJECTED/SUCCESS)',
+    subject_type         varchar(20)  NOT NULL DEFAULT 'personal' comment '主体类型(personal/individual/enterprise)',
+    real_name            varchar(50)  NOT NULL comment '真实姓名',
+    id_card              varchar(32)  NOT NULL comment '身份证号',
+    id_card_valid_start  date         NOT NULL comment '身份证有效期开始',
+    id_card_valid_end    date         NOT NULL comment '身份证有效期结束',
+    id_card_front        varchar(500) NOT NULL comment '身份证人像面照片',
+    id_card_back         varchar(500) NOT NULL comment '身份证国徽面照片',
+    license_number       varchar(64)  DEFAULT NULL comment '营业执照统一社会信用代码',
+    license_name         varchar(200) DEFAULT NULL comment '营业执照名称',
+    establishment_date   date         DEFAULT NULL comment '成立日期',
+    registered_address   varchar(500) DEFAULT NULL comment '注册地址',
+    license_photo        varchar(500) DEFAULT NULL comment '营业执照照片',
+    store_name           varchar(200) NOT NULL comment '店铺名称',
+    categories           json         NOT NULL comment '经营类目ID列表',
+    shipping_address     varchar(500) NOT NULL comment '发货地址',
+    bank_account_name    varchar(100) NOT NULL comment '银行账户名',
+    bank_card_number     varchar(64)  NOT NULL comment '银行卡号',
+    bank_name            varchar(100) NOT NULL comment '开户银行',
+    bank_branch_name     varchar(200) NOT NULL comment '开户支行',
+    bank_mobile          varchar(30)  NOT NULL comment '银行预留手机号',
+    agreement            tinyint(1)   NOT NULL DEFAULT 0 comment '是否同意入驻协议',
+    audit_remark         varchar(500) DEFAULT NULL comment '审核意见/驳回原因',
+    auditor_id           bigint       DEFAULT NULL comment '审核人用户ID',
+    audit_time           datetime     DEFAULT NULL comment '审核时间',
+    shop_id              bigint       DEFAULT NULL comment '开通的店铺ID',
+    submit_time          datetime     DEFAULT NULL comment '提交时间',
+    create_time          datetime     DEFAULT NULL comment '创建时间',
+    update_time          datetime     DEFAULT NULL comment '更新时间',
+    deleted              tinyint(1)   NOT NULL DEFAULT 0 comment '是否删除(0=否 1=是)',
+    PRIMARY KEY (id),
+    UNIQUE KEY uk_user_id (user_id),
+    KEY idx_status_submit_time (status, submit_time)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 comment '商家入驻申请表';
+
 -- ============================================================
 -- 商品模块 (product)
 -- ============================================================
@@ -278,6 +317,20 @@ CREATE TABLE IF NOT EXISTS cm_comment (
     KEY idx_shop_comment (shop_id, status, deleted),
     KEY idx_user_id (user_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 comment '商品评论表';
+
+CREATE TABLE IF NOT EXISTS cm_product_qa (
+    id            bigint        NOT NULL AUTO_INCREMENT comment '问答ID',
+    product_id    bigint        NOT NULL comment '商品SPU ID',
+    question      varchar(500)  NOT NULL comment '问题内容',
+    answer        varchar(2000) DEFAULT NULL comment '回答内容',
+    helpful_count int           NOT NULL DEFAULT 0 comment '有用数',
+    status        tinyint       NOT NULL DEFAULT 1 comment '状态(0=隐藏 1=显示)',
+    create_time   datetime      NOT NULL comment '创建时间',
+    update_time   datetime      NOT NULL comment '更新时间',
+    deleted       tinyint       NOT NULL DEFAULT 0 comment '是否删除(0=否 1=是)',
+    PRIMARY KEY (id),
+    KEY idx_product_qa (product_id, status, deleted, create_time)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 comment '商品问答表';
 
 CREATE TABLE IF NOT EXISTS cm_banner (
     id         bigint       NOT NULL AUTO_INCREMENT comment '轮播图ID',
@@ -805,12 +858,16 @@ CREATE TABLE IF NOT EXISTS cm_chat_session (
 -- ============================================================
 
 CREATE TABLE IF NOT EXISTS cm_im_session (
-    id          bigint       NOT NULL AUTO_INCREMENT comment '会话ID',
-    buyer_id    bigint       NOT NULL comment '买家用户ID',
-    merchant_id bigint       NOT NULL comment '商家用户ID',
-    create_time datetime     DEFAULT NULL comment '创建时间',
-    update_time datetime     DEFAULT NULL comment '更新时间',
-    deleted     tinyint(1)   DEFAULT '0' comment '是否删除(0=否 1=是)',
+    id              bigint       NOT NULL AUTO_INCREMENT comment '会话ID',
+    buyer_id        bigint       NOT NULL comment '买家用户ID',
+    merchant_id     bigint       NOT NULL comment '商家用户ID',
+    buyer_pinned    tinyint(1)   NOT NULL DEFAULT '0' comment '买家是否置顶(0=否 1=是)',
+    merchant_pinned tinyint(1)   NOT NULL DEFAULT '0' comment '商家是否置顶(0=否 1=是)',
+    buyer_hidden    tinyint(1)   NOT NULL DEFAULT '0' comment '买家是否隐藏会话(0=否 1=是)',
+    merchant_hidden tinyint(1)   NOT NULL DEFAULT '0' comment '商家是否隐藏会话(0=否 1=是)',
+    create_time     datetime     DEFAULT NULL comment '创建时间',
+    update_time     datetime     DEFAULT NULL comment '更新时间',
+    deleted         tinyint(1)   DEFAULT '0' comment '是否删除(0=否 1=是)',
     PRIMARY KEY (id),
     UNIQUE KEY uk_buyer_merchant (buyer_id, merchant_id),
     KEY idx_merchant_id (merchant_id)
@@ -820,8 +877,8 @@ CREATE TABLE IF NOT EXISTS cm_im_message (
     id          bigint       NOT NULL AUTO_INCREMENT comment '消息ID',
     session_id  bigint       NOT NULL comment '会话ID',
     sender_id   bigint       NOT NULL comment '发送者用户ID',
-    content     varchar(2000) NOT NULL comment '消息内容（文本或图片URL）',
-    type        varchar(20)  NOT NULL DEFAULT 'text' comment '消息类型(text/image)',
+    content     varchar(2000) NOT NULL comment '消息内容（文本、图片/视频URL或商品卡片JSON）',
+    type        varchar(20)  NOT NULL DEFAULT 'text' comment '消息类型(text/image/video/product)',
     is_read     tinyint(1)   DEFAULT '0' comment '是否已读(0=否 1=是)',
     create_time datetime     DEFAULT NULL comment '创建时间',
     deleted     tinyint(1)   DEFAULT '0' comment '是否删除(0=否 1=是)',
@@ -829,3 +886,56 @@ CREATE TABLE IF NOT EXISTS cm_im_message (
     KEY idx_session_id (session_id),
     KEY idx_sender_id (sender_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 comment '买家商家聊天消息表';
+
+-- ============================================================
+-- 模拟支付模块 (mock-payment) —— 微信支付 API v3 模拟渠道
+-- ============================================================
+
+CREATE TABLE IF NOT EXISTS cm_mock_payment_order (
+    id                bigint       NOT NULL AUTO_INCREMENT comment '支付单ID',
+    out_trade_no      varchar(32)  NOT NULL comment '商户订单号',
+    transaction_id    varchar(64)  DEFAULT NULL comment '模拟微信支付订单号',
+    appid             varchar(32)  NOT NULL comment '公众号APPID',
+    mchid             varchar(32)  NOT NULL comment '商户号',
+    description       varchar(127) NOT NULL comment '商品描述',
+    notify_url        varchar(500) NOT NULL comment '异步回调地址',
+    attach            varchar(127) DEFAULT NULL comment '附加数据',
+    amount_total      int          NOT NULL comment '订单总金额(分)',
+    currency          varchar(16)  NOT NULL DEFAULT 'CNY' comment '币种',
+    payer_openid      varchar(128) DEFAULT NULL comment '支付者标识',
+    trade_type        varchar(16)  NOT NULL DEFAULT 'NATIVE' comment '交易类型(JSAPI/NATIVE)',
+    trade_state       varchar(32)  NOT NULL DEFAULT 'NOTPAY' comment '交易状态(NOTPAY/SUCCESS/CLOSED)',
+    trade_state_desc  varchar(256) DEFAULT NULL comment '交易状态描述',
+    prepay_id         varchar(64)  DEFAULT NULL comment 'JSAPI预支付会话标识',
+    code_url          varchar(128) DEFAULT NULL comment 'Native二维码链接',
+    success_time      datetime     DEFAULT NULL comment '支付完成时间',
+    expire_time       datetime     DEFAULT NULL comment '支付截止时间',
+    create_time       datetime     DEFAULT NULL comment '创建时间',
+    update_time       datetime     DEFAULT NULL comment '更新时间',
+    deleted           tinyint(1)   NOT NULL DEFAULT 0 comment '是否删除(0=否 1=是)',
+    PRIMARY KEY (id),
+    UNIQUE KEY uk_out_trade_no (out_trade_no),
+    UNIQUE KEY uk_transaction_id (transaction_id),
+    KEY idx_trade_state (trade_state),
+    KEY idx_expire_time (expire_time)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 comment '模拟支付单表';
+
+CREATE TABLE IF NOT EXISTS cm_mock_payment_notify (
+    id                bigint        NOT NULL AUTO_INCREMENT comment '回调记录ID',
+    out_trade_no      varchar(32)   NOT NULL comment '商户订单号',
+    event_type        varchar(32)   NOT NULL comment '回调事件类型',
+    notify_url        varchar(500)  NOT NULL comment '回调地址',
+    request_body      mediumtext    NOT NULL comment '加密后的回调报文',
+    signature         varchar(1024) DEFAULT NULL comment '最近一次签名值',
+    response_body     varchar(2000) DEFAULT NULL comment '最近一次应答报文',
+    status            varchar(20)   NOT NULL DEFAULT 'PENDING' comment '投递状态(PENDING/SUCCESS/FAILED)',
+    retry_count       int           NOT NULL DEFAULT 0 comment '已重试次数',
+    next_retry_time   datetime      DEFAULT NULL comment '下次重试时间',
+    last_error        varchar(500)  DEFAULT NULL comment '最近一次失败原因',
+    create_time       datetime      DEFAULT NULL comment '创建时间',
+    update_time       datetime      DEFAULT NULL comment '更新时间',
+    deleted           tinyint(1)    NOT NULL DEFAULT 0 comment '是否删除(0=否 1=是)',
+    PRIMARY KEY (id),
+    KEY idx_out_trade_no (out_trade_no),
+    KEY idx_status_retry (status, retry_count, next_retry_time)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 comment '模拟支付回调记录表';
