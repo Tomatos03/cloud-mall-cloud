@@ -12,11 +12,12 @@ import org.springframework.ai.chat.memory.ChatMemoryRepository;
 import org.springframework.ai.chat.messages.AssistantMessage;
 import reactor.core.publisher.Flux;
 
-import com.cloudmall.aigc.manager.GeneratingSessionManager;
 import com.cloudmall.aigc.enums.ChatEventTypeEnum;
+import com.cloudmall.aigc.manager.GeneratingSessionManager;
 import com.cloudmall.aigc.model.req.ChatReq;
 import com.cloudmall.aigc.model.resp.ChatResp;
 import com.cloudmall.aigc.service.ISessionService;
+import com.cloudmall.aigc.tool.ToolContextKeys;
 import com.cloudmall.aigc.tool.ToolResultContext;
 import com.cloudmall.common.context.UserContextHolder;
 
@@ -73,8 +74,9 @@ public abstract class AbstractAgent implements IAgent {
 
     /**
      * 处理聊天请求，返回流式响应。 <p>
-     * 首次聊天时自动设置会话标题，生成过程中将内容追加到 StringBuilder， 完成后保存到记忆仓
-     * 库。支持工具结果上下文的追加输出。
+     * 首次聊天时自动设置会话标题，生成过程中将内容追加到 StringBuilder。 正常完成时由
+     * MessageChatMemoryAdvisor 写入记忆仓库；取消时保存已生成的部分内容。 支持工
+     * 具结果上下文的追加输出。
      *
      * @param req 聊天请求，包含会话ID和用户提示词
      * @return 流式聊天响应，包含内容块和可选的工具结果
@@ -82,10 +84,8 @@ public abstract class AbstractAgent implements IAgent {
     @Override
     public Flux<ChatResp> chat(ChatReq req) {
         String sessionId = req.getSessionId();
-        // 只有首次聊天（标题为 null）才设置标题，后续聊天不再覆盖
-        if (sessionService.getSessionTitle(sessionId) == null) {
-            sessionService.updateSessionTitle(sessionId, req.getPrompt());
-        }
+        // 首条消息才算会话有内容，此时才落库；重复调用不会覆盖已有标题
+        sessionService.ensureSession(sessionId, req.getPrompt());
 
         StringBuilder generatedContent = new StringBuilder();
         String conversationId = buildConversationId(sessionId);
@@ -96,13 +96,17 @@ public abstract class AbstractAgent implements IAgent {
         return getChatClient()
                 .prompt(req.getPrompt())
                 .advisors(advisorSpec -> advisorSpec.param(ChatMemory.CONVERSATION_ID, conversationId))
-                .toolContext(Map.of("toolResultContext", resultContext))
+                .toolContext(Map.of(ToolContextKeys.RESULT_CONTEXT, resultContext))
                 .stream()
                 .content()
                 .doFirst(() -> generatingSessionManager.start(sessionId))
                 .doOnComplete(
                         () -> {
-                            saveGeneratedMessage(conversationId, generatedContent.toString());
+                            sessionService.saveCards(
+                                    conversationId,
+                                    generatedContent.toString(),
+                                    resultContext.getCards()
+                            );
                             generatingSessionManager.finish(sessionId);
                         }
                 )
@@ -114,7 +118,12 @@ public abstract class AbstractAgent implements IAgent {
                 )
                 .doOnCancel(
                         () -> {
-                            saveGeneratedMessage(conversationId, generatedContent.toString());
+                            savePartialGeneratedMessage(conversationId, generatedContent.toString());
+                            sessionService.saveCards(
+                                    conversationId,
+                                    generatedContent.toString(),
+                                    resultContext.getCards()
+                            );
                             generatingSessionManager.finish(sessionId);
                         }
                 )
@@ -150,6 +159,7 @@ public abstract class AbstractAgent implements IAgent {
      */
     public String chatText(ChatReq req) {
         String sessionId = req.getSessionId();
+        sessionService.ensureSession(sessionId, req.getPrompt());
         String conversationId = buildConversationId(sessionId);
 
         log.debug("{} 处理 chatText 请求: sessionId={}, prompt={}", getType().name(), sessionId, req.getPrompt());
@@ -172,12 +182,13 @@ public abstract class AbstractAgent implements IAgent {
     }
 
     /**
-     * 保存 LLM 生成的回复消息到记忆仓库。
+     * 保存取消生成时已产生的部分回复，避免用户中途停止后历史会话丢失内容。 正常完成的消息由
+     * {@link MessageChatMemoryAdvisor} 统一写入，不能在此重复保存。
      *
      * @param conversationId 会话唯一标识
-     * @param content 生成的回复内容
+     * @param content 已生成的回复内容
      */
-    private void saveGeneratedMessage(String conversationId, String content) {
+    private void savePartialGeneratedMessage(String conversationId, String content) {
         if (StrUtil.isBlank(content)) {
             return;
         }

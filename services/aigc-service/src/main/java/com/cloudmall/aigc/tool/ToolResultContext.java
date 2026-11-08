@@ -1,8 +1,14 @@
 package com.cloudmall.aigc.tool;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CopyOnWriteArrayList;
+
+import cn.hutool.core.collection.CollUtil;
+
+import com.cloudmall.aigc.model.resp.AgentCardResp;
 
 /**
  * 工具结果上下文
@@ -17,6 +23,7 @@ import java.util.concurrent.ConcurrentHashMap;
 public class ToolResultContext {
 
     private final Map<String, Object> results = new ConcurrentHashMap<>();
+    private final List<AgentCardResp> cards = new CopyOnWriteArrayList<>();
 
     /**
      * 将工具结果放入上下文 <p>
@@ -30,12 +37,37 @@ public class ToolResultContext {
     }
 
     /**
+     * 追加前端卡片结果。
+     *
+     * @param cards 卡片列表
+     */
+    public void addCards(List<AgentCardResp> cards) {
+        if (CollUtil.isEmpty(cards)) {
+            return;
+        }
+        this.cards.addAll(cards);
+    }
+
+    /**
+     * 获取所有卡片结果。
+     *
+     * @return 卡片列表
+     */
+    public List<AgentCardResp> getCards() {
+        return List.copyOf(cards);
+    }
+
+    /**
      * 获取所有工具结果
      *
      * @return 包含所有结果的 Map，key 为简单类名，value 为对象
      */
     public Map<String, Object> getResults() {
-        return new HashMap<>(results);
+        Map<String, Object> all = new HashMap<>(results);
+        if (CollUtil.isNotEmpty(cards)) {
+            all.put("cards", List.copyOf(cards));
+        }
+        return all;
     }
 
     /**
@@ -44,6 +76,6 @@ public class ToolResultContext {
      * @return true 表示有结果，false 表示无结果
      */
     public boolean hasResults() {
-        return !results.isEmpty();
+        return !results.isEmpty() || CollUtil.isNotEmpty(cards);
     }
 }

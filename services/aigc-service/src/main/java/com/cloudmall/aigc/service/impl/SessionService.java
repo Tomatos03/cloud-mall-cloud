@@ -9,21 +9,26 @@ import java.util.List;
 import java.util.Map;
 
 import cn.hutool.core.collection.CollectionUtil;
+import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.RandomUtil;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.IdWorker;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.ai.chat.memory.ChatMemoryRepository;
 import org.springframework.ai.chat.messages.Message;
 import org.springframework.ai.chat.messages.MessageType;
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.cloudmall.aigc.convert.HotTopicConverter;
-import com.cloudmall.aigc.model.entity.ChatSessionDO;
-import com.cloudmall.aigc.mapper.ChatSessionMapper;
 import com.cloudmall.aigc.enums.SessionTimeBucketEnum;
+import com.cloudmall.aigc.mapper.ChatSessionMapper;
+import com.cloudmall.aigc.memory.ChatCardStore;
+import com.cloudmall.aigc.model.entity.ChatSessionDO;
+import com.cloudmall.aigc.model.resp.AgentCardResp;
 import com.cloudmall.aigc.model.resp.ChatMessageResp;
 import com.cloudmall.aigc.model.resp.CreateSessionResp;
 import com.cloudmall.aigc.model.resp.HotTopicResp;
@@ -41,6 +46,7 @@ import com.cloudmall.common.utils.Asserts;
  * @author : Tomatos
  * @date : 2026/7/21
  */
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class SessionService implements ISessionService {
@@ -48,17 +54,19 @@ public class SessionService implements ISessionService {
     private final ChatSessionMapper chatSessionMapper;
     private final AgentProperties agentProperties;
     private final ChatMemoryRepository chatMemoryRepository;
+    private final ChatCardStore chatCardStore;
     private final HotTopicConverter hotTopicConverter;
 
     /**
-     * 创建新会话 — 生成 sessionId、插入数据库、返回会话信息和随机热门话题
+     * 创建新会话 — 生成 sessionId 并返回会话信息和随机热门话题。 <p>
+     * 此时会话还没有任何聊天内容，不写入数据库；首次发送消息时才落库。
      *
      * @param topicCount 热门话题条数
      * @return 会话信息（含 sessionId、标题、描述、热门话题列表）
      */
     @Override
     public CreateSessionResp createSession(int topicCount) {
-        String sessionId = newSession();
+        String sessionId = IdWorker.getIdStr();
         List<HotTopicResp> examples = getHotTopics(topicCount);
         return CreateSessionResp.builder()
                                 .sessionId(sessionId)
@@ -95,20 +103,48 @@ public class SessionService implements ISessionService {
     @Override
     public List<ChatMessageResp> getSessionMessages(String sessionId) {
         validateSession(sessionId);
-        List<Message> messages = chatMemoryRepository.findByConversationId(getConversationId(sessionId));
+        String conversationId = getConversationId(sessionId);
+        List<Message> messages = chatMemoryRepository.findByConversationId(conversationId);
         return messages
                 .stream()
                 .filter(
                         m -> m.getMessageType() == MessageType.USER
                                      || m.getMessageType() == MessageType.ASSISTANT
                 )
-                .map(
-                        m -> ChatMessageResp.builder()
-                                            .role(m.getMessageType().name())
-                                            .content(m.getText())
-                                            .build()
-                )
+                .map(m -> toChatMessageResp(m, conversationId))
                 .toList();
+    }
+
+    /**
+     * 保存助手回复对应的工具卡片。
+     *
+     * @param conversationId 会话唯一标识
+     * @param assistantContent 助手回复内容
+     * @param cards 卡片列表
+     */
+    @Override
+    public void saveCards(String conversationId, String assistantContent, List<AgentCardResp> cards) {
+        chatCardStore.save(conversationId, assistantContent, cards);
+    }
+
+    /**
+     * 将聊天记忆消息转换为历史消息响应，助手消息按内容回填卡片。
+     *
+     * @param message 聊天记忆消息
+     * @param conversationId 会话唯一标识
+     * @return 历史消息响应
+     */
+    private ChatMessageResp toChatMessageResp(Message message, String conversationId) {
+        String role = message.getMessageType().name();
+        String content = message.getText();
+        List<AgentCardResp> cards = message.getMessageType() == MessageType.ASSISTANT
+                ? chatCardStore.get(conversationId, content)
+                : List.of();
+        return ChatMessageResp.builder()
+                              .role(role)
+                              .content(content)
+                              .cards(cards.isEmpty() ? null : cards)
+                              .build();
     }
 
     /**
@@ -119,8 +155,10 @@ public class SessionService implements ISessionService {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public void deleteSession(String sessionId) {
-        chatSessionMapper.deleteById(sessionId);
-        chatMemoryRepository.deleteByConversationId(getConversationId(sessionId));
+        String conversationId = getConversationId(sessionId);
+        chatSessionMapper.deleteBySessionIdAndUserId(sessionId, UserContextHolder.getUserId());
+        chatMemoryRepository.deleteByConversationId(conversationId);
+        chatCardStore.delete(conversationId);
     }
 
     /**
@@ -141,14 +179,15 @@ public class SessionService implements ISessionService {
         Map<String, List<SessionHistoryItemResp>> result = new LinkedHashMap<>();
 
         for (ChatSessionDO session : sessions) {
+            LocalDateTime updateTime = resolveUpdateTime(session, now);
             for (SessionTimeBucketEnum bucket : SessionTimeBucketEnum.values()) {
-                if (bucket.matches(session.getUpdateTime(), now)) {
+                if (bucket.matches(updateTime, now)) {
                     result.computeIfAbsent(bucket.getDisplayName(), k -> new ArrayList<>())
                           .add(
                                   SessionHistoryItemResp.builder()
                                                         .sessionId(session.getSessionId())
                                                         .title(session.getTitle())
-                                                        .updateTime(session.getUpdateTime().format(formatter))
+                                                        .updateTime(updateTime.format(formatter))
                                                         .build()
                           );
                     break;
@@ -160,29 +199,71 @@ public class SessionService implements ISessionService {
     }
 
     /**
-     * 更新会话标题。
+     * 解析会话展示时间，更新时间缺失时回退到创建时间，再缺失则使用当前时间。
      *
-     * @param sessionId 会话 ID
-     * @return 字符串结果
+     * @param session 会话实体
+     * @param now 当前时间
+     * @return 非空的展示时间
      */
-    @Override
-    public String getSessionTitle(String sessionId) {
-        ChatSessionDO session = getValidatedSession(sessionId);
-        return session.getTitle();
+    private LocalDateTime resolveUpdateTime(ChatSessionDO session, LocalDateTime now) {
+        LocalDateTime time = ObjectUtil.defaultIfNull(session.getUpdateTime(), session.getCreateTime());
+        return ObjectUtil.defaultIfNull(time, now);
     }
 
     /**
-     * 更新相关数据。
+     * 首次发送消息时将会话写入数据库；已存在则保留原标题不变。
+     *
+     * @param sessionId 会话 ID
+     * @param title 会话标题（取首条消息内容）
+     */
+    @Override
+    public void ensureSession(String sessionId, String title) {
+        Long userId = UserContextHolder.getUserId();
+        ChatSessionDO existing = chatSessionMapper.selectBySessionIdAndUserId(sessionId, userId);
+        if (existing != null) {
+            return;
+        }
+
+        ChatSessionDO session = ChatSessionDO.builder()
+                                             .sessionId(sessionId)
+                                             .userId(userId)
+                                             .title(truncateTitle(title))
+                                             .build();
+        try {
+            chatSessionMapper.insert(session);
+        } catch (DuplicateKeyException e) {
+            log.debug("会话已被并发请求写入，忽略重复创建: sessionId={}", sessionId);
+        }
+    }
+
+    /**
+     * 更新会话标题；会话尚未落库（空会话）时忽略，等待首条消息落库。
      *
      * @param sessionId 会话标识
      * @param title 标题
      */
     @Override
     public void updateSessionTitle(String sessionId, String title) {
-        ChatSessionDO session = getValidatedSession(sessionId);
-        int titleLen = Math.min(100, title.length());
-        session.setTitle(title.substring(0, titleLen));
+        ChatSessionDO session = chatSessionMapper.selectBySessionIdAndUserId(
+                sessionId,
+                UserContextHolder.getUserId()
+        );
+        if (session == null) {
+            return;
+        }
+
+        session.setTitle(truncateTitle(title));
         chatSessionMapper.updateById(session);
+    }
+
+    /**
+     * 截断会话标题，避免超出数据库字段长度。
+     *
+     * @param title 原始标题
+     * @return 最长 100 个字符的标题
+     */
+    private String truncateTitle(String title) {
+        return title.substring(0, Math.min(100, title.length()));
     }
 
     /**
@@ -222,24 +303,6 @@ public class SessionService implements ISessionService {
     @Override
     public String getConversationId(String sessionId) {
         return String.format("%s_%s", UserContextHolder.getUserId(), sessionId);
-    }
-
-    /**
-     * 创建新会话记录并返回 sessionId
-     *
-     * @return 新生成的 sessionId
-     */
-    private String newSession() {
-        Long userId = UserContextHolder.getUserId();
-        String sessionId = IdWorker.getIdStr();
-
-        ChatSessionDO session = ChatSessionDO.builder()
-                                             .sessionId(sessionId)
-                                             .userId(userId)
-                                             .title("New Session")
-                                             .build();
-        chatSessionMapper.insert(session);
-        return sessionId;
     }
 
 }

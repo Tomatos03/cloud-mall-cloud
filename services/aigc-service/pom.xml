@@ -97,9 +97,8 @@
 
         <!-- 数据库 -->
         <dependency>
-            <groupId>com.baomidou</groupId>
-            <artifactId>mybatis-plus-spring-boot3-starter</artifactId>
-            <version>${mybatis-plus-version}</version>
+            <groupId>com.cloudmall</groupId>
+            <artifactId>cloudmall-mybatis-plus-spring-boot-starter</artifactId>
         </dependency>
         <dependency>
             <groupId>com.mysql</groupId>

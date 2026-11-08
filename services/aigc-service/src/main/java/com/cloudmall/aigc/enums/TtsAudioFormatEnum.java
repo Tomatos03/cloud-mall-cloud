@@ -42,9 +42,10 @@ public enum TtsAudioFormatEnum {
         if (code == null) {
             throw new IllegalArgumentException("code must not be null");
         }
-        return Arrays.stream(values())
-                     .filter(format -> format.code.equals(code))
-                     .findFirst()
-                     .orElseThrow(() -> new IllegalArgumentException("Unknown TtsAudioFormatEnum code: " + code));
+        return Arrays
+                .stream(values())
+                .filter(format -> format.code.equals(code))
+                .findFirst()
+                .orElseThrow(() -> new IllegalArgumentException("Unknown TtsAudioFormatEnum code: " + code));
     }
 }

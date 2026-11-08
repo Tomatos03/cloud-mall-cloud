@@ -3,6 +3,7 @@ package com.cloudmall.aigc.service;
 import java.util.List;
 import java.util.Map;
 
+import com.cloudmall.aigc.model.resp.AgentCardResp;
 import com.cloudmall.aigc.model.resp.ChatMessageResp;
 import com.cloudmall.aigc.model.resp.CreateSessionResp;
 import com.cloudmall.aigc.model.resp.HotTopicResp;
@@ -42,15 +43,25 @@ public interface ISessionService {
     List<ChatMessageResp> getSessionMessages(String sessionId);
 
     /**
-     * 获取会话标题。
+     * 保存助手回复对应的工具卡片，供历史消息恢复时回填。
      *
-     * @param sessionId 会话 ID
-     * @return 会话标题，首次聊天时为 null
+     * @param conversationId 会话唯一标识（格式为
+     *                       {userId}_{sessionId}）
+     * @param assistantContent 助手回复内容
+     * @param cards 卡片列表
      */
-    String getSessionTitle(String sessionId);
+    void saveCards(String conversationId, String assistantContent, List<AgentCardResp> cards);
 
     /**
-     * 更新会话标题。
+     * 首次发送消息时将会话写入数据库；已存在则保留原标题。
+     *
+     * @param sessionId 会话 ID
+     * @param title 会话标题（取首条消息内容）
+     */
+    void ensureSession(String sessionId, String title);
+
+    /**
+     * 更新会话标题；会话尚未落库（空会话）时忽略。
      *
      * @param sessionId 会话 ID
      * @param title 新标题

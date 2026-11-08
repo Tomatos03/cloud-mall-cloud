@@ -23,6 +23,7 @@ import com.cloudmall.order.api.model.resp.OrderResp;
 public class OrderTool {
 
     private final OrderClient orderClient;
+    private final AgentCardAssembler cardAssembler;
 
     /**
      * 根据订单 ID 查询订单详情
@@ -31,13 +32,14 @@ public class OrderTool {
      * @param toolContext 工具上下文，用于存储查询结果
      * @return 订单详情，未找到时为 null
      */
+    @Tool(description = "根据订单ID查询订单详情，返回订单号、状态、金额、商品明细和下单时间")
     public OrderResp getOrderById(@ToolParam(description = "订单ID") Long id, ToolContext toolContext) {
         OrderResp order = orderClient.getById(id);
         if (order == null) {
             return null;
         }
-        if (toolContext.getContext().get("resultContext") instanceof ToolResultContext resultContext) {
-            resultContext.put(OrderResp.class.getSimpleName(), order);
+        if (toolContext.getContext().get(ToolContextKeys.RESULT_CONTEXT) instanceof ToolResultContext resultContext) {
+            resultContext.addCards(List.of(cardAssembler.order(order)));
         }
         return order;
     }
@@ -48,16 +50,16 @@ public class OrderTool {
      * @param toolContext 工具上下文，用于存储查询结果
      * @return 当前用户的订单列表
      */
-    @Tool(description = "查询当前用户的订单列表，返回所有订单的概要信息（订单号、状态、金额、下单时间）")
+    @Tool(description = "查询当前用户的订单列表，返回最近订单的概要信息（订单号、状态、金额、下单时间）")
     public List<OrderResp> listMyOrders(ToolContext toolContext) {
         Long userId = UserContextHolder.getUserId();
-        Page<OrderResp> page = orderClient.page(userId, 1, 100);
+        Page<OrderResp> page = orderClient.page(userId, 1, 5);
         if (page == null || CollUtil.isEmpty(page.getRecords())) {
             return List.of();
         }
         List<OrderResp> orders = page.getRecords();
-        if (toolContext.getContext().get("resultContext") instanceof ToolResultContext resultContext) {
-            resultContext.put("OrderList", orders);
+        if (toolContext.getContext().get(ToolContextKeys.RESULT_CONTEXT) instanceof ToolResultContext resultContext) {
+            resultContext.addCards(cardAssembler.orders(orders));
         }
         return orders;
     }

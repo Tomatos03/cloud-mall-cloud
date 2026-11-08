@@ -53,17 +53,19 @@ public class AgentToolRegistry {
         Map<String, Object> toolBeans = context.getBeansWithAnnotation(AgentTool.class);
 
         Map<AgentTypeEnum, ArrayList<Object>> result = Arrays.stream(AgentTypeEnum.values())
-                                                         .collect(
-                                                                 Collectors.toMap(
-                                                                         Function.identity(),
-                                                                         type -> new ArrayList<>()
-                                                                 )
-                                                         );
+                                                             .collect(
+                                                                     Collectors.toMap(
+                                                                             Function.identity(),
+                                                                             type -> new ArrayList<>()
+                                                                     )
+                                                             );
 
         for (Object tool : toolBeans.values()) {
             AgentTool ann = tool.getClass().getAnnotation(AgentTool.class);
 
-            List<AgentTypeEnum> list = List.of(ann.agents().length == 0 ? AgentTypeEnum.values() : ann.agents());
+            List<AgentTypeEnum> list = List.of(
+                    ann.agents().length == 0 ? AgentTypeEnum.values() : ann.agents()
+            );
             Set<AgentTypeEnum> allowed = new HashSet<>(list);
             List.of(ann.exclude()).forEach(allowed::remove);
 

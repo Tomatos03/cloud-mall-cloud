@@ -14,8 +14,8 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-import com.cloudmall.aigc.parser.IDocumentParser;
 import com.cloudmall.aigc.parser.DocumentParserFactory;
+import com.cloudmall.aigc.parser.IDocumentParser;
 import com.cloudmall.aigc.service.IKnowledgeService;
 
 /**

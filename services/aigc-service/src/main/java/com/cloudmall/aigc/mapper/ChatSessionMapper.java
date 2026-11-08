@@ -43,4 +43,20 @@ public interface ChatSessionMapper extends BaseMapper<ChatSessionDO> {
                         .eq(ChatSessionDO::getUserId, userId)
         );
     }
+
+    /**
+     * 逻辑删除指定用户的会话。 <p>
+     * 条件：会话 ID 匹配且属于该用户。
+     *
+     * @param sessionId 会话 ID
+     * @param userId 用户 ID
+     * @return 受影响行数
+     */
+    default int deleteBySessionIdAndUserId(String sessionId, Long userId) {
+        return delete(
+                Wrappers.<ChatSessionDO>lambdaQuery()
+                        .eq(ChatSessionDO::getSessionId, sessionId)
+                        .eq(ChatSessionDO::getUserId, userId)
+        );
+    }
 }
