@@ -6,9 +6,13 @@ auth:
     - /coupons/*
     - /search/**
     - /chat/ws
+    - GET:/chat/files/**
     - GET:/seckill/activities
     - GET:/seckill/activities/*
+    - GET:/seckill/products/*
     - GET:/home
+    - GET:/products/recommend
+    - GET:/files/**
   url-permissions:
     - pattern: "GET:/merchant/**"
       permissions: [coupon:template:view, coupon:stats:view]
@@ -46,6 +50,8 @@ auth:
       permissions: [seckill:activity:view, seckill:product:view]
 
 spring:
+  codec:
+    max-in-memory-size: 10MB
   cloud:
     sentinel:
       transport:
@@ -75,7 +81,7 @@ spring:
             - id: user-service
               uri: lb://user-service
               predicates:
-                - Path=/users/**,/roles/**,/resources/**,/addresses/**,/shops/**,/favorites/**,/home/**,/products/*/favorite
+                - Path=/users/**,/roles/**,/resources/**,/addresses/**,/regions/**,/shops/**,/favorites/**,/home/**,/products/*/favorite,/files/**
               filters:
                 - StripPrefix=0
 
