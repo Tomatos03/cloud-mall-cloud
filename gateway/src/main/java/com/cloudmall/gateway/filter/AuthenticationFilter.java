@@ -55,12 +55,12 @@ import com.cloudmall.jwt.service.ITokenService;
 @Slf4j
 @Component
 @RequiredArgsConstructor
-public class JwtAuthenticationWebFilter implements WebFilter {
+public class AuthenticationFilter implements WebFilter {
 
     private static final String AUTH_USER_HEADER = "X-Auth-User";
     private static final String TOKEN_PREFIX = "Bearer ";
 
-    private final ITokenService authTokenService;
+    private final ITokenService tokenService;
     private final ObjectMapper objectMapper;
 
     /**
@@ -83,7 +83,7 @@ public class JwtAuthenticationWebFilter implements WebFilter {
         String token = header.substring(TOKEN_PREFIX.length());
 
         return Mono
-                .fromCallable(() -> toUserContext(authTokenService.parseToken(token)))
+                .fromCallable(() -> toUserContext(tokenService.parse(token)))
                 .subscribeOn(Schedulers.boundedElastic())
                 .onErrorMap(
                         IllegalArgumentException.class,

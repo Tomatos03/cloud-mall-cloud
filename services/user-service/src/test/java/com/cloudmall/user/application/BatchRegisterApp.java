@@ -143,7 +143,7 @@ public class BatchRegisterApp {
         claims.put(JwtClaimNames.USER_ID, user.getId());
         claims.put(JwtClaimNames.USERNAME, user.getUsername());
         claims.put(JwtClaimNames.USER_TYPE, UserTypeEnum.NORMAL);
-        return tokenService.createToken(claims);
+        return tokenService.create(claims);
     }
 
     /**

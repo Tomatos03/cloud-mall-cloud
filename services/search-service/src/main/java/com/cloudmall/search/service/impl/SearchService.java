@@ -12,15 +12,11 @@ import cn.hutool.core.util.StrUtil;
 import co.elastic.clients.elasticsearch.ElasticsearchClient;
 import co.elastic.clients.elasticsearch._types.SortOptions;
 import co.elastic.clients.elasticsearch._types.SortOrder;
-import co.elastic.clients.elasticsearch._types.aggregations.Aggregate;
-import co.elastic.clients.elasticsearch._types.aggregations.StringTermsBucket;
 import co.elastic.clients.elasticsearch._types.query_dsl.NumberRangeQuery;
 import co.elastic.clients.elasticsearch._types.query_dsl.Query;
 import co.elastic.clients.elasticsearch.core.SearchRequest;
 import co.elastic.clients.elasticsearch.core.SearchResponse;
 import co.elastic.clients.elasticsearch.core.search.Hit;
-import co.elastic.clients.json.JsonData;
-import jakarta.json.JsonObject;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -32,7 +28,6 @@ import com.cloudmall.common.model.CursorResult;
 import com.cloudmall.product.api.client.ProductClient;
 import com.cloudmall.product.api.model.resp.ProductDocResp;
 import com.cloudmall.search.api.model.req.SearchProductReq;
-import com.cloudmall.search.api.model.resp.FacetItemResp;
 import com.cloudmall.search.api.model.resp.SearchFacetsResp;
 import com.cloudmall.search.api.model.resp.SearchProductResp;
 import com.cloudmall.search.api.model.resp.SearchResultResp;
@@ -47,7 +42,7 @@ import com.cloudmall.search.service.ISearchService;
  * 商品搜索服务实现
  * <p>
  * 查询 DSL：keyword 多字段匹配（name^3 / description^2 / spuCode / brandName / categoryName），
- * 上架状态 + 分类/品牌/价格/店铺过滤，分类/品牌 terms 聚合，name 高亮。
+ * 上架状态 + 分类/品牌/价格/店铺过滤，分类/品牌 terms 聚合与去重数量，name 高亮。
  *
  * @author : Tomatos
  */
@@ -206,6 +201,8 @@ public class SearchService implements ISearchService {
                                           )
                                   )
                     )
+                    .aggregations("categoryCount", a -> a.cardinality(c -> c.field("categoryId")))
+                    .aggregations("brandCount", a -> a.cardinality(c -> c.field("brandId")))
                     .highlight(h -> h.fields("name", f -> f.preTags("<em>").postTags("</em>")));
                     if (sort != null) {
                         r.sort(sort);
@@ -295,6 +292,7 @@ public class SearchService implements ISearchService {
         return SearchProductResp.builder()
                                 .id(doc.getId())
                                 .name(doc.getName())
+                                .description(doc.getDescription())
                                 .spuCode(doc.getSpuCode())
                                 .mainImage(doc.getMainImage())
                                 .priceMin(doc.getPriceMin())
@@ -327,59 +325,23 @@ public class SearchService implements ISearchService {
             return SearchFacetsResp.builder()
                                    .categories(List.of())
                                    .brands(List.of())
+                                   .categoryCount(0L)
+                                   .brandCount(0L)
                                    .build();
         }
         return SearchFacetsResp
                 .builder()
-                .categories(buildFacetItems(response.aggregations().get("categories"), "categoryName"))
-                .brands(buildFacetItems(response.aggregations().get("brands"), "brandName"))
-                .build();
-    }
-
-    private List<FacetItemResp> buildFacetItems(Aggregate aggregate, String nameField) {
-        if (aggregate == null || !aggregate.isSterms() || aggregate.sterms().buckets() == null) {
-            return List.of();
-        }
-        return aggregate
-                .sterms()
-                .buckets()
-                .array()
-                .stream()
-                .map(
-                        bucket -> FacetItemResp.builder()
-                                               .id(parseBucketId(bucket))
-                                               .name(resolveBucketName(bucket, nameField))
-                                               .count(bucket.docCount())
-                                               .build()
+                .categories(
+                        FacetAggregationParser.parse(
+                                response.aggregations().get("categories"),
+                                "categoryName"
+                        )
                 )
-                .toList();
-    }
-
-    private static Long parseBucketId(StringTermsBucket bucket) {
-        try {
-            return Long.valueOf(bucket.key().stringValue());
-        } catch (NumberFormatException e) {
-            return null;
-        }
-    }
-
-    private String resolveBucketName(StringTermsBucket bucket, String nameField) {
-        Aggregate nameAgg = bucket.aggregations() == null ? null : bucket.aggregations().get("name");
-        if (
-                nameAgg == null || !nameAgg.isTopHits() || nameAgg.topHits().hits() == null
-                    || nameAgg.topHits().hits().hits() == null || nameAgg.topHits().hits().hits().isEmpty()
-        ) {
-            return null;
-        }
-        JsonData source = nameAgg.topHits()
-                                 .hits()
-                                 .hits()
-                                 .get(0)
-                                 .source();
-        if (source == null) {
-            return null;
-        }
-        JsonObject obj = source.to(JsonObject.class);
-        return obj.containsKey(nameField) ? obj.getString(nameField) : null;
+                .brands(FacetAggregationParser.parse(response.aggregations().get("brands"), "brandName"))
+                .categoryCount(
+                        FacetAggregationParser.cardinality(response.aggregations().get("categoryCount"))
+                )
+                .brandCount(FacetAggregationParser.cardinality(response.aggregations().get("brandCount")))
+                .build();
     }
 }

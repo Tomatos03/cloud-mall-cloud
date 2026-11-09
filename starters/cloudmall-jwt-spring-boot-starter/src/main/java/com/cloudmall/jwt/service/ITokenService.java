@@ -23,18 +23,19 @@ public interface ITokenService {
      * @param claims 声明集合（含 userId、username、userType 等）
      * @return token 字符串
      */
-    String createToken(Map<String, Object> claims);
+    String create(Map<String, Object> claims);
 
     /**
      * 解析令牌 <p>
      * 校验签名与有效期后返回只读的 {@link ParsedToken}。解析失败应抛出异常，而非返回
-     * null。
+     * null。调用方必须捕获 {@link ParseTokenException} 或在方法签名中继续
+     * 声明。
      *
      * @param token token 字符串
      * @return 解析后的 token
      * @throws ParseTokenException token 无效或已过期时抛出
      */
-    ParsedToken parseToken(String token);
+    ParsedToken parse(String token) throws ParseTokenException;
 
     /**
      * 校验令牌是否合法 <p>
@@ -43,9 +44,9 @@ public interface ITokenService {
      * @param token token 字符串
      * @return true 合法，false 无效或已过期
      */
-    default boolean validateToken(String token) {
+    default boolean validate(String token) {
         try {
-            parseToken(token);
+            parse(token);
             return true;
         } catch (ParseTokenException e) {
             return false;

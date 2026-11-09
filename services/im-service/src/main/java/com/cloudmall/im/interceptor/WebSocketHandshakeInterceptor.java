@@ -48,7 +48,7 @@ public class WebSocketHandshakeInterceptor implements HandshakeInterceptor {
             return false;
         }
         try {
-            ParsedToken parsedToken = tokenService.parseToken(token);
+            ParsedToken parsedToken = tokenService.parse(token);
             Long userId = parsedToken.getLong(JwtClaimNames.USER_ID);
             attributes.put("userId", userId);
             log.info("WebSocket 握手成功，userId: {}", userId);

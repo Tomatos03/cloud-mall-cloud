@@ -7,7 +7,6 @@ import java.util.Map;
 import cn.hutool.core.collection.CollUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.jspecify.annotations.NonNull;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -38,7 +37,7 @@ public class AuthApp {
     private final UserConverter userConverter;
     private final PasswordEncoder passwordEncoder;
     private final IResourceService resourceService;
-    private final ITokenService authTokenService;
+    private final ITokenService tokenService;
     private final IShopService shopService;
 
     /**
@@ -49,7 +48,8 @@ public class AuthApp {
      */
     public LoginResp login(LoginReq request) {
         UserDO user = authenticate(request);
-        return genLoginResp(prepareClaims(user));
+        Map<String, Object> claims = prepareClaims(user);
+        return userConverter.toLoginResp(tokenService.create(claims));
     }
 
     /**
@@ -72,12 +72,6 @@ public class AuthApp {
         );
         Asserts.isEqual(user.getTypes(), request.getUserType(), BizErrorEnum.USERNAME_OR_PASSWORD_ERROR);
         return user;
-    }
-
-    @NonNull
-    private LoginResp genLoginResp(Map<String, Object> claims) {
-        String token = authTokenService.createToken(claims);
-        return userConverter.toLoginResp(token);
     }
 
     private Map<String, Object> prepareClaims(UserDO user) {

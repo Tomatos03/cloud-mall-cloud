@@ -208,6 +208,7 @@
 - 商品必须属于某个店铺：创建商品时服务端通过 `ShopClient.getByUserId`（Feign → user-service）按当前登录用户取店铺，店铺不存在则拒绝创建（`MERCHANT_STORE_NOT_FOUND`）。
 - 详情页经 `ShopClient.getShopInfo` 聚合店铺信息（评分/商品数/好评率/关注数），单块获取失败降级为空，不影响其余数据。
 - `cm_cart` 已按 `shop_id` 归属，`SkuResp` 携带 `shopId`，为订单/购物车按店聚合提供基础。
+- 店铺页数据链路：前端以 `GET /shops/{id}/info` 获取店铺资料与评分/好评率/关注数，以 `GET /search/products?shopId={id}` 获取店内商品、分类/品牌聚合与总数，关注状态与操作分别走 `GET /shops/{id}/follow/status`、`POST /shops/{id}/follow`；搜索响应新增 `facets.categoryCount` / `facets.brandCount` 返回去重分类/品牌数。
 
 ### cm_favorite
 

@@ -5,6 +5,7 @@ import java.util.List;
 
 import lombok.Data;
 import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.stereotype.Component;
 import org.springframework.util.AntPathMatcher;
 
 /**
@@ -16,6 +17,7 @@ import org.springframework.util.AntPathMatcher;
  * @author Tomatos
  */
 @Data
+@Component
 @ConfigurationProperties(prefix = "auth")
 public class AuthProperties {
 

@@ -3,8 +3,10 @@ package com.cloudmall.gateway.filter;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.security.authorization.AuthorizationDecision;
 import org.springframework.security.authorization.ReactiveAuthorizationManager;
 import org.springframework.security.core.Authentication;
@@ -12,7 +14,6 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.web.server.authorization.AuthorizationContext;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
-
 import com.cloudmall.gateway.properties.AuthProperties;
 
 /**
@@ -36,7 +37,7 @@ import com.cloudmall.gateway.properties.AuthProperties;
 @Slf4j
 @Component
 @RequiredArgsConstructor
-public class RbacReactiveAuthorizationManager implements ReactiveAuthorizationManager<AuthorizationContext> {
+public class RBACAuthorizationManager implements ReactiveAuthorizationManager<AuthorizationContext> {
 
     private final AuthProperties authProperties;
 
@@ -49,21 +50,19 @@ public class RbacReactiveAuthorizationManager implements ReactiveAuthorizationMa
      */
     @Override
     public Mono<AuthorizationDecision> check(
-        Mono<Authentication> authentication,
-        AuthorizationContext context
+            Mono<Authentication> authentication,
+            AuthorizationContext context
     ) {
 
-        String method = context.getExchange()
-                               .getRequest()
-                               .getMethod()
-                               .name();
-        String path = context.getExchange()
-                             .getRequest()
-                             .getURI()
-                             .getPath();
+        String methodName = getRequest(context)
+                .getMethod()
+                .name();
+        String path = getRequest(context)
+                .getURI()
+                .getPath();
 
         // 匹配路径规则
-        AuthProperties.UrlPermission matched = authProperties.match(method, path);
+        AuthProperties.UrlPermission matched = authProperties.match(methodName, path);
         if (matched == null) {
             // 未匹配任何规则 → 默认放行
             return Mono.just(new AuthorizationDecision(true));
@@ -72,6 +71,11 @@ public class RbacReactiveAuthorizationManager implements ReactiveAuthorizationMa
         // 有匹配规则，检查用户权限
         return authentication.map(auth -> checkPermissions(auth, matched))
                              .defaultIfEmpty(new AuthorizationDecision(false));
+    }
+
+    private static @NonNull ServerHttpRequest getRequest(AuthorizationContext context) {
+        return context.getExchange()
+                      .getRequest();
     }
 
     /**

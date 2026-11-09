@@ -6,12 +6,13 @@ import lombok.Getter;
  * 令牌解析异常
  * <p>
  * 当 token 解析失败、签名无效、已过期或缺少用户标识时抛出。
+ * 这是受检异常，调用方必须捕获或继续声明。
  *
  * @author : Tomatos
  * @date : 2026/7/25
  */
 @Getter
-public class ParseTokenException extends RuntimeException {
+public class ParseTokenException extends Exception {
 
     private final String token;
 

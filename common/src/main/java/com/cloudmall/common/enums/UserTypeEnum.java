@@ -37,6 +37,7 @@ public enum UserTypeEnum {
     private final String code;
     /** 类型描述 */
     private final String desc;
+
     /**
      * 根据编码查找用户类型。
      *
@@ -56,6 +57,7 @@ public enum UserTypeEnum {
                         )
                 );
     }
+
     /**
      * 解析逗号分隔的编码串为用户类型集合。 <p>
      * cm_user.types 为 MySQL SET 类型，一个用户可拥有多个类型，如

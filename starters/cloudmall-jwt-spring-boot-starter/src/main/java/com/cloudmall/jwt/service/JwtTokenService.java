@@ -55,7 +55,7 @@ public class JwtTokenService implements ITokenService {
      * @return JWT token 字符串
      */
     @Override
-    public String createToken(Map<String, Object> claims) {
+    public String create(Map<String, Object> claims) {
         Date now = new Date();
         JwtBuilder builder = Jwts.builder()
                                  .issuedAt(now)
@@ -82,7 +82,7 @@ public class JwtTokenService implements ITokenService {
      * @throws ParseTokenException token 无效、已过期或缺少用户标识时抛出
      */
     @Override
-    public ParsedToken parseToken(String token) {
+    public ParsedToken parse(String token) throws ParseTokenException {
         Claims claims;
         try {
             claims = Jwts.parser()

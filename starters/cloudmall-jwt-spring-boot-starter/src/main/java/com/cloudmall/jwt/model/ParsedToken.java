@@ -64,7 +64,7 @@ public final class ParsedToken {
      * @return 用户标识
      * @throws ParseTokenException 用户标识缺失时抛出
      */
-    public String ensureSubject(String token) {
+    public String ensureSubject(String token) throws ParseTokenException {
         String subject = subject();
         if (subject == null) {
             throw new ParseTokenException("token 缺少用户标识", token);
