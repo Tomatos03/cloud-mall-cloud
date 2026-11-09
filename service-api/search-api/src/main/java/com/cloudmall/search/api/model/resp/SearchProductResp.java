@@ -24,6 +24,9 @@ public class SearchProductResp {
     /** 商品名称 */
     private String name;
 
+    /** 商品描述（列表页摘要展示） */
+    private String description;
+
     /** SPU 编码 */
     private String spuCode;
 

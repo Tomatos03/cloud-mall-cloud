@@ -25,4 +25,10 @@ public class SearchFacetsResp {
 
     /** 品牌聚合 */
     private List<FacetItemResp> brands;
+
+    /** 分类去重数量（不受聚合条数上限影响） */
+    private Long categoryCount;
+
+    /** 品牌去重数量（不受聚合条数上限影响） */
+    private Long brandCount;
 }

@@ -26,6 +26,9 @@ public class ProductHit {
     /** 商品名称 */
     private String name;
 
+    /** 商品描述 */
+    private String description;
+
     /** SPU 编码 */
     private String spuCode;
 

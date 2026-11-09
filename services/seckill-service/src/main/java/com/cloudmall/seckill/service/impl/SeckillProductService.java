@@ -227,6 +227,7 @@ public class SeckillProductService implements ISeckillProductService {
                 ProductResp detail = productMap.get(product.getProductId());
                 if (detail != null) {
                     product.setProductName(detail.getName());
+                    product.setProductDescription(detail.getDescription());
                     product.setImage(detail.getImage());
                 }
             }

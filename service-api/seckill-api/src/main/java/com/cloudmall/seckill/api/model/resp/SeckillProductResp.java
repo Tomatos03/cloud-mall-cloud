@@ -30,6 +30,9 @@ public class SeckillProductResp {
     /** 商品名称（来自商品服务，展示用） */
     private String productName;
 
+    /** 商品描述（来自商品服务，展示用） */
+    private String productDescription;
+
     /** 商品主图 URL（来自商品服务，展示用） */
     private String image;
 
