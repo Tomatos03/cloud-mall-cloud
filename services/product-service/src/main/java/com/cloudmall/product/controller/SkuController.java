@@ -3,6 +3,7 @@ package com.cloudmall.product.controller;
 import java.util.List;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -67,6 +68,18 @@ public class SkuController {
     @PostMapping("/batch-query")
     public Result<List<SkuResp>> listSkusByIds(@RequestBody List<Long> skuIds) {
         return Result.success(skuService.listSkusByIds(skuIds));
+    }
+
+    /**
+     * 查询单个上架 SKU 的实时信息。 <p>
+     * SKU 不存在或商品已下架时返回 null。
+     *
+     * @param skuId SKU ID
+     * @return SKU 实时信息；不存在或已下架时为 null
+     */
+    @GetMapping("/{skuId}")
+    public Result<SkuResp> getById(@PathVariable Long skuId) {
+        return Result.success(skuService.getById(skuId));
     }
 
     /**

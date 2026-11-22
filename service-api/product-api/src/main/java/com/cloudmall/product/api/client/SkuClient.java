@@ -3,6 +3,7 @@ package com.cloudmall.product.api.client;
 import java.util.List;
 
 import org.springframework.cloud.openfeign.FeignClient;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -49,4 +50,14 @@ public interface SkuClient {
      */
     @PostMapping("/batch-query")
     List<SkuResp> listSkusByIds(@RequestBody List<Long> skuIds);
+
+    /**
+     * 查询单个上架 SKU 的实时信息。 <p>
+     * SKU 不存在或商品已下架时返回 null，调用方按业务场景决定是否抛异常。
+     *
+     * @param skuId SKU ID
+     * @return SKU 实时信息；不存在或已下架时为 null
+     */
+    @GetMapping("/{skuId}")
+    SkuResp getById(@PathVariable("skuId") Long skuId);
 }

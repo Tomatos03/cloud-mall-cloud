@@ -140,6 +140,7 @@ public enum BizErrorEnum {
     CART_STORE_NOT_EXIST(60005, "店铺不存在"),
     CART_ITEM_NOT_EXIST(60006, "购物车中不存在该商品"),
     CART_LIMIT_EXCEEDED(60007, "购物车商品数量已达上限"),
+    CART_UPDATE_CONFLICT(60008, "购物车已变更，请刷新后重试"),
 
     // 商品评论相关错误码 (70xxx)
     // 评论参数验证相关

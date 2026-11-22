@@ -110,6 +110,12 @@ public class SkuService implements ISkuService {
         return assembleSkuRespList(skus, productMap, specDescMap);
     }
 
+    @Override
+    public SkuResp getById(Long skuId) {
+        List<SkuResp> skus = listSkusByIds(List.of(skuId));
+        return CollUtil.isEmpty(skus) ? null : skus.get(0);
+    }
+
     /**
      * 匹配并处理相关数据。
      *

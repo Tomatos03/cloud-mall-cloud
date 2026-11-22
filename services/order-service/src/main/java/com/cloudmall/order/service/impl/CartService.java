@@ -3,22 +3,18 @@ package com.cloudmall.order.service.impl;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.function.Predicate;
-import java.util.stream.Collectors;
 
 import cn.hutool.core.collection.CollStreamUtil;
 import cn.hutool.core.collection.CollUtil;
-import cn.hutool.core.util.BooleanUtil;
 import cn.hutool.core.util.ObjectUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-
 import com.cloudmall.common.enums.BizErrorEnum;
 import com.cloudmall.common.exception.BizException;
 import com.cloudmall.common.utils.Asserts;
@@ -55,6 +51,8 @@ public class CartService implements ICartService {
     /** 店铺信息缺失时的兜底分组 ID */
     private static final Long UNKNOWN_SHOP_ID = -1L;
 
+    private static final Predicate<CartItem> ALL_ITEMS = item  -> true;
+
     private final CartMapper cartMapper;
     private final CartConverter cartConverter;
     private final SkuClient skuClient;
@@ -69,11 +67,14 @@ public class CartService implements ICartService {
      */
     @Override
     public Long addToCart(Long userId, CartOperatorReq req) {
-        SkuResp sku = fetchSku(req.getSkuId());
+        SkuResp sku = Asserts.requireNonNull(
+                skuClient.getById(req.getSkuId()),
+                BizErrorEnum.CART_PRODUCT_NOT_EXIST
+        );
 
         CartDO existing = findCartItem(userId, req.getSkuId());
         if (existing != null) {
-            return mergeToExisting(existing, sku, req.getQuantity());
+            return mergeToExisting(existing, sku.getPrice(), req.getQuantity());
         }
 
         checkCartCapacity(userId);
@@ -158,7 +159,7 @@ public class CartService implements ICartService {
         Map<Long, ShopResp> shopMap = fetchShopMap(skuMap);
 
         List<CartItem> items = cartConverter.toItemRespList(carts, skuMap);
-        List<CartShopGroup> groups = groupByShop(items, shopMap);
+        List<CartShopGroup> groups = buildShopGroup(items, shopMap);
 
         return buildDetail(groups, items);
     }
@@ -188,20 +189,17 @@ public class CartService implements ICartService {
      * 已存在记录：数量累加并刷新价格，返回记录 ID。
      *
      * @param existing 已有购物车记录
-     * @param sku SKU 实时信息
-     * @param quantity 新增数量
+     * @param price SKU 实时价格
+     * @param addQuantity 新增数量
      * @return 购物车记录 ID
      * @throws BizException 处理过程中可能抛出该异常
      */
-    private Long mergeToExisting(CartDO existing, SkuResp sku, Integer quantity) {
-        int newQuantity = existing.getQuantity() + quantity;
+    private Long mergeToExisting(CartDO existing, BigDecimal price, Integer addQuantity) {
+        int expectedQuantity = existing.getQuantity();
+        int newQuantity = expectedQuantity + addQuantity;
         Asserts.isTrue(newQuantity <= MAX_QUANTITY, BizErrorEnum.CART_LIMIT_EXCEEDED);
-        cartMapper.mergeQuantityAndPrice(
-                existing.getId(),
-                newQuantity,
-                sku.getPrice(),
-                existing.getQuantity() + quantity
-        );
+        int updated = cartMapper.mergeQuantityAndPrice(existing.getId(), newQuantity, price, expectedQuantity);
+        Asserts.isTrue(updated > 0, BizErrorEnum.CART_UPDATE_CONFLICT);
         return existing.getId();
     }
 
@@ -228,35 +226,6 @@ public class CartService implements ICartService {
         CartDO cart = cartConverter.toDO(sku, userId, quantity);
         cartMapper.insert(cart);
         return cart.getId();
-    }
-
-    /**
-     * 查询单个 SKU 的实时信息，不存在时抛出业务异常。
-     *
-     * @param skuId SKU ID
-     * @return SKU 实时信息
-     */
-    private SkuResp fetchSku(Long skuId) {
-        List<SkuResp> skus = skuClient.listSkusByIds(List.of(skuId));
-        Asserts.notEmpty(skus, BizErrorEnum.CART_PRODUCT_NOT_EXIST);
-        return skus.get(0);
-    }
-
-    /**
-     * 批量查询店铺信息。
-     *
-     * @param shopIds 店铺 ID 集合
-     * @return shopId -> 店铺信息
-     */
-    private Map<Long, ShopResp> fetchShops(Set<Long> shopIds) {
-        if (CollUtil.isEmpty(shopIds)) {
-            return Collections.emptyMap();
-        }
-        List<ShopResp> shops = shopClient.listByIds(new ArrayList<>(shopIds));
-        if (CollUtil.isEmpty(shops)) {
-            return Collections.emptyMap();
-        }
-        return CollStreamUtil.toIdentityMap(shops, ShopResp::getId);
     }
 
     /**
@@ -287,9 +256,7 @@ public class CartService implements ICartService {
      * @return SKU ID -> SKU 实时信息
      */
     private Map<Long, SkuResp> fetchSkuMap(List<CartDO> carts) {
-        List<Long> skuIds = carts.stream()
-                                 .map(CartDO::getSkuId)
-                                 .toList();
+        List<Long> skuIds = CollStreamUtil.toList(carts, CartDO::getSkuId);
         List<SkuResp> skus = skuClient.listSkusByIds(skuIds);
         return CollStreamUtil.toIdentityMap(skus, SkuResp::getSkuId);
     }
@@ -301,8 +268,12 @@ public class CartService implements ICartService {
      * @return 店铺 ID -> 店铺信息
      */
     private Map<Long, ShopResp> fetchShopMap(Map<Long, SkuResp> skuMap) {
+        if (CollUtil.isEmpty(skuMap)) {
+            return Collections.emptyMap();
+        }
         Set<Long> shopIds = CollStreamUtil.toSet(skuMap.values(), SkuResp::getShopId);
-        return fetchShops(shopIds);
+        List<ShopResp> shops = shopClient.listByIds(new ArrayList<>(shopIds));
+        return CollStreamUtil.toIdentityMap(shops, ShopResp::getId);
     }
 
     /**
@@ -312,23 +283,15 @@ public class CartService implements ICartService {
      * @param shopMap 店铺 ID -> 店铺信息
      * @return 店铺分组列表
      */
-    private List<CartShopGroup> groupByShop(List<CartItem> items, Map<Long, ShopResp> shopMap) {
-        Map<Long, List<CartItem>> grouped = items.stream()
-                                                 .collect(
-                                                         Collectors.groupingBy(
-                                                                 item -> ObjectUtil.defaultIfNull(
-                                                                         item.getShopId(),
-                                                                         UNKNOWN_SHOP_ID
-                                                                 ),
-                                                                 LinkedHashMap::new,
-                                                                 Collectors.toList()
-                                                         )
-                                                 );
-        List<CartShopGroup> groups = new ArrayList<>(grouped.size());
-        for (Map.Entry<Long, List<CartItem>> entry : grouped.entrySet()) {
-            groups.add(buildGroup(entry.getKey(), entry.getValue(), shopMap));
-        }
-        return groups;
+    private List<CartShopGroup> buildShopGroup(List<CartItem> items, Map<Long, ShopResp> shopMap) {
+        Map<Long, List<CartItem>> grouped = CollStreamUtil.groupByKey(
+                items,
+                item -> ObjectUtil.defaultIfNull(item.getShopId(), UNKNOWN_SHOP_ID)
+        );
+        return CollStreamUtil.toList(
+                grouped.entrySet(),
+                entry -> buildGroup(entry.getKey(), entry.getValue(), shopMap)
+        );
     }
 
     /**
@@ -341,7 +304,7 @@ public class CartService implements ICartService {
      */
     private CartShopGroup buildGroup(Long shopId, List<CartItem> items, Map<Long, ShopResp> shopMap) {
         CartShopGroup group = cartConverter.toShopGroup(shopId, items, shopMap.get(shopId));
-        int selectedCount = countSelected(items);
+        int selectedCount = CollUtil.count(items, CartItem::getSelected);
         group.setItemCount(items.size());
         group.setSelectedCount(selectedCount);
         group.setSelectedAmount(sumAmount(items, CartItem::getSelected));
@@ -363,26 +326,10 @@ public class CartService implements ICartService {
                                  .mapToInt(item -> ObjectUtil.defaultIfNull(item.getQuantity(), 0))
                                  .sum();
         resp.setTotalQuantity(totalQuantity);
-        resp.setSelectedCount(countSelected(items));
-        resp.setTotalAmount(sumAmount(items, item -> true));
+        resp.setSelectedCount(CollUtil.count(items, CartItem::getSelected));
+        resp.setTotalAmount(sumAmount(items));
         resp.setSelectedAmount(sumAmount(items, CartItem::getSelected));
         return resp;
-    }
-
-    /**
-     * 统计已选中条目数。
-     *
-     * @param items 购物车条目列表
-     * @return 已选中条目数
-     */
-    private int countSelected(List<CartItem> items) {
-        int selectedCount = 0;
-        for (CartItem item : items) {
-            if (BooleanUtil.isTrue(item.getSelected())) {
-                selectedCount++;
-            }
-        }
-        return selectedCount;
     }
 
     /**
@@ -394,10 +341,20 @@ public class CartService implements ICartService {
      */
     private BigDecimal sumAmount(List<CartItem> items, Predicate<CartItem> filter) {
         return items.stream()
+                    .filter(Objects::nonNull)
                     .filter(filter)
                     .map(CartItem::getSubtotal)
-                    .filter(Objects::nonNull)
                     .reduce(BigDecimal.ZERO, BigDecimal::add);
+    }
+
+    /**
+     * 按条件汇总小计金额。
+     *
+     * @param items 购物车条目列表
+     * @return 小计金额合计
+     */
+    private BigDecimal sumAmount(List<CartItem> items) {
+        return sumAmount(items, ALL_ITEMS);
     }
 
     /**

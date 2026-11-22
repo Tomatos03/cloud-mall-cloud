@@ -640,6 +640,7 @@ CREATE TABLE IF NOT EXISTS cm_cart (
     create_time  datetime      DEFAULT NULL comment '加入时间',
     update_time  datetime      DEFAULT NULL comment '更新时间',
     PRIMARY KEY (id),
+    UNIQUE KEY uk_user_sku (user_id, sku_id),
     KEY idx_user_id (user_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 comment '购物车表';
 

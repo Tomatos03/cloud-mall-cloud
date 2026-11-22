@@ -42,6 +42,15 @@ public interface ISkuService {
     List<SkuResp> listSkusByIds(List<Long> skuIds);
 
     /**
+     * 查询单个上架 SKU 的实时信息。 <p>
+     * 仅返回上架商品的 SKU；SKU 不存在或商品已下架时返回 null。
+     *
+     * @param skuId SKU ID
+     * @return SKU 实时信息；不存在或已下架时为 null
+     */
+    SkuResp getById(Long skuId);
+
+    /**
      * 按已选规格值匹配唯一 SKU。 <p>
      * 用于商品详情页规格选择联动：当所有规格组均有选值时恰好命中一个 SKU， 返回该 SKU 的完整信息
      * （含实时价格、库存、规格描述）； 未选中全部规格组或组合不成立时返回 null。
