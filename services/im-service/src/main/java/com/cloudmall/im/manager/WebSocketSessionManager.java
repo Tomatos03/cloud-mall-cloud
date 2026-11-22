@@ -4,13 +4,16 @@ import java.time.Duration;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 import cn.hutool.core.collection.CollStreamUtil;
 import cn.hutool.core.collection.CollUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.data.redis.core.StringRedisTemplate;
+import org.springframework.data.redis.core.script.RedisScript;
 import org.springframework.stereotype.Component;
 import org.springframework.web.socket.WebSocketSession;
 
@@ -35,11 +38,17 @@ public class WebSocketSessionManager {
     private static final String ONLINE_KEY_PREFIX = "im:online:";
     private static final Duration ONLINE_TTL = Duration.ofMinutes(10);
 
+    /** 仅当在线标记仍属于该会话时才删除，避免误删重连后的新会话（lua/delete_online_if_match.lua） */
+    private static final RedisScript<Long> DELETE_ONLINE_IF_MATCH = RedisScript.of(
+            new ClassPathResource("lua/delete_online_if_match.lua"),
+            Long.class
+    );
+
     /** 用户 ID 与本地连接对象的映射（连接对象不可序列化，只能存内存） */
     private final Map<Long, WebSocketSession> localSessions = new ConcurrentHashMap<>();
 
-    /** 用户 ID 与最近一次活跃（心跳）时间戳的映射，用于检测半开连接 */
-    private final Map<Long, Long> lastHeartbeat = new ConcurrentHashMap<>();
+    /** sessionId 与最近一次活跃（心跳）时间戳的映射，按会话隔离，旧会话清理不会碰到新会话 */
+    private final Map<String, Long> lastHeartbeat = new ConcurrentHashMap<>();
 
     private final StringRedisTemplate stringRedisTemplate;
 
@@ -51,21 +60,44 @@ public class WebSocketSessionManager {
      */
     public void addSession(Long userId, WebSocketSession session) {
         localSessions.put(userId, session);
-        lastHeartbeat.put(userId, System.currentTimeMillis());
+        lastHeartbeat.put(session.getId(), System.currentTimeMillis());
         stringRedisTemplate.opsForValue().set(onlineKey(userId), session.getId(), ONLINE_TTL);
         log.info("用户 {} 已连接 WebSocket，sessionId: {}，已写入 Redis 在线状态", userId, session.getId());
     }
 
     /**
-     * 移除用户连接，并清除 Redis 在线状态。
+     * 移除用户连接，并清除 Redis 在线状态。 <p>
+     * 仅当 userId 当前对应的仍是传入会话时才清理：旧连接延迟到达的关闭回调 不会误删用户重连后的新
+     * 会话。
+     *
+     * @param userId 用户ID
+     * @param session 触发关闭的会话
+     */
+    public void removeSession(Long userId, WebSocketSession session) {
+        if (!localSessions.remove(userId, session)) {
+            log.debug("用户 {} 的连接已变更，跳过旧会话 {} 的清理", userId, session.getId());
+            return;
+        }
+        lastHeartbeat.remove(session.getId());
+        stringRedisTemplate.execute(DELETE_ONLINE_IF_MATCH, List.of(onlineKey(userId)), session.getId());
+        log.info("用户 {} 已断开 WebSocket，sessionId: {}，已清除 Redis 在线状态", userId, session.getId());
+    }
+
+    /**
+     * 清理本地已无连接的用户在线状态。 <p>
+     * 用于本地会话表已不存在该用户、但 Redis 仍残留在线标记的场景。
      *
      * @param userId 用户ID
      */
-    public void removeSession(Long userId) {
-        localSessions.remove(userId);
-        lastHeartbeat.remove(userId);
+    public void removeStaleOnlineState(Long userId) {
+        if (localSessions.computeIfPresent(userId, (key, current) -> current) != null) {
+            return;
+        }
+        // 清除已无对应本地会话的残留心跳，避免长期积累
+        Set<String> activeSessionIds = CollStreamUtil.toSet(localSessions.values(), WebSocketSession::getId);
+        lastHeartbeat.keySet().removeIf(sessionId -> !activeSessionIds.contains(sessionId));
         stringRedisTemplate.delete(onlineKey(userId));
-        log.info("用户 {} 已断开 WebSocket，已清除 Redis 在线状态", userId);
+        log.info("用户 {} 无本地连接，已清理 Redis 在线状态", userId);
     }
 
     /**
@@ -106,10 +138,10 @@ public class WebSocketSessionManager {
     /**
      * 记录用户心跳/活跃时间，用于检测半开连接。
      *
-     * @param userId 用户ID
+     * @param session 当前活跃的会话
      */
-    public void recordHeartbeat(Long userId) {
-        lastHeartbeat.put(userId, System.currentTimeMillis());
+    public void recordHeartbeat(WebSocketSession session) {
+        lastHeartbeat.put(session.getId(), System.currentTimeMillis());
     }
 
     /**
@@ -121,7 +153,13 @@ public class WebSocketSessionManager {
     public List<Long> findStaleSessionUserIds(Duration maxIdle) {
         long threshold = System.currentTimeMillis() - maxIdle.toMillis();
         return CollStreamUtil.toList(
-                CollUtil.filterNew(lastHeartbeat.entrySet(), entry -> entry.getValue() < threshold),
+                CollUtil.filterNew(
+                        localSessions.entrySet(),
+                        entry -> {
+                            Long heartbeat = lastHeartbeat.get(entry.getValue().getId());
+                            return heartbeat != null && heartbeat < threshold;
+                        }
+                ),
                 Map.Entry::getKey
         );
     }

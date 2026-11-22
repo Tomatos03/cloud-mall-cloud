@@ -51,13 +51,20 @@ public interface IShopService {
     boolean isFollowed(Long userId, Long shopId);
 
     /**
-     * 关注或取消关注店铺。
+     * 关注店铺，已关注时直接返回。
      *
      * @param userId 用户 ID
      * @param shopId 店铺 ID
-     * @return true 表示关注成功，false 表示已取消关注
      */
-    boolean toggleFollow(Long userId, Long shopId);
+    void follow(Long userId, Long shopId);
+
+    /**
+     * 取消关注店铺，未关注时直接返回。
+     *
+     * @param userId 用户 ID
+     * @param shopId 店铺 ID
+     */
+    void unfollow(Long userId, Long shopId);
 
     /**
      * 为入驻审核通过的用户开通店铺。

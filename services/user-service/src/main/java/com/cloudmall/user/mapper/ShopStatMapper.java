@@ -5,6 +5,7 @@ import java.time.LocalDateTime;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
 
 import com.cloudmall.user.model.entity.ShopStatDO;
 
@@ -17,19 +18,11 @@ import com.cloudmall.user.model.entity.ShopStatDO;
 public interface ShopStatMapper extends BaseMapper<ShopStatDO> {
 
     /**
-     * 关注数加一。
+     * 关注数加一，统计记录不存在时初始化。
      *
      * @param shopId 店铺 ID
-     * @return 影响行数
      */
-    default int incrementFollowCount(Long shopId) {
-        return update(
-                Wrappers.<ShopStatDO>lambdaUpdate()
-                        .setSql("follow_count = follow_count + 1")
-                        .set(ShopStatDO::getUpdateTime, LocalDateTime.now())
-                        .eq(ShopStatDO::getShopId, shopId)
-        );
-    }
+    void upsertFollowCount(@Param("shopId") Long shopId);
 
     /**
      * 关注数减一（不会减为负数）。

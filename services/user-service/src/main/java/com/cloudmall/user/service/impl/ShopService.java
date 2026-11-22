@@ -2,7 +2,6 @@ package com.cloudmall.user.service.impl;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -10,6 +9,7 @@ import java.util.Optional;
 import cn.hutool.core.collection.CollUtil;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -193,44 +193,46 @@ public class ShopService implements IShopService {
     }
 
     /**
-     * 关注或取消关注店铺，并同步维护店铺统计中的关注数。
+     * 关注店铺并同步维护店铺统计中的关注数，已关注时直接返回。
      *
      * @param userId 用户 ID
      * @param shopId 店铺 ID
-     * @return true 表示关注成功，false 表示已取消关注
      */
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public boolean toggleFollow(Long userId, Long shopId) {
+    public void follow(Long userId, Long shopId) {
         Asserts.notNull(userId, BizErrorEnum.INVALID_PARAM);
         Asserts.notNull(shopId, BizErrorEnum.INVALID_PARAM);
         Asserts.requireNonNull(shopMapper.selectById(shopId), BizErrorEnum.MERCHANT_STORE_NOT_FOUND);
 
-        ShopFollowDO existing = shopFollowMapper.selectByUserAndShop(userId, shopId);
-        if (existing != null) {
-            shopFollowMapper.deleteByUserAndShop(userId, shopId);
-            shopStatMapper.decrementFollowCount(shopId);
-            return false;
+        try {
+            shopFollowMapper.insert(ShopFollowDO.builder()
+                                                .userId(userId)
+                                                .shopId(shopId)
+                                                .build());
+        } catch (DuplicateKeyException ignored) {
+            return;
         }
-
-        shopFollowMapper.insert(ShopFollowDO.builder()
-                                            .userId(userId)
-                                            .shopId(shopId)
-                                            .build());
-        int updated = shopStatMapper.incrementFollowCount(shopId);
-        if (updated == 0) {
-            shopStatMapper.insert(
-                    ShopStatDO.builder()
-                              .shopId(shopId)
-                              .productCount(0)
-                              .totalReviewCount(0)
-                              .positiveReviewCount(0)
-                              .totalScore(0)
-                              .followCount(1L)
-                              .updateTime(LocalDateTime.now())
-                              .build()
-            );
-        }
-        return true;
+        shopStatMapper.upsertFollowCount(shopId);
     }
+
+    /**
+     * 取消关注店铺并同步维护店铺统计中的关注数，未关注时直接返回。
+     *
+     * @param userId 用户 ID
+     * @param shopId 店铺 ID
+     */
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public void unfollow(Long userId, Long shopId) {
+        Asserts.notNull(userId, BizErrorEnum.INVALID_PARAM);
+        Asserts.notNull(shopId, BizErrorEnum.INVALID_PARAM);
+        Asserts.requireNonNull(shopMapper.selectById(shopId), BizErrorEnum.MERCHANT_STORE_NOT_FOUND);
+
+        int deleted = shopFollowMapper.deleteByUserAndShop(userId, shopId);
+        if (deleted > 0) {
+            shopStatMapper.decrementFollowCount(shopId);
+        }
+    }
+
 }

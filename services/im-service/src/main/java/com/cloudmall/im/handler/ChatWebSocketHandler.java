@@ -66,7 +66,7 @@ public class ChatWebSocketHandler extends TextWebSocketHandler {
             return;
         }
 
-        webSocketSessionManager.recordHeartbeat(senderId);
+        webSocketSessionManager.recordHeartbeat(session);
 
         MessageReq messageReq;
         try {
@@ -120,12 +120,16 @@ public class ChatWebSocketHandler extends TextWebSocketHandler {
                     log.info("消息已转发给在线用户 {}", receiverId);
                 } catch (IOException e) {
                     // 发送失败说明接收方连接已不可用，立即清理
-                    webSocketSessionManager.removeSession(receiverId);
+                    webSocketSessionManager.removeSession(receiverId, receiverSession);
                     log.warn("向用户 {} 推送消息失败，已清理会话: {}", receiverId, e.getMessage());
                 }
+            } else if (receiverSession != null) {
+                // 本地连接不可用，主动收敛在线状态
+                webSocketSessionManager.removeSession(receiverId, receiverSession);
+                log.warn("用户 {} 的本地连接不可用，已清理在线状态", receiverId);
             } else {
-                // Redis 标记在线但本地连接不可用，说明半开连接或清理回调尚未执行，主动收敛在线状态
-                webSocketSessionManager.removeSession(receiverId);
+                // Redis 标记在线但本地无连接，清理残留的在线标记
+                webSocketSessionManager.removeStaleOnlineState(receiverId);
                 log.warn("用户 {} 标记在线但本地连接不可用，已清理在线状态", receiverId);
             }
         }
@@ -134,10 +138,7 @@ public class ChatWebSocketHandler extends TextWebSocketHandler {
 
     @Override
     protected void handlePongMessage(WebSocketSession session, PongMessage message) {
-        Long userId = (Long) session.getAttributes().get("userId");
-        if (userId != null) {
-            webSocketSessionManager.recordHeartbeat(userId);
-        }
+        webSocketSessionManager.recordHeartbeat(session);
     }
 
     /**
@@ -175,7 +176,11 @@ public class ChatWebSocketHandler extends TextWebSocketHandler {
                     log.warn("关闭用户 {} 的半开连接失败: {}", userId, e.getMessage());
                 }
             }
-            webSocketSessionManager.removeSession(userId);
+            if (session == null) {
+                webSocketSessionManager.removeStaleOnlineState(userId);
+            } else {
+                webSocketSessionManager.removeSession(userId, session);
+            }
             log.info("用户 {} 心跳超时，已清理半开连接", userId);
         }
     }
@@ -184,7 +189,7 @@ public class ChatWebSocketHandler extends TextWebSocketHandler {
     public void afterConnectionClosed(WebSocketSession session, CloseStatus status) {
         Long userId = (Long) session.getAttributes().get("userId");
         if (userId != null) {
-            webSocketSessionManager.removeSession(userId);
+            webSocketSessionManager.removeSession(userId, session);
             log.info("用户 {} 已断开 WebSocket，状态码: {}", userId, status.getCode());
         }
     }

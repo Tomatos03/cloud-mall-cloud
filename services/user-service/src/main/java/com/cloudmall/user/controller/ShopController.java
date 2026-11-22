@@ -3,6 +3,7 @@ package com.cloudmall.user.controller;
 import java.util.List;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -106,17 +107,34 @@ public class ShopController {
     }
 
     /**
-     * 关注或取消关注店铺。
+     * 关注店铺，已关注时直接返回。
      *
      * @param id 店铺 ID
-     * @return true 表示关注成功，false 表示已取消关注
+     * @return 处理结果
      */
     @PostMapping("/{id}/follow")
-    public Result<Boolean> toggleFollow(@PathVariable Long id) {
+    public Result<Void> follow(@PathVariable Long id) {
         Long userId = Asserts.requireNonNull(
                 UserContextHolder.getUserId(),
                 BizErrorEnum.USER_NOT_AUTHENTICATED
         );
-        return Result.success(shopService.toggleFollow(userId, id));
+        shopService.follow(userId, id);
+        return Result.success();
+    }
+
+    /**
+     * 取消关注店铺，未关注时直接返回。
+     *
+     * @param id 店铺 ID
+     * @return 处理结果
+     */
+    @DeleteMapping("/{id}/follow")
+    public Result<Void> unfollow(@PathVariable Long id) {
+        Long userId = Asserts.requireNonNull(
+                UserContextHolder.getUserId(),
+                BizErrorEnum.USER_NOT_AUTHENTICATED
+        );
+        shopService.unfollow(userId, id);
+        return Result.success();
     }
 }
