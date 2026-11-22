@@ -115,6 +115,27 @@ mvn test                                                  # 测试
 
 - 使用 Hutool `CollectionUtil.isEmpty()` / `isNotEmpty()`，禁止手写 `== null || .isEmpty()`。
 
+### 集合转换与过滤
+
+- 集合元素映射、建索引、分组统一使用 Hutool `CollStreamUtil`，禁止手写 `stream().map(...).collect(Collectors.toXxx())` 模板：
+  - 映射为 List / Set：`CollStreamUtil.toList(collection, mapper)` / `toSet(collection, mapper)`。
+  - 按 key 建索引：`CollStreamUtil.toIdentityMap(collection, keyMapper)`（value 为元素本身）或 `toMap(collection, keyMapper, valueMapper)`。
+  - 分组：`CollStreamUtil.groupByKey` / `groupKeyValue` / `groupBy`。
+- 单步的排序、截取、去重等集合操作优先使用 Hutool `CollUtil` / `ListUtil` 静态工具，禁止为此手写 Stream 模板：
+  - 排序：`CollUtil.sort(collection, comparator)` 返回新 `List`；仅在明确允许修改原集合时使用 `ListUtil.sort(list, comparator)`；按属性或拼音排序用 `CollUtil.sortByProperty` / `CollUtil.sortByPinyin`。
+  - 截取 / 分页 / 切块：Hutool 没有 `limit` 方法，`limit` 与 `skip` 用 `CollUtil.sub(collection, start, end)`；分页用 `ListUtil.page(pageNo, pageSize, list)`；切块用 `CollUtil.split(collection, size)`（新集合）或 `ListUtil.partition(list, size)`（`subList` 视图，原集合变更会同步）。
+  - 去重：`CollUtil.distinct(collection)` 保序返回新 `ArrayList`；按字段去重使用 `CollUtil.distinct(collection, keyGenerator, override)`。
+  - 最值与匹配：元素实现 `Comparable` 时用 `CollUtil.max` / `CollUtil.min`；自定义 `Comparator` 的最值仍用 JDK `Collections.min/max`；存在性判断与计数用 `CollUtil.findOne` / `anyMatch` / `allMatch` / `count`。
+  - 反转：`ListUtil.reverse(list)` 原地修改，`ListUtil.reverseNew(list)` 返回新列表。
+  - 拼接：用 `CollUtil.join(collection, delimiter)` 或带前缀/后缀的重载，替代 `Collectors.joining`。
+- 多个中间操作混排（如同时包含 `filter` / `sorted` / `distinct` / `limit`）时，仍使用 JDK Stream 管道并以 `toList()` 收尾，不要强行拆成多步临时集合。
+- 过滤后立即转换时，用 `CollUtil.filterNew(collection, predicate)` 组合 `CollStreamUtil`，禁止保留仅用于中转的局部集合，禁止为单行工具调用再封装私有方法。
+- 过滤在映射之前时优先 `CollUtil.filterNew` 后再转换，避免对 null 元素执行 mapper；映射函数本身能安全处理 null 时可直接使用 `CollStreamUtil.toList`，其会过滤映射结果为 null 的元素。
+- `CollUtil.filter` / `IterUtil.filter` 会原地修改集合，禁止用于 Spring 注入集合或只读集合；需要新集合时使用 `CollUtil.filterNew` 或 `IterUtil.filterToList`。
+- 纯过滤且无后续转换时，优先 JDK `stream().filter(...).toList()`，不要为单行工具调用再封装私有方法。
+- Hutool 与 JDK Stream 的返回值差异需注意：`CollUtil.distinct` 返回可变 `ArrayList`（`stream().distinct().toList()` 为不可变）；`ListUtil.page` 首页可能返回原列表的不可修改视图；`ListUtil.partition` 返回视图。
+- 以下场景保留原写法，避免语义变化：`LinkedHashMap` 顺序分组、带 merge 函数的 `toMap`、依赖重复 key 抛异常的 `toMap`、非 `Collection` 的 `Cursor` 转换。
+
 ### 实体与 DTO
 
 - 注解固定 `@Data @Builder @NoArgsConstructor @AllArgsConstructor`；统一 builder 构建，禁止 `new` 后逐字段 setter；注解写在字段上方，禁止写在泛型参数旁（如 `List<@Valid Xxx>`）；允许纯谓词方法（`is*` / `has*` / `can*`，只读自身字段与入参、无副作用）。

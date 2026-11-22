@@ -4,9 +4,7 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Set;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import cn.hutool.core.collection.CollStreamUtil;
@@ -156,7 +154,7 @@ public class SkuService implements ISkuService {
      */
     private Map<Long, ProductDO> loadEnabledProductMap(List<ProductSkuDO> skus) {
         Set<Long> productIds = CollStreamUtil.toSet(skus, ProductSkuDO::getProductId);
-        return batchQuery(productIds, productMapper::selectEnabledByIds, ProductDO::getId);
+        return CollStreamUtil.toIdentityMap(productMapper.selectEnabledByIds(productIds), ProductDO::getId);
     }
 
     /**
@@ -203,30 +201,6 @@ public class SkuService implements ISkuService {
     }
 
     /**
-     * 按标识批量查询并建索引，入参或结果为空时返回空映射。
-     *
-     * @param ids 标识集合
-     * @param query 批量查询函数
-     * @param idGetter 结果标识提取函数
-     * @param <T> 结果类型
-     * @return 标识 -> 结果
-     */
-    private static <T> Map<Long, T> batchQuery(
-        Set<Long> ids,
-        Function<Set<Long>, List<T>> query,
-        Function<T, Long> idGetter
-    ) {
-        if (CollUtil.isEmpty(ids)) {
-            return Map.of();
-        }
-        List<T> list = query.apply(ids);
-        if (CollUtil.isEmpty(list)) {
-            return Map.of();
-        }
-        return CollStreamUtil.toIdentityMap(list, idGetter);
-    }
-
-    /**
      * 批量查询 SKU 的规格描述。 <p>
      * 规格值与规格组分属两张关联表，分三步批量查询后按规格组排序拼接。
      *
@@ -258,7 +232,13 @@ public class SkuService implements ISkuService {
      */
     private Map<Long, ProductSpecValueDO> loadSpecValueMap(List<ProductSkuSpecDO> relations) {
         Set<Long> specValueIds = CollStreamUtil.toSet(relations, ProductSkuSpecDO::getSpecValueId);
-        return batchQuery(specValueIds, productSpecValueMapper::selectByIds, ProductSpecValueDO::getId);
+        if (CollUtil.isEmpty(specValueIds)) {
+            return Map.of();
+        }
+        return CollStreamUtil.toIdentityMap(
+                productSpecValueMapper.selectByIds(specValueIds),
+                ProductSpecValueDO::getId
+        );
     }
 
     /**
@@ -269,7 +249,13 @@ public class SkuService implements ISkuService {
      */
     private Map<Long, ProductSpecGroupDO> loadSpecGroupMap(Map<Long, ProductSpecValueDO> valueMap) {
         Set<Long> groupIds = CollStreamUtil.toSet(valueMap.values(), ProductSpecValueDO::getGroupId);
-        return batchQuery(groupIds, productSpecGroupMapper::selectByIds, ProductSpecGroupDO::getId);
+        if (CollUtil.isEmpty(groupIds)) {
+            return Map.of();
+        }
+        return CollStreamUtil.toIdentityMap(
+                productSpecGroupMapper.selectByIds(groupIds),
+                ProductSpecGroupDO::getId
+        );
     }
 
     /**
@@ -285,17 +271,14 @@ public class SkuService implements ISkuService {
         Map<Long, ProductSpecValueDO> valueMap,
         Map<Long, ProductSpecGroupDO> groupMap
     ) {
-        return relations
-                .stream()
-                .sorted(Comparator.comparingInt(r -> specValueSort(r, valueMap, groupMap)))
-                .map(
-                        r -> {
-                            ProductSpecValueDO value = valueMap.get(r.getSpecValueId());
-                            return value == null ? null : value.getValue();
-                        }
-                )
-                .filter(Objects::nonNull)
-                .collect(Collectors.joining("；"));
+        List<String> values = CollStreamUtil.toList(
+                CollUtil.sort(relations, Comparator.comparingInt(r -> specValueSort(r, valueMap, groupMap))),
+                r -> {
+                    ProductSpecValueDO value = valueMap.get(r.getSpecValueId());
+                    return value == null ? null : value.getValue();
+                }
+        );
+        return CollUtil.join(values, "；");
     }
 
     /**
