@@ -8,10 +8,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
-import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
+import cn.hutool.core.collection.CollStreamUtil;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.BooleanUtil;
 import cn.hutool.core.util.ObjectUtil;
@@ -256,7 +256,7 @@ public class CartService implements ICartService {
         if (CollUtil.isEmpty(shops)) {
             return Collections.emptyMap();
         }
-        return shops.stream().collect(Collectors.toMap(ShopResp::getId, Function.identity()));
+        return CollStreamUtil.toIdentityMap(shops, ShopResp::getId);
     }
 
     /**
@@ -291,7 +291,7 @@ public class CartService implements ICartService {
                                  .map(CartDO::getSkuId)
                                  .toList();
         List<SkuResp> skus = skuClient.listSkusByIds(skuIds);
-        return skus.stream().collect(Collectors.toMap(SkuResp::getSkuId, Function.identity()));
+        return CollStreamUtil.toIdentityMap(skus, SkuResp::getSkuId);
     }
 
     /**
@@ -301,11 +301,7 @@ public class CartService implements ICartService {
      * @return 店铺 ID -> 店铺信息
      */
     private Map<Long, ShopResp> fetchShopMap(Map<Long, SkuResp> skuMap) {
-        Set<Long> shopIds = skuMap.values()
-                                  .stream()
-                                  .map(SkuResp::getShopId)
-                                  .filter(Objects::nonNull)
-                                  .collect(Collectors.toSet());
+        Set<Long> shopIds = CollStreamUtil.toSet(skuMap.values(), SkuResp::getShopId);
         return fetchShops(shopIds);
     }
 

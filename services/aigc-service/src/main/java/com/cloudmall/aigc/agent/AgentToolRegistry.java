@@ -1,14 +1,13 @@
 package com.cloudmall.aigc.agent;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Function;
-import java.util.stream.Collectors;
 
+import cn.hutool.core.collection.CollStreamUtil;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;
 
@@ -52,13 +51,11 @@ public class AgentToolRegistry {
     private static Map<AgentTypeEnum, Object[]> buildAgentAvailableToolsMap(ApplicationContext context) {
         Map<String, Object> toolBeans = context.getBeansWithAnnotation(AgentTool.class);
 
-        Map<AgentTypeEnum, ArrayList<Object>> result = Arrays.stream(AgentTypeEnum.values())
-                                                             .collect(
-                                                                     Collectors.toMap(
-                                                                             Function.identity(),
-                                                                             type -> new ArrayList<>()
-                                                                     )
-                                                             );
+        Map<AgentTypeEnum, ArrayList<Object>> result = CollStreamUtil.toMap(
+                List.of(AgentTypeEnum.values()),
+                Function.identity(),
+                type -> new ArrayList<>()
+        );
 
         for (Object tool : toolBeans.values()) {
             AgentTool ann = tool.getClass().getAnnotation(AgentTool.class);
@@ -74,8 +71,6 @@ public class AgentToolRegistry {
             }
         }
 
-        return result.entrySet()
-                     .stream()
-                     .collect(Collectors.toMap(Map.Entry::getKey, entry -> entry.getValue().toArray()));
+        return CollStreamUtil.toMap(result.entrySet(), Map.Entry::getKey, entry -> entry.getValue().toArray());
     }
 }

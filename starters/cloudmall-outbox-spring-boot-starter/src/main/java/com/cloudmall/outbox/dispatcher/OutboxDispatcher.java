@@ -5,8 +5,8 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
+import cn.hutool.core.collection.CollStreamUtil;
 import cn.hutool.core.collection.CollUtil;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import lombok.RequiredArgsConstructor;
@@ -59,10 +59,7 @@ public class OutboxDispatcher {
         if (CollUtil.isEmpty(pending)) {
             return 0;
         }
-        Map<String, List<OutboxDO>> groups = pending.stream()
-                                                    .collect(
-                                                            Collectors.groupingBy(OutboxDispatcher::groupKey)
-                                                    );
+        Map<String, List<OutboxDO>> groups = CollStreamUtil.groupByKey(pending, OutboxDispatcher::groupKey);
         for (List<OutboxDO> group : groups.values()) {
             publishGroup(group);
         }

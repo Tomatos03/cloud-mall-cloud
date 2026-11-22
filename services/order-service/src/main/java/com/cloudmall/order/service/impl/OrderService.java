@@ -7,8 +7,8 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.stream.Collectors;
 
+import cn.hutool.core.collection.CollStreamUtil;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.IdUtil;
 import cn.hutool.core.util.StrUtil;
@@ -143,12 +143,7 @@ public class OrderService implements IOrderService {
                                 .map(OrderSubDO::getId)
                                 .toList();
         List<OrderItemDO> items = orderItemMapper.selectBySubOrderIds(subIds);
-        Map<Long, List<OrderItemDO>> itemsBySub = items.stream()
-                                                       .collect(
-                                                               Collectors.groupingBy(
-                                                                       OrderItemDO::getSubOrderId
-                                                               )
-                                                       );
+        Map<Long, List<OrderItemDO>> itemsBySub = CollStreamUtil.groupByKey(items, OrderItemDO::getSubOrderId);
         for (OrderSubResp subResp : resps) {
             List<OrderItemDO> subItems = itemsBySub.getOrDefault(subResp.getId(), Collections.emptyList());
             subResp.setItems(orderItemConverter.toItemRespList(subItems));

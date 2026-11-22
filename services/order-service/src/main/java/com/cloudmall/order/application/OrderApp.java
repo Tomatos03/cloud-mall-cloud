@@ -5,9 +5,8 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.function.Function;
-import java.util.stream.Collectors;
 
+import cn.hutool.core.collection.CollStreamUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -90,8 +89,7 @@ public class OrderApp {
     private Map<Long, SkuResp> requireAvailableSkus(Map<Long, Integer> quantities) {
         List<SkuResp> skus = skuClient.listSkusByIds(new ArrayList<>(quantities.keySet()));
         Asserts.notEmpty(skus, BizErrorEnum.ORDER_CREATE_SKU_NOT_AVAILABLE);
-        Map<Long, SkuResp> skuMap = skus.stream()
-                                        .collect(Collectors.toMap(SkuResp::getSkuId, Function.identity()));
+        Map<Long, SkuResp> skuMap = CollStreamUtil.toIdentityMap(skus, SkuResp::getSkuId);
         for (Map.Entry<Long, Integer> entry : quantities.entrySet()) {
             SkuResp sku = Asserts.requireNonNull(
                     skuMap.get(entry.getKey()),

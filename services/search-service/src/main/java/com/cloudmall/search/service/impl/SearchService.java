@@ -4,9 +4,9 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Objects;
 import java.util.Set;
 
+import cn.hutool.core.collection.CollStreamUtil;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.StrUtil;
 import co.elastic.clients.elasticsearch.ElasticsearchClient;
@@ -264,23 +264,15 @@ public class SearchService implements ISearchService {
                                                                    .total()
                                                                    .value();
         long pages = (total + size - 1) / size;
-        return SearchResultResp.builder()
-                               .items(buildItems(response))
-                               .facets(buildFacets(response))
-                               .total(total)
-                               .page((long) page)
-                               .pageSize((long) size)
-                               .pages(pages)
-                               .build();
-    }
-
-    private List<SearchProductResp> buildItems(SearchResponse<ProductHit> response) {
-        return response.hits()
-                       .hits()
-                       .stream()
-                       .map(this::toSearchProductResp)
-                       .filter(Objects::nonNull)
-                       .toList();
+        return SearchResultResp
+                .builder()
+                .items(CollStreamUtil.toList(response.hits().hits(), this::toSearchProductResp))
+                .facets(buildFacets(response))
+                .total(total)
+                .page((long) page)
+                .pageSize((long) size)
+                .pages(pages)
+                .build();
     }
 
     private SearchProductResp toSearchProductResp(Hit<ProductHit> hit) {

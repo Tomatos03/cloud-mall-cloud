@@ -3,8 +3,8 @@ package com.cloudmall.product.service.impl;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
+import cn.hutool.core.collection.CollStreamUtil;
 import cn.hutool.core.collection.CollUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -57,13 +57,11 @@ public class ProductSpecService implements IProductSpecService {
             return Map.of();
         }
         List<ProductSkuSpecDO> specs = productSkuSpecMapper.selectBySkuIds(skuIds);
-        return specs.stream()
-                    .collect(
-                            Collectors.groupingBy(
-                                    ProductSkuSpecDO::getSkuId,
-                                    Collectors.mapping(ProductSkuSpecDO::getSpecValueId, Collectors.toList())
-                            )
-                    );
+        return CollStreamUtil.groupKeyValue(
+                specs,
+                ProductSkuSpecDO::getSkuId,
+                ProductSkuSpecDO::getSpecValueId
+        );
     }
 
     /**
@@ -82,17 +80,18 @@ public class ProductSpecService implements IProductSpecService {
                 specValueIds,
                 productId
         );
-        return specs
-                .stream()
-                .collect(
-                        Collectors.groupingBy(
-                                ProductSkuSpecDO::getSkuId,
-                                Collectors.mapping(ProductSkuSpecDO::getSpecValueId, Collectors.toList())
-                        )
-                )
-                .entrySet()
-                .stream()
-                .filter(entry -> entry.getValue().size() == specValueIds.size())
-                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+        Map<Long, List<Long>> skuSpecMap = CollStreamUtil.groupKeyValue(
+                specs,
+                ProductSkuSpecDO::getSkuId,
+                ProductSkuSpecDO::getSpecValueId
+        );
+        return CollStreamUtil.toMap(
+                CollUtil.filterNew(
+                        skuSpecMap.entrySet(),
+                        entry -> entry.getValue().size() == specValueIds.size()
+                ),
+                Map.Entry::getKey,
+                Map.Entry::getValue
+        );
     }
 }

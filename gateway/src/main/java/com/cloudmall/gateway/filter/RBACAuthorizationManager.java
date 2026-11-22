@@ -1,8 +1,8 @@
 package com.cloudmall.gateway.filter;
 
 import java.util.Set;
-import java.util.stream.Collectors;
 
+import cn.hutool.core.collection.CollStreamUtil;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -85,10 +85,10 @@ public class RBACAuthorizationManager implements ReactiveAuthorizationManager<Au
      * @return 授权决策
      */
     private AuthorizationDecision checkPermissions(Authentication auth, AuthProperties.UrlPermission matched) {
-        Set<String> userPermissions = auth.getAuthorities()
-                                          .stream()
-                                          .map(GrantedAuthority::getAuthority)
-                                          .collect(Collectors.toSet());
+        Set<String> userPermissions = CollStreamUtil.toSet(
+                auth.getAuthorities(),
+                GrantedAuthority::getAuthority
+        );
 
         // 检查用户是否拥有任一所需权限（OR 逻辑）
         boolean granted = matched.getPermissions()

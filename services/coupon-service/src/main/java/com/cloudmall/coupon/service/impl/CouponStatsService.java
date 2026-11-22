@@ -2,10 +2,10 @@ package com.cloudmall.coupon.service.impl;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import cn.hutool.core.collection.CollStreamUtil;
 import cn.hutool.core.collection.CollUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -92,11 +92,15 @@ public class CouponStatsService implements ICouponStatsService {
         if (CollUtil.isEmpty(logs)) {
             return stats;
         }
-        Map<UserCouponOperationTypeEnum, Long> countByOp = logs
-                .stream()
-                .map(UserCouponLogDO::getOperationType)
-                .filter(Objects::nonNull)
-                .collect(Collectors.groupingBy(Function.identity(), Collectors.counting()));
+        List<UserCouponOperationTypeEnum> operationTypes = CollStreamUtil.toList(
+                logs,
+                UserCouponLogDO::getOperationType
+        );
+        Map<UserCouponOperationTypeEnum, Long> countByOp = CollStreamUtil.groupBy(
+                operationTypes,
+                Function.identity(),
+                Collectors.counting()
+        );
         stats.setIssueCount(countByOp.getOrDefault(UserCouponOperationTypeEnum.ISSUE, 0L));
         stats.setLockedCount(countByOp.getOrDefault(UserCouponOperationTypeEnum.LOCK, 0L));
         stats.setCommittedCount(countByOp.getOrDefault(UserCouponOperationTypeEnum.COMMIT, 0L));

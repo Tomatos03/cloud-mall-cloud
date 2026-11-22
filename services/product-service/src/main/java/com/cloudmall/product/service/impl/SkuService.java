@@ -1,7 +1,6 @@
 package com.cloudmall.product.service.impl;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
@@ -10,6 +9,7 @@ import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import cn.hutool.core.collection.CollStreamUtil;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.ObjectUtil;
 import lombok.RequiredArgsConstructor;
@@ -102,49 +102,14 @@ public class SkuService implements ISkuService {
      */
     @Override
     public List<SkuResp> listSkusByIds(List<Long> skuIds) {
-        if (CollUtil.isEmpty(skuIds)) {
-            return List.of();
-        }
-        List<ProductSkuDO> skus = productSkuMapper.selectByIds(skuIds);
+        List<ProductSkuDO> skus = loadSkusByIds(skuIds);
         if (CollUtil.isEmpty(skus)) {
             return List.of();
         }
-
-        // 批量查询已上架商品（取店铺 ID）
-        Set<Long> productIds = skus.stream()
-                                   .map(ProductSkuDO::getProductId)
-                                   .collect(Collectors.toSet());
-        List<ProductDO> products = productMapper.selectEnabledByIds(productIds);
-        Map<Long, ProductDO> productMap = products.stream()
-                                                  .collect(
-                                                          Collectors.toMap(
-                                                                  ProductDO::getId,
-                                                                  Function.identity()
-                                                          )
-                                                  );
-
-        // 批量查询规格描述（skuId -> "红色；XL"）
-        Set<Long> skuIdSet = skus.stream()
-                                 .map(ProductSkuDO::getId)
-                                 .collect(Collectors.toSet());
+        Map<Long, ProductDO> productMap = loadEnabledProductMap(skus);
+        Set<Long> skuIdSet = CollStreamUtil.toSet(skus, ProductSkuDO::getId);
         Map<Long, String> specDescMap = batchBuildSpecDesc(skuIdSet);
-
-        List<SkuResp> respList = new ArrayList<>(skus.size());
-        for (ProductSkuDO sku : skus) {
-            ProductDO product = productMap.get(sku.getProductId());
-            if (product == null) {
-                continue;
-            }
-            SkuResp resp = skuConverter.toResp(sku);
-            resp.setProductId(sku.getProductId());
-            resp.setSpecDesc(specDescMap.get(sku.getId()));
-            resp.setCategoryId(product.getCategoryId());
-            resp.setShopId(product.getShopId());
-            resp.setStatus(product.getStatus());
-            resp.setProductName(product.getName());
-            respList.add(resp);
-        }
-        return respList;
+        return assembleSkuRespList(skus, productMap, specDescMap);
     }
 
     /**
@@ -171,6 +136,97 @@ public class SkuService implements ISkuService {
     }
 
     /**
+     * 批量加载 SKU 实体，入参为空时返回空列表。
+     *
+     * @param skuIds SKU 标识列表
+     * @return SKU 实体列表
+     */
+    private List<ProductSkuDO> loadSkusByIds(List<Long> skuIds) {
+        if (CollUtil.isEmpty(skuIds)) {
+            return List.of();
+        }
+        return productSkuMapper.selectByIds(skuIds);
+    }
+
+    /**
+     * 批量加载 SKU 所属的已上架商品，按商品标识建索引。
+     *
+     * @param skus SKU 实体列表
+     * @return 商品标识 -> 已上架商品
+     */
+    private Map<Long, ProductDO> loadEnabledProductMap(List<ProductSkuDO> skus) {
+        Set<Long> productIds = CollStreamUtil.toSet(skus, ProductSkuDO::getProductId);
+        return batchQuery(productIds, productMapper::selectEnabledByIds, ProductDO::getId);
+    }
+
+    /**
+     * 组装 SKU 响应列表，跳过商品不存在或已下架的 SKU。
+     *
+     * @param skus SKU 实体列表
+     * @param productMap 商品标识 -> 已上架商品
+     * @param specDescMap SKU 标识 -> 规格描述
+     * @return SKU 响应列表
+     */
+    private List<SkuResp> assembleSkuRespList(
+        List<ProductSkuDO> skus,
+        Map<Long, ProductDO> productMap,
+        Map<Long, String> specDescMap
+    ) {
+        List<SkuResp> respList = new ArrayList<>(skus.size());
+        for (ProductSkuDO sku : skus) {
+            ProductDO product = productMap.get(sku.getProductId());
+            if (product == null) {
+                continue;
+            }
+            respList.add(assembleSkuResp(sku, product, specDescMap.get(sku.getId())));
+        }
+        return respList;
+    }
+
+    /**
+     * 组装单个 SKU 响应，补充商品维度的展示字段。
+     *
+     * @param sku SKU 实体
+     * @param product 所属商品
+     * @param specDesc 规格描述
+     * @return SKU 响应
+     */
+    private SkuResp assembleSkuResp(ProductSkuDO sku, ProductDO product, String specDesc) {
+        SkuResp resp = skuConverter.toResp(sku);
+        resp.setProductId(sku.getProductId());
+        resp.setSpecDesc(specDesc);
+        resp.setCategoryId(product.getCategoryId());
+        resp.setShopId(product.getShopId());
+        resp.setStatus(product.getStatus());
+        resp.setProductName(product.getName());
+        return resp;
+    }
+
+    /**
+     * 按标识批量查询并建索引，入参或结果为空时返回空映射。
+     *
+     * @param ids 标识集合
+     * @param query 批量查询函数
+     * @param idGetter 结果标识提取函数
+     * @param <T> 结果类型
+     * @return 标识 -> 结果
+     */
+    private static <T> Map<Long, T> batchQuery(
+        Set<Long> ids,
+        Function<Set<Long>, List<T>> query,
+        Function<T, Long> idGetter
+    ) {
+        if (CollUtil.isEmpty(ids)) {
+            return Map.of();
+        }
+        List<T> list = query.apply(ids);
+        if (CollUtil.isEmpty(list)) {
+            return Map.of();
+        }
+        return CollStreamUtil.toIdentityMap(list, idGetter);
+    }
+
+    /**
      * 批量查询 SKU 的规格描述。 <p>
      * 规格值与规格组分属两张关联表，分三步批量查询后按规格组排序拼接。
      *
@@ -180,44 +236,40 @@ public class SkuService implements ISkuService {
     private Map<Long, String> batchBuildSpecDesc(Set<Long> skuIds) {
         List<ProductSkuSpecDO> relations = productSkuSpecMapper.selectBySkuIds(skuIds);
         if (CollUtil.isEmpty(relations)) {
-            return Collections.emptyMap();
+            return Map.of();
         }
+        Map<Long, ProductSpecValueDO> valueMap = loadSpecValueMap(relations);
+        Map<Long, ProductSpecGroupDO> groupMap = loadSpecGroupMap(valueMap);
+        return CollStreamUtil.groupBy(
+                relations,
+                ProductSkuSpecDO::getSkuId,
+                Collectors.collectingAndThen(
+                        Collectors.toList(),
+                        list -> buildSpecDesc(list, valueMap, groupMap)
+                )
+        );
+    }
 
-        Set<Long> specValueIds = relations.stream()
-                                          .map(ProductSkuSpecDO::getSpecValueId)
-                                          .collect(Collectors.toSet());
-        List<ProductSpecValueDO> values = productSpecValueMapper.selectByIds(specValueIds);
-        Map<Long, ProductSpecValueDO> valueMap = values.stream()
-                                                       .collect(
-                                                               Collectors.toMap(
-                                                                       ProductSpecValueDO::getId,
-                                                                       Function.identity()
-                                                               )
-                                                       );
+    /**
+     * 批量加载 SKU 规格关联引用的规格值。
+     *
+     * @param relations SKU 与规格值关联列表
+     * @return 规格值标识 -> 规格值
+     */
+    private Map<Long, ProductSpecValueDO> loadSpecValueMap(List<ProductSkuSpecDO> relations) {
+        Set<Long> specValueIds = CollStreamUtil.toSet(relations, ProductSkuSpecDO::getSpecValueId);
+        return batchQuery(specValueIds, productSpecValueMapper::selectByIds, ProductSpecValueDO::getId);
+    }
 
-        Set<Long> groupIds = valueMap.values()
-                                     .stream()
-                                     .map(ProductSpecValueDO::getGroupId)
-                                     .collect(Collectors.toSet());
-        List<ProductSpecGroupDO> groups = productSpecGroupMapper.selectByIds(groupIds);
-        Map<Long, ProductSpecGroupDO> groupMap = groups.stream()
-                                                       .collect(
-                                                               Collectors.toMap(
-                                                                       ProductSpecGroupDO::getId,
-                                                                       Function.identity()
-                                                               )
-                                                       );
-
-        return relations.stream()
-                        .collect(
-                                Collectors.groupingBy(
-                                        ProductSkuSpecDO::getSkuId,
-                                        Collectors.collectingAndThen(
-                                                Collectors.toList(),
-                                                list -> buildSpecDesc(list, valueMap, groupMap)
-                                        )
-                                )
-                        );
+    /**
+     * 批量加载规格值所属的规格组。
+     *
+     * @param valueMap 规格值标识 -> 规格值
+     * @return 规格组标识 -> 规格组
+     */
+    private Map<Long, ProductSpecGroupDO> loadSpecGroupMap(Map<Long, ProductSpecValueDO> valueMap) {
+        Set<Long> groupIds = CollStreamUtil.toSet(valueMap.values(), ProductSpecValueDO::getGroupId);
+        return batchQuery(groupIds, productSpecGroupMapper::selectByIds, ProductSpecGroupDO::getId);
     }
 
     /**

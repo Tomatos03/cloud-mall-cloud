@@ -10,11 +10,11 @@ import java.util.Deque;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import cn.hutool.core.collection.CollStreamUtil;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.IdUtil;
 import cn.hutool.core.util.ObjectUtil;
@@ -323,16 +323,12 @@ public class ProductService implements IProductService {
         if (categoryId == null || categoryId <= 0L) {
             return Set.of();
         }
-        Map<Long, List<Long>> childrenMap = categoryMapper
-                .selectEnabledOrdered()
-                .stream()
-                .filter(cat -> cat.getParentId() != null)
-                .collect(
-                        Collectors.groupingBy(
-                                CategoryDO::getParentId,
-                                Collectors.mapping(CategoryDO::getId, Collectors.toList())
-                        )
-                );
+        List<CategoryDO> categories = categoryMapper.selectEnabledOrdered();
+        Map<Long, List<Long>> childrenMap = CollStreamUtil.groupKeyValue(
+                CollUtil.filterNew(categories, cat -> cat.getParentId() != null),
+                CategoryDO::getParentId,
+                CategoryDO::getId
+        );
         Set<Long> categoryIds = new HashSet<>();
         Deque<Long> queue = new ArrayDeque<>();
         queue.add(categoryId);
@@ -352,11 +348,9 @@ public class ProductService implements IProductService {
      * @return 商品搜索文档列表
      */
     private List<ProductDocResp> assembleSearchDocs(List<ProductDO> records) {
-        Set<Long> brandIds = collectNonNull(records, ProductDO::getBrandId);
-        Set<Long> categoryIds = collectNonNull(records, ProductDO::getCategoryId);
-        Set<Long> productIds = records.stream()
-                                      .map(ProductDO::getId)
-                                      .collect(Collectors.toSet());
+        Set<Long> brandIds = CollStreamUtil.toSet(records, ProductDO::getBrandId);
+        Set<Long> categoryIds = CollStreamUtil.toSet(records, ProductDO::getCategoryId);
+        Set<Long> productIds = CollStreamUtil.toSet(records, ProductDO::getId);
 
         Map<Long, BrandDO> brandMap = batchQuery(brandIds, brandMapper::selectByIds, BrandDO::getId);
         Map<Long, CategoryDO> categoryMap = batchQuery(
@@ -369,10 +363,12 @@ public class ProductService implements IProductService {
                 productImageMapper::selectMainImagesByProductIds,
                 ProductImageDO::getProductId
         );
-        Map<Long, BigDecimal> lowestPriceMap = productSkuMapper
-                .selectLowestPrices(productIds)
-                .stream()
-                .collect(Collectors.toMap(ProductSkuPrice::productId, ProductSkuPrice::price));
+        List<ProductSkuPrice> lowestPrices = productSkuMapper.selectLowestPrices(productIds);
+        Map<Long, BigDecimal> lowestPriceMap = CollStreamUtil.toMap(
+                lowestPrices,
+                ProductSkuPrice::productId,
+                ProductSkuPrice::price
+        );
 
         return records.stream()
                       .map(p -> assembleSearchDoc(p, brandMap, categoryMap, imageMap, lowestPriceMap))
@@ -381,13 +377,6 @@ public class ProductService implements IProductService {
 
     private static <K, V> Map<K, V> singletonMapOrEmpty(K key, V value) {
         return value == null ? Map.of() : Map.of(key, value);
-    }
-
-    private static Set<Long> collectNonNull(List<ProductDO> records, Function<ProductDO, Long> getter) {
-        return records.stream()
-                      .map(getter)
-                      .filter(Objects::nonNull)
-                      .collect(Collectors.toSet());
     }
 
     private static <T> Map<Long, T> batchQuery(
@@ -402,7 +391,7 @@ public class ProductService implements IProductService {
         if (CollUtil.isEmpty(list)) {
             return Map.of();
         }
-        return list.stream().collect(Collectors.toMap(idGetter, Function.identity()));
+        return CollStreamUtil.toIdentityMap(list, idGetter);
     }
 
     private static ProductDocResp assembleSearchDoc(
@@ -598,11 +587,13 @@ public class ProductService implements IProductService {
      * @param newValueNames 请求中的规格值名称集合
      */
     private void deleteOrphanValues(Map<String, ProductSpecValueDO> existingValues, Set<String> newValueNames) {
-        Set<Long> orphanIds = existingValues.entrySet()
-                                            .stream()
-                                            .filter(entry -> !newValueNames.contains(entry.getKey()))
-                                            .map(entry -> entry.getValue().getId())
-                                            .collect(Collectors.toSet());
+        Set<Long> orphanIds = CollStreamUtil.toSet(
+                CollUtil.filterNew(
+                        existingValues.entrySet(),
+                        entry -> !newValueNames.contains(entry.getKey())
+                ),
+                entry -> entry.getValue().getId()
+        );
         productSpecValueMapper.deleteValues(orphanIds);
     }
 
@@ -613,11 +604,13 @@ public class ProductService implements IProductService {
      * @param newGroupNames 请求中的规格组名称集合
      */
     private void deleteOrphanGroups(Map<String, ProductSpecGroupDO> existingGroups, Set<String> newGroupNames) {
-        Set<Long> orphanIds = existingGroups.entrySet()
-                                            .stream()
-                                            .filter(entry -> !newGroupNames.contains(entry.getKey()))
-                                            .map(entry -> entry.getValue().getId())
-                                            .collect(Collectors.toSet());
+        Set<Long> orphanIds = CollStreamUtil.toSet(
+                CollUtil.filterNew(
+                        existingGroups.entrySet(),
+                        entry -> !newGroupNames.contains(entry.getKey())
+                ),
+                entry -> entry.getValue().getId()
+        );
         productSpecGroupMapper.deleteGroups(orphanIds);
     }
 
@@ -699,9 +692,7 @@ public class ProductService implements IProductService {
      * @param newSkus 更新后的 SKU 列表（含保留与新增）
      */
     private void softDeleteRemovedSkus(List<ProductSkuDO> existingSkus, List<ProductSkuDO> newSkus) {
-        Set<String> newHashes = newSkus.stream()
-                                       .map(ProductSkuDO::getSpecHash)
-                                       .collect(Collectors.toSet());
+        Set<String> newHashes = CollStreamUtil.toSet(newSkus, ProductSkuDO::getSpecHash);
         List<Long> removedIds = existingSkus.stream()
                                             .filter(s -> !newHashes.contains(s.getSpecHash()))
                                             .map(ProductSkuDO::getId)
@@ -891,9 +882,7 @@ public class ProductService implements IProductService {
         List<ImageResp> images = productImageService.listByProductId(id);
         List<SpecGroupResp> specGroups = productSpecService.getSpecGroups(id);
         List<ProductSkuDO> skus = productSkuMapper.selectByProductId(id);
-        List<Long> skuIds = skus.stream()
-                                .map(ProductSkuDO::getId)
-                                .collect(Collectors.toList());
+        List<Long> skuIds = CollStreamUtil.toList(skus, ProductSkuDO::getId);
         Map<Long, List<Long>> skuSpecMap = productSpecService.getSkuSpecMap(skuIds);
         List<ProductSku> skuResponses = skuConverter.toRespList(skus, skuSpecMap);
 

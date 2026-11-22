@@ -10,6 +10,7 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import cn.hutool.core.collection.CollStreamUtil;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.StrUtil;
 import org.springframework.stereotype.Component;
@@ -106,10 +107,7 @@ public class AgentCardAssembler {
         if (CollUtil.isEmpty(products)) {
             return List.of();
         }
-        return products.stream()
-                       .filter(Objects::nonNull)
-                       .map(this::product)
-                       .toList();
+        return CollStreamUtil.toList(CollUtil.filterNew(products, Objects::nonNull), this::product);
     }
 
     /**
@@ -152,10 +150,7 @@ public class AgentCardAssembler {
         if (CollUtil.isEmpty(orders)) {
             return List.of();
         }
-        return orders.stream()
-                     .filter(Objects::nonNull)
-                     .map(this::order)
-                     .toList();
+        return CollStreamUtil.toList(CollUtil.filterNew(orders, Objects::nonNull), this::order);
     }
 
     /**
@@ -204,10 +199,7 @@ public class AgentCardAssembler {
         if (CollUtil.isEmpty(coupons)) {
             return List.of();
         }
-        return coupons.stream()
-                      .filter(Objects::nonNull)
-                      .map(this::coupon)
-                      .toList();
+        return CollStreamUtil.toList(CollUtil.filterNew(coupons, Objects::nonNull), this::coupon);
     }
 
     /**
@@ -258,10 +250,7 @@ public class AgentCardAssembler {
         if (CollUtil.isEmpty(coupons)) {
             return List.of();
         }
-        return coupons.stream()
-                      .filter(Objects::nonNull)
-                      .map(this::userCoupon)
-                      .toList();
+        return CollStreamUtil.toList(CollUtil.filterNew(coupons, Objects::nonNull), this::userCoupon);
     }
 
     private AgentCardResp product(SearchProductResp product) {

@@ -2,8 +2,8 @@ package com.cloudmall.gateway.filter;
 
 import java.util.Collections;
 import java.util.List;
-import java.util.stream.Collectors;
 
+import cn.hutool.core.collection.CollStreamUtil;
 import cn.hutool.core.collection.CollUtil;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -205,9 +205,7 @@ public class AuthenticationFilter implements WebFilter {
         if (CollUtil.isEmpty(permissionCodes)) {
             return Collections.emptyList();
         }
-        return permissionCodes.stream()
-                              .map(SimpleGrantedAuthority::new)
-                              .collect(Collectors.toList());
+        return CollStreamUtil.toList(permissionCodes, SimpleGrantedAuthority::new);
     }
 
     /**

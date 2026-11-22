@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
+import cn.hutool.core.collection.CollStreamUtil;
 import cn.hutool.core.collection.CollUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -436,16 +437,16 @@ public class CouponOrderService implements ICouponOrderService {
             BigDecimal payable = candidateResp.getProductPayableAmount();
             if (payable.compareTo(bestPayable) < 0) {
                 bestPayable = payable;
-                best = combo.stream()
-                            .filter(Objects::nonNull)
-                            .map(CalcCoupon::getUserCouponId)
-                            .toList();
+                best = CollStreamUtil.toList(
+                        CollUtil.filterNew(combo, Objects::nonNull),
+                        CalcCoupon::getUserCouponId
+                );
                 bestEarliestExpire = earliestExpire(combo);
             } else if (payable.compareTo(bestPayable) == 0 && isEarlier(combo, bestEarliestExpire)) {
-                best = combo.stream()
-                            .filter(Objects::nonNull)
-                            .map(CalcCoupon::getUserCouponId)
-                            .toList();
+                best = CollStreamUtil.toList(
+                        CollUtil.filterNew(combo, Objects::nonNull),
+                        CalcCoupon::getUserCouponId
+                );
                 bestEarliestExpire = earliestExpire(combo);
             }
         }

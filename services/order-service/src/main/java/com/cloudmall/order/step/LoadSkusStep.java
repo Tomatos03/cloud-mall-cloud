@@ -2,9 +2,8 @@ package com.cloudmall.order.step;
 
 import java.util.List;
 import java.util.Map;
-import java.util.function.Function;
-import java.util.stream.Collectors;
 
+import cn.hutool.core.collection.CollStreamUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
@@ -50,8 +49,7 @@ public class LoadSkusStep implements ICheckoutStep {
         List<SkuResp> skus = skuClient.listSkusByIds(selectedSkuList);
         Asserts.isTrue(skus.size() == selectedSkuList.size(), BizErrorEnum.INVALID_PARAM);
 
-        Map<Long, SkuResp> skuMap = skus.stream()
-                                        .collect(Collectors.toMap(SkuResp::getSkuId, Function.identity()));
+        Map<Long, SkuResp> skuMap = CollStreamUtil.toIdentityMap(skus, SkuResp::getSkuId);
         for (Map.Entry<Long, Integer> entry : checkoutItems.entrySet()) {
             Integer stock = skuMap.get(entry.getKey()).getStock();
             Asserts.greaterThan(stock, entry.getValue(), BizErrorEnum.STOCK_NOT_ENOUGH);

@@ -6,6 +6,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+import cn.hutool.core.collection.CollStreamUtil;
+import cn.hutool.core.collection.CollUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.StringRedisTemplate;
@@ -118,11 +120,10 @@ public class WebSocketSessionManager {
      */
     public List<Long> findStaleSessionUserIds(Duration maxIdle) {
         long threshold = System.currentTimeMillis() - maxIdle.toMillis();
-        return lastHeartbeat.entrySet()
-                            .stream()
-                            .filter(entry -> entry.getValue() < threshold)
-                            .map(Map.Entry::getKey)
-                            .toList();
+        return CollStreamUtil.toList(
+                CollUtil.filterNew(lastHeartbeat.entrySet(), entry -> entry.getValue() < threshold),
+                Map.Entry::getKey
+        );
     }
 
     /**

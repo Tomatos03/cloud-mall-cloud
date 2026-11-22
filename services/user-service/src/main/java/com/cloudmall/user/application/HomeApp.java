@@ -7,9 +7,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
-import java.util.function.Function;
-import java.util.stream.Collectors;
 
+import cn.hutool.core.collection.CollStreamUtil;
 import cn.hutool.core.collection.CollUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -132,22 +131,12 @@ public class HomeApp {
             return List.of();
         }
 
-        Map<Long, CategoryResp> categoryMap = categories.stream()
-                                                        .collect(
-                                                                Collectors.toMap(
-                                                                        CategoryResp::getId,
-                                                                        Function.identity()
-                                                                )
-                                                        );
-        Map<Long, List<Long>> childrenMap = categories
-                .stream()
-                .filter(cat -> !isTopCategory(cat))
-                .collect(
-                        Collectors.groupingBy(
-                                CategoryResp::getParentId,
-                                Collectors.mapping(CategoryResp::getId, Collectors.toList())
-                        )
-                );
+        Map<Long, CategoryResp> categoryMap = CollStreamUtil.toIdentityMap(categories, CategoryResp::getId);
+        Map<Long, List<Long>> childrenMap = CollStreamUtil.groupKeyValue(
+                CollUtil.filterNew(categories, cat -> !isTopCategory(cat)),
+                CategoryResp::getParentId,
+                CategoryResp::getId
+        );
 
         List<HomeCategoryProductResp> sections = new ArrayList<>();
         List<CategoryResp> topCategories = categories.stream()

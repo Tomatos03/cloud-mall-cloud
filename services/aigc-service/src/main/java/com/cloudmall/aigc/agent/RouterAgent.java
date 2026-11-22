@@ -2,9 +2,10 @@ package com.cloudmall.aigc.agent;
 
 import java.util.List;
 import java.util.Map;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import cn.hutool.core.collection.CollStreamUtil;
+import cn.hutool.core.collection.CollUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.stereotype.Service;
@@ -48,9 +49,10 @@ public class RouterAgent implements IAgent {
     public RouterAgent(ChatClient.Builder clientBuilder, List<IAgent> agents, AgentPromptLoader promptLoader) {
         this.chatClientBuilder = clientBuilder;
         this.promptLoader = promptLoader;
-        this.agentMap = agents.stream()
-                              .filter(agent -> AgentTypeEnum.ROUTE != agent.getType())
-                              .collect(Collectors.toMap(IAgent::getType, Function.identity()));
+        this.agentMap = CollStreamUtil.toIdentityMap(
+                CollUtil.filterNew(agents, agent -> AgentTypeEnum.ROUTE != agent.getType()),
+                IAgent::getType
+        );
 
         this.routerChatClient = buildRouterChatClient();
 

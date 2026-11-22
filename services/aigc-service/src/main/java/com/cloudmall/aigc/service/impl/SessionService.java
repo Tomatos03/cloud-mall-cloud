@@ -8,6 +8,8 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import cn.hutool.core.collection.CollStreamUtil;
+import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.RandomUtil;
@@ -105,14 +107,14 @@ public class SessionService implements ISessionService {
         validateSession(sessionId);
         String conversationId = getConversationId(sessionId);
         List<Message> messages = chatMemoryRepository.findByConversationId(conversationId);
-        return messages
-                .stream()
-                .filter(
+        return CollStreamUtil.toList(
+                CollUtil.filterNew(
+                        messages,
                         m -> m.getMessageType() == MessageType.USER
                                      || m.getMessageType() == MessageType.ASSISTANT
-                )
-                .map(m -> toChatMessageResp(m, conversationId))
-                .toList();
+                ),
+                m -> toChatMessageResp(m, conversationId)
+        );
     }
 
     /**

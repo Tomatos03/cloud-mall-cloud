@@ -4,8 +4,8 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
-import java.util.stream.Collectors;
 
+import cn.hutool.core.collection.CollStreamUtil;
 import cn.hutool.core.util.StrUtil;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -371,9 +371,10 @@ public class MQProducer {
     @SuppressWarnings({"unchecked", "rawtypes"})
     public <T> SendResult sendBatch(String destination, Collection<T> payloads) {
         Asserts.notEmpty(payloads, BizErrorEnum.INVALID_PARAM);
-        Collection<Message> messages = payloads.stream()
-                                               .map(p -> (Message) MessageBuilder.withPayload(p).build())
-                                               .collect(Collectors.toList());
+        Collection<Message> messages = CollStreamUtil.toList(
+                payloads,
+                p -> (Message) MessageBuilder.withPayload(p).build()
+        );
         return rocketMQTemplate.syncSend(destination, messages);
     }
 
@@ -389,9 +390,10 @@ public class MQProducer {
     @SuppressWarnings({"unchecked", "rawtypes"})
     public <T> SendResult sendBatch(String destination, Collection<T> payloads, long timeout) {
         Asserts.notEmpty(payloads, BizErrorEnum.INVALID_PARAM);
-        Collection<Message> messages = payloads.stream()
-                                               .map(p -> (Message) MessageBuilder.withPayload(p).build())
-                                               .collect(Collectors.toList());
+        Collection<Message> messages = CollStreamUtil.toList(
+                payloads,
+                p -> (Message) MessageBuilder.withPayload(p).build()
+        );
         return rocketMQTemplate.syncSend(destination, messages, timeout);
     }
 

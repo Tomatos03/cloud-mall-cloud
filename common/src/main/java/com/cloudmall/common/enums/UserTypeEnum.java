@@ -4,8 +4,8 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
 
+import cn.hutool.core.collection.CollStreamUtil;
 import cn.hutool.core.util.StrUtil;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
@@ -69,10 +69,7 @@ public enum UserTypeEnum {
         if (StrUtil.isBlank(codes)) {
             return Collections.emptySet();
         }
-        return StrUtil.split(codes, ',')
-                      .stream()
-                      .map(UserTypeEnum::fromCode)
-                      .collect(Collectors.toSet());
+        return CollStreamUtil.toSet(StrUtil.split(codes, ','), UserTypeEnum::fromCode);
     }
     /**
      * 获取全部合法类型编码。
