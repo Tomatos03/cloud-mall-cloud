@@ -14,6 +14,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.web.server.authorization.AuthorizationContext;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
+
 import com.cloudmall.gateway.properties.AuthProperties;
 
 /**
@@ -50,16 +51,14 @@ public class RBACAuthorizationManager implements ReactiveAuthorizationManager<Au
      */
     @Override
     public Mono<AuthorizationDecision> check(
-            Mono<Authentication> authentication,
-            AuthorizationContext context
+        Mono<Authentication> authentication,
+        AuthorizationContext context
     ) {
 
-        String methodName = getRequest(context)
-                .getMethod()
-                .name();
-        String path = getRequest(context)
-                .getURI()
-                .getPath();
+        String methodName = getRequest(context).getMethod()
+                                               .name();
+        String path = getRequest(context).getURI()
+                                         .getPath();
 
         // 匹配路径规则
         AuthProperties.UrlPermission matched = authProperties.match(methodName, path);
@@ -73,9 +72,9 @@ public class RBACAuthorizationManager implements ReactiveAuthorizationManager<Au
                              .defaultIfEmpty(new AuthorizationDecision(false));
     }
 
-    private static @NonNull ServerHttpRequest getRequest(AuthorizationContext context) {
-        return context.getExchange()
-                      .getRequest();
+    @NonNull
+    private static ServerHttpRequest getRequest(AuthorizationContext context) {
+        return context.getExchange().getRequest();
     }
 
     /**

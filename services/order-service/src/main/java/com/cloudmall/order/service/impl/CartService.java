@@ -237,20 +237,9 @@ public class CartService implements ICartService {
      * @return SKU 实时信息
      */
     private SkuResp fetchSku(Long skuId) {
-        List<SkuResp> skus = fetchSkus(Collections.singletonList(skuId));
+        List<SkuResp> skus = skuClient.listSkusByIds(List.of(skuId));
         Asserts.notEmpty(skus, BizErrorEnum.CART_PRODUCT_NOT_EXIST);
         return skus.get(0);
-    }
-
-    /**
-     * 批量查询 SKU 实时信息。
-     *
-     * @param skuIds SKU ID 列表
-     * @return SKU 信息列表，SKU 不存在或已删除时不包含对应项
-     */
-    private List<SkuResp> fetchSkus(List<Long> skuIds) {
-        List<SkuResp> skus = skuClient.listSkusByIds(skuIds);
-        return ObjectUtil.defaultIfNull(skus, Collections.emptyList());
     }
 
     /**
@@ -301,8 +290,8 @@ public class CartService implements ICartService {
         List<Long> skuIds = carts.stream()
                                  .map(CartDO::getSkuId)
                                  .toList();
-        return fetchSkus(skuIds).stream()
-                                .collect(Collectors.toMap(SkuResp::getSkuId, Function.identity()));
+        List<SkuResp> skus = skuClient.listSkusByIds(skuIds);
+        return skus.stream().collect(Collectors.toMap(SkuResp::getSkuId, Function.identity()));
     }
 
     /**

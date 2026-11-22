@@ -123,7 +123,7 @@ public class AuthenticationFilter implements WebFilter {
         UserContext userContext
     ) {
 
-        List<SimpleGrantedAuthority> authorities = buildAuthorities(userContext);
+        List<SimpleGrantedAuthority> authorities = toAuthorities(userContext);
 
         UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
                 userContext,
@@ -200,7 +200,7 @@ public class AuthenticationFilter implements WebFilter {
      * @param userContext 用户上下文
      * @return GrantedAuthority 列表
      */
-    private List<SimpleGrantedAuthority> buildAuthorities(UserContext userContext) {
+    private List<SimpleGrantedAuthority> toAuthorities(UserContext userContext) {
         List<String> permissionCodes = userContext.getPermissionCodes();
         if (CollUtil.isEmpty(permissionCodes)) {
             return Collections.emptyList();

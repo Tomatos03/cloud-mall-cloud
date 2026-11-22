@@ -252,10 +252,14 @@ public class SeckillProductService implements ISeckillProductService {
         }
         try {
             List<SkuResp> skus = skuClient.listSkusByIds(skuIds);
-            Map<Long, SkuResp> skuMap = CollUtil
-                    .emptyIfNull(skus)
-                    .stream()
-                    .collect(Collectors.toMap(SkuResp::getSkuId, sku -> sku, (left, right) -> left));
+            Map<Long, SkuResp> skuMap = skus.stream()
+                                            .collect(
+                                                    Collectors.toMap(
+                                                            SkuResp::getSkuId,
+                                                            sku -> sku,
+                                                            (left, right) -> left
+                                                    )
+                                            );
             for (SeckillProductResp product : products) {
                 SkuResp sku = skuMap.get(product.getSkuId());
                 if (sku != null) {

@@ -42,10 +42,10 @@ public interface SkuClient {
 
     /**
      * 批量查询 SKU 信息（含实时价格、库存、上下架状态、规格描述、所属店铺）。 <p>
-     * 供购物车、订单等场景一次取齐，避免逐条调用。
+     * 供购物车、订单等场景一次取齐；无匹配项返回空列表，调用方无需 null 兜底。
      *
      * @param skuIds SKU ID 列表
-     * @return SKU 信息列表
+     * @return SKU 信息列表；无匹配项时为空列表，永不为 null
      */
     @PostMapping("/batch-query")
     List<SkuResp> listSkusByIds(@RequestBody List<Long> skuIds);

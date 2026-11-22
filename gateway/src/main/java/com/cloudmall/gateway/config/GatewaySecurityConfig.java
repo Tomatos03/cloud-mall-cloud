@@ -11,6 +11,7 @@ import org.springframework.security.config.web.server.SecurityWebFiltersOrder;
 import org.springframework.security.config.web.server.ServerHttpSecurity;
 import org.springframework.security.config.web.server.ServerHttpSecurity.AuthorizeExchangeSpec;
 import org.springframework.security.web.server.SecurityWebFilterChain;
+
 import com.cloudmall.gateway.filter.AuthenticationFilter;
 import com.cloudmall.gateway.filter.RBACAuthorizationManager;
 import com.cloudmall.gateway.properties.AuthProperties;
@@ -42,26 +43,23 @@ public class GatewaySecurityConfig {
      */
     @Bean
     public SecurityWebFilterChain filterChain(
-            ServerHttpSecurity http,
-            AuthenticationFilter authenticationWebFilter,
-            RBACAuthorizationManager rbacAuthorizationManager
+        ServerHttpSecurity http,
+        AuthenticationFilter authenticationWebFilter,
+        RBACAuthorizationManager rbacAuthorizationManager
     ) {
-        return http.csrf(ServerHttpSecurity.CsrfSpec::disable)
-                   .authorizeExchange(
-                           exchanges -> {
-                               permitWhitelist(exchanges);
-                               exchanges.anyExchange()
-                                        .access(rbacAuthorizationManager);
-                           }
-                   )
-                   .httpBasic(ServerHttpSecurity.HttpBasicSpec::disable)
-                   .formLogin(ServerHttpSecurity.FormLoginSpec::disable)
-                   .logout(ServerHttpSecurity.LogoutSpec::disable)
-                   .addFilterBefore(
-                           authenticationWebFilter,
-                           SecurityWebFiltersOrder.AUTHENTICATION
-                   )
-                   .build();
+        return http
+                .csrf(ServerHttpSecurity.CsrfSpec::disable)
+                .authorizeExchange(
+                        exchanges -> {
+                            setPermitWhitelist(exchanges);
+                            exchanges.anyExchange().access(rbacAuthorizationManager);
+                        }
+                )
+                .httpBasic(ServerHttpSecurity.HttpBasicSpec::disable)
+                .formLogin(ServerHttpSecurity.FormLoginSpec::disable)
+                .logout(ServerHttpSecurity.LogoutSpec::disable)
+                .addFilterBefore(authenticationWebFilter, SecurityWebFiltersOrder.AUTHENTICATION)
+                .build();
     }
 
     /**
@@ -72,15 +70,14 @@ public class GatewaySecurityConfig {
      *
      * @param exchanges 授权规则构建器
      */
-    private void permitWhitelist(AuthorizeExchangeSpec exchanges) {
+    private void setPermitWhitelist(AuthorizeExchangeSpec exchanges) {
         for (String entry : authProperties.getWhitelist()) {
             String[] parts = entry.split(":", 2);
             if (parts.length == 2) {
                 exchanges.pathMatchers(HttpMethod.valueOf(parts[0].toUpperCase(Locale.ROOT)), parts[1])
                          .permitAll();
             } else {
-                exchanges.pathMatchers(entry)
-                         .permitAll();
+                exchanges.pathMatchers(entry).permitAll();
             }
         }
     }

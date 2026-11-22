@@ -94,19 +94,20 @@ public class SkuService implements ISkuService {
     }
 
     /**
-     * 查询数据列表。
+     * 批量查询上架商品的 SKU 信息。 <p>
+     * 入参为空或全部 SKU 不存在、已下架时返回空列表，永不为 null。
      *
      * @param skuIds SKU 标识列表
-     * @return 数据列表
+     * @return SKU 信息列表（顺序不保证），无匹配项时为空列表
      */
     @Override
     public List<SkuResp> listSkusByIds(List<Long> skuIds) {
         if (CollUtil.isEmpty(skuIds)) {
-            return Collections.emptyList();
+            return List.of();
         }
         List<ProductSkuDO> skus = productSkuMapper.selectByIds(skuIds);
         if (CollUtil.isEmpty(skus)) {
-            return Collections.emptyList();
+            return List.of();
         }
 
         // 批量查询已上架商品（取店铺 ID）

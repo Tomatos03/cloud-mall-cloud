@@ -34,11 +34,10 @@ public interface ISkuService {
 
     /**
      * 批量查询 SKU 信息（含实时价格、库存、规格描述、所属店铺）。 <p>
-     * 仅返回上架商品的 SKU；供购物车、订单等场景一次取齐，避免逐条调用；skuIds 为空时返回空列表
-     * 。
+     * 仅返回上架商品；无匹配项返回空列表，调用方无需 null 兜底。
      *
      * @param skuIds SKU ID 列表
-     * @return 上架商品的 SKU 信息列表（顺序不保证）
+     * @return 上架商品的 SKU 信息列表（顺序不保证），无匹配项时为空列表
      */
     List<SkuResp> listSkusByIds(List<Long> skuIds);
 

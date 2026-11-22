@@ -23,6 +23,7 @@ jstyle.toml
 
 # 暂时忽略本地测试目录
 test
+problem
 
 /benchmark/*/results
 *.jtl

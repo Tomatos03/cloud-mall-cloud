@@ -62,7 +62,7 @@ public class SkuController {
      * 供购物车、订单等场景一次取齐，避免逐条调用。
      *
      * @param skuIds SKU ID 列表
-     * @return SKU 信息列表
+     * @return SKU 信息列表；无匹配项时为空列表，永不为 null
      */
     @PostMapping("/batch-query")
     public Result<List<SkuResp>> listSkusByIds(@RequestBody List<Long> skuIds) {
