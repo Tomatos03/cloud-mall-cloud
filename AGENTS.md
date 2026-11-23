@@ -9,8 +9,8 @@
 ## 模块结构
 
 - 顶层：`common/`（共享工具与跨服务对象）、`gateway/`、`service-api/`（Feign 接口 + DTO 聚合，父 POM）、`services/`（业务服务，父 POM）、`starters/`（自研 Starter，父 POM）、`docs/`（设计/compose/Nacos 配置/SQL）。
-- 业务服务（`services/`）：`user-service`（UserApplication，认证/RBAC + 用户资料 + 商家入驻）、`product-service`（ProductApplication）、`order-service`（OrderApplication）、`coupon-service`（CouponApplication）、`seckill-service`（SeckillApplication）、`im-service`（IMApplication）、`aigc-service`（agent-service，AIGCApplication）、`mock-payment-service`（MockPaymentApplication，微信支付 API v3 模拟渠道）。
-- 服务接口（`service-api/`）：`user-api`、`product-api`、`order-api`、`coupon-api`、`seckill-api`、`search-api`、`payment-api`。
+- 业务服务（`services/`）：`user-service`（UserApplication，认证/RBAC + 用户资料 + 商家入驻）、`shared-service`（SharedServiceApplication，文件上传/访问 + 文件台账回收）、`product-service`（ProductApplication）、`order-service`（OrderApplication）、`coupon-service`（CouponApplication）、`seckill-service`（SeckillApplication）、`im-service`（IMApplication）、`aigc-service`（agent-service，AIGCApplication）、`mock-payment-service`（MockPaymentApplication，微信支付 API v3 模拟渠道）。
+- 服务接口（`service-api/`）：`shared-api`、`user-api`、`product-api`、`order-api`、`coupon-api`、`seckill-api`、`search-api`、`payment-api`。
 - 自研 Starter（`starters/`）：`cloudmall-common`（Result/BizException/BizErrorEnum/UserContextFilter）、`cloudmall-mybatis-plus`（MyMetaObjectHandler、PageReq/ConditionReq、LimitEnum、StatusEnum）、`cloudmall-jwt`、`cloudmall-rocketmq`（MQProducer/TxMessageHeader）、`cloudmall-outbox`（本地消息 Outbox）、`cloudmall-feign`（用户上下文透传 + Result 自动拆箱）、`cloudmall-elasticsearch`、`cloudmall-xxl-job`。
 - 业务服务分层：`controller`、`service`/`impl`、`mapper`、`model/entity`、`model/req`、`model/resp`、`model/bo`、`convert`（MapStruct）、`enums`、`application`、`job`。
 - 服务端口统一在 Nacos 配置中心管理（导入 `common` + `{app-name}` 配置）。
@@ -74,7 +74,15 @@ mvn test                                                  # 测试
 
 - 用户端接口：`GET/POST /shops/onboarding` 查询状态与提交资料；管理员通过 `POST /shops/onboarding/review` 审核。
 - 审核通过后自动创建 `cm_shop`、补充 `merchant` 角色并更新用户类型；本地 Nacos 配置可用 `cloudmall.merchant.auto-review-delay-seconds` 开启自动审核（生产设为 0）。
-- 图片上传走 `POST /files/upload`，静态访问 `/files/**`；网关白名单已配置 `GET:/files/**`。
+- 图片上传走 shared-service 的 `POST /files/upload`，访问 `/files/**`；网关白名单已配置 `GET:/files/**`。
+
+## shared-service 特性
+
+- 应用名 `shared-service`，统一承载文件能力：图片上传/访问（`/files/**`）、聊天附件上传/访问（`/chat/files/**`）。
+- 文件台账 `cm_file`：上传写 `PENDING`，业务保存后通过 `/internal/common/files/bind` 转 `BOUND`，替换/删除时 `release` 转 `ORPHAN`。
+- 过期回收由 xxl-job handler `fileTempClean` 触发，执行器 `shared-service`、端口 `9996`；未绑定文件保留 24h、孤儿文件保留 7d。
+- 业务服务通过 `@OutboxEvent` 在本地事务内写入 `cm_message_outbox`（事件类型 `FILE_BIND` / `FILE_RELEASE`，`payload` 存文件地址），由 shared-service 的 `fileEventApply` 消费并绑定/释放，不直接访问 `cm_file`；事务回滚不会产生事件，保证最终一致。
+- `shared-service` 另提供 `/internal/shared/files/bind`、`/internal/shared/files/release` 同步接口（`InternalSharedClient`），供人工/运维补偿使用。
 
 ## mock-payment-service 特性
 
