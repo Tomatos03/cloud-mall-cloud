@@ -76,7 +76,7 @@ public class AddressController {
     public Result<Void> update(@PathVariable Long id, @RequestBody @Valid AddressUpdateReq request) {
         request.setId(id);
         addressService.update(request);
-        return Result.success(null);
+        return Result.success();
     }
 
     /**
@@ -88,6 +88,6 @@ public class AddressController {
     @DeleteMapping
     public Result<Void> delete(@RequestBody List<Long> ids) {
         addressService.delete(ids);
-        return Result.success(null);
+        return Result.success();
     }
 }

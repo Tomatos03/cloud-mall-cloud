@@ -17,6 +17,7 @@ import com.cloudmall.user.convert.AddressConverter;
 import com.cloudmall.user.mapper.AddressMapper;
 import com.cloudmall.user.model.entity.AddressDO;
 import com.cloudmall.user.service.IAddressService;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
@@ -97,6 +98,7 @@ public class AddressService implements IAddressService {
      * @throws BizException 处理过程中可能抛出该异常
      */
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public void delete(List<Long> ids) {
         if (CollUtil.isEmpty(ids)) {
             return;
