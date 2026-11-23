@@ -78,7 +78,6 @@ public class AgentPromptLoader {
      * @return 字符串结果
      */
     public String load(AgentTypeEnum type) {
-        boolean cached = cache.containsKey(type);
         String agentPrompt = cache.computeIfAbsent(type, this::loadFromNacos);
         // globalPrompt 不缓存，热更新时无需重建
         String fullPrompt = combineWithGlobal(agentPrompt);

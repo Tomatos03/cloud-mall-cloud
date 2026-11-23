@@ -42,6 +42,6 @@ public interface ProductSpecGroupMapper extends BaseMapper<ProductSpecGroupDO> {
         if (CollUtil.isEmpty(ids)) {
             return 0;
         }
-        return deleteBatchIds(ids);
+        return deleteByIds(ids);
     }
 }

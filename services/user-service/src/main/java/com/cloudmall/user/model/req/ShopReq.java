@@ -3,6 +3,7 @@ package com.cloudmall.user.model.req;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.experimental.Accessors;
 
@@ -24,6 +25,7 @@ import com.cloudmall.user.model.entity.ShopDO;
 @NoArgsConstructor
 @AllArgsConstructor
 @Accessors(chain = true)
+@EqualsAndHashCode(callSuper = false)
 public class ShopReq extends ConditionReq<ShopDO> {
 
     /** 店铺 ID（等值匹配） */

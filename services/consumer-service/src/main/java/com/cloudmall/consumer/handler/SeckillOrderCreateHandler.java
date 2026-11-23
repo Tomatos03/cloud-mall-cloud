@@ -7,7 +7,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
-import com.cloudmall.consumer.handler.IEventHandler;
 import com.cloudmall.order.api.client.OrderClient;
 import com.cloudmall.order.api.enums.CheckoutTypeEnum;
 import com.cloudmall.order.api.model.bo.OrderItem;

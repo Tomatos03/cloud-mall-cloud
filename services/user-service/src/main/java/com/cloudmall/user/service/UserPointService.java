@@ -55,8 +55,6 @@ public class UserPointService {
     private static final int DAILY_SIGN_IN_EXTRA_POINTS = 20;
     private static final int SIGN_IN_EXTRA_DAY = 7;
     private static final String TASK_SIGN_IN = "DAILY_SIGN_IN";
-    private static final String TASK_BROWSE = "DAILY_BROWSE";
-    private static final String TASK_COMMENT = "DAILY_COMMENT";
     private static final String STATUS_COMPLETED = "COMPLETED";
     private static final String STATUS_CLAIMED = "CLAIMED";
     private static final LocalDate ONCE_TASK_DATE = LocalDate.of(1970, 1, 1);
@@ -92,7 +90,6 @@ public class UserPointService {
      * @return 积分流水
      */
     public List<UserPointLogResp> listLogs(Long userId, int limit) {
-        Asserts.notNull(userId, BizErrorEnum.USER_NOT_AUTHENTICATED);
         return userProfileConverter.toPointLogRespList(userPointLogMapper.listRecent(userId, limit));
     }
 
@@ -122,7 +119,6 @@ public class UserPointService {
      */
     @Transactional(rollbackFor = Exception.class)
     public SignInResp signIn(Long userId) {
-        Asserts.notNull(userId, BizErrorEnum.USER_NOT_AUTHENTICATED);
         LocalDate today = LocalDate.now();
         UserSignInDO existing = userSignInMapper.selectByUserAndDate(userId, today);
         UserPointDO point = getOrCreate(userId);
@@ -237,7 +233,6 @@ public class UserPointService {
      */
     @Transactional(rollbackFor = Exception.class)
     public PointExchangeResp exchange(Long userId, PointExchangeReq req) {
-        Asserts.notNull(userId, BizErrorEnum.USER_NOT_AUTHENTICATED);
         PointExchangeItemDO item = Asserts.requireNonNull(
                 pointExchangeItemMapper.selectById(req.getItemId()),
                 BizErrorEnum.POINT_EXCHANGE_ITEM_NOT_FOUND
@@ -320,7 +315,6 @@ public class UserPointService {
         String description,
         String idempotencyKey
     ) {
-        Asserts.notNull(userId, BizErrorEnum.USER_NOT_AUTHENTICATED);
         Asserts.isNotZero(changeAmount, BizErrorEnum.INVALID_PARAM);
         if (
                 StrUtil.isNotBlank(idempotencyKey)
@@ -462,7 +456,6 @@ public class UserPointService {
      * @return 积分账户
      */
     private UserPointDO getOrCreate(Long userId) {
-        Asserts.notNull(userId, BizErrorEnum.USER_NOT_AUTHENTICATED);
         UserPointDO point = userPointMapper.selectById(userId);
         if (point != null) {
             return point;

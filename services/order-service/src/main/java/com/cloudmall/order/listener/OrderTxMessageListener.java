@@ -43,12 +43,16 @@ public class OrderTxMessageListener implements RocketMQLocalTransactionListener 
      * @return 事务状态
      */
     @Override
+    @SuppressWarnings("rawtypes")
     public RocketMQLocalTransactionState executeLocalTransaction(Message msg, Object arg) {
         String orderNo = (String) msg.getHeaders().get(TxMessageHeader.EVENT_ID);
         String eventType = (String) msg.getHeaders().get(TxMessageHeader.EVENT_TYPE);
         OrderTagEnum tagEnum = OrderTagEnum.from(eventType);
         try {
-            OrderDO order = requireOrder(orderNo);
+            OrderDO order = Asserts.requireNonNull(
+                    orderMapper.selectByOrderNo(orderNo),
+                    BizErrorEnum.ORDER_NOT_EXIST
+            );
             switch (tagEnum) {
                 case PAID -> stateMachine.transitionParent(
                         order.getId(),
@@ -88,6 +92,7 @@ public class OrderTxMessageListener implements RocketMQLocalTransactionListener 
      * @return 事务状态
      */
     @Override
+    @SuppressWarnings("rawtypes")
     public RocketMQLocalTransactionState checkLocalTransaction(Message msg) {
         String orderNo = (String) msg.getHeaders().get(TxMessageHeader.EVENT_ID);
         String eventType = (String) msg.getHeaders().get(TxMessageHeader.EVENT_TYPE);
@@ -111,12 +116,5 @@ public class OrderTxMessageListener implements RocketMQLocalTransactionListener 
         }
         log.info("事务消息回查：订单状态未变更 orderNo={} eventType={}，稍后再查", orderNo, eventType);
         return RocketMQLocalTransactionState.UNKNOWN;
-    }
-
-    /**
-     * 按订单号查询父订单。
-     */
-    private OrderDO requireOrder(String orderNo) {
-        return Asserts.requireNonNull(orderMapper.selectByOrderNo(orderNo), BizErrorEnum.ORDER_NOT_EXIST);
     }
 }

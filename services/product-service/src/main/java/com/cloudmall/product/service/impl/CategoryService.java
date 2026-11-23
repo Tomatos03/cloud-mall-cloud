@@ -87,7 +87,7 @@ public class CategoryService implements ICategoryService {
         if (CollUtil.isEmpty(ids)) {
             return Collections.emptyList();
         }
-        List<CategoryDO> categories = categoryMapper.selectBatchIds(ids);
+        List<CategoryDO> categories = categoryMapper.selectByIds(ids);
         return categoryConverter.toRespList(categories);
     }
 

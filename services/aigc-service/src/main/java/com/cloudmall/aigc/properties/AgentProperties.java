@@ -22,16 +22,20 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 @ConfigurationProperties(prefix = "agent")
 public class AgentProperties {
     private String prompt;
+    @Builder.Default
     private Session session = new Session();
+    @Builder.Default
     private Rag rag = new Rag();
 
     /** 所有智能体共享的全局 prompt，拼接在每个智能体专属 prompt 之前 */
     private String globalPrompt;
 
     /** 默认 Nacos group */
+    @Builder.Default
     private String promptGroup = "DEFAULT_GROUP";
 
     /** 默认 Nacos 读取超时（毫秒） */
+    @Builder.Default
     private int readTimeout = 3000;
 
     /** 各智能体的 Nacos 提示词文件配置，key 为 AgentTypeEnum 小写名 */
@@ -57,6 +61,7 @@ public class AgentProperties {
     public static class Session {
         private String title;
         private String describe;
+        @Builder.Default
         private List<HotTopic> hotTopics = List.of();
     }
 
@@ -75,10 +80,13 @@ public class AgentProperties {
     @AllArgsConstructor
     public static class Rag {
         /** 是否启用 RAG */
+        @Builder.Default
         private boolean enabled = true;
         /** 相似度阈值 */
+        @Builder.Default
         private double similarityThreshold = 0.5;
         /** 返回 top K 个文档 */
+        @Builder.Default
         private int topK = 3;
     }
 }

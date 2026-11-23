@@ -1,33 +1,14 @@
 package com.cloudmall.order.cache;
 
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 
 /**
- * 购物车缓存服务
+ * 购物车缓存服务（预留）。
  * <p>
- * 封装所有购物车相关的 Redis 操作。
+ * 当前购物车数据由数据库承载，此类保留作为后续引入缓存的扩展点。
  *
  * @author : Tomatos
  */
-@Slf4j
 @Service
-@RequiredArgsConstructor
 public class CartCacheService {
-
-    private static final String CART_KEY_PREFIX = "cart:user:";
-
-    private final StringRedisTemplate stringRedisTemplate;
-
-    /**
-     * 构建所需对象。
-     *
-     * @param userId 用户标识
-     * @return 字符串结果
-     */
-    private String buildKey(String userId) {
-        return CART_KEY_PREFIX + userId;
-    }
 }

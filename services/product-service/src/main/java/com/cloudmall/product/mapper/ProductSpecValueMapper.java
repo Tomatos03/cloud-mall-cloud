@@ -42,6 +42,6 @@ public interface ProductSpecValueMapper extends BaseMapper<ProductSpecValueDO> {
         if (CollUtil.isEmpty(ids)) {
             return 0;
         }
-        return deleteBatchIds(ids);
+        return deleteByIds(ids);
     }
 }

@@ -181,7 +181,7 @@ public class ResourceService implements IResourceService {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public void deleteResource(Long resourceId) {
-        ResourceDO existing = Asserts.requireNonNull(resourceMapper.selectById(resourceId));
+        Asserts.requireNonNull(resourceMapper.selectById(resourceId));
 
         Long childCount = resourceMapper.countByParentId(resourceId);
         Asserts.isZero(ObjectUtil.defaultIfNull(childCount, 0L), BizErrorEnum.INVALID_PARAM);

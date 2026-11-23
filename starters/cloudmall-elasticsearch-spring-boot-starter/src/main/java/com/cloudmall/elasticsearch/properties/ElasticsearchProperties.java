@@ -20,9 +20,11 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 public class ElasticsearchProperties {
 
     /** 是否启用 Elasticsearch */
+    @Builder.Default
     private boolean enabled = true;
 
     /** ES 连接地址，多个用逗号分隔 */
+    @Builder.Default
     private String uris = "http://localhost:9200";
 
     /** 用户名 */
@@ -32,8 +34,10 @@ public class ElasticsearchProperties {
     private String password;
 
     /** 连接超时(毫秒) */
+    @Builder.Default
     private int connectTimeout = 5000;
 
     /** Socket 超时(毫秒) */
+    @Builder.Default
     private int socketTimeout = 60000;
 }

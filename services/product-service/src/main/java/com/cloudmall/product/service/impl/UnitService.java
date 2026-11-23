@@ -95,6 +95,6 @@ public class UnitService implements IUnitService {
     @Transactional(rollbackFor = Exception.class)
     public void delete(List<Long> ids) {
         Asserts.notEmpty(ids, BizErrorEnum.INVALID_PARAM);
-        unitMapper.deleteBatchIds(ids);
+        unitMapper.deleteByIds(ids);
     }
 }

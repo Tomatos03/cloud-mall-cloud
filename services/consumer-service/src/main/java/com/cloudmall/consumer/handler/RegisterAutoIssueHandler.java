@@ -5,7 +5,6 @@ import java.util.Set;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
-import com.cloudmall.consumer.handler.IEventHandler;
 import com.cloudmall.coupon.api.client.InternalCouponClient;
 import com.cloudmall.coupon.api.model.req.AutoIssueRegisterReq;
 import com.cloudmall.user.api.model.bo.UserRegisteredEvent;

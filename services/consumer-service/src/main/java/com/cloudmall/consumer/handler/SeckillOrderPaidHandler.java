@@ -6,7 +6,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
-import com.cloudmall.consumer.handler.IEventHandler;
 import com.cloudmall.order.api.enums.OrderTagEnum;
 import com.cloudmall.seckill.api.client.InternalSeckillClient;
 import com.cloudmall.seckill.api.model.bo.SeckillPaidEvent;

@@ -368,7 +368,7 @@ public class MQProducer {
      * @param <T> 消息体类型
      * @return 发送结果
      */
-    @SuppressWarnings({"unchecked", "rawtypes"})
+    @SuppressWarnings("rawtypes")
     public <T> SendResult sendBatch(String destination, Collection<T> payloads) {
         Asserts.notEmpty(payloads, BizErrorEnum.INVALID_PARAM);
         Collection<Message> messages = CollStreamUtil.toList(
@@ -387,7 +387,7 @@ public class MQProducer {
      * @param <T> 消息体类型
      * @return 发送结果
      */
-    @SuppressWarnings({"unchecked", "rawtypes"})
+    @SuppressWarnings("rawtypes")
     public <T> SendResult sendBatch(String destination, Collection<T> payloads, long timeout) {
         Asserts.notEmpty(payloads, BizErrorEnum.INVALID_PARAM);
         Collection<Message> messages = CollStreamUtil.toList(

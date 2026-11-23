@@ -149,6 +149,6 @@ public class BrandService implements IBrandService {
     @Transactional(rollbackFor = Exception.class)
     public void delete(List<Long> ids) {
         Asserts.notEmpty(ids, BizErrorEnum.INVALID_PARAM);
-        brandMapper.deleteBatchIds(ids);
+        brandMapper.deleteByIds(ids);
     }
 }

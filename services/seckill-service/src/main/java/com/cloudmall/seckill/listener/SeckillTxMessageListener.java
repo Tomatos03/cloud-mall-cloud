@@ -39,6 +39,7 @@ public class SeckillTxMessageListener implements RocketMQLocalTransactionListene
      * @return 事务状态
      */
     @Override
+    @SuppressWarnings("rawtypes")
     public RocketMQLocalTransactionState executeLocalTransaction(Message msg, Object arg) {
         String orderNo = (String) msg.getHeaders().get(TxMessageHeader.EVENT_ID);
         try {
@@ -63,6 +64,7 @@ public class SeckillTxMessageListener implements RocketMQLocalTransactionListene
      * @return 事务状态
      */
     @Override
+    @SuppressWarnings("rawtypes")
     public RocketMQLocalTransactionState checkLocalTransaction(Message msg) {
         String orderNo = (String) msg.getHeaders().get(TxMessageHeader.EVENT_ID);
         SeckillOrderDO order = orderMapper.selectByOrderNo(orderNo);

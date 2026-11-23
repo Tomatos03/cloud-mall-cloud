@@ -233,7 +233,7 @@ public class ProductService implements IProductService {
         if (CollUtil.isEmpty(ids)) {
             return List.of();
         }
-        List<ProductDO> records = productMapper.selectBatchIds(ids);
+        List<ProductDO> records = productMapper.selectByIds(ids);
         if (CollUtil.isEmpty(records)) {
             return List.of();
         }

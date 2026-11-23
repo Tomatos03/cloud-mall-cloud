@@ -38,6 +38,7 @@ public class UserTxMessageListener implements RocketMQLocalTransactionListener {
      * @return 事务状态
      */
     @Override
+    @SuppressWarnings("rawtypes")
     public RocketMQLocalTransactionState executeLocalTransaction(Message msg, Object arg) {
         String userIdStr = (String) msg.getHeaders().get(TxMessageHeader.EVENT_ID);
         try {
@@ -62,6 +63,7 @@ public class UserTxMessageListener implements RocketMQLocalTransactionListener {
      * @return 事务状态
      */
     @Override
+    @SuppressWarnings("rawtypes")
     public RocketMQLocalTransactionState checkLocalTransaction(Message msg) {
         String userIdStr = (String) msg.getHeaders().get(TxMessageHeader.EVENT_ID);
         try {

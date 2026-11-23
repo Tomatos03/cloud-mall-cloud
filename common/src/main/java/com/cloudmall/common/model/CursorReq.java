@@ -26,11 +26,13 @@ public class CursorReq {
     public static final int MAX_SIZE = 50;
 
     /** ID 游标：上一页最后一条记录的 ID（首次查询传 0，与 cursorTime 二选一） */
+    @Builder.Default
     private Long cursor = 0L;
 
     /** 时间游标：上一页最后一条记录的更新时间（首次查询传 null，与 cursor 二选一） */
     private LocalDateTime cursorTime;
 
     /** 每页条数（默认 10，最大 50） */
+    @Builder.Default
     private Integer size = 10;
 }

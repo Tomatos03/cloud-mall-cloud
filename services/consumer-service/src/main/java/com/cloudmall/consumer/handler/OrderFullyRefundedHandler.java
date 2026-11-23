@@ -6,7 +6,6 @@ import cn.hutool.core.util.StrUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
-import com.cloudmall.consumer.handler.IEventHandler;
 import com.cloudmall.coupon.api.client.InternalCouponClient;
 import com.cloudmall.coupon.api.model.req.CouponOrderRevertByOrderReq;
 import com.cloudmall.order.api.enums.OrderTagEnum;
