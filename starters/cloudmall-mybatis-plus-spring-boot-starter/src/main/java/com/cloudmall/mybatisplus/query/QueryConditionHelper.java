@@ -14,7 +14,7 @@ import com.cloudmall.mybatisplus.annotation.OperatorEnum;
  * 查询条件构建底层工具。
  * <p>
  * 提供列名解析、值判空、操作符分发等无状态工具方法。
- * 供 {@link ConditionBuilder} 默认实现内部调用，一般无需直接使用。
+ * 供 {@link LambdaWrappers} 内部调用，一般无需直接使用。
  *
  * @author : Tomatos
  */

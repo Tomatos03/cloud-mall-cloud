@@ -20,10 +20,14 @@ import com.cloudmall.common.context.UserContext;
 import com.cloudmall.common.context.UserContextHolder;
 import com.cloudmall.common.enums.BizErrorEnum;
 import com.cloudmall.common.enums.UserTypeEnum;
+import com.cloudmall.common.model.PageResp;
 import com.cloudmall.common.utils.Asserts;
+import com.cloudmall.mybatisplus.query.PageResponses;
 import com.cloudmall.rocketmq.producer.MQProducer;
-import com.cloudmall.user.api.model.bo.UserRegisteredEvent;
+import com.cloudmall.user.api.model.event.UserRegisteredEvent;
 import com.cloudmall.user.api.model.req.RegisterReq;
+import com.cloudmall.user.api.model.req.UserPageReq;
+import com.cloudmall.user.api.model.resp.ResourceNodeResp;
 import com.cloudmall.user.api.model.resp.UserResp;
 import com.cloudmall.user.constant.StoreConstants;
 import com.cloudmall.user.convert.UserConverter;
@@ -33,8 +37,6 @@ import com.cloudmall.user.mapper.UserRoleMapper;
 import com.cloudmall.user.model.entity.ResourceDO;
 import com.cloudmall.user.model.entity.UserDO;
 import com.cloudmall.user.model.entity.UserRoleDO;
-import com.cloudmall.user.model.req.UserPageReq;
-import com.cloudmall.user.model.resp.ResourceNodeResp;
 import com.cloudmall.user.service.IUserService;
 
 /**
@@ -138,9 +140,9 @@ public class UserService implements IUserService {
      * {@inheritDoc}
      */
     @Override
-    public IPage<UserResp> pageUser(UserPageReq req) {
+    public PageResp<UserResp> pageUser(UserPageReq req) {
         IPage<UserDO> page = userMapper.selectUserPage(req);
-        return page.convert(userConverter::toResp);
+        return PageResponses.of(page, userConverter::toResp);
     }
 
     /**

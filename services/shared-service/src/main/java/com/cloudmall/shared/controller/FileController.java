@@ -17,11 +17,11 @@ import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBo
 import com.cloudmall.common.context.UserContextHolder;
 import com.cloudmall.common.model.Result;
 import com.cloudmall.shared.api.enums.FileBizTypeEnum;
+import com.cloudmall.shared.api.model.resp.FileUploadResp;
 import com.cloudmall.shared.constant.FileConstants;
-import com.cloudmall.shared.model.FileContent;
-import com.cloudmall.shared.model.FileUploadPolicy;
-import com.cloudmall.shared.model.FileUploadResult;
-import com.cloudmall.shared.model.resp.FileUploadResp;
+import com.cloudmall.shared.model.bo.FileContent;
+import com.cloudmall.shared.model.bo.FileUploadPolicy;
+import com.cloudmall.shared.model.bo.FileUploadResult;
 import com.cloudmall.shared.service.IFileService;
 
 /**

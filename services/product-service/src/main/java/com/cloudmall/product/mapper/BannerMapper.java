@@ -6,9 +6,11 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import org.apache.ibatis.annotations.Mapper;
 
+import com.cloudmall.mybatisplus.query.LambdaWrappers;
+import com.cloudmall.mybatisplus.query.Pages;
+import com.cloudmall.product.api.model.req.BannerPageReq;
+import com.cloudmall.product.api.model.req.BannerReq;
 import com.cloudmall.product.model.entity.BannerDO;
-import com.cloudmall.product.model.req.BannerPageReq;
-import com.cloudmall.product.model.req.BannerReq;
 
 @Mapper
 public interface BannerMapper extends BaseMapper<BannerDO> {
@@ -21,7 +23,7 @@ public interface BannerMapper extends BaseMapper<BannerDO> {
      * @return Banner 列表
      */
     default List<BannerDO> selectByReq(BannerReq req) {
-        return selectList(req.buildLambdaWrapper());
+        return selectList(LambdaWrappers.of(req, BannerDO.class).orderByAsc(BannerDO::getSort));
     }
 
     /**
@@ -32,6 +34,9 @@ public interface BannerMapper extends BaseMapper<BannerDO> {
      * @return Banner 分页数据
      */
     default IPage<BannerDO> selectBannerPage(BannerPageReq req) {
-        return selectPage(req, req.buildLambdaWrapper());
+        return selectPage(
+                Pages.from(req),
+                LambdaWrappers.of(req, BannerDO.class).orderByAsc(BannerDO::getSort)
+        );
     }
 }

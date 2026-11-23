@@ -11,7 +11,12 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.cloudmall.common.enums.BizErrorEnum;
+import com.cloudmall.common.model.PageResp;
 import com.cloudmall.common.utils.Asserts;
+import com.cloudmall.mybatisplus.query.PageResponses;
+import com.cloudmall.user.api.model.req.RolePageReq;
+import com.cloudmall.user.api.model.req.RoleReq;
+import com.cloudmall.user.api.model.resp.RoleResp;
 import com.cloudmall.user.convert.RoleConverter;
 import com.cloudmall.user.mapper.RoleMapper;
 import com.cloudmall.user.mapper.RoleResourceMapper;
@@ -19,9 +24,6 @@ import com.cloudmall.user.mapper.UserRoleMapper;
 import com.cloudmall.user.model.entity.RoleDO;
 import com.cloudmall.user.model.entity.RoleResourceDO;
 import com.cloudmall.user.model.entity.UserRoleDO;
-import com.cloudmall.user.model.req.RolePageReq;
-import com.cloudmall.user.model.req.RoleReq;
-import com.cloudmall.user.model.resp.RoleResp;
 import com.cloudmall.user.service.IRoleService;
 
 /**
@@ -96,9 +98,9 @@ public class RoleService implements IRoleService {
      * {@inheritDoc}
      */
     @Override
-    public IPage<RoleResp> pageRoles(RolePageReq req) {
+    public PageResp<RoleResp> pageRoles(RolePageReq req) {
         IPage<RoleDO> page = roleMapper.selectRolePage(req);
-        return page.convert(roleConverter::toRoleResp);
+        return PageResponses.of(page, roleConverter::toRoleResp);
     }
 
     /**

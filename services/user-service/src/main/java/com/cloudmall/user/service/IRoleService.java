@@ -2,11 +2,10 @@ package com.cloudmall.user.service;
 
 import java.util.List;
 
-import com.baomidou.mybatisplus.core.metadata.IPage;
-
-import com.cloudmall.user.model.req.RolePageReq;
-import com.cloudmall.user.model.req.RoleReq;
-import com.cloudmall.user.model.resp.RoleResp;
+import com.cloudmall.common.model.PageResp;
+import com.cloudmall.user.api.model.req.RolePageReq;
+import com.cloudmall.user.api.model.req.RoleReq;
+import com.cloudmall.user.api.model.resp.RoleResp;
 
 /**
  * 角色管理接口
@@ -59,7 +58,7 @@ public interface IRoleService {
      * @param req 分页及筛选条件
      * @return 分页角色信息
      */
-    IPage<RoleResp> pageRoles(RolePageReq req);
+    PageResp<RoleResp> pageRoles(RolePageReq req);
 
     /**
      * 为角色分配资源（权限） <p>

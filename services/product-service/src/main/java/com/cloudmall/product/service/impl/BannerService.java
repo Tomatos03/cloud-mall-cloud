@@ -6,12 +6,14 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import com.cloudmall.common.model.PageResp;
+import com.cloudmall.mybatisplus.query.PageResponses;
+import com.cloudmall.product.api.model.req.BannerPageReq;
+import com.cloudmall.product.api.model.req.BannerReq;
 import com.cloudmall.product.api.model.resp.BannerResp;
 import com.cloudmall.product.convert.BannerConverter;
 import com.cloudmall.product.mapper.BannerMapper;
 import com.cloudmall.product.model.entity.BannerDO;
-import com.cloudmall.product.model.req.BannerPageReq;
-import com.cloudmall.product.model.req.BannerReq;
 import com.cloudmall.product.service.IBannerService;
 
 @Service
@@ -40,8 +42,8 @@ public class BannerService implements IBannerService {
      * @return 分页数据
      */
     @Override
-    public IPage<BannerResp> page(BannerPageReq req) {
+    public PageResp<BannerResp> page(BannerPageReq req) {
         IPage<BannerDO> page = bannerMapper.selectBannerPage(req);
-        return page.convert(bannerConverter::toResp);
+        return PageResponses.of(page, bannerConverter::toResp);
     }
 }

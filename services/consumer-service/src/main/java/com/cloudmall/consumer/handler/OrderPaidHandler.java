@@ -8,7 +8,7 @@ import org.springframework.stereotype.Component;
 import com.cloudmall.coupon.api.client.InternalCouponClient;
 import com.cloudmall.coupon.api.model.req.CouponOrderCommitByOrderReq;
 import com.cloudmall.order.api.enums.OrderTagEnum;
-import com.cloudmall.order.api.model.bo.OrderEvent;
+import com.cloudmall.order.api.model.event.OrderEvent;
 
 /**
  * 订单支付成功处理器：核销订单下全部已锁定用户券。

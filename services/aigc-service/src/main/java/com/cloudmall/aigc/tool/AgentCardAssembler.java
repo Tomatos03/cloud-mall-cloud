@@ -15,8 +15,8 @@ import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.StrUtil;
 import org.springframework.stereotype.Component;
 
-import com.cloudmall.aigc.model.resp.AgentCardFieldResp;
-import com.cloudmall.aigc.model.resp.AgentCardResp;
+import com.cloudmall.aigc.api.model.resp.AgentCardFieldResp;
+import com.cloudmall.aigc.api.model.resp.AgentCardResp;
 import com.cloudmall.coupon.api.enums.CouponEnum;
 import com.cloudmall.coupon.api.model.resp.CouponResp;
 import com.cloudmall.coupon.api.model.resp.UserCouponResp;

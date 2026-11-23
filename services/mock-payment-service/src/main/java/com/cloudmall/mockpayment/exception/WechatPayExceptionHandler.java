@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import com.cloudmall.common.enums.BizErrorEnum;
 import com.cloudmall.common.exception.BizException;
 import com.cloudmall.mockpayment.controller.WechatPayController;
-import com.cloudmall.mockpayment.model.resp.WechatErrorResp;
+import com.cloudmall.payment.api.model.resp.WechatErrorResp;
 
 /**
  * 微信支付协议异常处理器。

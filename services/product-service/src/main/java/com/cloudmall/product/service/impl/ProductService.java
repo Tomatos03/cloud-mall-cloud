@@ -20,7 +20,6 @@ import cn.hutool.core.util.IdUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.metadata.IPage;
-import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import lombok.RequiredArgsConstructor;
 import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Service;
@@ -31,14 +30,19 @@ import com.cloudmall.common.enums.StatusEnum;
 import com.cloudmall.common.exception.BizException;
 import com.cloudmall.common.model.CursorReq;
 import com.cloudmall.common.model.CursorResult;
+import com.cloudmall.common.model.PageResp;
 import com.cloudmall.common.utils.Asserts;
+import com.cloudmall.mybatisplus.query.LambdaWrappers;
+import com.cloudmall.mybatisplus.query.Pages;
 import com.cloudmall.product.api.enums.ProductTagEnum;
-import com.cloudmall.product.api.model.bo.ImageItem;
-import com.cloudmall.product.api.model.bo.ProductEvent;
-import com.cloudmall.product.api.model.bo.SkuItem;
-import com.cloudmall.product.api.model.bo.SpecGroupItem;
-import com.cloudmall.product.api.model.bo.SpecValueItem;
+import com.cloudmall.product.api.model.dto.ImageItem;
+import com.cloudmall.product.api.model.dto.SkuItem;
+import com.cloudmall.product.api.model.dto.SpecGroupItem;
+import com.cloudmall.product.api.model.dto.SpecValueItem;
+import com.cloudmall.product.api.model.event.ProductEvent;
+import com.cloudmall.product.api.model.req.BrandProductPageReq;
 import com.cloudmall.product.api.model.req.ProductCreateReq;
+import com.cloudmall.product.api.model.req.ProductGetReq;
 import com.cloudmall.product.api.model.req.ProductUpdateReq;
 import com.cloudmall.product.api.model.resp.ImageResp;
 import com.cloudmall.product.api.model.resp.ProductDetailResp;
@@ -68,8 +72,6 @@ import com.cloudmall.product.model.entity.ProductSkuDO;
 import com.cloudmall.product.model.entity.ProductSkuSpecDO;
 import com.cloudmall.product.model.entity.ProductSpecGroupDO;
 import com.cloudmall.product.model.entity.ProductSpecValueDO;
-import com.cloudmall.product.model.req.BrandProductPageReq;
-import com.cloudmall.product.model.req.ProductGetReq;
 import com.cloudmall.product.service.IProductImageService;
 import com.cloudmall.product.service.IProductService;
 import com.cloudmall.product.service.IProductSpecService;
@@ -270,18 +272,25 @@ public class ProductService implements IProductService {
      * @return 商品分页数据
      */
     @Override
-    public IPage<ProductResp> pageByBrand(Long brandId, BrandProductPageReq req) {
+    public PageResp<ProductResp> pageByBrand(Long brandId, BrandProductPageReq req) {
         Asserts.notNull(brandId, BizErrorEnum.INVALID_PARAM);
         req.setBrandId(brandId);
         req.setStatus(StatusEnum.ENABLED);
 
-        IPage<ProductDO> page = productMapper.selectPage(req, req.buildLambdaWrapper());
+        IPage<ProductDO> page = productMapper.selectPage(
+                Pages.from(req),
+                LambdaWrappers.of(req, ProductDO.class).orderByDesc(ProductDO::getCreateTime)
+        );
         List<ProductResp> records = assembleSearchDocs(page.getRecords()).stream()
                                                                          .map(productConverter::toResp)
                                                                          .toList();
-        Page<ProductResp> result = new Page<>(page.getCurrent(), page.getSize(), page.getTotal());
-        result.setRecords(records);
-        return result;
+        return PageResp.<ProductResp>builder()
+                       .records(records)
+                       .total(page.getTotal())
+                       .current(page.getCurrent())
+                       .size(page.getSize())
+                       .pages(page.getPages())
+                       .build();
     }
 
     /**

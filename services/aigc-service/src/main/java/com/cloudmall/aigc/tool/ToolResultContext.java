@@ -8,7 +8,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 
 import cn.hutool.core.collection.CollUtil;
 
-import com.cloudmall.aigc.model.resp.AgentCardResp;
+import com.cloudmall.aigc.api.model.resp.AgentCardResp;
 
 /**
  * 工具结果上下文

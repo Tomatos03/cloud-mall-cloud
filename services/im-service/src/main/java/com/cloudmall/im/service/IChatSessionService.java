@@ -3,8 +3,8 @@ package com.cloudmall.im.service;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.service.IService;
 
+import com.cloudmall.im.api.model.req.SessionPageReq;
 import com.cloudmall.im.model.entity.ChatSessionDO;
-import com.cloudmall.im.model.req.SessionPageReq;
 
 /**
  * 聊天会话服务接口

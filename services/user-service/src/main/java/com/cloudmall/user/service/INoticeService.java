@@ -2,7 +2,7 @@ package com.cloudmall.user.service;
 
 import java.util.List;
 
-import com.cloudmall.user.model.resp.NoticeResp;
+import com.cloudmall.user.api.model.resp.NoticeResp;
 
 /**
  * 首页公告服务

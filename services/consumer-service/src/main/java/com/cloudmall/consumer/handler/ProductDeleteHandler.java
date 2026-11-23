@@ -7,7 +7,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
 import com.cloudmall.product.api.enums.ProductTagEnum;
-import com.cloudmall.product.api.model.bo.ProductEvent;
+import com.cloudmall.product.api.model.event.ProductEvent;
 import com.cloudmall.search.api.client.InternalSearchClient;
 
 /**

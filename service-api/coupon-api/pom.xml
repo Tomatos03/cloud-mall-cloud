@@ -33,5 +33,13 @@
             <artifactId>mybatis-plus-annotation</artifactId>
             <version>${mybatis-plus-version}</version>
         </dependency>
+        <dependency>
+            <groupId>com.cloudmall</groupId>
+            <artifactId>cloudmall-mybatis-plus-annotation</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>cn.hutool</groupId>
+            <artifactId>hutool-all</artifactId>
+        </dependency>
     </dependencies>
 </project>

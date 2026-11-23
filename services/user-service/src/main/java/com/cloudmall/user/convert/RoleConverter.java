@@ -4,9 +4,9 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
 
+import com.cloudmall.user.api.model.req.RoleReq;
+import com.cloudmall.user.api.model.resp.RoleResp;
 import com.cloudmall.user.model.entity.RoleDO;
-import com.cloudmall.user.model.req.RoleReq;
-import com.cloudmall.user.model.resp.RoleResp;
 
 /**
  * 角色转换器

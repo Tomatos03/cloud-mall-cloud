@@ -12,10 +12,13 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.cloudmall.common.context.UserContextHolder;
 import com.cloudmall.common.enums.BizErrorEnum;
+import com.cloudmall.common.model.PageResp;
 import com.cloudmall.common.utils.Asserts;
 import com.cloudmall.coupon.api.enums.CouponOperationActionEnum;
 import com.cloudmall.coupon.api.enums.CouponScopeEnum;
 import com.cloudmall.coupon.api.enums.CouponStatusEnum;
+import com.cloudmall.coupon.api.model.req.CouponOperationLogPageReq;
+import com.cloudmall.coupon.api.model.req.CouponPageReq;
 import com.cloudmall.coupon.api.model.req.CouponReq;
 import com.cloudmall.coupon.api.model.resp.CouponOperationLogResp;
 import com.cloudmall.coupon.api.model.resp.CouponResp;
@@ -30,9 +33,8 @@ import com.cloudmall.coupon.model.entity.CouponCategoryDO;
 import com.cloudmall.coupon.model.entity.CouponDO;
 import com.cloudmall.coupon.model.entity.CouponOperationLogDO;
 import com.cloudmall.coupon.model.entity.CouponProductDO;
-import com.cloudmall.coupon.model.req.CouponOperationLogPageReq;
-import com.cloudmall.coupon.model.req.CouponPageReq;
 import com.cloudmall.coupon.service.ICouponTemplateService;
+import com.cloudmall.mybatisplus.query.PageResponses;
 
 /**
  * 优惠券模板领域服务实现。
@@ -243,11 +245,11 @@ public class CouponTemplateService implements ICouponTemplateService {
      * @return 模板分页
      */
     @Override
-    public IPage<CouponResp> pageShop(CouponPageReq req) {
+    public PageResp<CouponResp> pageShop(CouponPageReq req) {
         Long shopId = Asserts.requireNonNull(UserContextHolder.getShopId(), BizErrorEnum.MERCHANT_NO_SHOP);
         req.setShopId(shopId);
         IPage<CouponDO> page = couponMapper.selectCouponPage(req);
-        return page.convert(couponConverter::toResp);
+        return PageResponses.of(page, couponConverter::toResp);
     }
 
     /**
@@ -257,10 +259,10 @@ public class CouponTemplateService implements ICouponTemplateService {
      * @return 模板分页
      */
     @Override
-    public IPage<CouponResp> pageAll(CouponPageReq req) {
+    public PageResp<CouponResp> pageAll(CouponPageReq req) {
         Asserts.isTrue(UserContextHolder.isAdmin(), BizErrorEnum.COUPON_OPERATION_NOT_ALLOWED);
         IPage<CouponDO> page = couponMapper.selectCouponPage(req);
-        return page.convert(couponConverter::toResp);
+        return PageResponses.of(page, couponConverter::toResp);
     }
 
     /**
@@ -270,10 +272,10 @@ public class CouponTemplateService implements ICouponTemplateService {
      * @return 操作流水分页
      */
     @Override
-    public IPage<CouponOperationLogResp> pageOperationLogs(CouponOperationLogPageReq req) {
+    public PageResp<CouponOperationLogResp> pageOperationLogs(CouponOperationLogPageReq req) {
         Asserts.isTrue(UserContextHolder.isAdmin(), BizErrorEnum.COUPON_OPERATION_NOT_ALLOWED);
         IPage<CouponOperationLogDO> page = couponOperationLogMapper.selectOperationLogPage(req);
-        return page.convert(couponOperationLogConverter::toResp);
+        return PageResponses.of(page, couponOperationLogConverter::toResp);
     }
 
     /**

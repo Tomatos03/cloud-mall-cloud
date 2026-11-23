@@ -7,7 +7,7 @@ import org.apache.rocketmq.spring.annotation.SelectorType;
 import org.springframework.stereotype.Component;
 
 import com.cloudmall.consumer.handler.IEventHandler;
-import com.cloudmall.product.api.model.bo.ProductEvent;
+import com.cloudmall.product.api.model.event.ProductEvent;
 
 /**
  * 商品事件消费者

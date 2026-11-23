@@ -7,7 +7,7 @@ import org.apache.rocketmq.spring.annotation.SelectorType;
 import org.springframework.stereotype.Component;
 
 import com.cloudmall.consumer.handler.IEventHandler;
-import com.cloudmall.seckill.api.model.bo.SeckillOrderCreateEvent;
+import com.cloudmall.seckill.api.model.event.SeckillOrderCreateEvent;
 
 /**
  * 秒杀事件消费者

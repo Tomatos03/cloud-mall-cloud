@@ -9,9 +9,11 @@ import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import org.apache.ibatis.annotations.Mapper;
 
 import com.cloudmall.coupon.api.model.resp.CouponOrderCalcResp;
+import com.cloudmall.mybatisplus.query.LambdaWrappers;
+import com.cloudmall.mybatisplus.query.Pages;
+import com.cloudmall.order.api.model.req.OrderPageReq;
 import com.cloudmall.order.enums.ParentOrderStatusEnum;
 import com.cloudmall.order.model.entity.OrderDO;
-import com.cloudmall.order.model.req.OrderPageReq;
 
 /**
  * 订单 Mapper。
@@ -30,7 +32,10 @@ public interface OrderMapper extends BaseMapper<OrderDO> {
      * @return 父订单分页数据
      */
     default IPage<OrderDO> selectOrderPage(OrderPageReq req) {
-        return selectPage(req, req.buildLambdaWrapper());
+        return selectPage(
+                Pages.from(req),
+                LambdaWrappers.of(req, OrderDO.class).orderByDesc(OrderDO::getCreateTime)
+        );
     }
 
     /**

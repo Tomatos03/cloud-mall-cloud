@@ -2,12 +2,11 @@ package com.cloudmall.product.service;
 
 import java.util.List;
 
-import com.baomidou.mybatisplus.core.metadata.IPage;
-
+import com.cloudmall.common.model.PageResp;
 import com.cloudmall.product.api.model.req.UnitCreateReq;
+import com.cloudmall.product.api.model.req.UnitPageReq;
 import com.cloudmall.product.api.model.req.UnitUpdateReq;
 import com.cloudmall.product.api.model.resp.UnitResp;
-import com.cloudmall.product.model.req.UnitPageReq;
 
 /**
  * 商品单位服务接口。
@@ -30,7 +29,7 @@ public interface IUnitService {
      * @param req 分页请求
      * @return 单位分页列表
      */
-    IPage<UnitResp> page(UnitPageReq req);
+    PageResp<UnitResp> page(UnitPageReq req);
 
     /**
      * 创建单位。

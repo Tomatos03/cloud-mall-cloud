@@ -16,8 +16,8 @@ import com.cloudmall.common.exception.BizException;
 import com.cloudmall.common.utils.Asserts;
 import com.cloudmall.order.config.PaymentProperties;
 import com.cloudmall.payment.api.constant.WechatPayConstants;
-import com.cloudmall.payment.api.model.bo.WechatPayNotification;
-import com.cloudmall.payment.api.model.bo.WechatPayTransaction;
+import com.cloudmall.payment.api.model.dto.WechatPayNotification;
+import com.cloudmall.payment.api.model.dto.WechatPayTransaction;
 import com.cloudmall.payment.api.util.WechatPayCrypto;
 
 /**

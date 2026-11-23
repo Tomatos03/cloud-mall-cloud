@@ -3,9 +3,9 @@ package com.cloudmall.mockpayment.application;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import com.cloudmall.mockpayment.model.resp.MockPaymentDetailResp;
 import com.cloudmall.mockpayment.service.IPaymentNotifyService;
 import com.cloudmall.mockpayment.service.IWechatPayService;
+import com.cloudmall.payment.api.model.resp.MockPaymentDetailResp;
 
 /**
  * 模拟支付应用服务。

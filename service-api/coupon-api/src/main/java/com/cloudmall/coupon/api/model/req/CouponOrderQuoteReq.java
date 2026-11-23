@@ -10,7 +10,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 
-import com.cloudmall.coupon.api.model.bo.CouponCalcItem;
+import com.cloudmall.coupon.api.model.dto.CouponCalcItem;
 
 /**
  * 优惠券试算请求

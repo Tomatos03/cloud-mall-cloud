@@ -4,7 +4,7 @@ import java.util.List;
 
 import org.mapstruct.Mapper;
 
-import com.cloudmall.aigc.model.resp.HotTopicResp;
+import com.cloudmall.aigc.api.model.resp.HotTopicResp;
 import com.cloudmall.aigc.properties.AgentProperties;
 
 /**

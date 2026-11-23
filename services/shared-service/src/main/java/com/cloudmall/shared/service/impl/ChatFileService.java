@@ -13,12 +13,12 @@ import org.springframework.web.multipart.MultipartFile;
 import com.cloudmall.common.context.UserContextHolder;
 import com.cloudmall.common.enums.BizErrorEnum;
 import com.cloudmall.common.utils.Asserts;
+import com.cloudmall.shared.api.enums.ChatMediaTypeEnum;
 import com.cloudmall.shared.api.enums.FileBizTypeEnum;
+import com.cloudmall.shared.api.model.resp.ChatFileResp;
 import com.cloudmall.shared.constant.FileConstants;
-import com.cloudmall.shared.enums.ChatMediaTypeEnum;
-import com.cloudmall.shared.model.FileUploadPolicy;
-import com.cloudmall.shared.model.FileUploadResult;
-import com.cloudmall.shared.model.resp.ChatFileResp;
+import com.cloudmall.shared.model.bo.FileUploadPolicy;
+import com.cloudmall.shared.model.bo.FileUploadResult;
 import com.cloudmall.shared.service.IChatFileService;
 import com.cloudmall.shared.service.IFileService;
 

@@ -2,9 +2,9 @@ package com.cloudmall.user.service;
 
 import java.util.List;
 
-import com.cloudmall.user.model.req.ResourceReq;
-import com.cloudmall.user.model.resp.ResourceNodeResp;
-import com.cloudmall.user.model.resp.ResourceResp;
+import com.cloudmall.user.api.model.req.ResourceReq;
+import com.cloudmall.user.api.model.resp.ResourceNodeResp;
+import com.cloudmall.user.api.model.resp.ResourceResp;
 
 /**
  * 资源权限统一接口

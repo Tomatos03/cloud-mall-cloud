@@ -14,9 +14,10 @@ import org.apache.ibatis.annotations.Mapper;
 
 import com.cloudmall.common.enums.StatusEnum;
 import com.cloudmall.common.model.CursorReq;
+import com.cloudmall.mybatisplus.query.LambdaWrappers;
 import com.cloudmall.mybatisplus.query.SqlLimit;
+import com.cloudmall.product.api.model.req.ProductGetReq;
 import com.cloudmall.product.model.entity.ProductDO;
-import com.cloudmall.product.model.req.ProductGetReq;
 
 /**
  * 商品 SPU Mapper。
@@ -35,7 +36,7 @@ public interface ProductMapper extends BaseMapper<ProductDO> {
      * @return SPU 实体，未命中返回 null
      */
     default ProductDO selectByGetReq(ProductGetReq req) {
-        return selectOne(req.buildLambdaWrapper());
+        return selectOne(LambdaWrappers.of(req, ProductDO.class));
     }
 
     /**

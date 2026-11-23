@@ -32,6 +32,10 @@
             <artifactId>mybatis-plus-annotation</artifactId>
             <version>${mybatis-plus-version}</version>
         </dependency>
-        <!-- mybatis-plus-extension 已移除：PageReq 已迁至 cloudmall-mybatis-plus-spring-boot-starter -->
+        <!-- 分页请求基类字段校验 -->
+        <dependency>
+            <groupId>jakarta.validation</groupId>
+            <artifactId>jakarta.validation-api</artifactId>
+        </dependency>
     </dependencies>
 </project>

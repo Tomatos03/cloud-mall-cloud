@@ -14,7 +14,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import com.cloudmall.im.enums.MessageTypeEnum;
+import com.cloudmall.im.api.enums.MessageTypeEnum;
 
 /**
  * 买家商家聊天消息实体

@@ -1,6 +1,5 @@
 package com.cloudmall.order.controller;
 
-import com.baomidou.mybatisplus.core.metadata.IPage;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -11,16 +10,17 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.cloudmall.common.context.UserContextHolder;
+import com.cloudmall.common.model.PageResp;
 import com.cloudmall.common.model.Result;
 import com.cloudmall.coupon.api.model.resp.CouponOrderCalcResp;
 import com.cloudmall.order.api.enums.CheckoutTypeEnum;
 import com.cloudmall.order.api.model.req.CreateOrderReq;
+import com.cloudmall.order.api.model.req.OrderPageReq;
+import com.cloudmall.order.api.model.req.OrderSubPageReq;
 import com.cloudmall.order.api.model.req.QuoteOrderReq;
 import com.cloudmall.order.api.model.resp.OrderResp;
 import com.cloudmall.order.api.model.resp.OrderSubResp;
 import com.cloudmall.order.application.OrderApp;
-import com.cloudmall.order.model.req.OrderPageReq;
-import com.cloudmall.order.model.req.OrderSubPageReq;
 import com.cloudmall.order.service.IOrderService;
 
 /**
@@ -87,7 +87,7 @@ public class OrderController {
      * @return 父订单分页
      */
     @GetMapping
-    public Result<IPage<OrderResp>> page(OrderPageReq req) {
+    public Result<PageResp<OrderResp>> page(OrderPageReq req) {
         Long userId = UserContextHolder.getUserId();
         req.setUserId(userId);
         return Result.success(orderService.page(req));
@@ -100,7 +100,7 @@ public class OrderController {
      * @return 子订单分页
      */
     @GetMapping("/merchant")
-    public Result<IPage<OrderSubResp>> merchantPage(OrderSubPageReq req) {
+    public Result<PageResp<OrderSubResp>> merchantPage(OrderSubPageReq req) {
         return Result.success(orderService.pageMerchant(req));
     }
 
@@ -111,7 +111,7 @@ public class OrderController {
      * @return 父订单分页
      */
     @GetMapping("/operator")
-    public Result<IPage<OrderResp>> operatorPage(OrderPageReq req) {
+    public Result<PageResp<OrderResp>> operatorPage(OrderPageReq req) {
         return Result.success(orderService.page(req));
     }
 }

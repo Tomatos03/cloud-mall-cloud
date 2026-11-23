@@ -2,11 +2,10 @@ package com.cloudmall.product.service;
 
 import java.util.List;
 
-import com.baomidou.mybatisplus.core.metadata.IPage;
-
+import com.cloudmall.common.model.PageResp;
+import com.cloudmall.product.api.model.req.BannerPageReq;
+import com.cloudmall.product.api.model.req.BannerReq;
 import com.cloudmall.product.api.model.resp.BannerResp;
-import com.cloudmall.product.model.req.BannerPageReq;
-import com.cloudmall.product.model.req.BannerReq;
 
 public interface IBannerService {
 
@@ -24,5 +23,5 @@ public interface IBannerService {
      * @param req 请求参数
      * @return 分页数据
      */
-    IPage<BannerResp> page(BannerPageReq req);
+    PageResp<BannerResp> page(BannerPageReq req);
 }

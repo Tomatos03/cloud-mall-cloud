@@ -5,8 +5,8 @@ import java.math.BigDecimal;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
-import com.cloudmall.order.model.resp.PaymentCreateResp;
-import com.cloudmall.order.model.resp.PaymentStatusResp;
+import com.cloudmall.order.api.model.resp.PaymentCreateResp;
+import com.cloudmall.order.api.model.resp.PaymentStatusResp;
 import com.cloudmall.payment.api.enums.TradeStateEnum;
 import com.cloudmall.payment.api.model.resp.MockPaymentCreateResp;
 import com.cloudmall.payment.api.model.resp.MockPaymentQueryResp;

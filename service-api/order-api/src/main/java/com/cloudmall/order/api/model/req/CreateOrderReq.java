@@ -11,7 +11,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import com.cloudmall.order.api.model.bo.OrderItem;
+import com.cloudmall.order.api.model.dto.OrderItem;
 
 /**
  * 创建订单请求

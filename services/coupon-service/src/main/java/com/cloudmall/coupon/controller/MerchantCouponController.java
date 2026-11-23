@@ -1,6 +1,5 @@
 package com.cloudmall.coupon.controller;
 
-import com.baomidou.mybatisplus.core.metadata.IPage;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -12,13 +11,14 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.cloudmall.common.model.PageResp;
 import com.cloudmall.common.model.Result;
 import com.cloudmall.coupon.api.enums.CouponOwnerEnum;
+import com.cloudmall.coupon.api.model.req.CouponPageReq;
 import com.cloudmall.coupon.api.model.req.CouponReq;
 import com.cloudmall.coupon.api.model.resp.CouponResp;
 import com.cloudmall.coupon.api.model.resp.CouponStatsResp;
 import com.cloudmall.coupon.application.CouponTemplateApp;
-import com.cloudmall.coupon.model.req.CouponPageReq;
 import com.cloudmall.coupon.service.ICouponStatsService;
 import com.cloudmall.coupon.service.ICouponTemplateService;
 
@@ -46,7 +46,7 @@ public class MerchantCouponController {
      * @return 店铺券分页
      */
     @GetMapping
-    public Result<IPage<CouponResp>> page(CouponPageReq req) {
+    public Result<PageResp<CouponResp>> page(CouponPageReq req) {
         return Result.success(couponTemplateService.pageShop(req));
     }
 

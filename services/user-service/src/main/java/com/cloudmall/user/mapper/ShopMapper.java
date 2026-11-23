@@ -3,8 +3,9 @@ package com.cloudmall.user.mapper;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import org.apache.ibatis.annotations.Mapper;
 
+import com.cloudmall.mybatisplus.query.LambdaWrappers;
+import com.cloudmall.user.api.model.req.ShopReq;
 import com.cloudmall.user.model.entity.ShopDO;
-import com.cloudmall.user.model.req.ShopReq;
 
 @Mapper
 public interface ShopMapper extends BaseMapper<ShopDO> {
@@ -17,6 +18,6 @@ public interface ShopMapper extends BaseMapper<ShopDO> {
      * @return 店铺，不存在时返回 null
      */
     default ShopDO selectByReq(ShopReq req) {
-        return selectOne(req.buildLambdaWrapper());
+        return selectOne(LambdaWrappers.of(req, ShopDO.class));
     }
 }

@@ -1,10 +1,10 @@
 package com.cloudmall.product.api.client;
 
-import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import com.cloudmall.common.model.PageResp;
 import com.cloudmall.product.api.client.fallback.BannerClientFallbackFactory;
 import com.cloudmall.product.api.model.resp.BannerResp;
 
@@ -32,7 +32,7 @@ public interface BannerClient {
      * @return 轮播图分页结果
      */
     @GetMapping("/page")
-    Page<BannerResp> page(
+    PageResp<BannerResp> page(
         @RequestParam(value = "current", defaultValue = "1")
         long current,
         @RequestParam(value = "size", defaultValue = "10")

@@ -10,9 +10,9 @@
 
 - 顶层：`common/`（共享工具、通用枚举与跨服务对象）、`gateway/`、`service-api/`（Feign 接口 + DTO 聚合，父 POM）、`services/`（业务服务，父 POM）、`starters/`（自研 Starter，父 POM）、`docs/`（设计/compose/Nacos 配置/SQL）。
 - 业务服务（`services/`）：`user-service`（UserApplication，认证/RBAC + 用户资料 + 商家入驻）、`shared-service`（SharedServiceApplication，文件上传/访问 + 文件台账回收）、`product-service`（ProductApplication）、`order-service`（OrderApplication）、`coupon-service`（CouponApplication）、`seckill-service`（SeckillApplication）、`im-service`（IMApplication）、`aigc-service`（agent-service，AIGCApplication）、`mock-payment-service`（MockPaymentApplication，微信支付 API v3 模拟渠道）。
-- 服务接口（`service-api/`）：`shared-api`、`user-api`、`product-api`、`order-api`、`coupon-api`、`seckill-api`、`search-api`、`payment-api`。
-- 自研 Starter（`starters/`）：`cloudmall-common`（Result/BizException/BizErrorEnum/UserContextFilter）、`cloudmall-mybatis-plus`（MyMetaObjectHandler、PageReq/ConditionReq、SqlLimit）、`cloudmall-jwt`、`cloudmall-rocketmq`（MQProducer/TxMessageHeader）、`cloudmall-outbox`（本地消息 Outbox）、`cloudmall-feign`（用户上下文透传 + Result 自动拆箱）、`cloudmall-elasticsearch`、`cloudmall-xxl-job`。
-- 业务服务分层：`controller`、`service`/`impl`、`mapper`、`model/entity`、`model/req`、`model/resp`、`model/bo`、`convert`（MapStruct）、`enums`、`application`、`job`。
+- 服务接口（`service-api/`）：`shared-api`、`user-api`、`product-api`、`order-api`、`coupon-api`、`seckill-api`、`search-api`、`payment-api`、`aigc-api`、`im-api`。只放 req/resp/event/dto/ws 与契约枚举，不放 DO/BO。
+- 自研 Starter（`starters/`）：`cloudmall-common`（Result/BizException/BizErrorEnum/UserContextFilter）、`cloudmall-mybatis-plus-annotation`（`@QueryCondition`、`OperatorEnum`，零依赖契约注解）、`cloudmall-mybatis-plus`（MyMetaObjectHandler、`LambdaWrappers`、`Pages`、`PageResponses`、`SqlLimit`）、`cloudmall-jwt`、`cloudmall-rocketmq`（MQProducer/TxMessageHeader）、`cloudmall-outbox`（本地消息 Outbox）、`cloudmall-feign`（用户上下文透传 + Result 自动拆箱）、`cloudmall-elasticsearch`、`cloudmall-xxl-job`。
+- 业务服务分层：`controller`、`service`/`impl`、`mapper`、`model/entity`、`model/bo`、`convert`（MapStruct）、`query`、`application`、`job`。Req/Resp 已迁至对应 `service-api` 模块。
 - 服务端口统一在 Nacos 配置中心管理（导入 `common` + `{app-name}` 配置）。
 
 ## 构建、测试与开发命令
@@ -44,19 +44,24 @@ mvn test                                                  # 测试
 
 ## 对象模型与目录边界
 
-业务服务内的对象按职责分为四类，**目录与命名必须遵循下表**：
+对象按职责分层，**目录与命名必须遵循下表**：
 
 | 目录 | 对象 | 后缀 | 职责 | 允许出现的位置 |
 |---|---|---|---|---|
-| `model/entity/` | 持久化对象 | `XxxDO` | 与数据库表一一对应，字段即列 | Mapper、Service 内部 |
-| `model/req/` | 请求对象 | `XxxReq` | 本服务 HTTP 接口入参 | Controller、Service |
-| `model/resp/` | 响应对象 | `XxxResp` | 本服务 HTTP 接口出参 | Controller、Service |
-| `model/bo/` | 业务对象 | 领域名（不加 `BO` 后缀） | 多表聚合、跨领域组合、复杂计算结果 | Service、Application 内部 |
+| `services/*/model/entity/` | 持久化对象 | `XxxDO` | 与数据库表一一对应，字段即列 | Mapper、Service 内部 |
+| `services/*/model/bo/` | 业务对象 | 领域名（不加 `BO` 后缀） | 多表聚合、跨领域组合、复杂计算结果 | Service、Application 内部 |
+| `service-api/*/model/req/` | HTTP 入参 | `XxxReq` | HTTP/Feign 契约入参 | api 模块、Controller、Service |
+| `service-api/*/model/resp/` | HTTP 出参 | `XxxResp` | HTTP/Feign 契约出参 | api 模块、Controller、Service |
+| `service-api/*/model/event/` | MQ 事件 | `*Event` | 跨服务消息体 | 生产者、消费者 |
+| `service-api/*/model/dto/` | 契约内嵌结构 | 领域名 | 请求/响应中的嵌套元素 | api 模块 |
+| `service-api/*/model/ws/` | WebSocket 报文 | `XxxReq` | WebSocket 入站报文 | api 模块、WebSocket Handler |
+| `common/model/` | 共享契约 | `PageReq`/`PageResp`/`Result` 等 | 跨服务通用分页与结果对象 | api 模块、service |
 
 边界规则：
 
 - **DO 不出 Service 层**：Controller 签名、Feign 接口、`service-api` 中禁止出现 `XxxDO`。
-- **Req/Resp 只服务本服务 HTTP 边界**：跨服务调用的入参/出参放 `service-api` 对应模块，不在本服务 `model` 中重复定义。
+- **Req/Resp 一律在 `service-api`**：service 的 `model/req`、`model/resp` 已取消；Req 为纯 DTO，可继承 `common.model.PageReq`，不得引用 DO 或 MP 实现类型。
+- **契约 DTO 只含框架注解元数据**：`@QueryCondition`/`OperatorEnum` 来自 zero-dependency 的 annotation 模块；出参分页用 `common.model.PageResp`，Controller 不返回 `IPage`。
 - **BO 只在 Service/Application 内部流转**：禁止作为 Controller 入参/出参，禁止被 `service-api` 引用。
 - **转换统一走 `convert/XxxConverter`**（MapStruct）：DO ↔ BO ↔ Req/Resp，禁止在 Controller / Service 内联手写转换。
 - **没有聚合需求不建 BO**：BO 用于多表聚合或跨领域组合，不要为每张表机械地造一个 BO。
@@ -179,7 +184,7 @@ mvn test                                                  # 测试
 
 - 使用 `Wrappers.lambdaQuery()` / `lambdaUpdate()`，禁止 `new LambdaQueryWrapper<>()`；更新用单参数 `update(Wrappers.lambdaUpdate()...)`。
 - 对 `status` / `enable` 等字段构造条件必须用业务枚举（`*Enum`），禁止魔数或布尔值。
-- 分页请求继承 `PageReq<T>` + `@QueryCondition`，Service 只传 req，条件由 `req.buildLambdaWrapper()` 构建，Service 层不接触 `Wrapper`。
+- 分页请求继承 `common.model.PageReq`（纯 DTO，带 1/10 默认值），筛选字段用 `@QueryCondition` 声明；Mapper 用 `LambdaWrappers.of(req, XxxDO.class)` 构建条件、`Pages.from(req)` 构建 MP `Page`；分页出参用 `PageResponses.of(page, converter)` 转成 `PageResp`。
 - `LIMIT` 一律用 `SqlLimit.of(n)`，禁止手写 `.last("LIMIT ...")`。
 - 含变量拼接的 `inSql` / `setSql` 先抽为紧邻使用处的 `final` 局部变量；动态值优先 `set(实体::getXxx, value)`。
 - Mapper 禁止注解脚本 SQL（`@Select` / `@Insert` / `@Update` / `@Delete` 及 Provider 系列），一律 `default` 方法 + Wrapper。

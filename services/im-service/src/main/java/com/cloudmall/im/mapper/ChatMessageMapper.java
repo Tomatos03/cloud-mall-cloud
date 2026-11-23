@@ -13,9 +13,9 @@ import org.apache.ibatis.annotations.Mapper;
 
 import com.cloudmall.common.model.CursorReq;
 import com.cloudmall.common.model.CursorResult;
+import com.cloudmall.im.api.model.req.MessageCursorReq;
 import com.cloudmall.im.enums.ReadStatusEnum;
 import com.cloudmall.im.model.entity.ChatMessageDO;
-import com.cloudmall.im.model.req.MessageCursorReq;
 import com.cloudmall.mybatisplus.query.SqlLimit;
 
 /**

@@ -2,7 +2,7 @@ package com.cloudmall.shared.service;
 
 import org.springframework.web.multipart.MultipartFile;
 
-import com.cloudmall.shared.model.resp.ChatFileResp;
+import com.cloudmall.shared.api.model.resp.ChatFileResp;
 
 /**
  * 聊天附件服务。

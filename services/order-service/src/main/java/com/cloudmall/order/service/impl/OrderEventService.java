@@ -8,7 +8,7 @@ import org.springframework.stereotype.Service;
 import com.cloudmall.common.enums.BizErrorEnum;
 import com.cloudmall.common.utils.Asserts;
 import com.cloudmall.order.api.enums.OrderTagEnum;
-import com.cloudmall.order.api.model.bo.OrderEvent;
+import com.cloudmall.order.api.model.event.OrderEvent;
 import com.cloudmall.order.mapper.OrderMapper;
 import com.cloudmall.order.model.entity.OrderDO;
 import com.cloudmall.order.service.IOrderEventService;

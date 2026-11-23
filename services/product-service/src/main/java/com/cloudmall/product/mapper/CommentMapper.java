@@ -2,14 +2,18 @@ package com.cloudmall.product.mapper;
 
 import java.util.List;
 
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import org.apache.ibatis.annotations.Mapper;
 
 import com.cloudmall.common.enums.StatusEnum;
+import com.cloudmall.mybatisplus.query.LambdaWrappers;
+import com.cloudmall.mybatisplus.query.Pages;
+import com.cloudmall.product.api.model.req.CommentPageReq;
 import com.cloudmall.product.model.entity.CommentDO;
-import com.cloudmall.product.model.req.CommentPageReq;
+import com.cloudmall.product.query.CommentQueryHelper;
 
 @Mapper
 public interface CommentMapper extends BaseMapper<CommentDO> {
@@ -22,7 +26,9 @@ public interface CommentMapper extends BaseMapper<CommentDO> {
      * @return 评论分页数据
      */
     default IPage<CommentDO> selectCommentPage(CommentPageReq req) {
-        return selectPage(req, req.buildLambdaWrapper());
+        LambdaQueryWrapper<CommentDO> wrapper = LambdaWrappers.of(req, CommentDO.class);
+        CommentQueryHelper.apply(req, wrapper);
+        return selectPage(Pages.from(req), wrapper);
     }
 
     /**

@@ -12,8 +12,8 @@ import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-import com.cloudmall.aigc.model.req.ChatReq;
-import com.cloudmall.aigc.model.resp.ChatResp;
+import com.cloudmall.aigc.api.model.req.ChatReq;
+import com.cloudmall.aigc.api.model.resp.ChatResp;
 
 /**
  * 路由智能体。

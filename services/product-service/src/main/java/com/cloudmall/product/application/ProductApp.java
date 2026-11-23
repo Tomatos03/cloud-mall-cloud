@@ -6,6 +6,7 @@ import org.springframework.stereotype.Service;
 
 import com.cloudmall.common.context.UserContextHolder;
 import com.cloudmall.common.enums.BizErrorEnum;
+import com.cloudmall.common.model.ShopInfoResp;
 import com.cloudmall.common.utils.Asserts;
 import com.cloudmall.product.api.model.req.ProductCreateReq;
 import com.cloudmall.product.api.model.resp.CommentSummaryResp;
@@ -13,7 +14,6 @@ import com.cloudmall.product.api.model.resp.ProductDetailResp;
 import com.cloudmall.product.convert.ProductConverter;
 import com.cloudmall.product.service.IProductService;
 import com.cloudmall.user.api.client.ShopClient;
-import com.cloudmall.user.api.model.resp.ShopInfoResp;
 import com.cloudmall.user.api.model.resp.ShopResp;
 
 /**

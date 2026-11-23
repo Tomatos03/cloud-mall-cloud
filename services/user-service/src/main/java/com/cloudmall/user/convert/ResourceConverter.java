@@ -6,9 +6,9 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
 
+import com.cloudmall.user.api.model.req.ResourceReq;
+import com.cloudmall.user.api.model.resp.ResourceResp;
 import com.cloudmall.user.model.entity.ResourceDO;
-import com.cloudmall.user.model.req.ResourceReq;
-import com.cloudmall.user.model.resp.ResourceResp;
 
 /**
  * 资源转换器

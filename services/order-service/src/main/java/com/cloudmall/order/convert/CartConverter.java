@@ -10,8 +10,8 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
 
-import com.cloudmall.order.api.model.bo.CartItem;
-import com.cloudmall.order.api.model.bo.CartShopGroup;
+import com.cloudmall.order.api.model.dto.CartItem;
+import com.cloudmall.order.api.model.dto.CartShopGroup;
 import com.cloudmall.order.api.model.resp.CartDetailResp;
 import com.cloudmall.order.model.entity.CartDO;
 import com.cloudmall.product.api.model.resp.SkuResp;

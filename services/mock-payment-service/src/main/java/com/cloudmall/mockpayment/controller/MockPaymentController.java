@@ -2,7 +2,6 @@ package com.cloudmall.mockpayment.controller;
 
 import java.util.List;
 
-import com.baomidou.mybatisplus.core.metadata.IPage;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -11,15 +10,16 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.cloudmall.common.model.PageResp;
 import com.cloudmall.common.model.Result;
 import com.cloudmall.mockpayment.application.MockPaymentApp;
-import com.cloudmall.mockpayment.model.resp.MockPaymentConfigResp;
-import com.cloudmall.mockpayment.model.resp.MockPaymentDetailResp;
-import com.cloudmall.mockpayment.model.resp.MockPaymentNotifyResp;
 import com.cloudmall.mockpayment.properties.MockPaymentProperties;
 import com.cloudmall.mockpayment.service.IPaymentNotifyService;
 import com.cloudmall.mockpayment.service.IWechatPayService;
 import com.cloudmall.mockpayment.service.impl.WechatPaySignatureService;
+import com.cloudmall.payment.api.model.resp.MockPaymentConfigResp;
+import com.cloudmall.payment.api.model.resp.MockPaymentDetailResp;
+import com.cloudmall.payment.api.model.resp.MockPaymentNotifyResp;
 
 /**
  * 模拟支付控制台接口。
@@ -49,7 +49,7 @@ public class MockPaymentController {
      * @return 支付单分页
      */
     @GetMapping
-    public Result<IPage<MockPaymentDetailResp>> page(
+    public Result<PageResp<MockPaymentDetailResp>> page(
         @RequestParam(defaultValue = "1") long current,
         @RequestParam(defaultValue = "10") long size,
         @RequestParam(required = false) String tradeState

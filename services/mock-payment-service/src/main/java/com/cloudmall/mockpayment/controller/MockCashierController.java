@@ -11,8 +11,8 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.util.HtmlUtils;
 
 import com.cloudmall.common.exception.BizException;
-import com.cloudmall.mockpayment.model.resp.MockPaymentDetailResp;
 import com.cloudmall.mockpayment.service.IWechatPayService;
+import com.cloudmall.payment.api.model.resp.MockPaymentDetailResp;
 
 /**
  * 模拟微信支付收银台页面。

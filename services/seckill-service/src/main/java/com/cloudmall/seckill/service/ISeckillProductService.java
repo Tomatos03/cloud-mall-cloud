@@ -2,11 +2,10 @@ package com.cloudmall.seckill.service;
 
 import java.util.List;
 
-import com.baomidou.mybatisplus.core.metadata.IPage;
-
+import com.cloudmall.common.model.PageResp;
+import com.cloudmall.seckill.api.model.req.SeckillProductPageReq;
 import com.cloudmall.seckill.api.model.resp.SeckillProductResp;
 import com.cloudmall.seckill.model.entity.SeckillProductDO;
-import com.cloudmall.seckill.model.req.SeckillProductPageReq;
 
 /**
  * 秒杀商品与审核服务
@@ -40,7 +39,7 @@ public interface ISeckillProductService {
      * @param req 分页请求
      * @return 商品分页
      */
-    IPage<SeckillProductResp> pageProducts(SeckillProductPageReq req);
+    PageResp<SeckillProductResp> pageProducts(SeckillProductPageReq req);
 
     /**
      * 查询活动中某 SKU 已审核通过的商品（抢购编排用）。

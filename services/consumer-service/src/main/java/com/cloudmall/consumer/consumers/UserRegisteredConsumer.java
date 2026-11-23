@@ -6,7 +6,7 @@ import org.apache.rocketmq.spring.annotation.RocketMQMessageListener;
 import org.springframework.stereotype.Component;
 
 import com.cloudmall.consumer.handler.IEventHandler;
-import com.cloudmall.user.api.model.bo.UserRegisteredEvent;
+import com.cloudmall.user.api.model.event.UserRegisteredEvent;
 
 /**
  * 用户注册事件消费者

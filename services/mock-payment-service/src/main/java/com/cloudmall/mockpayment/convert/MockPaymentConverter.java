@@ -10,14 +10,14 @@ import org.mapstruct.Mapping;
 
 import com.cloudmall.mockpayment.model.entity.MockPaymentNotifyDO;
 import com.cloudmall.mockpayment.model.entity.MockPaymentOrderDO;
-import com.cloudmall.mockpayment.model.resp.AmountResp;
-import com.cloudmall.mockpayment.model.resp.MockPaymentDetailResp;
-import com.cloudmall.mockpayment.model.resp.MockPaymentNotifyResp;
-import com.cloudmall.mockpayment.model.resp.PayerResp;
-import com.cloudmall.mockpayment.model.resp.TransactionQueryResp;
-import com.cloudmall.payment.api.model.bo.WechatPayTransaction;
+import com.cloudmall.payment.api.model.dto.WechatPayTransaction;
+import com.cloudmall.payment.api.model.resp.AmountResp;
 import com.cloudmall.payment.api.model.resp.MockPaymentCreateResp;
+import com.cloudmall.payment.api.model.resp.MockPaymentDetailResp;
+import com.cloudmall.payment.api.model.resp.MockPaymentNotifyResp;
 import com.cloudmall.payment.api.model.resp.MockPaymentQueryResp;
+import com.cloudmall.payment.api.model.resp.PayerResp;
+import com.cloudmall.payment.api.model.resp.TransactionQueryResp;
 
 /**
  * 模拟支付对象转换器。

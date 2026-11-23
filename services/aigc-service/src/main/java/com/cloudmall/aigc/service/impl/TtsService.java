@@ -11,9 +11,9 @@ import org.springframework.ai.openai.api.OpenAiAudioApi.SpeechRequest.AudioRespo
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 
-import com.cloudmall.aigc.enums.TtsAudioFormatEnum;
-import com.cloudmall.aigc.model.req.TtsReq;
-import com.cloudmall.aigc.model.resp.TtsResp;
+import com.cloudmall.aigc.api.enums.TtsAudioFormatEnum;
+import com.cloudmall.aigc.api.model.req.TtsReq;
+import com.cloudmall.aigc.api.model.resp.TtsResp;
 import com.cloudmall.aigc.service.ITtsService;
 
 /**

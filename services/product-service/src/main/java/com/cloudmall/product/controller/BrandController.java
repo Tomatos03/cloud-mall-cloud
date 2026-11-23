@@ -2,7 +2,6 @@ package com.cloudmall.product.controller;
 
 import java.util.List;
 
-import com.baomidou.mybatisplus.core.metadata.IPage;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -15,13 +14,14 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.cloudmall.common.model.CursorReq;
 import com.cloudmall.common.model.CursorResult;
+import com.cloudmall.common.model.PageResp;
 import com.cloudmall.common.model.Result;
 import com.cloudmall.product.api.model.req.BrandCreateReq;
+import com.cloudmall.product.api.model.req.BrandPageReq;
+import com.cloudmall.product.api.model.req.BrandProductPageReq;
 import com.cloudmall.product.api.model.req.BrandUpdateReq;
 import com.cloudmall.product.api.model.resp.BrandResp;
 import com.cloudmall.product.api.model.resp.ProductResp;
-import com.cloudmall.product.model.req.BrandPageReq;
-import com.cloudmall.product.model.req.BrandProductPageReq;
 import com.cloudmall.product.service.IBrandService;
 import com.cloudmall.product.service.IProductService;
 
@@ -70,7 +70,7 @@ public class BrandController {
      * @return 商品分页数据
      */
     @GetMapping("/{id}/products")
-    public Result<IPage<ProductResp>> products(@PathVariable Long id, BrandProductPageReq req) {
+    public Result<PageResp<ProductResp>> products(@PathVariable Long id, BrandProductPageReq req) {
         brandService.getById(id);
         return Result.success(productService.pageByBrand(id, req));
     }
@@ -95,7 +95,7 @@ public class BrandController {
      * @return 品牌分页列表
      */
     @GetMapping
-    public Result<IPage<BrandResp>> page(BrandPageReq req) {
+    public Result<PageResp<BrandResp>> page(BrandPageReq req) {
         return Result.success(brandService.page(req));
     }
 

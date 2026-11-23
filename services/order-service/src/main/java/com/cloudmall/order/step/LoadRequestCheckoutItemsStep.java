@@ -7,7 +7,7 @@ import org.springframework.stereotype.Component;
 
 import com.cloudmall.common.enums.BizErrorEnum;
 import com.cloudmall.common.utils.Asserts;
-import com.cloudmall.order.api.model.bo.OrderItem;
+import com.cloudmall.order.api.model.dto.OrderItem;
 import com.cloudmall.order.model.bo.CheckoutContext;
 
 /**

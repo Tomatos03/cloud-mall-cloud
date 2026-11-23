@@ -20,14 +20,14 @@ import org.springframework.web.socket.WebSocketSession;
 import org.springframework.web.socket.adapter.standard.StandardWebSocketSession;
 import org.springframework.web.socket.handler.TextWebSocketHandler;
 
+import com.cloudmall.im.api.enums.MessageTypeEnum;
+import com.cloudmall.im.api.model.resp.MessageResp;
+import com.cloudmall.im.api.model.ws.MessageReq;
 import com.cloudmall.im.convert.ChatMessageConverter;
-import com.cloudmall.im.enums.MessageTypeEnum;
 import com.cloudmall.im.enums.ReadStatusEnum;
 import com.cloudmall.im.manager.WebSocketSessionManager;
 import com.cloudmall.im.model.entity.ChatMessageDO;
 import com.cloudmall.im.model.entity.ChatSessionDO;
-import com.cloudmall.im.model.req.MessageReq;
-import com.cloudmall.im.model.resp.MessageResp;
 import com.cloudmall.im.service.IChatMessageService;
 import com.cloudmall.im.service.IChatSessionService;
 

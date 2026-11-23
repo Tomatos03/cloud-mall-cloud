@@ -1,12 +1,11 @@
 package com.cloudmall.order.service;
 
-import com.baomidou.mybatisplus.core.metadata.IPage;
-
+import com.cloudmall.common.model.PageResp;
+import com.cloudmall.order.api.model.req.OrderPageReq;
+import com.cloudmall.order.api.model.req.OrderSubPageReq;
 import com.cloudmall.order.api.model.resp.CouponUsageStatsResp;
 import com.cloudmall.order.api.model.resp.OrderResp;
 import com.cloudmall.order.api.model.resp.OrderSubResp;
-import com.cloudmall.order.model.req.OrderPageReq;
-import com.cloudmall.order.model.req.OrderSubPageReq;
 
 /**
  * 订单查询服务
@@ -34,7 +33,7 @@ public interface IOrderService {
      * @param req 分页请求
      * @return 父订单分页
      */
-    IPage<OrderResp> page(OrderPageReq req);
+    PageResp<OrderResp> page(OrderPageReq req);
 
     /**
      * 商家分页查询自己店铺的子订单。
@@ -42,7 +41,7 @@ public interface IOrderService {
      * @param req 分页请求（shopId 由服务层注入）
      * @return 子订单分页
      */
-    IPage<OrderSubResp> pageMerchant(OrderSubPageReq req);
+    PageResp<OrderSubResp> pageMerchant(OrderSubPageReq req);
 
     /**
      * 查询指定模板的使用订单数与补贴金额。

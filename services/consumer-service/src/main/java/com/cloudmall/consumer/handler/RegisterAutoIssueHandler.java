@@ -7,7 +7,7 @@ import org.springframework.stereotype.Component;
 
 import com.cloudmall.coupon.api.client.InternalCouponClient;
 import com.cloudmall.coupon.api.model.req.AutoIssueRegisterReq;
-import com.cloudmall.user.api.model.bo.UserRegisteredEvent;
+import com.cloudmall.user.api.model.event.UserRegisteredEvent;
 
 /**
  * 用户注册自动发券处理器。

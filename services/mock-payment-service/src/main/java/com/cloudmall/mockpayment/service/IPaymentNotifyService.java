@@ -2,7 +2,7 @@ package com.cloudmall.mockpayment.service;
 
 import java.util.List;
 
-import com.cloudmall.mockpayment.model.resp.MockPaymentNotifyResp;
+import com.cloudmall.payment.api.model.resp.MockPaymentNotifyResp;
 
 /**
  * 模拟支付回调通知服务。

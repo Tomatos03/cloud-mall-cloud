@@ -16,7 +16,7 @@ import org.springframework.stereotype.Component;
 import com.cloudmall.common.enums.BizErrorEnum;
 import com.cloudmall.common.exception.BizException;
 import com.cloudmall.common.utils.Asserts;
-import com.cloudmall.coupon.api.model.bo.CouponCalcItem;
+import com.cloudmall.coupon.api.model.dto.CouponCalcItem;
 import com.cloudmall.coupon.api.model.resp.CouponItemResult;
 import com.cloudmall.coupon.api.model.resp.CouponOrderCalcResp;
 import com.cloudmall.coupon.api.model.resp.CouponSubOrderResult;

@@ -12,7 +12,7 @@ import com.cloudmall.common.enums.BizErrorEnum;
 import com.cloudmall.common.utils.Asserts;
 import com.cloudmall.rocketmq.producer.MQProducer;
 import com.cloudmall.seckill.api.enums.SeckillTagEnum;
-import com.cloudmall.seckill.api.model.bo.SeckillOrderCreateEvent;
+import com.cloudmall.seckill.api.model.event.SeckillOrderCreateEvent;
 import com.cloudmall.seckill.api.model.resp.SeckillOrderResp;
 import com.cloudmall.seckill.convert.SeckillConverter;
 import com.cloudmall.seckill.mapper.SeckillOrderMapper;

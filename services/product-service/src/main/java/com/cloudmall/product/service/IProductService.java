@@ -3,17 +3,16 @@ package com.cloudmall.product.service;
 import java.util.Collection;
 import java.util.List;
 
-import com.baomidou.mybatisplus.core.metadata.IPage;
-
 import com.cloudmall.common.model.CursorReq;
 import com.cloudmall.common.model.CursorResult;
+import com.cloudmall.common.model.PageResp;
+import com.cloudmall.product.api.model.req.BrandProductPageReq;
 import com.cloudmall.product.api.model.req.ProductCreateReq;
+import com.cloudmall.product.api.model.req.ProductGetReq;
 import com.cloudmall.product.api.model.req.ProductUpdateReq;
 import com.cloudmall.product.api.model.resp.ProductDetailResp;
 import com.cloudmall.product.api.model.resp.ProductDocResp;
 import com.cloudmall.product.api.model.resp.ProductResp;
-import com.cloudmall.product.model.req.BrandProductPageReq;
-import com.cloudmall.product.model.req.ProductGetReq;
 
 /**
  * 商品 SPU 服务接口。
@@ -70,7 +69,7 @@ public interface IProductService {
      * @param req 分页请求
      * @return 商品分页数据
      */
-    IPage<ProductResp> pageByBrand(Long brandId, BrandProductPageReq req);
+    PageResp<ProductResp> pageByBrand(Long brandId, BrandProductPageReq req);
 
     /**
      * 游标查询指定品牌的已上架商品（按商品 ID 倒序）。

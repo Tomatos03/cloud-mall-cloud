@@ -9,8 +9,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import reactor.core.publisher.Flux;
 
-import com.cloudmall.aigc.model.req.TtsReq;
-import com.cloudmall.aigc.model.resp.TtsResp;
+import com.cloudmall.aigc.api.model.req.TtsReq;
+import com.cloudmall.aigc.api.model.resp.TtsResp;
 import com.cloudmall.aigc.service.ITtsService;
 import com.cloudmall.common.model.Result;
 

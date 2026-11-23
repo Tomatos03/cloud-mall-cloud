@@ -1,13 +1,12 @@
 package com.cloudmall.coupon.service;
 
-import com.baomidou.mybatisplus.core.metadata.IPage;
-
+import com.cloudmall.common.model.PageResp;
+import com.cloudmall.coupon.api.model.req.CouponOperationLogPageReq;
+import com.cloudmall.coupon.api.model.req.CouponPageReq;
 import com.cloudmall.coupon.api.model.req.CouponReq;
 import com.cloudmall.coupon.api.model.resp.CouponOperationLogResp;
 import com.cloudmall.coupon.api.model.resp.CouponResp;
 import com.cloudmall.coupon.model.entity.CouponDO;
-import com.cloudmall.coupon.model.req.CouponOperationLogPageReq;
-import com.cloudmall.coupon.model.req.CouponPageReq;
 
 /**
  * 优惠券模板领域服务
@@ -92,7 +91,7 @@ public interface ICouponTemplateService {
      * @param req 分页请求
      * @return 模板分页
      */
-    IPage<CouponResp> pageShop(CouponPageReq req);
+    PageResp<CouponResp> pageShop(CouponPageReq req);
 
     /**
      * 运营分页查询全部模板。
@@ -100,7 +99,7 @@ public interface ICouponTemplateService {
      * @param req 分页请求
      * @return 模板分页
      */
-    IPage<CouponResp> pageAll(CouponPageReq req);
+    PageResp<CouponResp> pageAll(CouponPageReq req);
 
     /**
      * 运营分页查询模板操作流水。
@@ -108,7 +107,7 @@ public interface ICouponTemplateService {
      * @param req 分页请求
      * @return 操作流水分页
      */
-    IPage<CouponOperationLogResp> pageOperationLogs(CouponOperationLogPageReq req);
+    PageResp<CouponOperationLogResp> pageOperationLogs(CouponOperationLogPageReq req);
 
     /**
      * 查询模板实体，不存在时抛出异常。

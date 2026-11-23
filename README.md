@@ -26,7 +26,7 @@
 
 ```
 cloud-mall-cloud/
-├── common/                   # 共享工具、通用枚举与跨服务对象
+├── common/                   # 共享工具、通用枚举与跨服务对象（Result/PageReq/PageResp/StatusEnum 等）
 ├── gateway/                  # API 网关（Spring Cloud Gateway）
 ├── service-api/              # Feign 接口 + DTO 聚合（父 POM）
 │   ├── user-api
@@ -35,7 +35,9 @@ cloud-mall-cloud/
 │   ├── coupon-api
 │   ├── seckill-api
 │   ├── search-api
-│   └── payment-api            # 模拟支付渠道 Feign 契约 + 微信 v3 加解密工具
+│   ├── payment-api            # 模拟支付渠道 Feign 契约 + 微信 v3 加解密工具
+│   ├── aigc-api               # AI Agent 契约
+│   └── im-api                 # 即时通讯契约
 ├── services/                 # 业务服务（父 POM）
 │   ├── user-service          # 认证/RBAC + 用户资料 + 商家入驻
 │   ├── product-service       # 商品管理
@@ -49,7 +51,8 @@ cloud-mall-cloud/
 │   └── mock-payment-service  # 模拟微信支付渠道（下单/查询/回调/收银台）
 ├── starters/                 # 自研 Spring Boot Starter
 │   ├── cloudmall-common      # Result/BizException/BizErrorEnum/UserContextFilter
-│   ├── cloudmall-mybatis-plus# MyMetaObjectHandler/PageReq/SqlLimit
+│   ├── cloudmall-mybatis-plus-annotation # @QueryCondition/OperatorEnum（零依赖契约注解）
+│   ├── cloudmall-mybatis-plus# MyMetaObjectHandler/LambdaWrappers/Pages/PageResponses/SqlLimit
 │   ├── cloudmall-jwt         # JWT 认证
 │   ├── cloudmall-rocketmq    # MQProducer/TxMessageHeader
 │   ├── cloudmall-outbox      # 本地消息 Outbox

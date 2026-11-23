@@ -2,15 +2,14 @@ package com.cloudmall.seckill.service;
 
 import java.util.List;
 
-import com.baomidou.mybatisplus.core.metadata.IPage;
-
+import com.cloudmall.common.model.PageResp;
 import com.cloudmall.seckill.api.model.req.ActivityCreateReq;
 import com.cloudmall.seckill.api.model.req.ActivityUpdateReq;
+import com.cloudmall.seckill.api.model.req.SeckillActivityPageReq;
 import com.cloudmall.seckill.api.model.resp.ActivityDetailResp;
 import com.cloudmall.seckill.api.model.resp.ActivityResp;
 import com.cloudmall.seckill.api.model.resp.SeckillSessionResp;
 import com.cloudmall.seckill.model.entity.SeckillActivityDO;
-import com.cloudmall.seckill.model.req.SeckillActivityPageReq;
 
 /**
  * 秒杀活动领域服务
@@ -72,7 +71,7 @@ public interface ISeckillActivityService {
      * @param req 查询请求
      * @return 分页结果
      */
-    IPage<ActivityResp> pageActivities(SeckillActivityPageReq req);
+    PageResp<ActivityResp> pageActivities(SeckillActivityPageReq req);
 
     /**
      * 查询进行中的活动（用户端，免登录）。

@@ -13,14 +13,16 @@ import com.cloudmall.common.enums.BizErrorEnum;
 import com.cloudmall.common.exception.BizException;
 import com.cloudmall.common.model.CursorReq;
 import com.cloudmall.common.model.CursorResult;
+import com.cloudmall.common.model.PageResp;
 import com.cloudmall.common.utils.Asserts;
+import com.cloudmall.mybatisplus.query.PageResponses;
 import com.cloudmall.product.api.model.req.BrandCreateReq;
+import com.cloudmall.product.api.model.req.BrandPageReq;
 import com.cloudmall.product.api.model.req.BrandUpdateReq;
 import com.cloudmall.product.api.model.resp.BrandResp;
 import com.cloudmall.product.convert.BrandConverter;
 import com.cloudmall.product.mapper.BrandMapper;
 import com.cloudmall.product.model.entity.BrandDO;
-import com.cloudmall.product.model.req.BrandPageReq;
 import com.cloudmall.product.service.IBrandService;
 
 /**
@@ -73,9 +75,9 @@ public class BrandService implements IBrandService {
      * @return 分页数据
      */
     @Override
-    public IPage<BrandResp> page(BrandPageReq req) {
+    public PageResp<BrandResp> page(BrandPageReq req) {
         IPage<BrandDO> page = brandMapper.selectBrandPage(req);
-        return page.convert(brandConverter::toResp);
+        return PageResponses.of(page, brandConverter::toResp);
     }
 
     /**

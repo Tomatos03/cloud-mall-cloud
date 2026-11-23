@@ -5,7 +5,7 @@ import java.util.List;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
-import com.cloudmall.product.api.model.bo.ImageItem;
+import com.cloudmall.product.api.model.dto.ImageItem;
 import com.cloudmall.product.api.model.resp.ImageResp;
 import com.cloudmall.product.model.entity.ProductImageDO;
 

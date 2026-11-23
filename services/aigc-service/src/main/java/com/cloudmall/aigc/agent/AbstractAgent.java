@@ -12,10 +12,10 @@ import org.springframework.ai.chat.memory.ChatMemoryRepository;
 import org.springframework.ai.chat.messages.AssistantMessage;
 import reactor.core.publisher.Flux;
 
-import com.cloudmall.aigc.enums.ChatEventTypeEnum;
+import com.cloudmall.aigc.api.enums.ChatEventTypeEnum;
+import com.cloudmall.aigc.api.model.req.ChatReq;
+import com.cloudmall.aigc.api.model.resp.ChatResp;
 import com.cloudmall.aigc.manager.GeneratingSessionManager;
-import com.cloudmall.aigc.model.req.ChatReq;
-import com.cloudmall.aigc.model.resp.ChatResp;
 import com.cloudmall.aigc.service.ISessionService;
 import com.cloudmall.aigc.tool.ToolContextKeys;
 import com.cloudmall.aigc.tool.ToolResultContext;

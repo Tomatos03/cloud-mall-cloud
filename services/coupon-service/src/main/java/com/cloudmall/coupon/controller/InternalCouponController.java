@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.cloudmall.common.context.UserContextHolder;
 import com.cloudmall.common.model.Result;
+import com.cloudmall.coupon.api.enums.UserCouponStatusEnum;
 import com.cloudmall.coupon.api.model.req.AutoIssueRegisterReq;
 import com.cloudmall.coupon.api.model.req.CouponOrderCommitByOrderReq;
 import com.cloudmall.coupon.api.model.req.CouponOrderCommitReq;
@@ -24,10 +25,9 @@ import com.cloudmall.coupon.api.model.req.CouponOrderReleaseReq;
 import com.cloudmall.coupon.api.model.req.CouponOrderRevertByOrderReq;
 import com.cloudmall.coupon.api.model.req.CouponOrderRevertReq;
 import com.cloudmall.coupon.api.model.req.IssueCouponReq;
+import com.cloudmall.coupon.api.model.req.UserCouponPageReq;
 import com.cloudmall.coupon.api.model.resp.CouponOrderCalcResp;
 import com.cloudmall.coupon.api.model.resp.UserCouponResp;
-import com.cloudmall.coupon.enums.UserCouponStatusEnum;
-import com.cloudmall.coupon.model.req.UserCouponPageReq;
 import com.cloudmall.coupon.service.ICouponOrderService;
 import com.cloudmall.coupon.service.IUserCouponService;
 

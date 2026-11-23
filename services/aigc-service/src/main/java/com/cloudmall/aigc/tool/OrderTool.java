@@ -3,7 +3,6 @@ package com.cloudmall.aigc.tool;
 import java.util.List;
 
 import cn.hutool.core.collection.CollUtil;
-import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import lombok.RequiredArgsConstructor;
 import org.springframework.ai.chat.model.ToolContext;
 import org.springframework.ai.tool.annotation.Tool;
@@ -12,6 +11,7 @@ import org.springframework.ai.tool.annotation.ToolParam;
 import com.cloudmall.aigc.agent.AgentTool;
 import com.cloudmall.aigc.agent.AgentTypeEnum;
 import com.cloudmall.common.context.UserContextHolder;
+import com.cloudmall.common.model.PageResp;
 import com.cloudmall.order.api.client.OrderClient;
 import com.cloudmall.order.api.model.resp.OrderResp;
 
@@ -53,7 +53,7 @@ public class OrderTool {
     @Tool(description = "查询当前用户的订单列表，返回最近订单的概要信息（订单号、状态、金额、下单时间）")
     public List<OrderResp> listMyOrders(ToolContext toolContext) {
         Long userId = UserContextHolder.getUserId();
-        Page<OrderResp> page = orderClient.page(userId, 1, 5);
+        PageResp<OrderResp> page = orderClient.page(userId, 1, 5);
         if (page == null || CollUtil.isEmpty(page.getRecords())) {
             return List.of();
         }

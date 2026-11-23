@@ -8,10 +8,12 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import org.apache.ibatis.annotations.Mapper;
 
+import com.cloudmall.mybatisplus.query.LambdaWrappers;
+import com.cloudmall.mybatisplus.query.Pages;
 import com.cloudmall.mybatisplus.query.SqlLimit;
+import com.cloudmall.seckill.api.model.req.SeckillActivityPageReq;
 import com.cloudmall.seckill.enums.SeckillActivityStatusEnum;
 import com.cloudmall.seckill.model.entity.SeckillActivityDO;
-import com.cloudmall.seckill.model.req.SeckillActivityPageReq;
 
 @Mapper
 public interface SeckillActivityMapper extends BaseMapper<SeckillActivityDO> {
@@ -25,7 +27,10 @@ public interface SeckillActivityMapper extends BaseMapper<SeckillActivityDO> {
      * @return 活动分页数据
      */
     default IPage<SeckillActivityDO> selectActivityPage(SeckillActivityPageReq req) {
-        return selectPage(req, req.buildLambdaWrapper());
+        return selectPage(
+                Pages.from(req),
+                LambdaWrappers.of(req, SeckillActivityDO.class).orderByDesc(SeckillActivityDO::getId)
+        );
     }
 
     /**

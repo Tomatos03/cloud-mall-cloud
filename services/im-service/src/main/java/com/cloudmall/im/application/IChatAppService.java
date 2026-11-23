@@ -2,14 +2,13 @@ package com.cloudmall.im.application;
 
 import java.util.List;
 
-import com.baomidou.mybatisplus.core.metadata.IPage;
-
 import com.cloudmall.common.model.CursorResult;
-import com.cloudmall.im.model.req.MessageCursorReq;
-import com.cloudmall.im.model.req.SessionPageReq;
-import com.cloudmall.im.model.resp.ChatSessionResp;
-import com.cloudmall.im.model.resp.CreateSessionResp;
-import com.cloudmall.im.model.resp.MessageResp;
+import com.cloudmall.common.model.PageResp;
+import com.cloudmall.im.api.model.req.MessageCursorReq;
+import com.cloudmall.im.api.model.req.SessionPageReq;
+import com.cloudmall.im.api.model.resp.ChatSessionResp;
+import com.cloudmall.im.api.model.resp.CreateSessionResp;
+import com.cloudmall.im.api.model.resp.MessageResp;
 
 /**
  * 聊天应用服务接口
@@ -35,7 +34,7 @@ public interface IChatAppService {
      * @param req 分页请求
      * @return 会话分页数据
      */
-    IPage<ChatSessionResp> pageChatSession(Long currentUserId, SessionPageReq req);
+    PageResp<ChatSessionResp> pageChatSession(Long currentUserId, SessionPageReq req);
 
     /**
      * 游标分页获取会话消息历史（当前用户必须是会话成员）。

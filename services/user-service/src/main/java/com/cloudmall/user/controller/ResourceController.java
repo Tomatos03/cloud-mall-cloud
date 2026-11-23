@@ -14,9 +14,9 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.cloudmall.common.model.Result;
-import com.cloudmall.user.model.req.ResourceReq;
-import com.cloudmall.user.model.resp.ResourceNodeResp;
-import com.cloudmall.user.model.resp.ResourceResp;
+import com.cloudmall.user.api.model.req.ResourceReq;
+import com.cloudmall.user.api.model.resp.ResourceNodeResp;
+import com.cloudmall.user.api.model.resp.ResourceResp;
 import com.cloudmall.user.service.IResourceService;
 
 /**

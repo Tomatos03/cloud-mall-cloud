@@ -11,7 +11,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Component;
 
-import com.cloudmall.aigc.model.resp.AgentCardResp;
+import com.cloudmall.aigc.api.model.resp.AgentCardResp;
 
 /**
  * 会话卡片存储。

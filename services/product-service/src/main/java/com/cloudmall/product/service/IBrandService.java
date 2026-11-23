@@ -2,14 +2,13 @@ package com.cloudmall.product.service;
 
 import java.util.List;
 
-import com.baomidou.mybatisplus.core.metadata.IPage;
-
 import com.cloudmall.common.model.CursorReq;
 import com.cloudmall.common.model.CursorResult;
+import com.cloudmall.common.model.PageResp;
 import com.cloudmall.product.api.model.req.BrandCreateReq;
+import com.cloudmall.product.api.model.req.BrandPageReq;
 import com.cloudmall.product.api.model.req.BrandUpdateReq;
 import com.cloudmall.product.api.model.resp.BrandResp;
-import com.cloudmall.product.model.req.BrandPageReq;
 
 /**
  * 品牌服务接口。
@@ -40,7 +39,7 @@ public interface IBrandService {
      * @param req 分页请求
      * @return 品牌分页列表
      */
-    IPage<BrandResp> page(BrandPageReq req);
+    PageResp<BrandResp> page(BrandPageReq req);
 
     /**
      * 游标查询启用品牌（按品牌 ID 升序）。

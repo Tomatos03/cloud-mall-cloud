@@ -3,7 +3,7 @@ package com.cloudmall.product.convert;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
-import com.cloudmall.product.api.model.bo.SpecValueItem;
+import com.cloudmall.product.api.model.dto.SpecValueItem;
 import com.cloudmall.product.api.model.resp.SpecValueResp;
 import com.cloudmall.product.model.entity.ProductSpecValueDO;
 

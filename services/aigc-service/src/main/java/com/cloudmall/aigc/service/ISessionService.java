@@ -3,11 +3,11 @@ package com.cloudmall.aigc.service;
 import java.util.List;
 import java.util.Map;
 
-import com.cloudmall.aigc.model.resp.AgentCardResp;
-import com.cloudmall.aigc.model.resp.ChatMessageResp;
-import com.cloudmall.aigc.model.resp.CreateSessionResp;
-import com.cloudmall.aigc.model.resp.HotTopicResp;
-import com.cloudmall.aigc.model.resp.SessionHistoryItemResp;
+import com.cloudmall.aigc.api.model.resp.AgentCardResp;
+import com.cloudmall.aigc.api.model.resp.ChatMessageResp;
+import com.cloudmall.aigc.api.model.resp.CreateSessionResp;
+import com.cloudmall.aigc.api.model.resp.HotTopicResp;
+import com.cloudmall.aigc.api.model.resp.SessionHistoryItemResp;
 import com.cloudmall.common.exception.BizException;
 
 /**

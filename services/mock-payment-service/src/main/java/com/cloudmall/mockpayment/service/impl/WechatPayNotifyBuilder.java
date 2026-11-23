@@ -14,8 +14,8 @@ import com.cloudmall.mockpayment.convert.MockPaymentConverter;
 import com.cloudmall.mockpayment.model.entity.MockPaymentOrderDO;
 import com.cloudmall.mockpayment.properties.MockPaymentProperties;
 import com.cloudmall.payment.api.constant.WechatPayConstants;
-import com.cloudmall.payment.api.model.bo.WechatPayNotification;
-import com.cloudmall.payment.api.model.bo.WechatPayTransaction;
+import com.cloudmall.payment.api.model.dto.WechatPayNotification;
+import com.cloudmall.payment.api.model.dto.WechatPayTransaction;
 import com.cloudmall.payment.api.util.WechatPayCrypto;
 
 /**

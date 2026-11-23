@@ -4,8 +4,10 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import org.apache.ibatis.annotations.Mapper;
 
+import com.cloudmall.mybatisplus.query.LambdaWrappers;
+import com.cloudmall.mybatisplus.query.Pages;
+import com.cloudmall.product.api.model.req.UnitPageReq;
 import com.cloudmall.product.model.entity.UnitDO;
-import com.cloudmall.product.model.req.UnitPageReq;
 
 @Mapper
 public interface UnitMapper extends BaseMapper<UnitDO> {
@@ -18,6 +20,6 @@ public interface UnitMapper extends BaseMapper<UnitDO> {
      * @return 单位分页数据
      */
     default IPage<UnitDO> selectUnitPage(UnitPageReq req) {
-        return selectPage(req, req.buildLambdaWrapper());
+        return selectPage(Pages.from(req), LambdaWrappers.of(req, UnitDO.class).orderByAsc(UnitDO::getSort));
     }
 }

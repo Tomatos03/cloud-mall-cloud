@@ -73,7 +73,7 @@ public interface UserCouponConverter {
     @Mapping(target = "discountAmountSnapshot", source = "template.discountAmount")
     @Mapping(
             target = "status",
-            expression = "java(com.cloudmall.coupon.enums.UserCouponStatusEnum.AVAILABLE)"
+            expression = "java(com.cloudmall.coupon.api.enums.UserCouponStatusEnum.AVAILABLE)"
     )
     @Mapping(
             target = "issuedEventId",

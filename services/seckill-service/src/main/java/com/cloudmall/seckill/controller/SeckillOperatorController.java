@@ -1,6 +1,5 @@
 package com.cloudmall.seckill.controller;
 
-import com.baomidou.mybatisplus.core.metadata.IPage;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -12,14 +11,15 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.cloudmall.common.context.UserContextHolder;
+import com.cloudmall.common.model.PageResp;
 import com.cloudmall.common.model.Result;
 import com.cloudmall.seckill.api.model.req.ActivityCreateReq;
 import com.cloudmall.seckill.api.model.req.ActivityProductAuditReq;
 import com.cloudmall.seckill.api.model.req.ActivityUpdateReq;
+import com.cloudmall.seckill.api.model.req.SeckillActivityPageReq;
+import com.cloudmall.seckill.api.model.req.SeckillProductPageReq;
 import com.cloudmall.seckill.api.model.resp.ActivityResp;
 import com.cloudmall.seckill.api.model.resp.SeckillProductResp;
-import com.cloudmall.seckill.model.req.SeckillActivityPageReq;
-import com.cloudmall.seckill.model.req.SeckillProductPageReq;
 import com.cloudmall.seckill.service.ISeckillActivityService;
 import com.cloudmall.seckill.service.ISeckillProductService;
 
@@ -95,7 +95,7 @@ public class SeckillOperatorController {
      * @return 分页结果
      */
     @GetMapping("/operator/activities")
-    public Result<IPage<ActivityResp>> pageActivities(SeckillActivityPageReq req) {
+    public Result<PageResp<ActivityResp>> pageActivities(SeckillActivityPageReq req) {
         return Result.success(activityService.pageActivities(req));
     }
 
@@ -106,7 +106,7 @@ public class SeckillOperatorController {
      * @return 分页结果
      */
     @GetMapping("/operator/products")
-    public Result<IPage<SeckillProductResp>> pageProducts(SeckillProductPageReq req) {
+    public Result<PageResp<SeckillProductResp>> pageProducts(SeckillProductPageReq req) {
         return Result.success(productService.pageProducts(req));
     }
 

@@ -7,15 +7,17 @@ import org.springframework.stereotype.Service;
 import com.cloudmall.common.context.UserContextHolder;
 import com.cloudmall.common.enums.BizErrorEnum;
 import com.cloudmall.common.exception.BizException;
+import com.cloudmall.common.model.PageResp;
 import com.cloudmall.common.utils.Asserts;
+import com.cloudmall.mybatisplus.query.PageResponses;
 import com.cloudmall.product.api.model.req.CommentCreateReq;
+import com.cloudmall.product.api.model.req.CommentPageReq;
+import com.cloudmall.product.api.model.req.ProductGetReq;
 import com.cloudmall.product.api.model.resp.CommentResp;
 import com.cloudmall.product.api.model.resp.ProductResp;
 import com.cloudmall.product.convert.CommentConverter;
 import com.cloudmall.product.mapper.CommentMapper;
 import com.cloudmall.product.model.entity.CommentDO;
-import com.cloudmall.product.model.req.CommentPageReq;
-import com.cloudmall.product.model.req.ProductGetReq;
 import com.cloudmall.product.service.ICommentService;
 import com.cloudmall.product.service.IProductService;
 import com.cloudmall.user.api.client.InternalUserClient;
@@ -36,9 +38,9 @@ public class CommentService implements ICommentService {
      * @return 分页数据
      */
     @Override
-    public IPage<CommentResp> page(CommentPageReq req) {
+    public PageResp<CommentResp> page(CommentPageReq req) {
         IPage<CommentDO> page = commentMapper.selectCommentPage(req);
-        return page.convert(commentConverter::toResp);
+        return PageResponses.of(page, commentConverter::toResp);
     }
 
     /**

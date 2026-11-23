@@ -3,8 +3,8 @@ package com.cloudmall.aigc.agent;
 import org.springframework.ai.chat.client.ChatClient;
 import reactor.core.publisher.Flux;
 
-import com.cloudmall.aigc.model.req.ChatReq;
-import com.cloudmall.aigc.model.resp.ChatResp;
+import com.cloudmall.aigc.api.model.req.ChatReq;
+import com.cloudmall.aigc.api.model.resp.ChatResp;
 
 public interface IAgent {
 

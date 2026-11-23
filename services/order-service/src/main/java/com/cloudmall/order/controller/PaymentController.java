@@ -18,10 +18,10 @@ import com.cloudmall.common.context.UserContextHolder;
 import com.cloudmall.common.enums.BizErrorEnum;
 import com.cloudmall.common.exception.BizException;
 import com.cloudmall.common.model.Result;
+import com.cloudmall.order.api.model.resp.PaymentCreateResp;
+import com.cloudmall.order.api.model.resp.PaymentStatusResp;
+import com.cloudmall.order.api.model.resp.WechatNotifyResp;
 import com.cloudmall.order.application.PaymentApp;
-import com.cloudmall.order.model.resp.PaymentCreateResp;
-import com.cloudmall.order.model.resp.PaymentStatusResp;
-import com.cloudmall.order.model.resp.WechatNotifyResp;
 
 /**
  * 订单支付接口。

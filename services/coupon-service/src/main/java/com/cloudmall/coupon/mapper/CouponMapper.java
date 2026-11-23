@@ -12,8 +12,10 @@ import org.apache.ibatis.annotations.Mapper;
 import com.cloudmall.coupon.api.enums.CouponOwnerEnum;
 import com.cloudmall.coupon.api.enums.CouponStatusEnum;
 import com.cloudmall.coupon.api.enums.IssueChannelEnum;
+import com.cloudmall.coupon.api.model.req.CouponPageReq;
 import com.cloudmall.coupon.model.entity.CouponDO;
-import com.cloudmall.coupon.model.req.CouponPageReq;
+import com.cloudmall.mybatisplus.query.LambdaWrappers;
+import com.cloudmall.mybatisplus.query.Pages;
 
 /**
  * 优惠券模板 Mapper。
@@ -32,7 +34,10 @@ public interface CouponMapper extends BaseMapper<CouponDO> {
      * @return 模板分页数据
      */
     default IPage<CouponDO> selectCouponPage(CouponPageReq req) {
-        return selectPage(req, req.buildLambdaWrapper());
+        return selectPage(
+                Pages.from(req),
+                LambdaWrappers.of(req, CouponDO.class).orderByDesc(CouponDO::getCreateTime)
+        );
     }
 
     /**

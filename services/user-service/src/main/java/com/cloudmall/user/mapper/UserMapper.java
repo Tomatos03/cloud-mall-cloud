@@ -8,8 +8,10 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import org.apache.ibatis.annotations.Mapper;
 
+import com.cloudmall.mybatisplus.query.LambdaWrappers;
+import com.cloudmall.mybatisplus.query.Pages;
+import com.cloudmall.user.api.model.req.UserPageReq;
 import com.cloudmall.user.model.entity.UserDO;
-import com.cloudmall.user.model.req.UserPageReq;
 
 @Mapper
 public interface UserMapper extends BaseMapper<UserDO> {
@@ -22,7 +24,7 @@ public interface UserMapper extends BaseMapper<UserDO> {
      * @return 用户分页数据
      */
     default IPage<UserDO> selectUserPage(UserPageReq req) {
-        return selectPage(req, req.buildLambdaWrapper());
+        return selectPage(Pages.from(req), LambdaWrappers.of(req, UserDO.class));
     }
 
     /**

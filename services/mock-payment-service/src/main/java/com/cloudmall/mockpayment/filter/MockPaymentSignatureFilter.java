@@ -16,9 +16,9 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import com.cloudmall.common.exception.BizException;
-import com.cloudmall.mockpayment.model.resp.WechatErrorResp;
 import com.cloudmall.mockpayment.properties.MockPaymentProperties;
 import com.cloudmall.mockpayment.service.impl.WechatPaySignatureService;
+import com.cloudmall.payment.api.model.resp.WechatErrorResp;
 
 /**
  * 微信支付 v3 请求验签过滤器。

@@ -16,21 +16,23 @@ import org.springframework.stereotype.Service;
 
 import com.cloudmall.common.enums.BizErrorEnum;
 import com.cloudmall.common.exception.BizException;
+import com.cloudmall.common.model.PageResp;
 import com.cloudmall.common.utils.Asserts;
 import com.cloudmall.mockpayment.convert.MockPaymentConverter;
 import com.cloudmall.mockpayment.enums.TradeTypeEnum;
 import com.cloudmall.mockpayment.mapper.MockPaymentOrderMapper;
 import com.cloudmall.mockpayment.model.entity.MockPaymentOrderDO;
-import com.cloudmall.mockpayment.model.req.CreatePayReq;
-import com.cloudmall.mockpayment.model.resp.MockPaymentDetailResp;
-import com.cloudmall.mockpayment.model.resp.TransactionQueryResp;
 import com.cloudmall.mockpayment.properties.MockPaymentProperties;
 import com.cloudmall.mockpayment.service.IWechatPayService;
+import com.cloudmall.mybatisplus.query.PageResponses;
 import com.cloudmall.payment.api.constant.WechatPayConstants;
 import com.cloudmall.payment.api.enums.TradeStateEnum;
+import com.cloudmall.payment.api.model.req.CreatePayReq;
 import com.cloudmall.payment.api.model.req.MockPaymentCreateReq;
 import com.cloudmall.payment.api.model.resp.MockPaymentCreateResp;
+import com.cloudmall.payment.api.model.resp.MockPaymentDetailResp;
 import com.cloudmall.payment.api.model.resp.MockPaymentQueryResp;
+import com.cloudmall.payment.api.model.resp.TransactionQueryResp;
 
 /**
  * 模拟微信支付服务实现。
@@ -242,12 +244,12 @@ public class WechatPayService implements IWechatPayService {
      * @return 支付单分页
      */
     @Override
-    public IPage<MockPaymentDetailResp> page(long current, long size, String tradeState) {
+    public PageResp<MockPaymentDetailResp> page(long current, long size, String tradeState) {
         IPage<MockPaymentOrderDO> page = orderMapper.selectOrderPage(
                 new Page<>(current, size),
                 StrUtil.emptyToNull(tradeState)
         );
-        return page.convert(order -> converter.toDetailResp(order, publicBaseUrl()));
+        return PageResponses.of(page, order -> converter.toDetailResp(order, publicBaseUrl()));
     }
 
     /**

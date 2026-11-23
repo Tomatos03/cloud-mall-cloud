@@ -13,9 +13,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import reactor.core.publisher.Flux;
 
-import com.cloudmall.aigc.model.req.ChatReq;
-import com.cloudmall.aigc.model.resp.ChatResp;
-import com.cloudmall.aigc.model.resp.ChatTemplate;
+import com.cloudmall.aigc.api.model.req.ChatReq;
+import com.cloudmall.aigc.api.model.resp.ChatResp;
+import com.cloudmall.aigc.api.model.resp.ChatTemplate;
 import com.cloudmall.aigc.service.IChatService;
 import com.cloudmall.common.model.Result;
 

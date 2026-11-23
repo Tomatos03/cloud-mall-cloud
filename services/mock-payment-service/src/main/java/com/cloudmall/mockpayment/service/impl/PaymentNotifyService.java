@@ -26,10 +26,10 @@ import com.cloudmall.mockpayment.mapper.MockPaymentNotifyMapper;
 import com.cloudmall.mockpayment.mapper.MockPaymentOrderMapper;
 import com.cloudmall.mockpayment.model.entity.MockPaymentNotifyDO;
 import com.cloudmall.mockpayment.model.entity.MockPaymentOrderDO;
-import com.cloudmall.mockpayment.model.resp.MockPaymentNotifyResp;
 import com.cloudmall.mockpayment.properties.MockPaymentProperties;
 import com.cloudmall.mockpayment.service.IPaymentNotifyService;
 import com.cloudmall.payment.api.constant.WechatPayConstants;
+import com.cloudmall.payment.api.model.resp.MockPaymentNotifyResp;
 
 /**
  * 模拟支付回调通知服务实现。

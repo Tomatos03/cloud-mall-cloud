@@ -7,7 +7,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import com.cloudmall.user.api.model.resp.ShopInfoResp;
+import com.cloudmall.common.model.ShopInfoResp;
 
 /**
  * 商品详情响应对象

@@ -12,9 +12,9 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import com.cloudmall.product.api.model.bo.ImageItem;
-import com.cloudmall.product.api.model.bo.SkuItem;
-import com.cloudmall.product.api.model.bo.SpecGroupItem;
+import com.cloudmall.product.api.model.dto.ImageItem;
+import com.cloudmall.product.api.model.dto.SkuItem;
+import com.cloudmall.product.api.model.dto.SpecGroupItem;
 
 /**
  * 商品更新请求。

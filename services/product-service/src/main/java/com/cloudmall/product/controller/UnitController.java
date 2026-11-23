@@ -2,7 +2,6 @@ package com.cloudmall.product.controller;
 
 import java.util.List;
 
-import com.baomidou.mybatisplus.core.metadata.IPage;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -13,11 +12,12 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.cloudmall.common.model.PageResp;
 import com.cloudmall.common.model.Result;
 import com.cloudmall.product.api.model.req.UnitCreateReq;
+import com.cloudmall.product.api.model.req.UnitPageReq;
 import com.cloudmall.product.api.model.req.UnitUpdateReq;
 import com.cloudmall.product.api.model.resp.UnitResp;
-import com.cloudmall.product.model.req.UnitPageReq;
 import com.cloudmall.product.service.IUnitService;
 
 /**
@@ -52,7 +52,7 @@ public class UnitController {
      * @return 单位分页列表
      */
     @GetMapping
-    public Result<IPage<UnitResp>> page(UnitPageReq req) {
+    public Result<PageResp<UnitResp>> page(UnitPageReq req) {
         return Result.success(unitService.page(req));
     }
 

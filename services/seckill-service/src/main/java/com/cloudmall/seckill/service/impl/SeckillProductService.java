@@ -16,11 +16,14 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.cloudmall.common.enums.BizErrorEnum;
+import com.cloudmall.common.model.PageResp;
 import com.cloudmall.common.utils.Asserts;
+import com.cloudmall.mybatisplus.query.PageResponses;
 import com.cloudmall.product.api.client.ProductClient;
 import com.cloudmall.product.api.client.SkuClient;
 import com.cloudmall.product.api.model.resp.ProductResp;
 import com.cloudmall.product.api.model.resp.SkuResp;
+import com.cloudmall.seckill.api.model.req.SeckillProductPageReq;
 import com.cloudmall.seckill.api.model.resp.SeckillProductResp;
 import com.cloudmall.seckill.convert.SeckillConverter;
 import com.cloudmall.seckill.enums.AuditBizTypeEnum;
@@ -32,7 +35,6 @@ import com.cloudmall.seckill.mapper.SeckillProductMapper;
 import com.cloudmall.seckill.model.entity.AuditRecordDO;
 import com.cloudmall.seckill.model.entity.SeckillActivityDO;
 import com.cloudmall.seckill.model.entity.SeckillProductDO;
-import com.cloudmall.seckill.model.req.SeckillProductPageReq;
 import com.cloudmall.seckill.service.ISeckillProductService;
 
 /**
@@ -140,9 +142,9 @@ public class SeckillProductService implements ISeckillProductService {
      * @return 商品分页
      */
     @Override
-    public IPage<SeckillProductResp> pageProducts(SeckillProductPageReq req) {
+    public PageResp<SeckillProductResp> pageProducts(SeckillProductPageReq req) {
         IPage<SeckillProductDO> page = productMapper.selectProductPage(req);
-        IPage<SeckillProductResp> result = page.convert(seckillConverter::toSeckillProductResp);
+        PageResp<SeckillProductResp> result = PageResponses.of(page, seckillConverter::toSeckillProductResp);
         enrich(result.getRecords());
         return result;
     }

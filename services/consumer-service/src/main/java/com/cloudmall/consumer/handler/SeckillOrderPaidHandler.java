@@ -8,7 +8,7 @@ import org.springframework.stereotype.Component;
 
 import com.cloudmall.order.api.enums.OrderTagEnum;
 import com.cloudmall.seckill.api.client.InternalSeckillClient;
-import com.cloudmall.seckill.api.model.bo.SeckillPaidEvent;
+import com.cloudmall.seckill.api.model.event.SeckillPaidEvent;
 import com.cloudmall.seckill.api.model.req.SeckillConfirmPaidReq;
 
 /**

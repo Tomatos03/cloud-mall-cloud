@@ -22,9 +22,9 @@ import com.cloudmall.product.api.model.resp.CategoryResp;
 import com.cloudmall.product.api.model.resp.ProductDocResp;
 import com.cloudmall.seckill.api.client.SeckillClient;
 import com.cloudmall.seckill.api.model.resp.ActivityDetailResp;
-import com.cloudmall.user.model.resp.HomeCategoryProductResp;
-import com.cloudmall.user.model.resp.HomeResp;
-import com.cloudmall.user.model.resp.NoticeResp;
+import com.cloudmall.user.api.model.resp.HomeCategoryProductResp;
+import com.cloudmall.user.api.model.resp.HomeResp;
+import com.cloudmall.user.api.model.resp.NoticeResp;
 import com.cloudmall.user.service.INoticeService;
 
 /**

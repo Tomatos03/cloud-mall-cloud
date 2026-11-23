@@ -7,9 +7,11 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import org.apache.ibatis.annotations.Mapper;
 
+import com.cloudmall.mybatisplus.query.LambdaWrappers;
+import com.cloudmall.mybatisplus.query.Pages;
+import com.cloudmall.seckill.api.model.req.SeckillProductPageReq;
 import com.cloudmall.seckill.enums.SeckillProductAuditStatusEnum;
 import com.cloudmall.seckill.model.entity.SeckillProductDO;
-import com.cloudmall.seckill.model.req.SeckillProductPageReq;
 
 /**
  * 秒杀商品 Mapper
@@ -28,7 +30,10 @@ public interface SeckillProductMapper extends BaseMapper<SeckillProductDO> {
      * @return 商品分页数据
      */
     default IPage<SeckillProductDO> selectProductPage(SeckillProductPageReq req) {
-        return selectPage(req, req.buildLambdaWrapper());
+        return selectPage(
+                Pages.from(req),
+                LambdaWrappers.of(req, SeckillProductDO.class).orderByDesc(SeckillProductDO::getId)
+        );
     }
 
     /**

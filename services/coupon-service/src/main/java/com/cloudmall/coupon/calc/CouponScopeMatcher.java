@@ -14,7 +14,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
 import com.cloudmall.coupon.api.enums.CouponScopeEnum;
-import com.cloudmall.coupon.api.model.bo.CouponCalcItem;
+import com.cloudmall.coupon.api.model.dto.CouponCalcItem;
 import com.cloudmall.coupon.mapper.CouponCategoryMapper;
 import com.cloudmall.coupon.mapper.CouponProductMapper;
 import com.cloudmall.coupon.model.entity.CouponDO;

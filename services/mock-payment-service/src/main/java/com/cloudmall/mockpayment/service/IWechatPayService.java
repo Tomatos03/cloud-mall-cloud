@@ -1,14 +1,13 @@
 package com.cloudmall.mockpayment.service;
 
-import com.baomidou.mybatisplus.core.metadata.IPage;
-
+import com.cloudmall.common.model.PageResp;
 import com.cloudmall.mockpayment.enums.TradeTypeEnum;
-import com.cloudmall.mockpayment.model.req.CreatePayReq;
-import com.cloudmall.mockpayment.model.resp.MockPaymentDetailResp;
-import com.cloudmall.mockpayment.model.resp.TransactionQueryResp;
+import com.cloudmall.payment.api.model.req.CreatePayReq;
 import com.cloudmall.payment.api.model.req.MockPaymentCreateReq;
 import com.cloudmall.payment.api.model.resp.MockPaymentCreateResp;
+import com.cloudmall.payment.api.model.resp.MockPaymentDetailResp;
 import com.cloudmall.payment.api.model.resp.MockPaymentQueryResp;
+import com.cloudmall.payment.api.model.resp.TransactionQueryResp;
 
 /**
  * 模拟微信支付服务。
@@ -102,5 +101,5 @@ public interface IWechatPayService {
      * @param tradeState 交易状态，可为空
      * @return 支付单分页
      */
-    IPage<MockPaymentDetailResp> page(long current, long size, String tradeState);
+    PageResp<MockPaymentDetailResp> page(long current, long size, String tradeState);
 }

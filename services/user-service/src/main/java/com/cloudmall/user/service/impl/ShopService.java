@@ -14,8 +14,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.cloudmall.common.enums.BizErrorEnum;
+import com.cloudmall.common.model.ShopInfoResp;
 import com.cloudmall.common.utils.Asserts;
-import com.cloudmall.user.api.model.resp.ShopInfoResp;
+import com.cloudmall.user.api.model.req.ShopReq;
 import com.cloudmall.user.api.model.resp.ShopResp;
 import com.cloudmall.user.convert.ShopConverter;
 import com.cloudmall.user.mapper.ShopFollowMapper;
@@ -24,7 +25,6 @@ import com.cloudmall.user.mapper.ShopStatMapper;
 import com.cloudmall.user.model.entity.ShopDO;
 import com.cloudmall.user.model.entity.ShopFollowDO;
 import com.cloudmall.user.model.entity.ShopStatDO;
-import com.cloudmall.user.model.req.ShopReq;
 import com.cloudmall.user.service.IShopService;
 
 @Service

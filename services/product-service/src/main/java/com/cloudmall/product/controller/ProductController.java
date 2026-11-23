@@ -19,12 +19,12 @@ import com.cloudmall.common.model.CursorReq;
 import com.cloudmall.common.model.CursorResult;
 import com.cloudmall.common.model.Result;
 import com.cloudmall.product.api.model.req.ProductCreateReq;
+import com.cloudmall.product.api.model.req.ProductGetReq;
 import com.cloudmall.product.api.model.req.ProductUpdateReq;
 import com.cloudmall.product.api.model.resp.ProductDetailResp;
 import com.cloudmall.product.api.model.resp.ProductDocResp;
 import com.cloudmall.product.api.model.resp.ProductResp;
 import com.cloudmall.product.application.ProductApp;
-import com.cloudmall.product.model.req.ProductGetReq;
 import com.cloudmall.product.service.IProductService;
 
 /**

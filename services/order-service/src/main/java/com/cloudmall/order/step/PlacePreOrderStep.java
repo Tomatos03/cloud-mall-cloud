@@ -13,7 +13,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
 import com.cloudmall.coupon.api.client.InternalCouponClient;
-import com.cloudmall.coupon.api.model.bo.CouponCalcItem;
+import com.cloudmall.coupon.api.model.dto.CouponCalcItem;
 import com.cloudmall.coupon.api.model.req.CouponOrderLockReq;
 import com.cloudmall.coupon.api.model.req.CouponOrderReleaseReq;
 import com.cloudmall.coupon.api.model.resp.CouponOrderCalcResp;

@@ -16,6 +16,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.cloudmall.common.enums.BizErrorEnum;
 import com.cloudmall.common.utils.Asserts;
+import com.cloudmall.user.api.model.req.ResourceReq;
+import com.cloudmall.user.api.model.resp.ResourceNodeResp;
+import com.cloudmall.user.api.model.resp.ResourceResp;
 import com.cloudmall.user.convert.ResourceConverter;
 import com.cloudmall.user.enums.ResourceTypeEnum;
 import com.cloudmall.user.mapper.ResourceMapper;
@@ -24,9 +27,6 @@ import com.cloudmall.user.mapper.UserRoleMapper;
 import com.cloudmall.user.model.entity.ResourceDO;
 import com.cloudmall.user.model.entity.RoleResourceDO;
 import com.cloudmall.user.model.entity.UserRoleDO;
-import com.cloudmall.user.model.req.ResourceReq;
-import com.cloudmall.user.model.resp.ResourceNodeResp;
-import com.cloudmall.user.model.resp.ResourceResp;
 import com.cloudmall.user.service.IResourceService;
 
 /**

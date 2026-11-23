@@ -4,8 +4,10 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import org.apache.ibatis.annotations.Mapper;
 
+import com.cloudmall.mybatisplus.query.LambdaWrappers;
+import com.cloudmall.mybatisplus.query.Pages;
+import com.cloudmall.user.api.model.req.RolePageReq;
 import com.cloudmall.user.model.entity.RoleDO;
-import com.cloudmall.user.model.req.RolePageReq;
 
 /**
  * 角色 Mapper
@@ -24,6 +26,6 @@ public interface RoleMapper extends BaseMapper<RoleDO> {
      * @return 角色分页数据
      */
     default IPage<RoleDO> selectRolePage(RolePageReq req) {
-        return selectPage(req, req.buildLambdaWrapper());
+        return selectPage(Pages.from(req), LambdaWrappers.of(req, RoleDO.class));
     }
 }

@@ -5,7 +5,7 @@ import java.util.List;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
-import com.cloudmall.product.api.model.bo.SpecGroupItem;
+import com.cloudmall.product.api.model.dto.SpecGroupItem;
 import com.cloudmall.product.api.model.resp.SpecGroupResp;
 import com.cloudmall.product.model.entity.ProductSpecGroupDO;
 import com.cloudmall.product.model.entity.ProductSpecValueDO;

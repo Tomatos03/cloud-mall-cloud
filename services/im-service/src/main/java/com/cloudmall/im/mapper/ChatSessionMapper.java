@@ -6,8 +6,10 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import org.apache.ibatis.annotations.Mapper;
 
+import com.cloudmall.im.api.model.req.SessionPageReq;
 import com.cloudmall.im.model.entity.ChatSessionDO;
-import com.cloudmall.im.model.req.SessionPageReq;
+import com.cloudmall.mybatisplus.query.LambdaWrappers;
+import com.cloudmall.mybatisplus.query.Pages;
 
 /**
  * 聊天会话 Mapper
@@ -43,7 +45,7 @@ public interface ChatSessionMapper extends BaseMapper<ChatSessionDO> {
      * @return 会话分页数据
      */
     default IPage<ChatSessionDO> pageByMember(Long currentUserId, SessionPageReq req) {
-        LambdaQueryWrapper<ChatSessionDO> wrapper = req.buildLambdaWrapper();
+        LambdaQueryWrapper<ChatSessionDO> wrapper = LambdaWrappers.of(req, ChatSessionDO.class);
         wrapper.and(
                 w -> w.and(
                               buyer -> buyer.eq(ChatSessionDO::getBuyerId, currentUserId)
@@ -59,6 +61,6 @@ public interface ChatSessionMapper extends BaseMapper<ChatSessionDO> {
                          create_time DESC
                 """.formatted(currentUserId);
         wrapper.last(pinnedOrder);
-        return selectPage(req, wrapper);
+        return selectPage(Pages.from(req), wrapper);
     }
 }

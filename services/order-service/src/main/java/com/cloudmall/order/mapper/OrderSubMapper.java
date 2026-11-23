@@ -7,9 +7,11 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import org.apache.ibatis.annotations.Mapper;
 
+import com.cloudmall.mybatisplus.query.LambdaWrappers;
+import com.cloudmall.mybatisplus.query.Pages;
+import com.cloudmall.order.api.model.req.OrderSubPageReq;
 import com.cloudmall.order.enums.SubOrderStatusEnum;
 import com.cloudmall.order.model.entity.OrderSubDO;
-import com.cloudmall.order.model.req.OrderSubPageReq;
 
 /**
  * 店铺子订单 Mapper。
@@ -28,7 +30,10 @@ public interface OrderSubMapper extends BaseMapper<OrderSubDO> {
      * @return 子订单分页数据
      */
     default IPage<OrderSubDO> selectMerchantPage(OrderSubPageReq req) {
-        return selectPage(req, req.buildLambdaWrapper());
+        return selectPage(
+                Pages.from(req),
+                LambdaWrappers.of(req, OrderSubDO.class).orderByDesc(OrderSubDO::getCreateTime)
+        );
     }
 
     /**

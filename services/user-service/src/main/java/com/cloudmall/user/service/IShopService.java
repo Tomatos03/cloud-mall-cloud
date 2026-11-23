@@ -3,9 +3,9 @@ package com.cloudmall.user.service;
 import java.util.List;
 import java.util.Optional;
 
-import com.cloudmall.user.api.model.resp.ShopInfoResp;
+import com.cloudmall.common.model.ShopInfoResp;
+import com.cloudmall.user.api.model.req.ShopReq;
 import com.cloudmall.user.api.model.resp.ShopResp;
-import com.cloudmall.user.model.req.ShopReq;
 
 public interface IShopService {
 

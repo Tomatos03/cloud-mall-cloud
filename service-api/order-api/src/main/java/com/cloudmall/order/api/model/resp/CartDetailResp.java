@@ -8,7 +8,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import com.cloudmall.order.api.model.bo.CartShopGroup;
+import com.cloudmall.order.api.model.dto.CartShopGroup;
 
 /**
  * 购物车摘要响应

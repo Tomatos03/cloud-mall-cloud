@@ -2,8 +2,8 @@ package com.cloudmall.aigc.service;
 
 import reactor.core.publisher.Flux;
 
-import com.cloudmall.aigc.model.req.TtsReq;
-import com.cloudmall.aigc.model.resp.TtsResp;
+import com.cloudmall.aigc.api.model.req.TtsReq;
+import com.cloudmall.aigc.api.model.resp.TtsResp;
 
 /**
  * 文本转语音服务接口

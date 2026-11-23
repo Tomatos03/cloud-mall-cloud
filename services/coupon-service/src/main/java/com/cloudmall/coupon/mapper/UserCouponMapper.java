@@ -13,10 +13,12 @@ import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import org.apache.ibatis.annotations.Mapper;
 
-import com.cloudmall.coupon.enums.UserCouponStatusEnum;
+import com.cloudmall.coupon.api.enums.UserCouponStatusEnum;
+import com.cloudmall.coupon.api.model.req.UserCouponCursorReq;
+import com.cloudmall.coupon.api.model.req.UserCouponPageReq;
 import com.cloudmall.coupon.model.entity.UserCouponDO;
-import com.cloudmall.coupon.model.req.UserCouponCursorReq;
-import com.cloudmall.coupon.model.req.UserCouponPageReq;
+import com.cloudmall.mybatisplus.query.LambdaWrappers;
+import com.cloudmall.mybatisplus.query.Pages;
 
 /**
  * 用户券 Mapper。
@@ -38,7 +40,7 @@ public interface UserCouponMapper extends BaseMapper<UserCouponDO> {
      * @return 用户券分页数据
      */
     default IPage<UserCouponDO> selectUserCouponPage(UserCouponPageReq req) {
-        return selectPage(req, req.buildLambdaWrapper());
+        return selectPage(Pages.from(req), LambdaWrappers.of(req, UserCouponDO.class));
     }
 
     /**

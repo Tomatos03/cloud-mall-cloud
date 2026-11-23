@@ -2,13 +2,12 @@ package com.cloudmall.user.service;
 
 import java.util.List;
 
-import com.baomidou.mybatisplus.core.metadata.IPage;
-
+import com.cloudmall.common.model.PageResp;
 import com.cloudmall.user.api.model.req.RegisterReq;
+import com.cloudmall.user.api.model.req.UserPageReq;
+import com.cloudmall.user.api.model.resp.ResourceNodeResp;
 import com.cloudmall.user.api.model.resp.UserResp;
 import com.cloudmall.user.model.entity.UserDO;
-import com.cloudmall.user.model.req.UserPageReq;
-import com.cloudmall.user.model.resp.ResourceNodeResp;
 
 /**
  * 用户服务接口
@@ -58,7 +57,7 @@ public interface IUserService {
      * @param req 分页请求（含筛选条件）
      * @return 分页结果
      */
-    IPage<UserResp> pageUser(UserPageReq req);
+    PageResp<UserResp> pageUser(UserPageReq req);
 
     /**
      * 获取用户已分配的角色 ID 列表

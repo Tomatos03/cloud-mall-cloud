@@ -2,7 +2,6 @@ package com.cloudmall.user.controller;
 
 import java.util.List;
 
-import com.baomidou.mybatisplus.core.metadata.IPage;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -14,14 +13,15 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.cloudmall.common.context.UserContextHolder;
+import com.cloudmall.common.model.PageResp;
 import com.cloudmall.common.model.Result;
 import com.cloudmall.user.api.model.req.LoginReq;
 import com.cloudmall.user.api.model.req.RegisterReq;
+import com.cloudmall.user.api.model.req.UserPageReq;
 import com.cloudmall.user.api.model.resp.LoginResp;
+import com.cloudmall.user.api.model.resp.ResourceNodeResp;
 import com.cloudmall.user.api.model.resp.UserResp;
 import com.cloudmall.user.application.AuthApp;
-import com.cloudmall.user.model.req.UserPageReq;
-import com.cloudmall.user.model.resp.ResourceNodeResp;
 import com.cloudmall.user.service.IRoleService;
 import com.cloudmall.user.service.IUserService;
 
@@ -72,7 +72,7 @@ public class UserController {
      * @return 分页数据
      */
     @GetMapping
-    public Result<IPage<UserResp>> pageUsers(UserPageReq req) {
+    public Result<PageResp<UserResp>> pageUsers(UserPageReq req) {
         return Result.success(userService.pageUser(req));
     }
 

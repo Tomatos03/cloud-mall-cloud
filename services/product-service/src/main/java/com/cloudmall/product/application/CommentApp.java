@@ -10,19 +10,19 @@ import java.util.Objects;
 
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.StrUtil;
-import com.baomidou.mybatisplus.core.metadata.IPage;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import com.cloudmall.common.enums.BizErrorEnum;
+import com.cloudmall.common.model.PageResp;
 import com.cloudmall.common.utils.Asserts;
+import com.cloudmall.product.api.model.req.CommentPageReq;
 import com.cloudmall.product.api.model.resp.CommentResp;
 import com.cloudmall.product.api.model.resp.CommentSummaryResp;
 import com.cloudmall.product.api.model.resp.StarDistributionResp;
 import com.cloudmall.product.convert.CommentConverter;
 import com.cloudmall.product.mapper.CommentMapper;
 import com.cloudmall.product.model.entity.CommentDO;
-import com.cloudmall.product.model.req.CommentPageReq;
 import com.cloudmall.product.service.ICommentService;
 import com.cloudmall.user.api.client.InternalUserClient;
 import com.cloudmall.user.api.model.resp.UserResp;
@@ -70,9 +70,9 @@ public class CommentApp {
      * @param req 分页查询条件
      * @return 评论分页结果
      */
-    public IPage<CommentResp> page(CommentPageReq req) {
+    public PageResp<CommentResp> page(CommentPageReq req) {
         Asserts.notNull(req.getProductId(), BizErrorEnum.PRODUCT_ID_INVALID);
-        IPage<CommentResp> page = commentService.page(req);
+        PageResp<CommentResp> page = commentService.page(req);
         fillUsernames(page.getRecords());
         return page;
     }

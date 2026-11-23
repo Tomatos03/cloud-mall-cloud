@@ -1,6 +1,5 @@
 package com.cloudmall.order.api.client;
 
-import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -8,6 +7,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import com.cloudmall.common.model.PageResp;
 import com.cloudmall.order.api.enums.CheckoutTypeEnum;
 import com.cloudmall.order.api.model.req.CreateOrderReq;
 import com.cloudmall.order.api.model.resp.OrderResp;
@@ -48,7 +48,7 @@ public interface OrderClient {
      * @return 分页数据
      */
     @GetMapping
-    Page<OrderResp> page(
+    PageResp<OrderResp> page(
         @RequestParam("userId")
         Long userId,
         @RequestParam(value = "current", defaultValue = "1")

@@ -15,9 +15,12 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.cloudmall.common.enums.BizErrorEnum;
 import com.cloudmall.common.exception.BizException;
+import com.cloudmall.common.model.PageResp;
 import com.cloudmall.common.utils.Asserts;
+import com.cloudmall.mybatisplus.query.PageResponses;
 import com.cloudmall.seckill.api.model.req.ActivityCreateReq;
 import com.cloudmall.seckill.api.model.req.ActivityUpdateReq;
+import com.cloudmall.seckill.api.model.req.SeckillActivityPageReq;
 import com.cloudmall.seckill.api.model.resp.ActivityDetailResp;
 import com.cloudmall.seckill.api.model.resp.ActivityResp;
 import com.cloudmall.seckill.api.model.resp.SeckillProductResp;
@@ -28,7 +31,6 @@ import com.cloudmall.seckill.mapper.SeckillActivityMapper;
 import com.cloudmall.seckill.mapper.SeckillProductMapper;
 import com.cloudmall.seckill.model.entity.SeckillActivityDO;
 import com.cloudmall.seckill.model.entity.SeckillProductDO;
-import com.cloudmall.seckill.model.req.SeckillActivityPageReq;
 import com.cloudmall.seckill.service.ISeckillActivityService;
 import com.cloudmall.seckill.service.ISeckillProductService;
 import com.cloudmall.seckill.statemachine.SeckillActivityStateTransitions;
@@ -253,10 +255,10 @@ public class SeckillActivityService implements ISeckillActivityService {
      * @return 分页结果
      */
     @Override
-    public IPage<ActivityResp> pageActivities(SeckillActivityPageReq req) {
+    public PageResp<ActivityResp> pageActivities(SeckillActivityPageReq req) {
         IPage<SeckillActivityDO> page = activityMapper.selectActivityPage(req);
 
-        return page.convert(seckillConverter::toActivityResp);
+        return PageResponses.of(page, seckillConverter::toActivityResp);
     }
 
     /**

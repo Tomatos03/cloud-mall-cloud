@@ -1,9 +1,9 @@
 package com.cloudmall.product.api.client.fallback;
 
-import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cloud.openfeign.FallbackFactory;
 
+import com.cloudmall.common.model.PageResp;
 import com.cloudmall.product.api.client.BannerClient;
 import com.cloudmall.product.api.model.resp.BannerResp;
 
@@ -36,9 +36,9 @@ public class BannerClientFallbackFactory implements FallbackFactory<BannerClient
              * @return 空分页结果
              */
             @Override
-            public Page<BannerResp> page(long current, long size) {
+            public PageResp<BannerResp> page(long current, long size) {
                 log.warn("轮播图远程调用失败，首页降级为空列表", cause);
-                return new Page<>();
+                return PageResp.empty(current, size);
             }
         };
     }

@@ -9,10 +9,10 @@ import org.springframework.stereotype.Component;
 
 import com.cloudmall.order.api.client.OrderClient;
 import com.cloudmall.order.api.enums.CheckoutTypeEnum;
-import com.cloudmall.order.api.model.bo.OrderItem;
+import com.cloudmall.order.api.model.dto.OrderItem;
 import com.cloudmall.order.api.model.req.CreateOrderReq;
 import com.cloudmall.seckill.api.enums.SeckillTagEnum;
-import com.cloudmall.seckill.api.model.bo.SeckillOrderCreateEvent;
+import com.cloudmall.seckill.api.model.event.SeckillOrderCreateEvent;
 
 /**
  * 秒杀建单处理器

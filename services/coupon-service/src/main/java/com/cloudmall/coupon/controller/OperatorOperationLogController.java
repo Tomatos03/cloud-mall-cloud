@@ -1,14 +1,14 @@
 package com.cloudmall.coupon.controller;
 
-import com.baomidou.mybatisplus.core.metadata.IPage;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.cloudmall.common.model.PageResp;
 import com.cloudmall.common.model.Result;
+import com.cloudmall.coupon.api.model.req.CouponOperationLogPageReq;
 import com.cloudmall.coupon.api.model.resp.CouponOperationLogResp;
-import com.cloudmall.coupon.model.req.CouponOperationLogPageReq;
 import com.cloudmall.coupon.service.ICouponTemplateService;
 
 /**
@@ -32,7 +32,7 @@ public class OperatorOperationLogController {
      * @return 操作流水分页
      */
     @GetMapping("/coupon-operation-logs")
-    public Result<IPage<CouponOperationLogResp>> operationLogs(CouponOperationLogPageReq req) {
+    public Result<PageResp<CouponOperationLogResp>> operationLogs(CouponOperationLogPageReq req) {
         return Result.success(couponTemplateService.pageOperationLogs(req));
     }
 }

@@ -12,9 +12,9 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import com.cloudmall.product.api.model.bo.ImageItem;
-import com.cloudmall.product.api.model.bo.SkuItem;
-import com.cloudmall.product.api.model.bo.SpecGroupItem;
+import com.cloudmall.product.api.model.dto.ImageItem;
+import com.cloudmall.product.api.model.dto.SkuItem;
+import com.cloudmall.product.api.model.dto.SpecGroupItem;
 
 /**
  * 商品创建请求。
@@ -27,7 +27,7 @@ import com.cloudmall.product.api.model.bo.SpecGroupItem;
  * {@code spuCode}、{@code skuCode}、图片主图标记与各处排序均由服务端推导，客户端无需传入。
  *
  * @see SpecGroupItem 规格组
- * @see com.cloudmall.product.api.model.bo.SpecValueItem 规格值
+ * @see com.cloudmall.product.api.model.dto.SpecValueItem 规格值
  * @see SkuItem SKU 项
  * @see ImageItem 图片
  * @author : Tomatos

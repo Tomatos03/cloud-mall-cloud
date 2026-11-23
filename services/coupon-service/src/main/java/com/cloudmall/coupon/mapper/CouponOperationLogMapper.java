@@ -4,8 +4,10 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import org.apache.ibatis.annotations.Mapper;
 
+import com.cloudmall.coupon.api.model.req.CouponOperationLogPageReq;
 import com.cloudmall.coupon.model.entity.CouponOperationLogDO;
-import com.cloudmall.coupon.model.req.CouponOperationLogPageReq;
+import com.cloudmall.mybatisplus.query.LambdaWrappers;
+import com.cloudmall.mybatisplus.query.Pages;
 
 /**
  * 模板管理流水 Mapper。
@@ -24,6 +26,10 @@ public interface CouponOperationLogMapper extends BaseMapper<CouponOperationLogD
      * @return 操作流水分页数据
      */
     default IPage<CouponOperationLogDO> selectOperationLogPage(CouponOperationLogPageReq req) {
-        return selectPage(req, req.buildLambdaWrapper());
+        return selectPage(
+                Pages.from(req),
+                LambdaWrappers.of(req, CouponOperationLogDO.class)
+                              .orderByDesc(CouponOperationLogDO::getCreateTime)
+        );
     }
 }

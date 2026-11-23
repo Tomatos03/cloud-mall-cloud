@@ -7,7 +7,7 @@ import java.util.function.Function;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
-import com.cloudmall.coupon.api.model.bo.CouponCalcItem;
+import com.cloudmall.coupon.api.model.dto.CouponCalcItem;
 import com.cloudmall.coupon.api.model.resp.CouponCandidateResp;
 import com.cloudmall.coupon.api.model.resp.CouponItemResult;
 import com.cloudmall.coupon.api.model.resp.CouponOrderCalcResp;

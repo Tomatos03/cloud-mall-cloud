@@ -12,16 +12,18 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.cloudmall.common.enums.BizErrorEnum;
 import com.cloudmall.common.model.CursorResult;
+import com.cloudmall.common.model.PageResp;
 import com.cloudmall.common.utils.Asserts;
+import com.cloudmall.im.api.model.req.MessageCursorReq;
+import com.cloudmall.im.api.model.req.SessionPageReq;
+import com.cloudmall.im.api.model.resp.ChatSessionResp;
+import com.cloudmall.im.api.model.resp.CreateSessionResp;
+import com.cloudmall.im.api.model.resp.MessageResp;
 import com.cloudmall.im.model.entity.ChatMessageDO;
 import com.cloudmall.im.model.entity.ChatSessionDO;
-import com.cloudmall.im.model.req.MessageCursorReq;
-import com.cloudmall.im.model.req.SessionPageReq;
-import com.cloudmall.im.model.resp.ChatSessionResp;
-import com.cloudmall.im.model.resp.CreateSessionResp;
-import com.cloudmall.im.model.resp.MessageResp;
 import com.cloudmall.im.service.IChatMessageService;
 import com.cloudmall.im.service.IChatSessionService;
+import com.cloudmall.mybatisplus.query.PageResponses;
 import com.cloudmall.user.api.client.ShopClient;
 import com.cloudmall.user.api.client.UserClient;
 import com.cloudmall.user.api.model.resp.ShopResp;
@@ -66,9 +68,9 @@ public class ChatAppService implements IChatAppService {
     }
 
     @Override
-    public IPage<ChatSessionResp> pageChatSession(Long currentUserId, SessionPageReq req) {
+    public PageResp<ChatSessionResp> pageChatSession(Long currentUserId, SessionPageReq req) {
         IPage<ChatSessionDO> page = chatSessionService.pageByMember(currentUserId, req);
-        return page.convert(session -> toSessionResp(session, currentUserId));
+        return PageResponses.of(page, session -> toSessionResp(session, currentUserId));
     }
 
     @Override

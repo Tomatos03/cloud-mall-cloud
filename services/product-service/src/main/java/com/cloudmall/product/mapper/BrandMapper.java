@@ -9,8 +9,10 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import org.apache.ibatis.annotations.Mapper;
 
 import com.cloudmall.common.enums.StatusEnum;
+import com.cloudmall.mybatisplus.query.LambdaWrappers;
+import com.cloudmall.mybatisplus.query.Pages;
+import com.cloudmall.product.api.model.req.BrandPageReq;
 import com.cloudmall.product.model.entity.BrandDO;
-import com.cloudmall.product.model.req.BrandPageReq;
 
 /**
  * Brand Mapper
@@ -28,7 +30,7 @@ public interface BrandMapper extends BaseMapper<BrandDO> {
      * @return 品牌分页数据
      */
     default IPage<BrandDO> selectBrandPage(BrandPageReq req) {
-        return selectPage(req, req.buildLambdaWrapper());
+        return selectPage(Pages.from(req), LambdaWrappers.of(req, BrandDO.class).orderByAsc(BrandDO::getSort));
     }
 
     /**

@@ -24,5 +24,9 @@
             <groupId>jakarta.validation</groupId>
             <artifactId>jakarta.validation-api</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.cloudmall</groupId>
+            <artifactId>cloudmall-mybatis-plus-annotation</artifactId>
+        </dependency>
     </dependencies>
 </project>

@@ -12,13 +12,13 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.cloudmall.mockpayment.enums.TradeTypeEnum;
-import com.cloudmall.mockpayment.model.req.CloseOrderReq;
-import com.cloudmall.mockpayment.model.req.CreatePayReq;
-import com.cloudmall.mockpayment.model.resp.NativePayResp;
-import com.cloudmall.mockpayment.model.resp.PrepayResp;
-import com.cloudmall.mockpayment.model.resp.TransactionQueryResp;
 import com.cloudmall.mockpayment.service.IWechatPayService;
+import com.cloudmall.payment.api.model.req.CloseOrderReq;
+import com.cloudmall.payment.api.model.req.CreatePayReq;
 import com.cloudmall.payment.api.model.resp.MockPaymentCreateResp;
+import com.cloudmall.payment.api.model.resp.NativePayResp;
+import com.cloudmall.payment.api.model.resp.PrepayResp;
+import com.cloudmall.payment.api.model.resp.TransactionQueryResp;
 
 /**
  * 微信支付 API v3 模拟接口。

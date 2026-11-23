@@ -2,7 +2,6 @@ package com.cloudmall.im.controller;
 
 import java.util.List;
 
-import com.baomidou.mybatisplus.core.metadata.IPage;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -16,13 +15,14 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.cloudmall.common.context.UserContextHolder;
 import com.cloudmall.common.model.CursorResult;
+import com.cloudmall.common.model.PageResp;
 import com.cloudmall.common.model.Result;
+import com.cloudmall.im.api.model.req.MessageCursorReq;
+import com.cloudmall.im.api.model.req.SessionPageReq;
+import com.cloudmall.im.api.model.resp.ChatSessionResp;
+import com.cloudmall.im.api.model.resp.CreateSessionResp;
+import com.cloudmall.im.api.model.resp.MessageResp;
 import com.cloudmall.im.application.IChatAppService;
-import com.cloudmall.im.model.req.MessageCursorReq;
-import com.cloudmall.im.model.req.SessionPageReq;
-import com.cloudmall.im.model.resp.ChatSessionResp;
-import com.cloudmall.im.model.resp.CreateSessionResp;
-import com.cloudmall.im.model.resp.MessageResp;
 
 /**
  * 聊天控制器
@@ -55,7 +55,7 @@ public class ChatController {
      * @return 会话分页数据
      */
     @GetMapping("/sessions")
-    public Result<IPage<ChatSessionResp>> queryChatSession(@Valid SessionPageReq req) {
+    public Result<PageResp<ChatSessionResp>> queryChatSession(@Valid SessionPageReq req) {
         return Result.success(chatAppService.pageChatSession(UserContextHolder.getUserId(), req));
     }
 

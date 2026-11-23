@@ -18,7 +18,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.cloudmall.common.enums.BizErrorEnum;
 import com.cloudmall.common.utils.Asserts;
-import com.cloudmall.coupon.api.model.bo.CouponCalcItem;
+import com.cloudmall.coupon.api.model.dto.CouponCalcItem;
 import com.cloudmall.coupon.api.model.req.CouponOrderCommitByOrderReq;
 import com.cloudmall.coupon.api.model.req.CouponOrderCommitReq;
 import com.cloudmall.coupon.api.model.req.CouponOrderLockReq;

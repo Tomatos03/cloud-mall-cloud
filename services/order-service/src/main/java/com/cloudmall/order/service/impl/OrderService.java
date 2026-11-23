@@ -21,12 +21,16 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.cloudmall.common.context.UserContextHolder;
 import com.cloudmall.common.enums.BizErrorEnum;
+import com.cloudmall.common.model.PageResp;
 import com.cloudmall.common.utils.Asserts;
 import com.cloudmall.coupon.api.enums.CouponOwnerEnum;
 import com.cloudmall.coupon.api.model.resp.CouponItemResult;
 import com.cloudmall.coupon.api.model.resp.CouponOrderCalcResp;
 import com.cloudmall.coupon.api.model.resp.CouponSubOrderResult;
 import com.cloudmall.coupon.api.model.resp.CouponUsageResult;
+import com.cloudmall.mybatisplus.query.PageResponses;
+import com.cloudmall.order.api.model.req.OrderPageReq;
+import com.cloudmall.order.api.model.req.OrderSubPageReq;
 import com.cloudmall.order.api.model.resp.CouponUsageStatsResp;
 import com.cloudmall.order.api.model.resp.OrderResp;
 import com.cloudmall.order.api.model.resp.OrderSubResp;
@@ -45,8 +49,6 @@ import com.cloudmall.order.model.entity.OrderCouponDO;
 import com.cloudmall.order.model.entity.OrderDO;
 import com.cloudmall.order.model.entity.OrderItemDO;
 import com.cloudmall.order.model.entity.OrderSubDO;
-import com.cloudmall.order.model.req.OrderPageReq;
-import com.cloudmall.order.model.req.OrderSubPageReq;
 import com.cloudmall.order.service.IOrderService;
 import com.cloudmall.product.api.model.resp.SkuResp;
 
@@ -94,9 +96,9 @@ public class OrderService implements IOrderService {
      * @return 父订单分页
      */
     @Override
-    public IPage<OrderResp> page(OrderPageReq req) {
+    public PageResp<OrderResp> page(OrderPageReq req) {
         IPage<OrderDO> page = orderMapper.selectOrderPage(req);
-        return page.convert(this::toResp);
+        return PageResponses.of(page, this::toResp);
     }
 
     /**
@@ -106,11 +108,11 @@ public class OrderService implements IOrderService {
      * @return 子订单分页
      */
     @Override
-    public IPage<OrderSubResp> pageMerchant(OrderSubPageReq req) {
+    public PageResp<OrderSubResp> pageMerchant(OrderSubPageReq req) {
         Long shopId = Asserts.requireNonNull(UserContextHolder.getShopId(), BizErrorEnum.MERCHANT_NO_SHOP);
         req.setShopId(shopId);
         IPage<OrderSubDO> page = orderSubMapper.selectMerchantPage(req);
-        return page.convert(this::toSubRespWithItems);
+        return PageResponses.of(page, this::toSubRespWithItems);
     }
 
     /**

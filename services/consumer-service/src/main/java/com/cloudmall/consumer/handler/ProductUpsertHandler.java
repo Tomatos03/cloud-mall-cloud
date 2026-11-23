@@ -8,7 +8,7 @@ import org.springframework.stereotype.Component;
 
 import com.cloudmall.product.api.client.ProductClient;
 import com.cloudmall.product.api.enums.ProductTagEnum;
-import com.cloudmall.product.api.model.bo.ProductEvent;
+import com.cloudmall.product.api.model.event.ProductEvent;
 import com.cloudmall.product.api.model.resp.ProductDocResp;
 import com.cloudmall.search.api.client.InternalSearchClient;
 

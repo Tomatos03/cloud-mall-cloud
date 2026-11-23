@@ -10,9 +10,9 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import com.cloudmall.coupon.api.enums.UserCouponStatusEnum;
 import com.cloudmall.coupon.enums.UserCouponLogSourceEnum;
 import com.cloudmall.coupon.enums.UserCouponOperationTypeEnum;
-import com.cloudmall.coupon.enums.UserCouponStatusEnum;
 
 /**
  * 用户券状态流水实体

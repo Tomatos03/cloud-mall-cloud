@@ -1,6 +1,5 @@
 package com.cloudmall.product.controller;
 
-import com.baomidou.mybatisplus.core.metadata.IPage;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -10,12 +9,13 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.cloudmall.common.model.PageResp;
 import com.cloudmall.common.model.Result;
 import com.cloudmall.product.api.model.req.CommentCreateReq;
+import com.cloudmall.product.api.model.req.CommentPageReq;
 import com.cloudmall.product.api.model.resp.CommentResp;
 import com.cloudmall.product.api.model.resp.CommentSummaryResp;
 import com.cloudmall.product.application.CommentApp;
-import com.cloudmall.product.model.req.CommentPageReq;
 import com.cloudmall.product.service.ICommentService;
 
 @RestController
@@ -44,7 +44,7 @@ public class CommentController {
      * @return 评论分页结果
      */
     @GetMapping
-    public Result<IPage<CommentResp>> page(CommentPageReq req) {
+    public Result<PageResp<CommentResp>> page(CommentPageReq req) {
         return Result.success(commentApp.page(req));
     }
 

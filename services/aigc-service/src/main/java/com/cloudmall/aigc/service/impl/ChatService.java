@@ -8,11 +8,11 @@ import reactor.core.publisher.Flux;
 
 import com.cloudmall.aigc.agent.GeneralAgent;
 import com.cloudmall.aigc.agent.RouterAgent;
+import com.cloudmall.aigc.api.model.req.ChatReq;
+import com.cloudmall.aigc.api.model.resp.ChatResp;
+import com.cloudmall.aigc.api.model.resp.ChatTemplate;
 import com.cloudmall.aigc.constant.ChatTemplates;
 import com.cloudmall.aigc.manager.GeneratingSessionManager;
-import com.cloudmall.aigc.model.req.ChatReq;
-import com.cloudmall.aigc.model.resp.ChatResp;
-import com.cloudmall.aigc.model.resp.ChatTemplate;
 import com.cloudmall.aigc.service.IChatService;
 
 /**

@@ -5,15 +5,14 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 
-import com.baomidou.mybatisplus.core.metadata.IPage;
-
 import com.cloudmall.common.model.CursorReq;
 import com.cloudmall.common.model.CursorResult;
+import com.cloudmall.common.model.PageResp;
+import com.cloudmall.coupon.api.model.req.CouponPageReq;
+import com.cloudmall.coupon.api.model.req.UserCouponCursorReq;
+import com.cloudmall.coupon.api.model.req.UserCouponPageReq;
 import com.cloudmall.coupon.api.model.resp.CouponResp;
 import com.cloudmall.coupon.api.model.resp.UserCouponResp;
-import com.cloudmall.coupon.model.req.CouponPageReq;
-import com.cloudmall.coupon.model.req.UserCouponCursorReq;
-import com.cloudmall.coupon.model.req.UserCouponPageReq;
 
 /**
  * 用户券领域服务
@@ -52,7 +51,7 @@ public interface IUserCouponService {
      * @param req 分页请求（status 为空表示全部）
      * @return 分页结果
      */
-    IPage<UserCouponResp> pageMine(Long userId, UserCouponPageReq req);
+    PageResp<UserCouponResp> pageMine(Long userId, UserCouponPageReq req);
 
     /**
      * 游标分页查询我的优惠券（按 ID 降序），查询前先对当前用户做实时过期落库。 status 非空时基
@@ -72,7 +71,7 @@ public interface IUserCouponService {
      * @param req 分页请求（name 为空表示全部，issueChannel 由服务层注入）
      * @return 模板分页
      */
-    IPage<CouponResp> pagePublic(Long userId, CouponPageReq req);
+    PageResp<CouponResp> pagePublic(Long userId, CouponPageReq req);
 
     /**
      * 游标分页查询公开券中心（按模板 ID 升序），附带

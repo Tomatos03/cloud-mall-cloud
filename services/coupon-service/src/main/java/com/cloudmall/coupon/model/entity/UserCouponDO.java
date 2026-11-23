@@ -15,8 +15,8 @@ import lombok.NoArgsConstructor;
 import com.cloudmall.coupon.api.enums.CouponEnum;
 import com.cloudmall.coupon.api.enums.CouponOwnerEnum;
 import com.cloudmall.coupon.api.enums.CouponScopeEnum;
+import com.cloudmall.coupon.api.enums.UserCouponStatusEnum;
 import com.cloudmall.coupon.enums.IssuedSourceEnum;
-import com.cloudmall.coupon.enums.UserCouponStatusEnum;
 
 /**
  * 用户券实体

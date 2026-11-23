@@ -4,8 +4,8 @@ import java.util.List;
 
 import org.mapstruct.Mapper;
 
+import com.cloudmall.user.api.model.resp.NoticeResp;
 import com.cloudmall.user.model.entity.NoticeDO;
-import com.cloudmall.user.model.resp.NoticeResp;
 
 /**
  * 首页公告转换器

@@ -1,10 +1,9 @@
 package com.cloudmall.product.service;
 
-import com.baomidou.mybatisplus.core.metadata.IPage;
-
+import com.cloudmall.common.model.PageResp;
 import com.cloudmall.product.api.model.req.CommentCreateReq;
+import com.cloudmall.product.api.model.req.CommentPageReq;
 import com.cloudmall.product.api.model.resp.CommentResp;
-import com.cloudmall.product.model.req.CommentPageReq;
 
 public interface ICommentService {
 
@@ -14,7 +13,7 @@ public interface ICommentService {
      * @param req 请求参数
      * @return 分页数据
      */
-    IPage<CommentResp> page(CommentPageReq req);
+    PageResp<CommentResp> page(CommentPageReq req);
 
     /**
      * 创建并保存数据。

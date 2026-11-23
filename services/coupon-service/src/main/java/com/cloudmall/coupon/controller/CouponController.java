@@ -2,7 +2,6 @@ package com.cloudmall.coupon.controller;
 
 import java.util.List;
 
-import com.baomidou.mybatisplus.core.metadata.IPage;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -15,14 +14,15 @@ import org.springframework.web.bind.annotation.RestController;
 import com.cloudmall.common.context.UserContextHolder;
 import com.cloudmall.common.model.CursorReq;
 import com.cloudmall.common.model.CursorResult;
+import com.cloudmall.common.model.PageResp;
 import com.cloudmall.common.model.Result;
 import com.cloudmall.coupon.api.enums.IssueChannelEnum;
+import com.cloudmall.coupon.api.model.req.CouponPageReq;
+import com.cloudmall.coupon.api.model.req.UserCouponCursorReq;
+import com.cloudmall.coupon.api.model.req.UserCouponPageReq;
 import com.cloudmall.coupon.api.model.resp.CouponResp;
 import com.cloudmall.coupon.api.model.resp.UserCouponResp;
 import com.cloudmall.coupon.api.model.resp.UserCouponScopeResp;
-import com.cloudmall.coupon.model.req.CouponPageReq;
-import com.cloudmall.coupon.model.req.UserCouponCursorReq;
-import com.cloudmall.coupon.model.req.UserCouponPageReq;
 import com.cloudmall.coupon.service.IUserCouponService;
 
 /**
@@ -57,7 +57,7 @@ public class CouponController {
      * @return 模板分页
      */
     @GetMapping("/page")
-    public Result<IPage<CouponResp>> page(CouponPageReq req) {
+    public Result<PageResp<CouponResp>> page(CouponPageReq req) {
         req.setIssueChannel(IssueChannelEnum.PUBLIC_CLAIM);
         return Result.success(userCouponService.pagePublic(UserContextHolder.getUserId(), req));
     }
@@ -102,8 +102,8 @@ public class CouponController {
      * @return 分页结果
      */
     @GetMapping("/me")
-    public Result<IPage<UserCouponResp>> pageMine(UserCouponPageReq req) {
-        IPage<UserCouponResp> page = userCouponService.pageMine(UserContextHolder.getUserId(), req);
+    public Result<PageResp<UserCouponResp>> pageMine(UserCouponPageReq req) {
+        PageResp<UserCouponResp> page = userCouponService.pageMine(UserContextHolder.getUserId(), req);
         return Result.success(page);
     }
 

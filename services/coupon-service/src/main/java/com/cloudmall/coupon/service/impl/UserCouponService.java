@@ -27,11 +27,18 @@ import com.cloudmall.common.enums.StatusEnum;
 import com.cloudmall.common.exception.BizException;
 import com.cloudmall.common.model.CursorReq;
 import com.cloudmall.common.model.CursorResult;
+import com.cloudmall.common.model.PageResp;
 import com.cloudmall.common.utils.Asserts;
 import com.cloudmall.coupon.api.enums.CouponStatusEnum;
 import com.cloudmall.coupon.api.enums.IssueChannelEnum;
+import com.cloudmall.coupon.api.enums.UserCouponStatusEnum;
+import com.cloudmall.coupon.api.enums.UserCouponUsableEnum;
 import com.cloudmall.coupon.api.enums.ValidityModeEnum;
-import com.cloudmall.coupon.api.model.bo.CouponCalcItem;
+import com.cloudmall.coupon.api.model.dto.CouponCalcItem;
+import com.cloudmall.coupon.api.model.req.CouponCursorItemReq;
+import com.cloudmall.coupon.api.model.req.CouponPageReq;
+import com.cloudmall.coupon.api.model.req.UserCouponCursorReq;
+import com.cloudmall.coupon.api.model.req.UserCouponPageReq;
 import com.cloudmall.coupon.api.model.resp.CouponResp;
 import com.cloudmall.coupon.api.model.resp.UserCouponResp;
 import com.cloudmall.coupon.api.model.resp.UserCouponScopeResp;
@@ -45,8 +52,6 @@ import com.cloudmall.coupon.convert.UserCouponLogConverter;
 import com.cloudmall.coupon.enums.IssuedSourceEnum;
 import com.cloudmall.coupon.enums.UserCouponLogSourceEnum;
 import com.cloudmall.coupon.enums.UserCouponOperationTypeEnum;
-import com.cloudmall.coupon.enums.UserCouponStatusEnum;
-import com.cloudmall.coupon.enums.UserCouponUsableEnum;
 import com.cloudmall.coupon.mapper.CouponCategoryMapper;
 import com.cloudmall.coupon.mapper.CouponMapper;
 import com.cloudmall.coupon.mapper.CouponProductMapper;
@@ -54,12 +59,9 @@ import com.cloudmall.coupon.mapper.UserCouponLogMapper;
 import com.cloudmall.coupon.mapper.UserCouponMapper;
 import com.cloudmall.coupon.model.entity.CouponDO;
 import com.cloudmall.coupon.model.entity.UserCouponDO;
-import com.cloudmall.coupon.model.req.CouponCursorItemReq;
-import com.cloudmall.coupon.model.req.CouponPageReq;
-import com.cloudmall.coupon.model.req.UserCouponCursorReq;
-import com.cloudmall.coupon.model.req.UserCouponPageReq;
 import com.cloudmall.coupon.service.ICouponTemplateService;
 import com.cloudmall.coupon.service.IUserCouponService;
+import com.cloudmall.mybatisplus.query.PageResponses;
 import com.cloudmall.product.api.client.SkuClient;
 import com.cloudmall.product.api.model.resp.SkuResp;
 
@@ -175,10 +177,10 @@ public class UserCouponService implements IUserCouponService {
      */
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public IPage<UserCouponResp> pageMine(Long userId, UserCouponPageReq req) {
+    public PageResp<UserCouponResp> pageMine(Long userId, UserCouponPageReq req) {
         expireOverdueByUser(userId);
         IPage<UserCouponDO> result = userCouponMapper.selectUserCouponPage(req);
-        return result.convert(userCouponConverter::toResp);
+        return PageResponses.of(result, userCouponConverter::toResp);
     }
 
     /**
@@ -317,10 +319,10 @@ public class UserCouponService implements IUserCouponService {
      * @return 模板分页
      */
     @Override
-    public IPage<CouponResp> pagePublic(Long userId, CouponPageReq req) {
+    public PageResp<CouponResp> pagePublic(Long userId, CouponPageReq req) {
         req.setIssueChannel(IssueChannelEnum.PUBLIC_CLAIM);
         IPage<CouponDO> page = couponMapper.selectCouponPage(req);
-        IPage<CouponResp> result = page.convert(couponConverter::toResp);
+        PageResp<CouponResp> result = PageResponses.of(page, couponConverter::toResp);
         enrichPublicClaimState(result.getRecords(), userId);
         return result;
     }

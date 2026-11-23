@@ -9,14 +9,16 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.cloudmall.common.enums.BizErrorEnum;
 import com.cloudmall.common.exception.BizException;
+import com.cloudmall.common.model.PageResp;
 import com.cloudmall.common.utils.Asserts;
+import com.cloudmall.mybatisplus.query.PageResponses;
 import com.cloudmall.product.api.model.req.UnitCreateReq;
+import com.cloudmall.product.api.model.req.UnitPageReq;
 import com.cloudmall.product.api.model.req.UnitUpdateReq;
 import com.cloudmall.product.api.model.resp.UnitResp;
 import com.cloudmall.product.convert.UnitConverter;
 import com.cloudmall.product.mapper.UnitMapper;
 import com.cloudmall.product.model.entity.UnitDO;
-import com.cloudmall.product.model.req.UnitPageReq;
 import com.cloudmall.product.service.IUnitService;
 
 /**
@@ -51,9 +53,9 @@ public class UnitService implements IUnitService {
      * @return 分页数据
      */
     @Override
-    public IPage<UnitResp> page(UnitPageReq req) {
+    public PageResp<UnitResp> page(UnitPageReq req) {
         IPage<UnitDO> page = unitMapper.selectUnitPage(req);
-        return page.convert(unitConverter::toResp);
+        return PageResponses.of(page, unitConverter::toResp);
     }
 
     /**

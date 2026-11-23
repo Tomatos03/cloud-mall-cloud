@@ -3,7 +3,6 @@ package com.cloudmall.user.controller;
 import java.util.List;
 
 import cn.hutool.core.util.BooleanUtil;
-import com.baomidou.mybatisplus.core.metadata.IPage;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -14,10 +13,11 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.cloudmall.common.model.PageResp;
 import com.cloudmall.common.model.Result;
-import com.cloudmall.user.model.req.RolePageReq;
-import com.cloudmall.user.model.req.RoleReq;
-import com.cloudmall.user.model.resp.RoleResp;
+import com.cloudmall.user.api.model.req.RolePageReq;
+import com.cloudmall.user.api.model.req.RoleReq;
+import com.cloudmall.user.api.model.resp.RoleResp;
 import com.cloudmall.user.service.IRoleService;
 
 /**
@@ -97,7 +97,7 @@ public class RoleController {
      * @return 分页数据
      */
     @GetMapping
-    public Result<IPage<RoleResp>> pageRoles(RolePageReq req) {
+    public Result<PageResp<RoleResp>> pageRoles(RolePageReq req) {
         return Result.success(roleService.pageRoles(req));
     }
 

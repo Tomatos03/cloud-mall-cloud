@@ -6,8 +6,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.cloudmall.common.model.Result;
+import com.cloudmall.user.api.model.resp.HomeResp;
 import com.cloudmall.user.application.HomeApp;
-import com.cloudmall.user.model.resp.HomeResp;
 
 /**
  * 首页聚合控制器
