@@ -63,6 +63,23 @@ public interface AddressMapper extends BaseMapper<AddressDO> {
     }
 
     /**
+     * 按 ID 批量删除非默认地址。
+     *
+     * @param ids 地址 ID 集合
+     * @return 删除条数
+     */
+    default int deleteNonDefaultByIds(List<Long> ids) {
+        if (CollUtil.isEmpty(ids)) {
+            return 0;
+        }
+        return delete(
+                Wrappers.<AddressDO>lambdaUpdate()
+                        .in(AddressDO::getId, ids)
+                        .ne(AddressDO::getIsDefault, true)
+        );
+    }
+
+    /**
      * 查询用户指定收货地址（归属校验）。
      *
      * @param id 地址 ID

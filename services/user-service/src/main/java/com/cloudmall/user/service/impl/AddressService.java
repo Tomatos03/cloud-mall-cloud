@@ -2,6 +2,7 @@ package com.cloudmall.user.service.impl;
 
 import java.util.List;
 
+import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.BooleanUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -97,11 +98,12 @@ public class AddressService implements IAddressService {
      */
     @Override
     public void delete(List<Long> ids) {
-        List<AddressDO> addresses = addressMapper.selectBatchIds(ids);
-        Asserts.notEmpty(addresses, BizErrorEnum.ADDRESS_NOT_EXIST);
+        if (CollUtil.isEmpty(ids)) {
+            return;
+        }
 
-        boolean hasDefault = addresses.stream().anyMatch(AddressDO::getIsDefault);
-        Asserts.isFalse(hasDefault, BizErrorEnum.ADDRESS_DEFAULT_CANNOT_DELETE);
-        addressMapper.deleteByIds(ids);
+        List<Long> distinctIds = CollUtil.distinct(ids);
+        int deleted = addressMapper.deleteNonDefaultByIds(distinctIds);
+        Asserts.isTrue(deleted == distinctIds.size(), BizErrorEnum.INVALID_DELETE_DATA);
     }
 }

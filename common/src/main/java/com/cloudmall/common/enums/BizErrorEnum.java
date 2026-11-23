@@ -19,6 +19,7 @@ public enum BizErrorEnum {
     SERVICE_UNAVAILABLE(1003, "服务暂不可用"),
     GATEWAY_TIMEOUT(1004, "请求超时，请稍后重试"),
     FLOW_CONTROL_BLOCKED(1005, "系统繁忙，请稍后再试"),
+    INVALID_DELETE_DATA(1006, "存在不合法的删除数据, 请修正后重新尝试."),
 
     // 用户认证相关错误码 (10xxx)
     USERNAME_OR_PASSWORD_ERROR(10000, "用户名或密码错误"),
@@ -170,6 +171,9 @@ public enum BizErrorEnum {
     // 文件操作相关
     FILE_SAVE_FAILED(80004, "文件保存失败"),
     UPLOAD_DIR_CREATE_FAILED(80005, "无法创建上传目录"),
+    FILE_NOT_FOUND(80006, "文件不存在"),
+    FILE_READ_FAILED(80007, "文件读取失败"),
+    FILE_KEY_INVALID(80008, "文件路径非法"),
 
     // 权限和店铺相关错误码 (500xx)
     NO_PERMISSION(500014, "无权访问"),
