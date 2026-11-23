@@ -759,25 +759,20 @@ CREATE TABLE IF NOT EXISTS cm_stock_op_log (
 
 -- 通用本地消息 Outbox（所有服务共用，app_name 区分来源）
 CREATE TABLE IF NOT EXISTS cm_message_outbox (
-    id             bigint       NOT NULL AUTO_INCREMENT comment 'Outbox记录ID',
-    app_name       varchar(50)  NOT NULL comment '来源服务(spring.application.name)',
-    event_id       varchar(64)  NOT NULL comment '事件ID(全局UUID)',
-    topic          varchar(64)  NOT NULL comment '目标RocketMQ Topic',
-    biz_type       varchar(50)  NOT NULL comment '业务类型(如ORDER)',
-    biz_id         varchar(64)  NOT NULL comment '业务ID(如父订单号)',
-    event_type     varchar(50)  NOT NULL comment '事件类型(同时作为RocketMQ tag)',
-    payload        json         NOT NULL comment '事件负载',
-    publish_status varchar(20)  NOT NULL DEFAULT 'PENDING' comment '发布状态(PENDING=待发布 PUBLISHED=已发布 DEAD=死信)',
-    retry_count    int          NOT NULL DEFAULT 0 comment '重试次数',
-    next_retry_time datetime    DEFAULT NULL comment '下次重试时间',
-    publish_time   datetime     DEFAULT NULL comment '发布时间',
-    last_error     varchar(500) DEFAULT NULL comment '最后错误信息',
-    create_time    datetime     DEFAULT NULL comment '创建时间',
-    update_time    datetime     DEFAULT NULL comment '更新时间',
+    id              bigint       NOT NULL AUTO_INCREMENT comment 'Outbox记录ID',
+    app_name        varchar(50)  NOT NULL comment '来源服务(spring.application.name)',
+    event_type      varchar(50)  NOT NULL comment '事件类型(建议带域前缀，如 FILE_BIND)',
+    biz_id          varchar(64)  DEFAULT NULL comment '业务ID',
+    payload         text         comment '事件载荷(字符串原样写入，对象序列化为 JSON)',
+    status          varchar(20)  NOT NULL DEFAULT 'PENDING' comment '状态(PENDING/PROCESSING/DONE/FAILED)',
+    retry_count     int          NOT NULL DEFAULT 0 comment '已重试次数',
+    next_retry_time datetime     DEFAULT NULL comment '下次重试时间',
+    create_time     datetime     NOT NULL DEFAULT CURRENT_TIMESTAMP comment '创建时间',
     PRIMARY KEY (id),
-    UNIQUE KEY uk_event_id (event_id),
-    KEY idx_app_status (app_name, publish_status),
-    KEY idx_next_retry_time (next_retry_time)
+    KEY idx_status (status, next_retry_time),
+    KEY idx_type_status (event_type, status),
+    KEY idx_app_status (app_name, status),
+    KEY idx_biz (biz_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 comment '通用本地消息 Outbox 表';
 
 -- ============================================================

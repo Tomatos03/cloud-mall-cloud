@@ -48,4 +48,12 @@ public interface IChatMessageService extends IService<ChatMessageDO> {
      * @return 更新的记录数
      */
     int markRead(Long sessionId, Long excludeSenderId);
+
+    /**
+     * 保存消息，并在同一事务内为媒体消息追加文件绑定事件。
+     *
+     * @param message 消息实体
+     * @param fileUrl 媒体文件地址，非媒体消息传 null
+     */
+    void saveWithFileEvent(ChatMessageDO message, String fileUrl);
 }

@@ -3,6 +3,7 @@ package com.cloudmall.im.service.impl;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.cloudmall.common.model.CursorResult;
 import com.cloudmall.im.convert.ChatMessageConverter;
@@ -11,6 +12,8 @@ import com.cloudmall.im.model.entity.ChatMessageDO;
 import com.cloudmall.im.model.req.MessageCursorReq;
 import com.cloudmall.im.model.resp.MessageResp;
 import com.cloudmall.im.service.IChatMessageService;
+import com.cloudmall.outbox.annotation.OutboxEvent;
+import com.cloudmall.shared.api.constant.FileEventConstants;
 
 /**
  * 聊天消息服务实现
@@ -48,5 +51,17 @@ public class ChatMessageService extends ServiceImpl<ChatMessageMapper, ChatMessa
     @Override
     public int markRead(Long sessionId, Long excludeSenderId) {
         return baseMapper.markRead(sessionId, excludeSenderId);
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    @OutboxEvent(
+            eventType = FileEventConstants.BIND,
+            bizId = "#message.senderId",
+            payload = "#fileUrl",
+            condition = "#fileUrl != null"
+    )
+    public void saveWithFileEvent(ChatMessageDO message, String fileUrl) {
+        save(message);
     }
 }

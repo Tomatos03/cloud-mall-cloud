@@ -1,87 +1,129 @@
 # cloudmall-outbox-spring-boot-starter
 
-通用本地消息 Outbox 自动配置。所有服务共用一张 `cm_message_outbox` 表（`app_name` 区分来源），业务变更与 Outbox 写入在同一本地事务提交，由 xxl-job 定时扫描发布到 RocketMQ。
+通用本地消息 Outbox。生产侧在业务事务内写入事件，消费侧按事件类型扫描并处理。
 
-## 使用方式
+- 表结构固定为 `cm_message_outbox`，不做表名/列名映射；
+- 依赖 MyBatis-Plus（项目自研 starter）与 `spring-boot-starter-aop`，不依赖 RocketMQ、xxl-job；
+- 投递/处理逻辑由各服务自行实现，starter 只提供写入与通用消费操作。
 
-业务服务只需两处接入，无需注册事件类型：payload 以原始 JSON 字节发布，事件结构知识由消费端持有。
+## 表结构
 
-1. 业务事务内追加事件（`OutboxAppender.append` 生成并注入 eventId，保证行内 event_id 与 payload 内 eventId 一致）：
-
-```java
-OrderEvent event = OrderEvent.builder()
-                             .orderNo(orderNo)
-                             .userId(order.getUserId())
-                             .build();
-outboxAppender.append(
-        OutboxAppendReq.builder()
-                       .topic(ORDER_EVENTS_TOPIC)
-                       .eventType(OrderTagEnum.PAID.getTag())
-                       .bizType("ORDER")
-                       .bizId(orderNo)
-                       .event(event)
-                       .build()
-);
+```sql
+CREATE TABLE cm_message_outbox (
+    id              bigint      NOT NULL AUTO_INCREMENT,
+    app_name        varchar(50) NOT NULL COMMENT '来源服务',
+    event_type      varchar(50) NOT NULL COMMENT '事件类型，建议带域前缀',
+    biz_id          varchar(64) DEFAULT NULL COMMENT '业务ID',
+    payload         text COMMENT '事件载荷：字符串原样写入，对象序列化为 JSON',
+    status          varchar(20) NOT NULL DEFAULT 'PENDING' COMMENT 'PENDING/PROCESSING/DONE/FAILED',
+    retry_count     int         NOT NULL DEFAULT 0,
+    next_retry_time datetime    DEFAULT NULL,
+    create_time     datetime    NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (id),
+    KEY idx_status (status, next_retry_time),
+    KEY idx_type_status (event_type, status),
+    KEY idx_app_status (app_name, status),
+    KEY idx_biz (biz_id)
+) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4;
 ```
 
-2. 注册调度任务：starter 已提供默认任务 Bean（`OutboxJobHandlers`：`outboxPublish` 发布 + `outboxCleanup` 清理），服务只需在 xxl-job 配置中声明触发：
+`app_name` 自动取自 `spring.application.name`。
 
-```yaml
-xxl:
-  job:
-    auto-register:
-      jobs:
-        - handler: outboxPublish
-          desc: Outbox事件发布
-          schedule-type: FIX_DELAY
-          schedule-conf: "5"
-        - handler: outboxCleanup
-          desc: Outbox已发布记录清理
-          schedule-type: CRON
-          schedule-conf: "0 0 3 * * ?"
-```
+## 写入
 
-`OutboxJobHandlers` 由 `OutboxAutoConfiguration` 条件装配（classpath 存在 xxl-job 与分发器才生效），批次大小与保留天数走 `cloudmall.outbox.batch-size` / `cloudmall.outbox.retention-days` 配置（默认 100 / 7），服务可声明同名 Bean 覆盖默认实现。
-
-`appName` 自动从 `spring.application.name` 解析，无需显式传入。
-
-## 约定与约束
-
-- 事件对象必须包含 `eventId` 字段（消费端幂等键），由 `OutboxAppender` 生成并注入。
-- 消费端按业务层幂等去重（消费幂等表已移除），重复发布由业务唯一约束保障。
-- `OutboxMapper` 通过 `OutboxAutoConfiguration` 的 `@AutoConfigurationPackage(basePackages = "com.cloudmall.outbox")` + `@AutoConfigureBefore(MybatisPlusAutoConfiguration.class)` 保证先于 MyBatis 自动扫描器注册包，再由 `@Mapper` 自动扫描注册；消费方无需额外 `@MapperScan`，也不会因引入本 starter 导致自身 Mapper 的自动扫描退避。
-- 不依赖行锁：xxl-job 单次触发只在一个执行器实例执行，同一服务多实例不会重复扫描同一批。
-
-## 可插拔发布器
-
-`OutboxDispatcher` 面向 `OutboxPublisher` 抽象发布事件，默认提供 RocketMQ 实现（`RocketMqOutboxPublisher`，通过 `MQProducer` 同步发送）。
-
-**依赖要求**：本 starter 对 `cloudmall-rocketmq-spring-boot-starter` 仅编译期生效（`<optional>true</optional>`，不传递）。使用默认 RocketMQ 发布器的服务必须**显式声明** rocketmq starter；否则 `RocketMqOutboxPublisher` 不会注册（`@ConditionalOnClass(MQProducer.class)` 拦截），需自行提供 `OutboxPublisher` Bean，否则 `OutboxDispatcher` 装配失败（快速失败，提示缺少发布器）。
-
-如需切换传输（如 Feign 同步调用），注册自定义 `OutboxPublisher` Bean 即可覆盖默认实现，分发器与业务代码零改动：
+### 单事件
 
 ```java
-@Bean
-public OutboxPublisher feignOutboxPublisher() {
-    return (topic, tag, event) -> { /* Feign 调用逻辑 */ };
+@OutboxEvent(eventType = "FILE_BIND", bizId = "#userId", payload = "#url")
+@Transactional
+public void bindAvatar(Long userId, String url) {
+    userMapper.updateAvatar(userId, url);
 }
 ```
 
-## 批量发送
+`payload` 是 SpEL：传字符串原样写入，传对象序列化为 JSON。`condition` 可用于按需跳过：
 
-`OutboxDispatcher.publishPending` 把待发布事件按 `(topic, tag)` 分组，同组一次批量发送
-（默认 RocketMQ 实现走 `RocketMQTemplate.syncSend(destination, Collection)`，整批一次网络请求）。
+```java
+@OutboxEvent(
+        eventType = "FILE_BIND",
+        bizId = "#message.senderId",
+        payload = "#fileUrl",
+        condition = "#fileUrl != null"
+)
+```
 
-- 分组键 = `(topic, tag)`：满足 RocketMQ 批量发送同 topic 约束，每组一个 destination
-- 切批：单批超过 `cloudmall.outbox.batch-max-bytes`（默认 1MB）按 payload 字节贪心切批
-- 失败语义：`syncSend` 批量是原子的，整批失败 → 组内全部进入既有重试/退避/死信状态
-  （消费端幂等表按 `event_id` 去重，重复发布无害）
-- 自定义发布器未实现 `publishBatch` 时，默认逐条回退 `publish`，行为与旧版一致
+### 多事件
 
-## 处理能力扩展
+注解留空 `eventType`，方法内收集：
 
-当前为分组后逐批顺序发送。后续按需逐级扩展，均为增量改动，不涉及表结构与消费端变更：
+```java
+@OutboxEvent(required = false)
+@Transactional
+public void updateProfile(Long userId, UpdateProfileReq req) {
+    ...
+    OutboxEvents.collect("FILE_BIND", String.valueOf(userId), req.getAvatar());
+    OutboxEvents.collect("FILE_RELEASE", String.valueOf(userId), previousAvatar);
+}
+```
 
-- 调度频率 / 扫描条数：调整 xxl-job 调度周期与 `publishPending` 的 batchSize。
-- 并行发送：把 `OutboxDispatcher.publishPending` 的组循环改为线程池并行，改动封闭在 dispatcher 内部。
-- 分片广播：xxl-job 路由策略切分片广播，`OutboxMapper.listDuePending` 增加 `MOD(id, shardTotal) = shardIndex` 可选过滤，各实例处理自己的分片。
+同一事件类型有多条载荷时用批量方法：
+
+```java
+OutboxEvents.collectAll("FILE_BIND", String.valueOf(userId), photoUrls);
+```
+
+- `required = false`：允许本次调用不产生事件；默认 `true`，未产生事件时抛错回滚。
+- 方法必须经 Spring 代理调用，`this.xxx()` 自调用不会触发切面。
+- 同一调用链中不要嵌套使用 `@OutboxEvent`。
+
+## 消费
+
+```java
+@XxlJob("fileEventApply")
+public void apply() {
+    outboxRepository.consume(Set.of("FILE_BIND", "FILE_RELEASE"), record -> {
+        switch (record.eventType()) {
+            case "FILE_BIND" -> fileService.bind(Long.valueOf(record.bizId()), null, List.of(record.payload()));
+            case "FILE_RELEASE" -> fileService.release(List.of(record.payload()));
+            default -> throw new IllegalStateException("未知事件类型");
+        }
+    });
+}
+
+@XxlJob("fileEventCleanup")
+public void cleanup() {
+    outboxRepository.cleanup();
+}
+```
+
+`consume` 的执行流程：
+
+1. 扫描 `PENDING` 且到期的记录；
+2. `claim` 抢占 `PENDING → PROCESSING`（多实例安全）；
+3. 在独立事务内执行 `handler` 并 `markDone`；
+4. 处理失败时递增 `retry_count`，未达上限回到 `PENDING` 并退避，达到上限转为 `FAILED`。
+
+下层原语也可单独使用：`listPending`、`claim`、`markDone`、`markFailed`、`cleanup`。
+
+## 配置
+
+```yaml
+cloudmall:
+  outbox:
+    batch-size: 100        # 单批扫描条数
+    max-attempts: 10       # 最大重试次数
+    backoff-seconds: 30    # 重试退避秒数
+    retention-days: 7      # 已完成事件保留天数
+```
+
+全部有默认值，可省略。
+
+## 状态机
+
+```text
+PENDING ──claim──> PROCESSING ──成功──> DONE
+                        │
+                        └──失败──> PENDING（退避）/ FAILED（达到上限）
+```
+
+`PROCESSING` 在进程异常退出后会残留，建议按业务需要补充"超时 PROCESSING 重置为 PENDING"的兜底任务。

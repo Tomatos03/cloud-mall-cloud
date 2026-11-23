@@ -2,22 +2,21 @@ package com.cloudmall.outbox.mapper;
 
 import java.time.LocalDateTime;
 import java.util.Collection;
+import java.util.List;
 
 import cn.hutool.core.collection.CollUtil;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
-import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
-import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import org.apache.ibatis.annotations.Mapper;
 
-import com.cloudmall.outbox.enums.OutboxPublishStatusEnum;
+import com.cloudmall.mybatisplus.enums.LimitEnum;
+import com.cloudmall.outbox.enums.OutboxStatusEnum;
 import com.cloudmall.outbox.model.entity.OutboxDO;
 
 /**
- * 通用本地消息 Outbox Mapper
+ * 通用本地消息 Outbox Mapper。
  * <p>
- * 所有服务共用同一张表，通过 app_name 隔离各自的待发布事件。
- * 由 OutboxAutoConfiguration 的 @AutoConfigurationPackage + @AutoConfigureBefore 保证被 MyBatis @Mapper 自动扫描注册。
+ * 所有查询与状态迁移以 {@code default} 方法 + Wrapper 实现，禁止注解脚本 SQL。
  *
  * @author : Tomatos
  */
@@ -25,150 +24,99 @@ import com.cloudmall.outbox.model.entity.OutboxDO;
 public interface OutboxMapper extends BaseMapper<OutboxDO> {
 
     /**
-     * 查询到期待发布事件（已到重试时间，按 ID 升序）。
+     * 查询到期待处理事件（按 ID 升序）。
      *
-     * @param appName 来源服务
-     * @param page 分页参数
-     * @return 待发布事件分页数据
+     * @param eventTypes 事件类型集合，为空表示不过滤
+     * @param limit 条数上限
+     * @return 待处理事件
      */
-    default IPage<OutboxDO> listDuePending(String appName, Page<OutboxDO> page) {
-        return selectPage(
-                page,
+    default List<OutboxDO> listPending(Collection<String> eventTypes, int limit) {
+        return selectList(
                 Wrappers.<OutboxDO>lambdaQuery()
-                        .eq(OutboxDO::getAppName, appName)
-                        .eq(OutboxDO::getPublishStatus, OutboxPublishStatusEnum.PENDING)
+                        .eq(OutboxDO::getStatus, OutboxStatusEnum.PENDING)
                         .and(
                                 wrapper -> wrapper.isNull(OutboxDO::getNextRetryTime)
                                                   .or()
                                                   .le(OutboxDO::getNextRetryTime, LocalDateTime.now())
                         )
+                        .in(CollUtil.isNotEmpty(eventTypes), OutboxDO::getEventType, eventTypes)
                         .orderByAsc(OutboxDO::getId)
+                        .last(LimitEnum.of(limit))
         );
     }
 
     /**
-     * 标记事件已发布。
+     * 抢占事件：PENDING 迁移为 PROCESSING。
      *
-     * @param id Outbox 记录 ID
+     * @param id 事件 ID
      * @return 影响行数
      */
-    default int markPublished(Long id) {
+    default int claim(Long id) {
         return update(
                 Wrappers.<OutboxDO>lambdaUpdate()
-                        .set(OutboxDO::getPublishStatus, OutboxPublishStatusEnum.PUBLISHED)
-                        .set(OutboxDO::getPublishTime, LocalDateTime.now())
-                        .set(OutboxDO::getLastError, null)
+                        .set(OutboxDO::getStatus, OutboxStatusEnum.PROCESSING)
+                        .eq(OutboxDO::getId, id)
+                        .eq(OutboxDO::getStatus, OutboxStatusEnum.PENDING)
+        );
+    }
+
+    /**
+     * 标记事件处理完成。
+     *
+     * @param id 事件 ID
+     * @return 影响行数
+     */
+    default int markDone(Long id) {
+        return update(
+                Wrappers.<OutboxDO>lambdaUpdate()
+                        .set(OutboxDO::getStatus, OutboxStatusEnum.DONE)
+                        .set(OutboxDO::getNextRetryTime, null)
                         .eq(OutboxDO::getId, id)
         );
     }
 
     /**
-     * 记录发布失败：重试次数、退避时间、错误信息与目标状态。
+     * 记录处理失败：递增重试次数，未达上限回到待处理并退避，达到上限转为失败。 <p>
+     * {@code retry_count} 的自增必须放在最后，保证前面的条件读取到旧值。
      *
-     * @param id Outbox 记录 ID
-     * @param retryCount 更新后重试次数
-     * @param nextRetryTime 下次重试时间
-     * @param lastError 最后错误信息
-     * @param status 目标发布状态（PENDING/DEAD）
+     * @param id 事件 ID
+     * @param maxAttempts 最大重试次数
+     * @param backoffSeconds 退避秒数
      * @return 影响行数
      */
-    default int markFailed(
-        Long id,
-        Integer retryCount,
-        LocalDateTime nextRetryTime,
-        String lastError,
-        OutboxPublishStatusEnum status
-    ) {
-        return update(
-                Wrappers.<OutboxDO>lambdaUpdate()
-                        .set(OutboxDO::getRetryCount, retryCount)
-                        .set(OutboxDO::getNextRetryTime, nextRetryTime)
-                        .set(OutboxDO::getLastError, lastError)
-                        .set(OutboxDO::getPublishStatus, status)
-                        .eq(OutboxDO::getId, id)
-        );
-    }
-
-    /**
-     * 批量标记已发布。 <p>
-     * 成功路径整批一次 UPDATE，替代逐行 {@link #markPublished}。
-     *
-     * @param ids 记录 ID 列表
-     * @return 影响行数
-     */
-    default int markPublishedBatch(Collection<Long> ids) {
-        if (CollUtil.isEmpty(ids)) {
-            return 0;
-        }
-        return update(
-                Wrappers.<OutboxDO>lambdaUpdate()
-                        .set(OutboxDO::getPublishStatus, OutboxPublishStatusEnum.PUBLISHED)
-                        .set(OutboxDO::getPublishTime, LocalDateTime.now())
-                        .set(OutboxDO::getLastError, null)
-                        .in(OutboxDO::getId, ids)
-        );
-    }
-
-    /**
-     * 批量记录发布失败：重试次数原地 +1、指数退避下次重试、超限进入死信。 <p>
-     * 各行的退避时间与死信判定基于自身的新重试次数（SQL 表达式计算）， 与逐行
-     * {@link #markFailed} 语义等价，但整批一次 UPDATE。
-     *
-     * @param ids 记录 ID 列表
-     * @param lastError 最后错误信息
-     * @param maxRetry 最大重试次数（超过进入死信）
-     * @param retryBaseSeconds 初始重试间隔秒数（指数退避）
-     * @return 影响行数
-     */
-    default int markFailedBatch(Collection<Long> ids, String lastError, int maxRetry, int retryBaseSeconds) {
-        if (CollUtil.isEmpty(ids)) {
-            return 0;
-        }
+    default int markFailed(Long id, int maxAttempts, int backoffSeconds) {
         final String nextRetryTimeSql = String.format(
-                "next_retry_time = DATE_ADD(NOW(), INTERVAL (retry_count + 1) * %d SECOND)",
-                retryBaseSeconds
+                "next_retry_time = IF(retry_count + 1 >= %d, NULL, DATE_ADD(NOW(), INTERVAL %d SECOND))",
+                maxAttempts,
+                backoffSeconds
         );
-        final String publishStatusSql = String.format(
-                "publish_status = IF(retry_count + 1 >= %d, 'DEAD', 'PENDING')",
-                maxRetry
+        final String statusSql = String.format(
+                "status = IF(retry_count + 1 >= %d, '%s', '%s')",
+                maxAttempts,
+                OutboxStatusEnum.FAILED.getCode(),
+                OutboxStatusEnum.PENDING.getCode()
         );
+        final String retryCountSql = "retry_count = retry_count + 1";
         return update(
                 Wrappers.<OutboxDO>lambdaUpdate()
-                        .setSql("retry_count = retry_count + 1")
                         .setSql(nextRetryTimeSql)
-                        .setSql(publishStatusSql)
-                        .set(OutboxDO::getLastError, lastError)
-                        .in(OutboxDO::getId, ids)
+                        .setSql(statusSql)
+                        .setSql(retryCountSql)
+                        .eq(OutboxDO::getId, id)
         );
     }
 
     /**
-     * 统计死信数量。
+     * 删除早于指定时间且已完成的事件。
      *
-     * @param appName 来源服务
-     * @return 死信数量
-     */
-    default long countDead(String appName) {
-        return selectCount(
-                Wrappers.<OutboxDO>lambdaQuery()
-                        .eq(OutboxDO::getAppName, appName)
-                        .eq(OutboxDO::getPublishStatus, OutboxPublishStatusEnum.DEAD)
-        );
-    }
-
-    /**
-     * 删除已发布且发布时间早于指定时间的记录。
-     *
-     * @param appName 来源服务
      * @param before 时间阈值
      * @return 影响行数
      */
-    default int deletePublishedBefore(String appName, LocalDateTime before) {
+    default int deleteDoneBefore(LocalDateTime before) {
         return delete(
                 Wrappers.<OutboxDO>lambdaQuery()
-                        .eq(OutboxDO::getAppName, appName)
-                        .eq(OutboxDO::getPublishStatus, OutboxPublishStatusEnum.PUBLISHED)
-                        .lt(OutboxDO::getPublishTime, before)
+                        .eq(OutboxDO::getStatus, OutboxStatusEnum.DONE)
+                        .lt(OutboxDO::getCreateTime, before)
         );
     }
 }

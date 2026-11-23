@@ -1,5 +1,6 @@
 package com.cloudmall.user.service;
 
+import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -8,6 +9,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.cloudmall.common.enums.BizErrorEnum;
 import com.cloudmall.common.utils.Asserts;
+import com.cloudmall.outbox.annotation.OutboxEvent;
+import com.cloudmall.outbox.collector.OutboxEvents;
+import com.cloudmall.shared.api.constant.FileEventConstants;
 import com.cloudmall.user.api.model.req.ChangePasswordReq;
 import com.cloudmall.user.api.model.req.UpdateUserProfileReq;
 import com.cloudmall.user.api.model.req.UserSettingsUpdateReq;
@@ -40,7 +44,7 @@ public class UserProfileService {
      * @return 用户资料
      */
     public UserProfileResp getProfile(Long userId) {
-        UserDO user = requireUser(userId);
+        UserDO user = Asserts.requireNonNull(userMapper.selectById(userId), BizErrorEnum.USER_NOT_EXISTS);
         UserProfileDO profile = getOrCreateProfile(userId);
         return userProfileConverter.toProfileResp(user, profile);
     }
@@ -52,9 +56,10 @@ public class UserProfileService {
      * @param req 更新参数
      * @return 更新后的用户资料
      */
+    @OutboxEvent(required = false)
     @Transactional(rollbackFor = Exception.class)
     public UserProfileResp updateProfile(Long userId, UpdateUserProfileReq req) {
-        UserDO user = requireUser(userId);
+        UserDO user = Asserts.requireNonNull(userMapper.selectById(userId), BizErrorEnum.USER_NOT_EXISTS);
         UserProfileDO profile = getOrCreateProfile(userId);
 
         var update = Wrappers.<UserDO>lambdaUpdate().eq(UserDO::getId, userId);
@@ -65,9 +70,14 @@ public class UserProfileService {
             user.setNickname(req.getNickname());
         }
         if (req.getAvatar() != null) {
+            String previousAvatar = user.getAvatarUrl();
             update.set(UserDO::getAvatarUrl, req.getAvatar());
             userChanged = true;
             user.setAvatarUrl(req.getAvatar());
+            OutboxEvents.collect(FileEventConstants.BIND, String.valueOf(userId), req.getAvatar());
+            if (isAvatarChanged(previousAvatar, req.getAvatar())) {
+                OutboxEvents.collect(FileEventConstants.RELEASE, String.valueOf(userId), previousAvatar);
+            }
         }
         if (req.getPhone() != null) {
             update.set(UserDO::getPhone, req.getPhone());
@@ -85,7 +95,7 @@ public class UserProfileService {
             user.setBio(req.getBio());
         }
         if (userChanged) {
-            userMapper.update(null, update);
+            userMapper.update(update);
         }
 
         boolean profileChanged = false;
@@ -105,13 +115,24 @@ public class UserProfileService {
     }
 
     /**
+     * 判断头像是否发生变更。
+     *
+     * @param previousAvatar 原头像地址
+     * @param currentAvatar 新头像地址
+     * @return true 表示需要释放原头像
+     */
+    private static boolean isAvatarChanged(String previousAvatar, String currentAvatar) {
+        return StrUtil.isNotBlank(previousAvatar) && !previousAvatar.equals(currentAvatar);
+    }
+
+    /**
      * 修改当前用户登录密码。
      *
      * @param userId 用户 ID
      * @param req 密码参数
      */
     public void changePassword(Long userId, ChangePasswordReq req) {
-        UserDO user = requireUser(userId);
+        UserDO user = Asserts.requireNonNull(userMapper.selectById(userId), BizErrorEnum.USER_NOT_EXISTS);
         Asserts.isTrue(
                 passwordEncoder.matches(req.getOldPassword(), user.getPassword()),
                 BizErrorEnum.PASSWORD_ERROR
@@ -167,17 +188,6 @@ public class UserProfileService {
         }
         saveProfile(profile);
         return userProfileConverter.toSettingsResp(profile);
-    }
-
-    /**
-     * 查询用户，不存在时抛出业务异常。
-     *
-     * @param userId 用户 ID
-     * @return 用户实体
-     */
-    private UserDO requireUser(Long userId) {
-        Asserts.notNull(userId, BizErrorEnum.USER_NOT_AUTHENTICATED);
-        return Asserts.requireNonNull(userMapper.selectById(userId), BizErrorEnum.USER_NOT_EXISTS);
     }
 
     /**

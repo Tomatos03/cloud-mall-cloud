@@ -1,22 +1,17 @@
 package com.cloudmall.outbox.appender;
 
-import java.util.UUID;
-
-import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.json.JSONUtil;
 import lombok.RequiredArgsConstructor;
 
-import com.cloudmall.outbox.enums.OutboxPublishStatusEnum;
+import com.cloudmall.outbox.enums.OutboxStatusEnum;
 import com.cloudmall.outbox.mapper.OutboxMapper;
-import com.cloudmall.outbox.model.OutboxAppendReq;
 import com.cloudmall.outbox.model.entity.OutboxDO;
 
 /**
- * Outbox 事件追加器
+ * Outbox 事件写入器。
  * <p>
- * 业务服务在本地事务内调用 {@link #append}，事件与业务写入同事务提交。
- * 事件对象必须包含 eventId 字段（消费端幂等键），由本追加器生成并注入，
- * 保证行内 event_id 与 payload 内的 eventId 始终一致。
+ * 使用固定表 {@code cm_message_outbox}，业务代码不感知表结构。
+ * 仅在切面中调用，不对外暴露。
  *
  * @author : Tomatos
  */
@@ -29,26 +24,35 @@ public class OutboxAppender {
     private final String appName;
 
     /**
-     * 追加一条待发布事件（与业务写入同事务提交）。
+     * 写入一条待处理事件。
      *
-     * @param req 追加请求
+     * @param eventType 事件类型
+     * @param bizId 业务 ID
+     * @param payload 事件载荷，字符串原样写入，其余序列化为 JSON
      */
-    public void append(OutboxAppendReq req) {
-        String eventId = UUID.randomUUID()
-                             .toString()
-                             .replace("-", "");
-        BeanUtil.setFieldValue(req.getEvent(), "eventId", eventId);
-        OutboxDO outbox = OutboxDO.builder()
-                                  .appName(appName)
-                                  .eventId(eventId)
-                                  .topic(req.getTopic())
-                                  .eventType(req.getEventType())
-                                  .bizType(req.getBizType())
-                                  .bizId(req.getBizId())
-                                  .payload(JSONUtil.toJsonStr(req.getEvent()))
-                                  .publishStatus(OutboxPublishStatusEnum.PENDING)
-                                  .retryCount(0)
-                                  .build();
-        outboxMapper.insert(outbox);
+    public void append(String eventType, String bizId, Object payload) {
+        outboxMapper.insert(
+                OutboxDO.builder()
+                        .appName(appName)
+                        .eventType(eventType)
+                        .bizId(bizId)
+                        .payload(serialize(payload))
+                        .status(OutboxStatusEnum.PENDING)
+                        .retryCount(0)
+                        .build()
+        );
+    }
+
+    /**
+     * 序列化载荷：字符串原样写入，其余转为 JSON。
+     *
+     * @param payload 载荷
+     * @return 待写入的文本
+     */
+    private static String serialize(Object payload) {
+        if (payload == null) {
+            return null;
+        }
+        return payload instanceof CharSequence text ? text.toString() : JSONUtil.toJsonStr(payload);
     }
 }

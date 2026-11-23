@@ -4,7 +4,7 @@
 -- 除 cm_category（保留原始 25 条分类数据）及 cm_role / cm_resource / cm_role_resource
 -- 等权限表外，其余业务表至少 100 条数据
 -- 与 01-schema.sql 当前表结构严格对齐（优惠券新模型 + 父子订单 + 商品多规格 + cm_shop
--- + 库存流水 + 消息 Outbox + IM 会话消息）
+-- + 库存流水 + IM 会话消息）
 -- 商品数据扩展至 10000 条（含 SKU / 规格 / 图片）
 -- 图片统一使用 picsum.photos 可展示占位图（允许重复）
 -- 秒杀数据以执行时整点为基准，覆盖今天/明天/后天共 72 个整点场次，各 50 个已审核商品
@@ -649,36 +649,10 @@ INSERT INTO cm_stock_op_log (id, order_no, sku_id, product_id, shop_id, op_type,
 ALTER TABLE cm_stock_op_log AUTO_INCREMENT = 100;
 
 -- ============================================================
--- 通用本地消息 Outbox（app_name 为来源服务，event_id 为全局幂等键）
--- 事件 ID 与 cm_user_coupon_log.issued_event_id 对齐；payload 结构参照各服务事件实体
+-- 通用本地消息 Outbox
+-- 该表是运行时事件队列（当前仅文件绑定/释放事件），不预置种子数据；
+-- 订单/商品/秒杀等领域事件由 RocketMQ 事务消息投递，不经过本表。
 -- ============================================================
-INSERT INTO cm_message_outbox (id, app_name, event_id, topic, biz_type, biz_id, event_type, payload, publish_status, retry_count, next_retry_time, publish_time, last_error, create_time, update_time) VALUES
--- 用户注册事件（user-service → coupon-service 注册自动发券）
-(1,  'user-service',    'EVT-UREG-000001', 'USER_REGISTERED', 'USER', '4', 'UserRegistered',
-    '{"eventId":"EVT-UREG-000001","userId":4,"username":"user1"}', 'PUBLISHED', 0, NULL, DATE_SUB(NOW(), INTERVAL 10 DAY), NULL, DATE_SUB(NOW(), INTERVAL 10 DAY), DATE_SUB(NOW(), INTERVAL 10 DAY)),
-(2,  'user-service',    'EVT-UREG-000002', 'USER_REGISTERED', 'USER', '5', 'UserRegistered',
-    '{"eventId":"EVT-UREG-000002","userId":5,"username":"user2"}', 'PUBLISHED', 0, NULL, DATE_SUB(NOW(), INTERVAL 5 DAY),  NULL, DATE_SUB(NOW(), INTERVAL 5 DAY),  DATE_SUB(NOW(), INTERVAL 5 DAY)),
--- 订单支付事件（order-service → coupon-service 核销 / seckill-service 确认秒杀单）
-(3,  'order-service',   'EVT-ORD-PAID-000001', 'ORDER_EVENTS', 'ORDER', 'ORD202507010001', 'OrderPaid',
-    '{"eventId":"EVT-ORD-PAID-000001","orderNo":"ORD202507010001","userId":4}', 'PUBLISHED', 0, NULL, DATE_SUB(NOW(), INTERVAL 29 DAY), NULL, DATE_SUB(NOW(), INTERVAL 29 DAY), DATE_SUB(NOW(), INTERVAL 29 DAY)),
-(4,  'order-service',   'EVT-ORD-PAID-000002', 'ORDER_EVENTS', 'ORDER', 'ORD202507020002', 'OrderPaid',
-    '{"eventId":"EVT-ORD-PAID-000002","orderNo":"ORD202507020002","userId":5}', 'PUBLISHED', 0, NULL, DATE_SUB(NOW(), INTERVAL 27 DAY), NULL, DATE_SUB(NOW(), INTERVAL 27 DAY), DATE_SUB(NOW(), INTERVAL 27 DAY)),
--- 秒杀抢购事件（seckill-service → consumer-service 异步建真实订单）
-(5,  'seckill-service', 'EVT-SK-ORDER-000001', 'SECKILL_ORDERS', 'SECKILL_ORDER', 'SK202507010000001', 'SeckillOrderCreate',
-    '{"eventId":"EVT-SK-ORDER-000001","seckillOrderId":1,"orderNo":"SK202507010000001","userId":4,"skuId":1,"productId":1,"seckillPrice":5999.00,"quantity":1,"addressId":1}', 'PUBLISHED', 0, NULL, DATE_SUB(NOW(), INTERVAL 30 DAY), NULL, DATE_SUB(NOW(), INTERVAL 30 DAY), DATE_SUB(NOW(), INTERVAL 30 DAY)),
-(6,  'seckill-service', 'EVT-SK-ORDER-000002', 'SECKILL_ORDERS', 'SECKILL_ORDER', 'SK202507010000002', 'SeckillOrderCreate',
-    '{"eventId":"EVT-SK-ORDER-000002","seckillOrderId":2,"orderNo":"SK202507010000002","userId":5,"skuId":9,"productId":4,"seckillPrice":2499.00,"quantity":1,"addressId":3}', 'PUBLISHED', 0, NULL, DATE_SUB(NOW(), INTERVAL 30 DAY), NULL, DATE_SUB(NOW(), INTERVAL 30 DAY), DATE_SUB(NOW(), INTERVAL 30 DAY)),
-(7,  'seckill-service', 'EVT-SK-ORDER-000003', 'SECKILL_ORDERS', 'SECKILL_ORDER', 'SK202506010000003', 'SeckillOrderCreate',
-    '{"eventId":"EVT-SK-ORDER-000003","seckillOrderId":3,"orderNo":"SK202506010000003","userId":4,"skuId":12,"productId":5,"seckillPrice":299.00,"quantity":1,"addressId":1}', 'PUBLISHED', 0, NULL, DATE_SUB(NOW(), INTERVAL 60 DAY), NULL, DATE_SUB(NOW(), INTERVAL 60 DAY), DATE_SUB(NOW(), INTERVAL 60 DAY)),
--- 商品变更事件（product-service → search-service 同步 ES）
-(8,  'product-service', 'EVT-PROD-000001', 'PRODUCT_EVENTS', 'PRODUCT', '2', 'ProductUpdated',
-    '{"eventId":"EVT-PROD-000001","productId":2,"spuCode":"SPU20250002"}', 'PUBLISHED', 0, NULL, DATE_SUB(NOW(), INTERVAL 15 DAY), NULL, DATE_SUB(NOW(), INTERVAL 15 DAY), DATE_SUB(NOW(), INTERVAL 15 DAY)),
-(9,  'product-service', 'EVT-PROD-000002', 'PRODUCT_EVENTS', 'PRODUCT', '5', 'ProductUpdated',
-    '{"eventId":"EVT-PROD-000002","productId":5,"spuCode":"SPU20250005"}', 'PENDING', 3, DATE_ADD(NOW(), INTERVAL 5 MINUTE), NULL, 'MQ 连接超时，等待重试', DATE_SUB(NOW(), INTERVAL 1 HOUR), DATE_SUB(NOW(), INTERVAL 10 MINUTE)),
-(10, 'product-service', 'EVT-PROD-000003', 'PRODUCT_EVENTS', 'PRODUCT', '7', 'ProductDeleted',
-    '{"eventId":"EVT-PROD-000003","productId":7,"spuCode":"SPU20250007"}', 'DEAD', 5, NULL, NULL, '超过最大重试次数，转为死信', DATE_SUB(NOW(), INTERVAL 2 DAY), DATE_SUB(NOW(), INTERVAL 1 DAY));
-
-ALTER TABLE cm_message_outbox AUTO_INCREMENT = 100;
 
 -- ============================================================
 -- IM 聊天会话（买家 ↔ 商家，uk_buyer_merchant 唯一）
@@ -1500,7 +1474,7 @@ WHERE p.id >= 2001;
 DROP TEMPORARY TABLE IF EXISTS tmp_seckill_slot;
 
 -- ============================================================
--- 库存流水 / Outbox / AI 会话 / IM 会话与消息
+-- 库存流水 / AI 会话 / IM 会话与消息
 -- ============================================================
 INSERT INTO cm_stock_op_log (id, order_no, sku_id, product_id, shop_id, op_type, quantity, before_stock, after_stock,
                              source, operator_id, reason, create_time)
@@ -1517,27 +1491,6 @@ SELECT 1000 + n,
        NULL,
        '支付成功确认扣减',
        DATE_SUB(NOW(), INTERVAL (100 - n) DAY)
-FROM tmp_seed_seq;
-
-INSERT INTO cm_message_outbox (id, app_name, event_id, topic, biz_type, biz_id, event_type, payload, publish_status,
-                               retry_count, next_retry_time, publish_time, last_error, create_time, update_time)
-SELECT 1000 + n,
-       'product-service',
-       CONCAT('EVT-BULK-PROD-', LPAD(n, 4, '0')),
-       'PRODUCT_EVENTS',
-       'PRODUCT',
-       CAST(1000 + n AS CHAR),
-       'ProductUpdated',
-       JSON_OBJECT('eventId', CONCAT('EVT-BULK-PROD-', LPAD(n, 4, '0')),
-                   'productId', 1000 + n,
-                   'spuCode', CONCAT('SPU2026', LPAD(n, 4, '0'))),
-       'PUBLISHED',
-       0,
-       NULL,
-       DATE_SUB(NOW(), INTERVAL (100 - n) DAY),
-       NULL,
-       DATE_SUB(NOW(), INTERVAL (100 - n) DAY),
-       NOW()
 FROM tmp_seed_seq;
 
 INSERT INTO cm_chat_session (id, session_id, user_id, title, create_time, update_time)

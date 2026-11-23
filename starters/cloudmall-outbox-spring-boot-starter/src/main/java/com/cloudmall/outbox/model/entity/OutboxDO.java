@@ -3,6 +3,7 @@ package com.cloudmall.outbox.model.entity;
 import java.time.LocalDateTime;
 
 import com.baomidou.mybatisplus.annotation.FieldFill;
+import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
@@ -11,13 +12,12 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import com.cloudmall.outbox.enums.OutboxPublishStatusEnum;
+import com.cloudmall.outbox.enums.OutboxStatusEnum;
 
 /**
- * 通用本地消息 Outbox 实体
+ * 通用本地消息 Outbox 实体。
  * <p>
- * 所有服务共用的本地消息表（app_name 区分来源），
- * 业务变更与 Outbox 在同一本地事务提交，由定时任务发布到 RocketMQ。
+ * 对应固定表 {@code cm_message_outbox}，所有服务共用，{@code app_name} 区分来源。
  *
  * @author : Tomatos
  */
@@ -28,51 +28,32 @@ import com.cloudmall.outbox.enums.OutboxPublishStatusEnum;
 @TableName("cm_message_outbox")
 public class OutboxDO {
 
-    /** Outbox 记录 ID */
-    @TableId
+    /** 事件 ID */
+    @TableId(type = IdType.AUTO)
     private Long id;
 
     /** 来源服务（spring.application.name） */
     private String appName;
 
-    /** 事件 ID（全局 UUID，消费端幂等键） */
-    private String eventId;
-
-    /** 目标 RocketMQ Topic */
-    private String topic;
-
-    /** 业务类型（如 ORDER） */
-    private String bizType;
-
-    /** 业务 ID（如父订单号） */
-    private String bizId;
-
-    /** 事件类型（同时作为 RocketMQ tag） */
+    /** 事件类型，建议带域前缀，如 FILE_BIND */
     private String eventType;
 
-    /** 事件负载（JSON） */
+    /** 业务 ID */
+    private String bizId;
+
+    /** 事件载荷：字符串原样写入，对象序列化为 JSON */
     private String payload;
 
-    /** 发布状态 */
-    private OutboxPublishStatusEnum publishStatus;
+    /** 事件状态 */
+    private OutboxStatusEnum status;
 
-    /** 重试次数 */
+    /** 已重试次数 */
     private Integer retryCount;
 
     /** 下次重试时间 */
     private LocalDateTime nextRetryTime;
 
-    /** 发布时间 */
-    private LocalDateTime publishTime;
-
-    /** 最后错误信息 */
-    private String lastError;
-
     /** 创建时间 */
     @TableField(fill = FieldFill.INSERT)
     private LocalDateTime createTime;
-
-    /** 更新时间 */
-    @TableField(fill = FieldFill.INSERT_UPDATE)
-    private LocalDateTime updateTime;
 }

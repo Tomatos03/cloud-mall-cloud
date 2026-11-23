@@ -21,6 +21,7 @@ import org.springframework.web.socket.adapter.standard.StandardWebSocketSession;
 import org.springframework.web.socket.handler.TextWebSocketHandler;
 
 import com.cloudmall.im.convert.ChatMessageConverter;
+import com.cloudmall.im.enums.MessageTypeEnum;
 import com.cloudmall.im.enums.ReadStatusEnum;
 import com.cloudmall.im.manager.WebSocketSessionManager;
 import com.cloudmall.im.model.entity.ChatMessageDO;
@@ -105,7 +106,7 @@ public class ChatWebSocketHandler extends TextWebSocketHandler {
                                                  .type(messageReq.getType())
                                                  .isRead(ReadStatusEnum.UNREAD.getValue())
                                                  .build();
-        chatMessageService.save(chatMessage);
+        chatMessageService.saveWithFileEvent(chatMessage, resolveFileUrl(messageReq));
         if (chatSession.isHiddenBy(receiverId)) {
             // 收到新消息时恢复接收方已删除的会话
             chatSessionService.updateHidden(chatSession, receiverId, false);
@@ -192,6 +193,30 @@ public class ChatWebSocketHandler extends TextWebSocketHandler {
             webSocketSessionManager.removeSession(userId, session);
             log.info("用户 {} 已断开 WebSocket，状态码: {}", userId, status.getCode());
         }
+    }
+
+    /**
+     * 解析媒体消息对应的文件地址。 <p>
+     * 文件绑定事件与消息在同一事务内写入 Outbox，由 shared-service 最终绑定文件。
+     *
+     * @param messageReq 消息请求
+     * @return 媒体文件地址，非媒体消息返回 null
+     */
+    private static String resolveFileUrl(MessageReq messageReq) {
+        if (!isMediaMessage(messageReq.getType())) {
+            return null;
+        }
+        return messageReq.getContent();
+    }
+
+    /**
+     * 判断消息是否为媒体消息。
+     *
+     * @param type 消息类型
+     * @return true 表示图片或视频
+     */
+    private static boolean isMediaMessage(MessageTypeEnum type) {
+        return MessageTypeEnum.IMAGE == type || MessageTypeEnum.VIDEO == type;
     }
 
     /**

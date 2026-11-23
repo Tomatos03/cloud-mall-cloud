@@ -3,6 +3,7 @@ package com.cloudmall.user.service.impl;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Stream;
 
 import cn.hutool.core.util.StrUtil;
 import lombok.RequiredArgsConstructor;
@@ -12,6 +13,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.cloudmall.common.enums.BizErrorEnum;
 import com.cloudmall.common.utils.Asserts;
+import com.cloudmall.outbox.annotation.OutboxEvent;
+import com.cloudmall.outbox.collector.OutboxEvents;
+import com.cloudmall.shared.api.constant.FileEventConstants;
 import com.cloudmall.user.api.enums.StoreApplicationStatusEnum;
 import com.cloudmall.user.api.model.req.StoreRegisterReq;
 import com.cloudmall.user.api.model.resp.StoreApplicationResp;
@@ -46,7 +50,6 @@ public class StoreOnboardingService implements IStoreOnboardingService {
      */
     @Override
     public StoreApplicationResp getStatus(Long userId) {
-        Asserts.notNull(userId, BizErrorEnum.USER_NOT_AUTHENTICATED);
         Optional<Long> shopId = shopService.findShopIdByUserId(userId);
         StoreApplicationDO application = applicationMapper.selectByUserId(userId);
         if (shopId.isPresent()) {
@@ -73,9 +76,9 @@ public class StoreOnboardingService implements IStoreOnboardingService {
      * @return 提交后的申请状态
      */
     @Override
+    @OutboxEvent(required = false)
     @Transactional(rollbackFor = Exception.class)
     public StoreApplicationResp submit(Long userId, StoreRegisterReq req) {
-        Asserts.notNull(userId, BizErrorEnum.USER_NOT_AUTHENTICATED);
         Asserts.isFalse(
                 shopService.findShopIdByUserId(userId).isPresent(),
                 BizErrorEnum.STORE_APPLICATION_ALREADY_MERCHANT
@@ -96,7 +99,52 @@ public class StoreOnboardingService implements IStoreOnboardingService {
             applicationMapper.updateById(application);
             applicationMapper.clearAuditInfo(application.getId());
         }
+        bindPhotos(userId, req, existing);
         return applicationConverter.toResp(application);
+    }
+
+    /**
+     * 绑定本次提交的证件照片，并释放被替换的旧照片。
+     *
+     * @param userId 用户 ID
+     * @param req 入驻资料
+     * @param existing 原申请（首次提交时为 null）
+     */
+    private void bindPhotos(Long userId, StoreRegisterReq req, StoreApplicationDO existing) {
+        List<String> photos = collectPhotos(req);
+        OutboxEvents.collectAll(FileEventConstants.BIND, String.valueOf(userId), photos);
+        if (existing == null) {
+            return;
+        }
+        List<String> released = collectPhotos(existing).stream()
+                                                       .filter(url -> !photos.contains(url))
+                                                       .toList();
+        OutboxEvents.collectAll(FileEventConstants.RELEASE, String.valueOf(userId), released);
+    }
+
+    /**
+     * 收集入驻资料中的照片地址。
+     *
+     * @param req 入驻资料
+     * @return 非空照片地址列表
+     */
+    private static List<String> collectPhotos(StoreRegisterReq req) {
+        return Stream.of(req.getIdCardFront(), req.getIdCardBack(), req.getLicensePhoto())
+                     .filter(StrUtil::isNotBlank)
+                     .toList();
+    }
+
+    /**
+     * 收集已有申请中的照片地址。
+     *
+     * @param application 入驻申请
+     * @return 非空照片地址列表
+     */
+    private static List<String> collectPhotos(StoreApplicationDO application) {
+        return Stream
+                .of(application.getIdCardFront(), application.getIdCardBack(), application.getLicensePhoto())
+                .filter(StrUtil::isNotBlank)
+                .toList();
     }
 
     /**
