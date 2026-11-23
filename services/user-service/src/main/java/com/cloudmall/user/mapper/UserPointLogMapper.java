@@ -6,7 +6,7 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import org.apache.ibatis.annotations.Mapper;
 
-import com.cloudmall.mybatisplus.enums.LimitEnum;
+import com.cloudmall.mybatisplus.query.SqlLimit;
 import com.cloudmall.user.model.entity.UserPointLogDO;
 
 /**
@@ -44,7 +44,7 @@ public interface UserPointLogMapper extends BaseMapper<UserPointLogDO> {
                 Wrappers.<UserPointLogDO>lambdaQuery()
                         .eq(UserPointLogDO::getUserId, userId)
                         .orderByDesc(UserPointLogDO::getCreateTime)
-                        .last(LimitEnum.of(Math.max(1, Math.min(limit, 100))))
+                        .last(SqlLimit.of(Math.max(1, Math.min(limit, 100))))
         );
     }
 }

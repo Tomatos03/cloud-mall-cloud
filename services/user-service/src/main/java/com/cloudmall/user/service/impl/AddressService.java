@@ -6,6 +6,7 @@ import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.BooleanUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.cloudmall.common.enums.BizErrorEnum;
 import com.cloudmall.common.exception.BizException;
@@ -17,7 +18,6 @@ import com.cloudmall.user.convert.AddressConverter;
 import com.cloudmall.user.mapper.AddressMapper;
 import com.cloudmall.user.model.entity.AddressDO;
 import com.cloudmall.user.service.IAddressService;
-import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor

@@ -26,7 +26,7 @@
 
 ```
 cloud-mall-cloud/
-├── common/                   # 共享工具与跨服务对象
+├── common/                   # 共享工具、通用枚举与跨服务对象
 ├── gateway/                  # API 网关（Spring Cloud Gateway）
 ├── service-api/              # Feign 接口 + DTO 聚合（父 POM）
 │   ├── user-api
@@ -49,7 +49,7 @@ cloud-mall-cloud/
 │   └── mock-payment-service  # 模拟微信支付渠道（下单/查询/回调/收银台）
 ├── starters/                 # 自研 Spring Boot Starter
 │   ├── cloudmall-common      # Result/BizException/BizErrorEnum/UserContextFilter
-│   ├── cloudmall-mybatis-plus# MyMetaObjectHandler/PageReq/LimitEnum/StatusEnum
+│   ├── cloudmall-mybatis-plus# MyMetaObjectHandler/PageReq/SqlLimit
 │   ├── cloudmall-jwt         # JWT 认证
 │   ├── cloudmall-rocketmq    # MQProducer/TxMessageHeader
 │   ├── cloudmall-outbox      # 本地消息 Outbox

@@ -8,10 +8,10 @@
 
 ## 模块结构
 
-- 顶层：`common/`（共享工具与跨服务对象）、`gateway/`、`service-api/`（Feign 接口 + DTO 聚合，父 POM）、`services/`（业务服务，父 POM）、`starters/`（自研 Starter，父 POM）、`docs/`（设计/compose/Nacos 配置/SQL）。
+- 顶层：`common/`（共享工具、通用枚举与跨服务对象）、`gateway/`、`service-api/`（Feign 接口 + DTO 聚合，父 POM）、`services/`（业务服务，父 POM）、`starters/`（自研 Starter，父 POM）、`docs/`（设计/compose/Nacos 配置/SQL）。
 - 业务服务（`services/`）：`user-service`（UserApplication，认证/RBAC + 用户资料 + 商家入驻）、`shared-service`（SharedServiceApplication，文件上传/访问 + 文件台账回收）、`product-service`（ProductApplication）、`order-service`（OrderApplication）、`coupon-service`（CouponApplication）、`seckill-service`（SeckillApplication）、`im-service`（IMApplication）、`aigc-service`（agent-service，AIGCApplication）、`mock-payment-service`（MockPaymentApplication，微信支付 API v3 模拟渠道）。
 - 服务接口（`service-api/`）：`shared-api`、`user-api`、`product-api`、`order-api`、`coupon-api`、`seckill-api`、`search-api`、`payment-api`。
-- 自研 Starter（`starters/`）：`cloudmall-common`（Result/BizException/BizErrorEnum/UserContextFilter）、`cloudmall-mybatis-plus`（MyMetaObjectHandler、PageReq/ConditionReq、LimitEnum、StatusEnum）、`cloudmall-jwt`、`cloudmall-rocketmq`（MQProducer/TxMessageHeader）、`cloudmall-outbox`（本地消息 Outbox）、`cloudmall-feign`（用户上下文透传 + Result 自动拆箱）、`cloudmall-elasticsearch`、`cloudmall-xxl-job`。
+- 自研 Starter（`starters/`）：`cloudmall-common`（Result/BizException/BizErrorEnum/UserContextFilter）、`cloudmall-mybatis-plus`（MyMetaObjectHandler、PageReq/ConditionReq、SqlLimit）、`cloudmall-jwt`、`cloudmall-rocketmq`（MQProducer/TxMessageHeader）、`cloudmall-outbox`（本地消息 Outbox）、`cloudmall-feign`（用户上下文透传 + Result 自动拆箱）、`cloudmall-elasticsearch`、`cloudmall-xxl-job`。
 - 业务服务分层：`controller`、`service`/`impl`、`mapper`、`model/entity`、`model/req`、`model/resp`、`model/bo`、`convert`（MapStruct）、`enums`、`application`、`job`。
 - 服务端口统一在 Nacos 配置中心管理（导入 `common` + `{app-name}` 配置）。
 
@@ -180,7 +180,7 @@ mvn test                                                  # 测试
 - 使用 `Wrappers.lambdaQuery()` / `lambdaUpdate()`，禁止 `new LambdaQueryWrapper<>()`；更新用单参数 `update(Wrappers.lambdaUpdate()...)`。
 - 对 `status` / `enable` 等字段构造条件必须用业务枚举（`*Enum`），禁止魔数或布尔值。
 - 分页请求继承 `PageReq<T>` + `@QueryCondition`，Service 只传 req，条件由 `req.buildLambdaWrapper()` 构建，Service 层不接触 `Wrapper`。
-- `LIMIT` 一律用 `LimitEnum`（`LimitEnum.of(n)` 或常量），禁止手写 `.last("LIMIT ...")`。
+- `LIMIT` 一律用 `SqlLimit.of(n)`，禁止手写 `.last("LIMIT ...")`。
 - 含变量拼接的 `inSql` / `setSql` 先抽为紧邻使用处的 `final` 局部变量；动态值优先 `set(实体::getXxx, value)`。
 - Mapper 禁止注解脚本 SQL（`@Select` / `@Insert` / `@Update` / `@Delete` 及 Provider 系列），一律 `default` 方法 + Wrapper。
 

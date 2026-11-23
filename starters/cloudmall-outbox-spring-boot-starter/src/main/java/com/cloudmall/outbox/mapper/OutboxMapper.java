@@ -9,7 +9,7 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import org.apache.ibatis.annotations.Mapper;
 
-import com.cloudmall.mybatisplus.enums.LimitEnum;
+import com.cloudmall.mybatisplus.query.SqlLimit;
 import com.cloudmall.outbox.enums.OutboxStatusEnum;
 import com.cloudmall.outbox.model.entity.OutboxDO;
 
@@ -41,7 +41,7 @@ public interface OutboxMapper extends BaseMapper<OutboxDO> {
                         )
                         .in(CollUtil.isNotEmpty(eventTypes), OutboxDO::getEventType, eventTypes)
                         .orderByAsc(OutboxDO::getId)
-                        .last(LimitEnum.of(limit))
+                        .last(SqlLimit.of(limit))
         );
     }
 

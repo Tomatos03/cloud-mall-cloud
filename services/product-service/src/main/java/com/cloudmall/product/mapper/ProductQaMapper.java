@@ -6,8 +6,8 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import org.apache.ibatis.annotations.Mapper;
 
-import com.cloudmall.mybatisplus.enums.LimitEnum;
-import com.cloudmall.mybatisplus.enums.StatusEnum;
+import com.cloudmall.common.enums.StatusEnum;
+import com.cloudmall.mybatisplus.query.SqlLimit;
 import com.cloudmall.product.model.entity.ProductQaDO;
 
 /**
@@ -32,7 +32,7 @@ public interface ProductQaMapper extends BaseMapper<ProductQaDO> {
                         .eq(ProductQaDO::getStatus, StatusEnum.ENABLED)
                         .orderByDesc(ProductQaDO::getHelpfulCount)
                         .orderByDesc(ProductQaDO::getCreateTime)
-                        .last(LimitEnum.of(limit))
+                        .last(SqlLimit.of(limit))
         );
     }
 }

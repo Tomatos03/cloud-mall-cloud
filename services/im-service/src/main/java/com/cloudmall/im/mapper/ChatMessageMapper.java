@@ -16,7 +16,7 @@ import com.cloudmall.common.model.CursorResult;
 import com.cloudmall.im.enums.ReadStatusEnum;
 import com.cloudmall.im.model.entity.ChatMessageDO;
 import com.cloudmall.im.model.req.MessageCursorReq;
-import com.cloudmall.mybatisplus.enums.LimitEnum;
+import com.cloudmall.mybatisplus.query.SqlLimit;
 
 /**
  * 聊天消息 Mapper
@@ -43,7 +43,7 @@ public interface ChatMessageMapper extends BaseMapper<ChatMessageDO> {
             wrapper.lt(ChatMessageDO::getId, req.getCursor());
         }
         wrapper.orderByDesc(ChatMessageDO::getId);
-        wrapper.last(LimitEnum.of(size + 1));
+        wrapper.last(SqlLimit.of(size + 1));
 
         List<ChatMessageDO> records = selectList(wrapper);
         boolean hasMore = records.size() > size;

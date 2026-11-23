@@ -12,9 +12,9 @@ import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import org.apache.ibatis.annotations.Mapper;
 
+import com.cloudmall.common.enums.StatusEnum;
 import com.cloudmall.common.model.CursorReq;
-import com.cloudmall.mybatisplus.enums.LimitEnum;
-import com.cloudmall.mybatisplus.enums.StatusEnum;
+import com.cloudmall.mybatisplus.query.SqlLimit;
 import com.cloudmall.product.model.entity.ProductDO;
 import com.cloudmall.product.model.req.ProductGetReq;
 
@@ -72,7 +72,7 @@ public interface ProductMapper extends BaseMapper<ProductDO> {
                         .in(ProductDO::getCategoryId, categoryIds)
                         .eq(ProductDO::getStatus, StatusEnum.ENABLED)
                         .orderByDesc(ProductDO::getCreateTime)
-                        .last(LimitEnum.of(limit))
+                        .last(SqlLimit.of(limit))
         );
     }
 

@@ -8,7 +8,7 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import org.apache.ibatis.annotations.Mapper;
 
-import com.cloudmall.mybatisplus.enums.LimitEnum;
+import com.cloudmall.mybatisplus.query.SqlLimit;
 import com.cloudmall.shared.enums.FileStatusEnum;
 import com.cloudmall.shared.model.entity.FileDO;
 
@@ -32,7 +32,7 @@ public interface FileMapper extends BaseMapper<FileDO> {
                 Wrappers.<FileDO>lambdaQuery()
                         .eq(FileDO::getStatus, FileStatusEnum.PENDING)
                         .lt(FileDO::getCreateTime, before)
-                        .last(LimitEnum.of(limit))
+                        .last(SqlLimit.of(limit))
         );
     }
 
@@ -48,7 +48,7 @@ public interface FileMapper extends BaseMapper<FileDO> {
                 Wrappers.<FileDO>lambdaQuery()
                         .eq(FileDO::getStatus, FileStatusEnum.ORPHAN)
                         .lt(FileDO::getUpdateTime, before)
-                        .last(LimitEnum.of(limit))
+                        .last(SqlLimit.of(limit))
         );
     }
 

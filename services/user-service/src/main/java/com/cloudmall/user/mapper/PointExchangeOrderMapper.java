@@ -4,7 +4,7 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import org.apache.ibatis.annotations.Mapper;
 
-import com.cloudmall.mybatisplus.enums.LimitEnum;
+import com.cloudmall.mybatisplus.query.SqlLimit;
 import com.cloudmall.user.model.entity.PointExchangeOrderDO;
 
 /**
@@ -43,7 +43,7 @@ public interface PointExchangeOrderMapper extends BaseMapper<PointExchangeOrderD
                         .eq(PointExchangeOrderDO::getUserId, userId)
                         .eq(PointExchangeOrderDO::getItemId, itemId)
                         .eq(PointExchangeOrderDO::getStatus, "SUCCESS")
-                        .last(LimitEnum.ONE.getSql())
+                        .last(SqlLimit.of(1))
         );
     }
 }

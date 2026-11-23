@@ -8,7 +8,7 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import org.apache.ibatis.annotations.Mapper;
 
-import com.cloudmall.mybatisplus.enums.LimitEnum;
+import com.cloudmall.mybatisplus.query.SqlLimit;
 import com.cloudmall.product.model.entity.ProductImageDO;
 
 /**
@@ -46,7 +46,7 @@ public interface ProductImageMapper extends BaseMapper<ProductImageDO> {
                         .eq(ProductImageDO::getProductId, productId)
                         .eq(ProductImageDO::getIsMain, true)
                         .orderByAsc(ProductImageDO::getSort)
-                        .last(LimitEnum.ONE.getSql())
+                        .last(SqlLimit.of(1))
         );
     }
 

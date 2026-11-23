@@ -26,6 +26,12 @@
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-annotations</artifactId>
         </dependency>
+        <!-- 通用枚举 StatusEnum 的持久化映射注解（仅注解，不含运行时实现） -->
+        <dependency>
+            <groupId>com.baomidou</groupId>
+            <artifactId>mybatis-plus-annotation</artifactId>
+            <version>${mybatis-plus-version}</version>
+        </dependency>
         <!-- mybatis-plus-extension 已移除：PageReq 已迁至 cloudmall-mybatis-plus-spring-boot-starter -->
     </dependencies>
 </project>

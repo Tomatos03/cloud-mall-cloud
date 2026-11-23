@@ -27,11 +27,11 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.cloudmall.common.enums.BizErrorEnum;
+import com.cloudmall.common.enums.StatusEnum;
 import com.cloudmall.common.exception.BizException;
 import com.cloudmall.common.model.CursorReq;
 import com.cloudmall.common.model.CursorResult;
 import com.cloudmall.common.utils.Asserts;
-import com.cloudmall.mybatisplus.enums.StatusEnum;
 import com.cloudmall.product.api.enums.ProductTagEnum;
 import com.cloudmall.product.api.model.bo.ImageItem;
 import com.cloudmall.product.api.model.bo.ProductEvent;

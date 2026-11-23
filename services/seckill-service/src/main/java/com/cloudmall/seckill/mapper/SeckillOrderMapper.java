@@ -7,7 +7,7 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import org.apache.ibatis.annotations.Mapper;
 
-import com.cloudmall.mybatisplus.enums.LimitEnum;
+import com.cloudmall.mybatisplus.query.SqlLimit;
 import com.cloudmall.seckill.enums.SeckillOrderStatusEnum;
 import com.cloudmall.seckill.model.entity.SeckillOrderDO;
 
@@ -71,7 +71,7 @@ public interface SeckillOrderMapper extends BaseMapper<SeckillOrderDO> {
                 Wrappers.<SeckillOrderDO>lambdaQuery()
                         .eq(SeckillOrderDO::getStatus, SeckillOrderStatusEnum.PENDING_PAYMENT)
                         .lt(SeckillOrderDO::getCreateTime, timeoutThreshold)
-                        .last(LimitEnum.of(limit))
+                        .last(SqlLimit.of(limit))
         );
     }
 

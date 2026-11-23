@@ -8,7 +8,7 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import org.apache.ibatis.annotations.Mapper;
 
-import com.cloudmall.mybatisplus.enums.LimitEnum;
+import com.cloudmall.mybatisplus.query.SqlLimit;
 import com.cloudmall.seckill.enums.SeckillActivityStatusEnum;
 import com.cloudmall.seckill.model.entity.SeckillActivityDO;
 import com.cloudmall.seckill.model.req.SeckillActivityPageReq;
@@ -178,7 +178,7 @@ public interface SeckillActivityMapper extends BaseMapper<SeckillActivityDO> {
                         .le(SeckillActivityDO::getStartTime, now)
                         .gt(SeckillActivityDO::getEndTime, now)
                         .orderByDesc(SeckillActivityDO::getStartTime)
-                        .last(LimitEnum.ONE.getSql())
+                        .last(SqlLimit.of(1))
         );
     }
 

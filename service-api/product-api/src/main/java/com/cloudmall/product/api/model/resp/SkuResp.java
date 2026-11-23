@@ -7,7 +7,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import com.cloudmall.mybatisplus.enums.StatusEnum;
+import com.cloudmall.common.enums.StatusEnum;
 
 /**
  * SKU 响应对象

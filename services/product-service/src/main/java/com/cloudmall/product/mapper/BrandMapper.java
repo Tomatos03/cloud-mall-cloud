@@ -8,7 +8,7 @@ import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import org.apache.ibatis.annotations.Mapper;
 
-import com.cloudmall.mybatisplus.enums.StatusEnum;
+import com.cloudmall.common.enums.StatusEnum;
 import com.cloudmall.product.model.entity.BrandDO;
 import com.cloudmall.product.model.req.BrandPageReq;
 
