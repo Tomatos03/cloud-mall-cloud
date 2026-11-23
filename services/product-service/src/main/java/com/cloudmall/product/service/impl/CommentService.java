@@ -49,10 +49,7 @@ public class CommentService implements ICommentService {
      */
     @Override
     public void create(CommentCreateReq req) {
-        Long userId = Asserts.requireNonNull(
-                UserContextHolder.getUserId(),
-                BizErrorEnum.USER_NOT_AUTHENTICATED
-        );
+        Long userId = UserContextHolder.getUserId();
         ProductResp product = productService.get(ProductGetReq.builder()
                                                               .id(req.getProductId())
                                                               .build());

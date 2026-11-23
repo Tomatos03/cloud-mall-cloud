@@ -41,7 +41,6 @@ public class BrowseHistoryService {
      * @return 浏览记录
      */
     public List<BrowseHistoryResp> list(Long userId) {
-        Asserts.notNull(userId, BizErrorEnum.USER_NOT_AUTHENTICATED);
         return userProfileConverter.toBrowseHistoryRespList(browseHistoryMapper.listByUserId(userId));
     }
 
@@ -54,7 +53,6 @@ public class BrowseHistoryService {
      */
     @Transactional(rollbackFor = Exception.class)
     public BrowseHistoryResp record(Long userId, Long productId) {
-        Asserts.notNull(userId, BizErrorEnum.USER_NOT_AUTHENTICATED);
         Asserts.notNull(productId, BizErrorEnum.PRODUCT_ID_INVALID);
         ProductDetailResp product = productClient.detail(productId);
         Asserts.requireNonNull(product, BizErrorEnum.PRODUCT_NOT_EXIST);
@@ -85,7 +83,6 @@ public class BrowseHistoryService {
      * @param productId 商品 ID
      */
     public void remove(Long userId, Long productId) {
-        Asserts.notNull(userId, BizErrorEnum.USER_NOT_AUTHENTICATED);
         browseHistoryMapper.deleteByUserAndProduct(userId, productId);
     }
 
@@ -95,7 +92,6 @@ public class BrowseHistoryService {
      * @param userId 用户 ID
      */
     public void clear(Long userId) {
-        Asserts.notNull(userId, BizErrorEnum.USER_NOT_AUTHENTICATED);
         browseHistoryMapper.deleteByUserId(userId);
     }
 

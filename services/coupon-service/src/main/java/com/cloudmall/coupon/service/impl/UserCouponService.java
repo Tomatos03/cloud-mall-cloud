@@ -97,10 +97,9 @@ public class UserCouponService implements IUserCouponService {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public UserCouponResp claimPublic(Long couponId, Long userId) {
-        Asserts.notNull(userId, BizErrorEnum.USER_NOT_AUTHENTICATED);
         couponRateLimitService.checkClaimRate(userId);
         CouponDO template = couponTemplateService.getTemplate(couponId);
-        UserCouponDO exist = findClaimed(userId, couponId);
+        UserCouponDO exist = userCouponMapper.selectClaimed(userId, couponId);
         if (exist != null) {
             return userCouponConverter.toResp(exist);
         }
@@ -120,7 +119,7 @@ public class UserCouponService implements IUserCouponService {
         } catch (DuplicateKeyException e) {
             TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
             UserCouponDO claimed = Asserts.requireNonNull(
-                    findClaimed(userId, couponId),
+                    userCouponMapper.selectClaimed(userId, couponId),
                     BizErrorEnum.COUPON_CLAIM_FAILED
             );
             couponCacheService.evictPublicTemplates();
@@ -148,7 +147,7 @@ public class UserCouponService implements IUserCouponService {
         List<CouponDO> templates = couponMapper.selectRegisterAutoTemplates(now);
         List<UserCouponResp> result = new ArrayList<>();
         for (CouponDO template : templates) {
-            UserCouponDO exist = findClaimed(userId, template.getId());
+            UserCouponDO exist = userCouponMapper.selectClaimed(userId, template.getId());
             if (exist != null) {
                 continue;
             }
@@ -484,7 +483,7 @@ public class UserCouponService implements IUserCouponService {
     public CouponResp getPublicCoupon(Long couponId, Long userId) {
         CouponResp resp = couponTemplateService.getDetail(couponId);
         if (userId != null) {
-            resp.setClaimed(findClaimed(userId, couponId) != null);
+            resp.setClaimed(userCouponMapper.selectClaimed(userId, couponId) != null);
         }
         boolean claimed = BooleanUtil.isTrue(resp.getClaimed());
         resp.setClaimable(resp.isClaimable(LocalDateTime.now(), claimed));
@@ -788,17 +787,6 @@ public class UserCouponService implements IUserCouponService {
                 )
         );
         return userCouponConverter.toResp(uc);
-    }
-
-    /**
-     * 查询用户已领取的指定模板用户券。
-     *
-     * @param userId 用户 ID
-     * @param couponId 模板 ID
-     * @return 用户券（未领取为 null）
-     */
-    private UserCouponDO findClaimed(Long userId, Long couponId) {
-        return userCouponMapper.selectClaimed(userId, couponId);
     }
 
     /**

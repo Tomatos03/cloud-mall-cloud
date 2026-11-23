@@ -15,6 +15,7 @@ import cn.hutool.core.util.ObjectUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+
 import com.cloudmall.common.enums.BizErrorEnum;
 import com.cloudmall.common.exception.BizException;
 import com.cloudmall.common.utils.Asserts;
@@ -51,7 +52,7 @@ public class CartService implements ICartService {
     /** 店铺信息缺失时的兜底分组 ID */
     private static final Long UNKNOWN_SHOP_ID = -1L;
 
-    private static final Predicate<CartItem> ALL_ITEMS = item  -> true;
+    private static final Predicate<CartItem> ALL_ITEMS = item -> true;
 
     private final CartMapper cartMapper;
     private final CartConverter cartConverter;
@@ -72,7 +73,7 @@ public class CartService implements ICartService {
                 BizErrorEnum.CART_PRODUCT_NOT_EXIST
         );
 
-        CartDO existing = findCartItem(userId, req.getSkuId());
+        CartDO existing = cartMapper.selectByUserIdAndSkuId(userId, req.getSkuId());
         if (existing != null) {
             return mergeToExisting(existing, sku.getPrice(), req.getQuantity());
         }
@@ -172,17 +173,6 @@ public class CartService implements ICartService {
     @Override
     public void clear(Long userId) {
         cartMapper.deleteByUserId(userId);
-    }
-
-    /**
-     * 查询购物车中指定 SKU 的记录。
-     *
-     * @param userId 用户 ID
-     * @param skuId SKU ID
-     * @return 购物车记录，不存在时返回 null
-     */
-    private CartDO findCartItem(Long userId, Long skuId) {
-        return cartMapper.selectByUserIdAndSkuId(userId, skuId);
     }
 
     /**

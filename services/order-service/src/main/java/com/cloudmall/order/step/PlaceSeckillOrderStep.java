@@ -71,7 +71,10 @@ public class PlaceSeckillOrderStep implements ICheckoutStep {
             return;
         }
 
-        SeckillOrderResp seckillOrder = requireSeckillOrder(orderNo);
+        SeckillOrderResp seckillOrder = Asserts.requireNonNull(
+                internalSeckillClient.getByOrderNo(orderNo),
+                BizErrorEnum.INVALID_PARAM
+        );
         BigDecimal amount = calcAmount(seckillOrder);
         OrderDO order = buildOrder(seckillOrder, amount, JSONUtil.toJsonStr(ctx.getAddress()));
 
@@ -81,16 +84,6 @@ public class PlaceSeckillOrderStep implements ICheckoutStep {
         }
         insertSubAndItem(order, seckillOrder, ctx, amount);
         finish(ctx, order);
-    }
-
-    /**
-     * 查询秒杀单快照并校验存在。
-     *
-     * @param orderNo 订单号
-     * @return 秒杀单快照
-     */
-    private SeckillOrderResp requireSeckillOrder(String orderNo) {
-        return Asserts.requireNonNull(internalSeckillClient.getByOrderNo(orderNo), BizErrorEnum.INVALID_PARAM);
     }
 
     /**

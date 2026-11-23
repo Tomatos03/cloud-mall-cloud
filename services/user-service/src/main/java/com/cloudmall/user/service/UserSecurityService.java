@@ -66,7 +66,6 @@ public class UserSecurityService {
      */
     @Transactional(rollbackFor = Exception.class)
     public void setPayPassword(Long userId, SetPayPasswordReq req) {
-        Asserts.notNull(userId, BizErrorEnum.USER_NOT_AUTHENTICATED);
         UserSecurityDO security = getOrCreate(userId);
         String currentHash = security.getPayPasswordHash();
         if (StrUtil.isNotBlank(currentHash)) {
@@ -103,7 +102,6 @@ public class UserSecurityService {
      * @return true 表示校验通过
      */
     public boolean verifyPayPassword(Long userId, VerifyPayPasswordReq req) {
-        Asserts.notNull(userId, BizErrorEnum.USER_NOT_AUTHENTICATED);
         UserSecurityDO security = getOrCreate(userId);
         Asserts.notNull(security.getPayPasswordHash(), BizErrorEnum.PAY_PASSWORD_NOT_SET);
         checkPayPasswordRate(userId);
@@ -124,7 +122,6 @@ public class UserSecurityService {
      */
     @Transactional(rollbackFor = Exception.class)
     public RealNameResp submitRealName(Long userId, SubmitRealNameReq req) {
-        Asserts.notNull(userId, BizErrorEnum.USER_NOT_AUTHENTICATED);
         Asserts.requireNonNull(userMapper.selectById(userId), BizErrorEnum.USER_NOT_EXISTS);
         Asserts.isTrue(IdCardValidator.isValid(req.getIdCardNo()), BizErrorEnum.REAL_NAME_INVALID);
 
@@ -188,7 +185,6 @@ public class UserSecurityService {
      * @return 安全信息
      */
     private UserSecurityDO getOrCreate(Long userId) {
-        Asserts.notNull(userId, BizErrorEnum.USER_NOT_AUTHENTICATED);
         UserSecurityDO security = userSecurityMapper.selectById(userId);
         if (security != null) {
             return security;

@@ -70,7 +70,6 @@ public class SeckillOrderApp {
     )
     public PurchaseResp purchase(SeckillPurchaseReq req) {
         Long userId = UserContextHolder.getUserId();
-        Asserts.notNull(userId, BizErrorEnum.USER_NOT_AUTHENTICATED);
         Asserts.notNull(req.getAddressId(), BizErrorEnum.SECKILL_ADDRESS_REQUIRED);
 
         // 黑名单拦截 + 固定窗口限流

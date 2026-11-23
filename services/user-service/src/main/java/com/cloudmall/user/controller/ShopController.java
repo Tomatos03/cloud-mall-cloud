@@ -13,9 +13,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.cloudmall.common.context.UserContextHolder;
-import com.cloudmall.common.enums.BizErrorEnum;
 import com.cloudmall.common.model.Result;
-import com.cloudmall.common.utils.Asserts;
 import com.cloudmall.user.api.model.resp.ShopInfoResp;
 import com.cloudmall.user.api.model.resp.ShopResp;
 import com.cloudmall.user.model.req.ShopReq;
@@ -99,10 +97,7 @@ public class ShopController {
      */
     @GetMapping("/{id}/follow/status")
     public Result<Boolean> getFollowStatus(@PathVariable Long id) {
-        Long userId = Asserts.requireNonNull(
-                UserContextHolder.getUserId(),
-                BizErrorEnum.USER_NOT_AUTHENTICATED
-        );
+        Long userId = UserContextHolder.getUserId();
         return Result.success(shopService.isFollowed(userId, id));
     }
 
@@ -114,10 +109,7 @@ public class ShopController {
      */
     @PostMapping("/{id}/follow")
     public Result<Void> follow(@PathVariable Long id) {
-        Long userId = Asserts.requireNonNull(
-                UserContextHolder.getUserId(),
-                BizErrorEnum.USER_NOT_AUTHENTICATED
-        );
+        Long userId = UserContextHolder.getUserId();
         shopService.follow(userId, id);
         return Result.success();
     }
@@ -130,10 +122,7 @@ public class ShopController {
      */
     @DeleteMapping("/{id}/follow")
     public Result<Void> unfollow(@PathVariable Long id) {
-        Long userId = Asserts.requireNonNull(
-                UserContextHolder.getUserId(),
-                BizErrorEnum.USER_NOT_AUTHENTICATED
-        );
+        Long userId = UserContextHolder.getUserId();
         shopService.unfollow(userId, id);
         return Result.success();
     }

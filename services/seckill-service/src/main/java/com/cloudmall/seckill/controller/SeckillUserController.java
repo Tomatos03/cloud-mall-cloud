@@ -12,9 +12,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.cloudmall.common.context.UserContextHolder;
-import com.cloudmall.common.enums.BizErrorEnum;
 import com.cloudmall.common.model.Result;
-import com.cloudmall.common.utils.Asserts;
 import com.cloudmall.seckill.api.model.req.SeckillPurchaseReq;
 import com.cloudmall.seckill.api.model.resp.ActivityDetailResp;
 import com.cloudmall.seckill.api.model.resp.ActivityResp;
@@ -129,7 +127,6 @@ public class SeckillUserController {
     @GetMapping("/orders")
     public Result<List<SeckillOrderResp>> listMyOrders() {
         Long userId = UserContextHolder.getUserId();
-        Asserts.notNull(userId, BizErrorEnum.USER_NOT_AUTHENTICATED);
         return Result.success(orderService.listByUserId(userId));
     }
 }

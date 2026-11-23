@@ -70,7 +70,6 @@ public class SeckillPlainOrderApp {
      */
     public PurchaseResp purchase(SeckillPurchaseReq req) {
         Long userId = UserContextHolder.getUserId();
-        Asserts.notNull(userId, BizErrorEnum.USER_NOT_AUTHENTICATED);
         Asserts.notNull(req.getAddressId(), BizErrorEnum.SECKILL_ADDRESS_REQUIRED);
 
         SeckillActivityDO activity = activityService.getById(req.getActivityId());
@@ -129,8 +128,17 @@ public class SeckillPlainOrderApp {
         Long userId,
         String orderNo
     ) {
-        SkuResp sku = requireSku(req.getSkuId());
-        AddressResp address = requireAddress(req.getAddressId(), userId);
+        SkuResp sku = Asserts.requireNonNull(
+                skuClient.listSkusByIds(List.of(req.getSkuId()))
+                         .stream()
+                         .findFirst()
+                         .orElse(null),
+                BizErrorEnum.SECKILL_PRODUCT_NOT_FOUND
+        );
+        AddressResp address = Asserts.requireNonNull(
+                internalUserClient.getAddressById(req.getAddressId(), userId),
+                BizErrorEnum.ORDER_CREATE_ADDRESS_NOT_EXIST
+        );
         return PlainSeckillOrderReq.builder()
                                    .orderNo(orderNo)
                                    .userId(userId)
@@ -145,35 +153,5 @@ public class SeckillPlainOrderApp {
                                    .quantity(FIXED_QUANTITY)
                                    .addressSnapshot(JSONUtil.toJsonStr(address))
                                    .build();
-    }
-
-    /**
-     * 查询 SKU 可信快照（不存在时抛商品不存在）。
-     *
-     * @param skuId SKU ID
-     * @return SKU 快照
-     */
-    private SkuResp requireSku(Long skuId) {
-        return Asserts.requireNonNull(
-                skuClient.listSkusByIds(List.of(skuId))
-                         .stream()
-                         .findFirst()
-                         .orElse(null),
-                BizErrorEnum.SECKILL_PRODUCT_NOT_FOUND
-        );
-    }
-
-    /**
-     * 查询收货地址（不存在或不属于该用户时抛下单地址不存在）。
-     *
-     * @param addressId 地址 ID
-     * @param userId 用户 ID
-     * @return 地址快照
-     */
-    private AddressResp requireAddress(Long addressId, Long userId) {
-        return Asserts.requireNonNull(
-                internalUserClient.getAddressById(addressId, userId),
-                BizErrorEnum.ORDER_CREATE_ADDRESS_NOT_EXIST
-        );
     }
 }

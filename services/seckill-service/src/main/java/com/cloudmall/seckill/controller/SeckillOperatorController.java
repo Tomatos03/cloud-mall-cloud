@@ -12,9 +12,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.cloudmall.common.context.UserContextHolder;
-import com.cloudmall.common.enums.BizErrorEnum;
 import com.cloudmall.common.model.Result;
-import com.cloudmall.common.utils.Asserts;
 import com.cloudmall.seckill.api.model.req.ActivityCreateReq;
 import com.cloudmall.seckill.api.model.req.ActivityProductAuditReq;
 import com.cloudmall.seckill.api.model.req.ActivityUpdateReq;
@@ -48,10 +46,7 @@ public class SeckillOperatorController {
      */
     @PostMapping("/activities")
     public Result<Long> createActivity(@Valid @RequestBody ActivityCreateReq req) {
-        Long createUserId = Asserts.requireNonNull(
-                UserContextHolder.getUserId(),
-                BizErrorEnum.USER_NOT_AUTHENTICATED
-        );
+        Long createUserId = UserContextHolder.getUserId();
         return Result.success(activityService.createDraft(createUserId, req));
     }
 
@@ -76,10 +71,7 @@ public class SeckillOperatorController {
      */
     @PostMapping("/activities/{id}/publish")
     public Result<Void> publishActivity(@PathVariable Long id) {
-        Long publishUserId = Asserts.requireNonNull(
-                UserContextHolder.getUserId(),
-                BizErrorEnum.USER_NOT_AUTHENTICATED
-        );
+        Long publishUserId = UserContextHolder.getUserId();
         activityService.publish(id, publishUserId);
         return Result.success(null);
     }
@@ -135,10 +127,7 @@ public class SeckillOperatorController {
         @RequestBody
         ActivityProductAuditReq req
     ) {
-        Long auditorId = Asserts.requireNonNull(
-                UserContextHolder.getUserId(),
-                BizErrorEnum.USER_NOT_AUTHENTICATED
-        );
+        Long auditorId = UserContextHolder.getUserId();
         productService.audit(productId, req.isApproved(), req.getAuditRemark(), auditorId);
         return Result.success(null);
     }

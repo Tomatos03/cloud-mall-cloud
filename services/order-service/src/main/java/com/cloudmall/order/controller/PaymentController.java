@@ -18,7 +18,6 @@ import com.cloudmall.common.context.UserContextHolder;
 import com.cloudmall.common.enums.BizErrorEnum;
 import com.cloudmall.common.exception.BizException;
 import com.cloudmall.common.model.Result;
-import com.cloudmall.common.utils.Asserts;
 import com.cloudmall.order.application.PaymentApp;
 import com.cloudmall.order.model.resp.PaymentCreateResp;
 import com.cloudmall.order.model.resp.PaymentStatusResp;
@@ -48,8 +47,7 @@ public class PaymentController {
      */
     @PostMapping("/{orderNo}")
     public Result<PaymentCreateResp> create(@PathVariable("orderNo") String orderNo) {
-        Long userId = currentUserId();
-        return Result.success(paymentApp.create(orderNo, userId));
+        return Result.success(paymentApp.create(orderNo, UserContextHolder.getUserId()));
     }
 
     /**
@@ -60,8 +58,7 @@ public class PaymentController {
      */
     @GetMapping("/{orderNo}")
     public Result<PaymentStatusResp> query(@PathVariable("orderNo") String orderNo) {
-        Long userId = currentUserId();
-        return Result.success(paymentApp.query(orderNo, userId));
+        return Result.success(paymentApp.query(orderNo, UserContextHolder.getUserId()));
     }
 
     /**
@@ -72,8 +69,7 @@ public class PaymentController {
      */
     @GetMapping("/status")
     public Result<Boolean> status(@RequestParam("orderNo") String orderNo) {
-        Long userId = currentUserId();
-        return Result.success(paymentApp.isPaid(orderNo, userId));
+        return Result.success(paymentApp.isPaid(orderNo, UserContextHolder.getUserId()));
     }
 
     /**
@@ -98,14 +94,5 @@ public class PaymentController {
                     : HttpStatus.INTERNAL_SERVER_ERROR;
             return ResponseEntity.status(status).body(WechatNotifyResp.fail(e.getMessage()));
         }
-    }
-
-    /**
-     * 获取当前登录用户 ID。
-     *
-     * @return 用户 ID
-     */
-    private static Long currentUserId() {
-        return Asserts.requireNonNull(UserContextHolder.getUserId(), BizErrorEnum.USER_NOT_AUTHENTICATED);
     }
 }

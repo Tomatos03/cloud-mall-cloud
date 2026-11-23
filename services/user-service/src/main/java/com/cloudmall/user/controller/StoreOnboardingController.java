@@ -38,7 +38,7 @@ public class StoreOnboardingController {
      */
     @GetMapping
     public Result<StoreApplicationResp> status() {
-        return Result.success(storeOnboardingService.getStatus(currentUserId()));
+        return Result.success(storeOnboardingService.getStatus(UserContextHolder.getUserId()));
     }
 
     /**
@@ -49,7 +49,7 @@ public class StoreOnboardingController {
      */
     @PostMapping
     public Result<StoreApplicationResp> submit(@RequestBody @Valid StoreRegisterReq req) {
-        return Result.success(storeOnboardingService.submit(currentUserId(), req));
+        return Result.success(storeOnboardingService.submit(UserContextHolder.getUserId(), req));
     }
 
     /**
@@ -66,17 +66,8 @@ public class StoreOnboardingController {
                         req.getApplicationId(),
                         Boolean.TRUE.equals(req.getApproved()),
                         req.getRemark(),
-                        currentUserId()
+                        UserContextHolder.getUserId()
                 )
         );
-    }
-
-    /**
-     * 获取当前登录用户 ID。
-     *
-     * @return 用户 ID
-     */
-    private static Long currentUserId() {
-        return Asserts.requireNonNull(UserContextHolder.getUserId(), BizErrorEnum.USER_NOT_AUTHENTICATED);
     }
 }

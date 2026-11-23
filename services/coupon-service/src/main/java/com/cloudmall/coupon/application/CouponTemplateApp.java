@@ -12,7 +12,6 @@ import com.cloudmall.coupon.api.model.req.CouponReq;
 import com.cloudmall.coupon.service.ICouponTemplateService;
 import com.cloudmall.product.api.client.CategoryClient;
 import com.cloudmall.product.api.client.ProductClient;
-import com.cloudmall.product.api.model.resp.CategoryResp;
 import com.cloudmall.product.api.model.resp.ProductResp;
 
 /**
@@ -87,7 +86,10 @@ public class CouponTemplateApp {
                                      .distinct()
                                      .toList();
             for (Long productId : distinct) {
-                ProductResp product = requireProduct(productId);
+                ProductResp product = Asserts.requireNonNull(
+                        productClient.getById(productId),
+                        BizErrorEnum.PRODUCT_NOT_EXIST
+                );
                 if (req.isShop()) {
                     Asserts.isTrue(shopId.equals(product.getShopId()), BizErrorEnum.COUPON_SCOPE_INVALID);
                 }
@@ -98,31 +100,11 @@ public class CouponTemplateApp {
                                      .distinct()
                                      .toList();
             for (Long categoryId : distinct) {
-                requireCategory(categoryId);
+                Asserts.requireNonNull(
+                        categoryClient.getById(categoryId),
+                        BizErrorEnum.CATEGORY_NOT_EXIST_OR_NO_ENABLE
+                );
             }
         }
-    }
-
-    /**
-     * 调用商品服务校验商品存在性。
-     *
-     * @param productId 商品 ID
-     * @return 商品信息
-     */
-    private ProductResp requireProduct(Long productId) {
-        return Asserts.requireNonNull(productClient.getById(productId), BizErrorEnum.PRODUCT_NOT_EXIST);
-    }
-
-    /**
-     * 调用商品服务校验分类存在性。
-     *
-     * @param categoryId 分类 ID
-     * @return 分类信息
-     */
-    private CategoryResp requireCategory(Long categoryId) {
-        return Asserts.requireNonNull(
-                categoryClient.getById(categoryId),
-                BizErrorEnum.CATEGORY_NOT_EXIST_OR_NO_ENABLE
-        );
     }
 }

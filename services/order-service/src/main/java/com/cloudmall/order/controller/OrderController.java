@@ -11,9 +11,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.cloudmall.common.context.UserContextHolder;
-import com.cloudmall.common.enums.BizErrorEnum;
 import com.cloudmall.common.model.Result;
-import com.cloudmall.common.utils.Asserts;
 import com.cloudmall.coupon.api.model.resp.CouponOrderCalcResp;
 import com.cloudmall.order.api.enums.CheckoutTypeEnum;
 import com.cloudmall.order.api.model.req.CreateOrderReq;
@@ -90,10 +88,7 @@ public class OrderController {
      */
     @GetMapping
     public Result<IPage<OrderResp>> page(OrderPageReq req) {
-        Long userId = Asserts.requireNonNull(
-                UserContextHolder.getUserId(),
-                BizErrorEnum.USER_NOT_AUTHENTICATED
-        );
+        Long userId = UserContextHolder.getUserId();
         req.setUserId(userId);
         return Result.success(orderService.page(req));
     }
