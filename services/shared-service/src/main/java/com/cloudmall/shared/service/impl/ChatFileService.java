@@ -1,50 +1,48 @@
-package com.cloudmall.im.service.impl;
+package com.cloudmall.shared.service.impl;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.nio.file.StandardCopyOption;
 import java.util.Locale;
 import java.util.Set;
 
-import cn.hutool.core.util.IdUtil;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.cloudmall.common.context.UserContextHolder;
 import com.cloudmall.common.enums.BizErrorEnum;
-import com.cloudmall.common.exception.BizException;
 import com.cloudmall.common.utils.Asserts;
-import com.cloudmall.im.enums.MessageTypeEnum;
-import com.cloudmall.im.model.resp.ChatFileResp;
-import com.cloudmall.im.service.IChatFileService;
+import com.cloudmall.shared.api.enums.FileBizTypeEnum;
+import com.cloudmall.shared.constant.FileConstants;
+import com.cloudmall.shared.enums.ChatMediaTypeEnum;
+import com.cloudmall.shared.model.FileUploadPolicy;
+import com.cloudmall.shared.model.FileUploadResult;
+import com.cloudmall.shared.model.resp.ChatFileResp;
+import com.cloudmall.shared.service.IChatFileService;
+import com.cloudmall.shared.service.IFileService;
 
 /**
- * 聊天文件服务实现
+ * 聊天附件服务实现。
  * <p>
- * 图片/视频保存到本地目录，通过静态资源映射对外提供访问。
+ * 校验图片/视频类型与大小后，交由文件服务统一落对象存储并记入 cm_file 台账。
  *
  * @author : Tomatos
- * @date : 2026/11
  */
 @Slf4j
 @Service
+@RequiredArgsConstructor
 public class ChatFileService implements IChatFileService {
 
     private static final Set<String> IMAGE_EXTENSIONS = Set.of("jpg", "jpeg", "png", "gif", "webp");
     private static final Set<String> VIDEO_EXTENSIONS = Set.of("mp4", "webm", "mov", "m4v");
 
-    @Value("${im.upload-dir:tmp/im-uploads}")
-    private String uploadDir;
+    private final IFileService fileService;
 
-    @Value("${im.max-image-size:10485760}")
+    @Value("${cloudmall.file.chat.max-image-size:10485760}")
     private long maxImageSize;
 
-    @Value("${im.max-video-size:104857600}")
+    @Value("${cloudmall.file.chat.max-video-size:104857600}")
     private long maxVideoSize;
 
     @Override
@@ -56,29 +54,25 @@ public class ChatFileService implements IChatFileService {
                 StringUtils.hasText(file.getOriginalFilename()) ? file.getOriginalFilename() : "file"
         );
         String extension = getExtension(originalName);
-        MessageTypeEnum type = resolveType(file.getContentType(), extension);
+        ChatMediaTypeEnum type = resolveType(file.getContentType(), extension);
         Asserts.notNull(type, BizErrorEnum.IM_FILE_TYPE_NOT_ALLOWED);
 
-        long maxSize = MessageTypeEnum.IMAGE == type ? maxImageSize : maxVideoSize;
-        Asserts.isTrue(file.getSize() <= maxSize, BizErrorEnum.IM_FILE_TOO_LARGE);
-
-        String filename = IdUtil.fastSimpleUUID() + "." + extension;
-        Path directory = Paths.get(uploadDir)
-                              .toAbsolutePath()
-                              .normalize();
-        try {
-            Files.createDirectories(directory);
-            Path target = directory.resolve(filename).normalize();
-            try (InputStream inputStream = file.getInputStream()) {
-                Files.copy(inputStream, target, StandardCopyOption.REPLACE_EXISTING);
-            }
-        } catch (IOException e) {
-            log.error("保存聊天文件失败: {}", originalName, e);
-            throw new BizException(BizErrorEnum.IM_FILE_SAVE_FAILED);
-        }
-
+        long maxSize = ChatMediaTypeEnum.IMAGE == type ? maxImageSize : maxVideoSize;
+        FileUploadPolicy policy = new FileUploadPolicy(
+                FileConstants.CHAT_KEY_PREFIX,
+                FileConstants.ALLOWED_CHAT_EXTENSIONS,
+                FileConstants.ALLOWED_CHAT_CONTENT_TYPES,
+                maxSize
+        );
+        FileUploadResult result = fileService.upload(
+                UserContextHolder.getUserId(),
+                FileBizTypeEnum.CHAT,
+                file,
+                policy
+        );
         return ChatFileResp.builder()
-                           .url("/chat/files/" + filename)
+                           .id(result.id())
+                           .url(result.url())
                            .type(type)
                            .name(originalName)
                            .size(file.getSize())
@@ -86,18 +80,18 @@ public class ChatFileService implements IChatFileService {
     }
 
     /**
-     * 解析文件对应的消息类型。
+     * 解析文件对应的媒体类型。
      *
      * @param contentType 浏览器上报的 MIME 类型
      * @param extension 文件扩展名
      * @return 图片或视频类型，不符合时返回 null
      */
-    private MessageTypeEnum resolveType(String contentType, String extension) {
+    private ChatMediaTypeEnum resolveType(String contentType, String extension) {
         if (IMAGE_EXTENSIONS.contains(extension) && (contentType == null || contentType.startsWith("image/"))) {
-            return MessageTypeEnum.IMAGE;
+            return ChatMediaTypeEnum.IMAGE;
         }
         if (VIDEO_EXTENSIONS.contains(extension) && (contentType == null || contentType.startsWith("video/"))) {
-            return MessageTypeEnum.VIDEO;
+            return ChatMediaTypeEnum.VIDEO;
         }
         return null;
     }

@@ -118,6 +118,21 @@ services:
       timeout: 5s
       retries: 5
 
+  minio:
+    container_name: cm-minio
+    image: minio/minio:latest
+    command: server /data --console-address ":9001"
+    environment:
+      # 开发默认账号，生产环境改用环境变量或密钥管理
+      MINIO_ROOT_USER: cloudmall
+      MINIO_ROOT_PASSWORD: cloudmall123456
+    ports:
+      # 宿主 9000 已被网关占用，MinIO API 改用 9010，控制台 9011
+      - "9010:9000"
+      - "9011:9001"
+    volumes:
+      - minio-data:/data
+
   xxl-job-admin:
     container_name: cm-xxl-job-admin
     image: xuxueli/xxl-job-admin:3.4.2
@@ -138,3 +153,4 @@ volumes:
   rocketmq-namesrv-logs:
   rocketmq-broker-logs:
   rocketmq-broker-store:
+  minio-data:

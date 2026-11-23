@@ -81,7 +81,7 @@ spring:
             - id: user-service
               uri: lb://user-service
               predicates:
-                - Path=/users/**,/roles/**,/resources/**,/addresses/**,/regions/**,/shops/**,/favorites/**,/home/**,/products/*/favorite,/files/**
+                - Path=/users/**,/roles/**,/resources/**,/addresses/**,/regions/**,/shops/**,/favorites/**,/home/**,/products/*/favorite
               filters:
                 - StripPrefix=0
 
@@ -125,6 +125,21 @@ spring:
                 - Path=/ai/**
               filters:
                 - StripPrefix=1
+
+            # 公共文件服务：图片与聊天附件统一由 shared-service 提供
+            - id: shared-service-files
+              uri: lb://shared-service
+              predicates:
+                - Path=/files/**
+              filters:
+                - StripPrefix=0
+
+            - id: shared-service-chat-files
+              uri: lb://shared-service
+              predicates:
+                - Path=/chat/files/**
+              filters:
+                - StripPrefix=0
 
             - id: im-ws
               uri: lb:ws://im-service

@@ -1,0 +1,46 @@
+mybatis-plus:
+  mapper-locations: classpath:mapper/**/*.xml
+  type-aliases-package: com.cloudmall.shared.model.entity
+
+cloudmall:
+  file:
+    storage: minio
+    local-dir: tmp/common-uploads
+    cleanup:
+      pending-ttl-seconds: 86400
+      orphan-ttl-seconds: 604800
+    minio:
+      endpoint: http://localhost:9010
+      access-key: cloudmall
+      secret-key: cloudmall123456
+      bucket: cm-mall
+    chat:
+      max-image-size: 10485760
+      max-video-size: 104857600
+  # 本服务消费文件事件，通用消费操作由 outbox starter 提供
+  outbox:
+    batch-size: 100
+    max-attempts: 10
+    backoff-seconds: 30
+    retention-days: 7
+
+xxl:
+  job:
+    executor:
+      app-name: shared-service
+      port: 9996
+    auto-register:
+      enabled: true
+      jobs:
+        - handler: fileTempClean
+          desc: 过期文件回收
+          schedule-type: FIX_RATE
+          schedule-conf: "600"
+        - handler: fileEventApply
+          desc: 文件事件消费
+          schedule-type: FIX_RATE
+          schedule-conf: "5"
+        - handler: fileEventCleanup
+          desc: 文件事件 Outbox 清理
+          schedule-type: CRON
+          schedule-conf: "0 0 3 * * ?"

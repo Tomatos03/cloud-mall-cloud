@@ -23,5 +23,6 @@
         <module>aigc-service</module>
         <module>search-service</module>
         <module>mock-payment-service</module>
+        <module>shared-service</module>
     </modules>
 </project>

@@ -13,6 +13,7 @@
     <packaging>pom</packaging>
 
     <modules>
+        <module>shared-api</module>
         <module>user-api</module>
         <module>coupon-api</module>
         <module>product-api</module>
@@ -26,6 +27,10 @@
         <dependency>
             <groupId>org.springframework.cloud</groupId>
             <artifactId>spring-cloud-starter-openfeign</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.cloudmall</groupId>
+            <artifactId>shared-api</artifactId>
         </dependency>
         <dependency>
             <groupId>com.cloudmall</groupId>

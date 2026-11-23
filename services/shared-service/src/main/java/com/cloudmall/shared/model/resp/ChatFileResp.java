@@ -1,17 +1,16 @@
-package com.cloudmall.im.model.resp;
+package com.cloudmall.shared.model.resp;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import com.cloudmall.im.enums.MessageTypeEnum;
+import com.cloudmall.shared.enums.ChatMediaTypeEnum;
 
 /**
- * 聊天文件上传结果
+ * 聊天文件上传结果。
  *
  * @author : Tomatos
- * @date : 2026/11
  */
 @Data
 @Builder
@@ -19,11 +18,14 @@ import com.cloudmall.im.enums.MessageTypeEnum;
 @AllArgsConstructor
 public class ChatFileResp {
 
-    /** 文件访问路径（相对 nginx 源站） */
+    /** 文件台账 ID */
+    private Long id;
+
+    /** 文件访问路径（相对网关源站） */
     private String url;
 
-    /** 文件对应的消息类型（image / video） */
-    private MessageTypeEnum type;
+    /** 文件对应的媒体类型（image / video） */
+    private ChatMediaTypeEnum type;
 
     /** 原始文件名 */
     private String name;

@@ -1,0 +1,26 @@
+server:
+  port: 9002
+
+spring:
+  application:
+    name: shared-service
+  servlet:
+    multipart:
+      max-file-size: 100MB
+      max-request-size: 110MB
+  cloud:
+    nacos:
+      discovery:
+        server-addr: localhost:8848
+      config:
+        server-addr: localhost:8848
+        file-extension: yaml
+        group: DEFAULT_GROUP
+        refresh-enabled: true
+  config:
+    import:
+      - nacos:common
+      - nacos:shared-service
+logging:
+  level:
+    sql: debug
