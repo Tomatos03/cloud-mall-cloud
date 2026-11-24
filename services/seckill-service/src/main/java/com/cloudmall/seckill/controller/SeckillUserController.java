@@ -20,8 +20,7 @@ import com.cloudmall.seckill.api.model.resp.PurchaseResp;
 import com.cloudmall.seckill.api.model.resp.SeckillOrderResp;
 import com.cloudmall.seckill.api.model.resp.SeckillProductResp;
 import com.cloudmall.seckill.api.model.resp.SeckillSessionResp;
-import com.cloudmall.seckill.application.SeckillOrderApp;
-import com.cloudmall.seckill.application.SeckillPlainOrderApp;
+import com.cloudmall.seckill.application.SeckillApp;
 import com.cloudmall.seckill.service.ISeckillActivityService;
 import com.cloudmall.seckill.service.ISeckillOrderService;
 import com.cloudmall.seckill.service.ISeckillProductService;
@@ -30,7 +29,7 @@ import com.cloudmall.seckill.service.ISeckillProductService;
  * 秒杀用户端控制器
  * <p>
  * 活动列表/详情与秒杀商品详情免登录（gateway 白名单）；抢购与我的秒杀单需登录。
- * 本地查询走 service，抢购编排走 {@link SeckillOrderApp}。
+ * 本地查询走 service，抢购编排走 {@link SeckillApp}。
  *
  * @author : Tomatos
  */
@@ -39,8 +38,7 @@ import com.cloudmall.seckill.service.ISeckillProductService;
 @RequestMapping("/seckill")
 public class SeckillUserController {
 
-    private final SeckillOrderApp seckillOrderApp;
-    private final SeckillPlainOrderApp seckillPlainOrderApp;
+    private final SeckillApp seckillApp;
     private final ISeckillActivityService activityService;
     private final ISeckillProductService productService;
     private final ISeckillOrderService orderService;
@@ -105,18 +103,7 @@ public class SeckillUserController {
      */
     @PostMapping("/purchase")
     public Result<PurchaseResp> purchase(@Valid @RequestBody SeckillPurchaseReq req) {
-        return Result.success(seckillOrderApp.purchase(req));
-    }
-
-    /**
-     * 普通流程抢购（同步 DB 建单，QPS 对比实验用）。
-     *
-     * @param req 抢购请求
-     * @return 受理结果（真实订单号）
-     */
-    @PostMapping("/plain/purchase")
-    public Result<PurchaseResp> purchasePlain(@Valid @RequestBody SeckillPurchaseReq req) {
-        return Result.success(seckillPlainOrderApp.purchase(req));
+        return Result.success(seckillApp.purchase(req));
     }
 
     /**

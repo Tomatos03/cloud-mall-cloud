@@ -6,6 +6,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
+import com.cloudmall.common.constant.SnPrefixConstants;
 import com.cloudmall.order.api.enums.OrderTagEnum;
 import com.cloudmall.seckill.api.client.InternalSeckillClient;
 import com.cloudmall.seckill.api.model.event.SeckillPaidEvent;
@@ -23,9 +24,6 @@ import com.cloudmall.seckill.api.model.req.SeckillConfirmPaidReq;
 @Component
 @RequiredArgsConstructor
 public class SeckillOrderPaidHandler implements IEventHandler<SeckillPaidEvent> {
-
-    /** 秒杀订单号前缀 */
-    private static final String SECKILL_ORDER_NO_PREFIX = "SK";
 
     private final InternalSeckillClient internalSeckillClient;
 
@@ -69,7 +67,7 @@ public class SeckillOrderPaidHandler implements IEventHandler<SeckillPaidEvent> 
     @Override
     public void handle(SeckillPaidEvent event) {
         String orderNo = event.getOrderNo();
-        if (orderNo == null || !orderNo.startsWith(SECKILL_ORDER_NO_PREFIX)) {
+        if (orderNo == null || !orderNo.startsWith(SnPrefixConstants.SECKILL_ORDER)) {
             return;
         }
         internalSeckillClient.confirmPaid(SeckillConfirmPaidReq.builder()

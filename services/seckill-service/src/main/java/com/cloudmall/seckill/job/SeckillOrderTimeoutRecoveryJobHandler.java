@@ -4,12 +4,12 @@ import com.xxl.job.core.handler.annotation.XxlJob;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
-import com.cloudmall.seckill.application.SeckillOrderApp;
+import com.cloudmall.seckill.application.SeckillApp;
 
 /**
  * 秒杀单超时回收 JobHandler
  * <p>
- * 编排逻辑收拢在 {@link SeckillOrderApp#recoverTimeoutOrders()}：
+ * 编排逻辑收拢在 {@link SeckillApp#recoverTimeoutOrders()}：
  * 扫描未支付秒杀单 → 条件取消 → 归还 Redis 库存 → 幂等取消真实订单。
  *
  * @author : Tomatos
@@ -18,7 +18,7 @@ import com.cloudmall.seckill.application.SeckillOrderApp;
 @RequiredArgsConstructor
 public class SeckillOrderTimeoutRecoveryJobHandler {
 
-    private final SeckillOrderApp seckillOrderApp;
+    private final SeckillApp seckillApp;
 
     /**
      * 每分钟执行一次超时回收。
@@ -27,6 +27,6 @@ public class SeckillOrderTimeoutRecoveryJobHandler {
      */
     @XxlJob("seckillOrderTimeoutRecovery")
     public void recover(String param) {
-        seckillOrderApp.recoverTimeoutOrders();
+        seckillApp.recoverTimeoutOrders();
     }
 }

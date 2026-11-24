@@ -19,6 +19,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.cloudmall.common.constant.SnPrefixConstants;
 import com.cloudmall.common.context.UserContextHolder;
 import com.cloudmall.common.enums.BizErrorEnum;
 import com.cloudmall.common.model.page.PageResp;
@@ -184,12 +185,12 @@ public class OrderService implements IOrderService {
     }
 
     /**
-     * 生成订单号（UUID 截断为 20 位）。
+     * 生成普通订单号（ORD 前缀 + UUID 截断）。
      *
      * @return 订单号
      */
     private static String genOrderNo() {
-        return StrUtil.sub(IdUtil.fastSimpleUUID(), 0, 20);
+        return SnPrefixConstants.NORMAL_ORDER + StrUtil.sub(IdUtil.fastSimpleUUID(), 0, 20);
     }
 
     /**

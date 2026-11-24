@@ -25,6 +25,7 @@ import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.cloudmall.common.constant.SnPrefixConstants;
 import com.cloudmall.common.enums.BizErrorEnum;
 import com.cloudmall.common.enums.StatusEnum;
 import com.cloudmall.common.exception.BizException;
@@ -661,7 +662,7 @@ public class ProductService implements IProductService {
                 sku = skuConverter.toDO(
                         skuItem,
                         productId,
-                        String.format("SKU%s", IdUtil.getSnowflakeNextIdStr())
+                        SnPrefixConstants.PRODUCT_SKU + IdUtil.getSnowflakeNextIdStr()
                 );
                 sku.setSpecHash(hash);
                 productSkuMapper.insert(sku);
@@ -750,7 +751,7 @@ public class ProductService implements IProductService {
 
     private ProductDO saveProduct(ProductCreateReq req, Long shopId) {
         ProductDO product = productConverter.toDO(req);
-        product.setSpuCode(String.format("SPU%s", IdUtil.getSnowflakeNextIdStr()));
+        product.setSpuCode(SnPrefixConstants.PRODUCT_SPU + IdUtil.getSnowflakeNextIdStr());
         product.setShopId(shopId);
         productMapper.insert(product);
         return product;
@@ -831,7 +832,7 @@ public class ProductService implements IProductService {
             ProductSkuDO sku = skuConverter.toDO(
                     skuItem,
                     productId,
-                    String.format("SKU%s", IdUtil.getSnowflakeNextIdStr())
+                    SnPrefixConstants.PRODUCT_SKU + IdUtil.getSnowflakeNextIdStr()
             );
             sku.setSpecHash(specHash(realIds));
             // 逐条插入以回填自增 ID
