@@ -1,6 +1,6 @@
 package com.cloudmall.mockpayment.service;
 
-import com.cloudmall.common.model.PageResp;
+import com.cloudmall.common.model.page.PageResp;
 import com.cloudmall.mockpayment.enums.TradeTypeEnum;
 import com.cloudmall.payment.api.model.req.CreatePayReq;
 import com.cloudmall.payment.api.model.req.MockPaymentCreateReq;

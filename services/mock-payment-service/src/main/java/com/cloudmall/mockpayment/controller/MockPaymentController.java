@@ -10,8 +10,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.cloudmall.common.model.PageResp;
-import com.cloudmall.common.model.Result;
+import com.cloudmall.common.model.page.PageResp;
+import com.cloudmall.common.model.result.Result;
 import com.cloudmall.mockpayment.application.MockPaymentApp;
 import com.cloudmall.mockpayment.properties.MockPaymentProperties;
 import com.cloudmall.mockpayment.service.IPaymentNotifyService;

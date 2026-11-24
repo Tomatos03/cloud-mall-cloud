@@ -5,9 +5,9 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 
-import com.cloudmall.common.model.CursorReq;
-import com.cloudmall.common.model.CursorResult;
-import com.cloudmall.common.model.PageResp;
+import com.cloudmall.common.model.cursor.CursorReq;
+import com.cloudmall.common.model.cursor.CursorResp;
+import com.cloudmall.common.model.page.PageResp;
 import com.cloudmall.coupon.api.model.req.CouponPageReq;
 import com.cloudmall.coupon.api.model.req.UserCouponCursorReq;
 import com.cloudmall.coupon.api.model.req.UserCouponPageReq;
@@ -61,7 +61,7 @@ public interface IUserCouponService {
      * @param req 游标请求（status 为空表示全部）
      * @return 游标分页结果
      */
-    CursorResult<UserCouponResp> pageMineByCursor(Long userId, UserCouponCursorReq req);
+    CursorResp<UserCouponResp> pageMineByCursor(Long userId, UserCouponCursorReq req);
 
     /**
      * 分页查询公开券中心（仅 PUBLIC_CLAIM 渠道模板），附带
@@ -81,7 +81,7 @@ public interface IUserCouponService {
      * @param req 游标请求（首次 cursor=0）
      * @return 游标分页结果
      */
-    CursorResult<CouponResp> cursorPublic(Long userId, CursorReq req);
+    CursorResp<CouponResp> cursorPublic(Long userId, CursorReq req);
 
     /**
      * 查询我的单张用户券，校验归属并实时过期。

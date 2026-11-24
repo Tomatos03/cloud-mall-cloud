@@ -11,8 +11,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.cloudmall.common.model.PageResp;
-import com.cloudmall.common.model.Result;
+import com.cloudmall.common.model.page.PageResp;
+import com.cloudmall.common.model.result.Result;
 import com.cloudmall.coupon.api.enums.CouponOwnerEnum;
 import com.cloudmall.coupon.api.model.req.CouponPageReq;
 import com.cloudmall.coupon.api.model.req.CouponReq;

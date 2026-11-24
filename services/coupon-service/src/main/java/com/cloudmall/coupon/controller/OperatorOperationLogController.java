@@ -5,8 +5,8 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.cloudmall.common.model.PageResp;
-import com.cloudmall.common.model.Result;
+import com.cloudmall.common.model.page.PageResp;
+import com.cloudmall.common.model.result.Result;
 import com.cloudmall.coupon.api.model.req.CouponOperationLogPageReq;
 import com.cloudmall.coupon.api.model.resp.CouponOperationLogResp;
 import com.cloudmall.coupon.service.ICouponTemplateService;

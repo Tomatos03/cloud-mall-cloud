@@ -5,7 +5,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.cloudmall.common.model.CursorResult;
+import com.cloudmall.common.model.cursor.CursorResp;
 import com.cloudmall.im.api.model.req.MessageCursorReq;
 import com.cloudmall.im.api.model.resp.MessageResp;
 import com.cloudmall.im.convert.ChatMessageConverter;
@@ -28,14 +28,14 @@ public class ChatMessageService extends ServiceImpl<ChatMessageMapper, ChatMessa
     private final ChatMessageConverter messageConverter;
 
     @Override
-    public CursorResult<MessageResp> cursorMessageHistory(MessageCursorReq req) {
-        CursorResult<ChatMessageDO> result = baseMapper.cursorHistory(req);
-        return CursorResult.<MessageResp>builder()
-                           .items(messageConverter.toRespList(result.getItems()))
-                           .cursor(result.getCursor())
-                           .cursorTime(result.getCursorTime())
-                           .hasMore(result.getHasMore())
-                           .build();
+    public CursorResp<MessageResp> cursorMessageHistory(MessageCursorReq req) {
+        CursorResp<ChatMessageDO> result = baseMapper.cursorHistory(req);
+        return CursorResp.<MessageResp>builder()
+                         .items(messageConverter.toRespList(result.getItems()))
+                         .cursor(result.getCursor())
+                         .cursorTime(result.getCursorTime())
+                         .hasMore(result.getHasMore())
+                         .build();
     }
 
     @Override

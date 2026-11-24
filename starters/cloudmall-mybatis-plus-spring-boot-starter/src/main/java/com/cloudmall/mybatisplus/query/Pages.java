@@ -2,7 +2,7 @@ package com.cloudmall.mybatisplus.query;
 
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 
-import com.cloudmall.common.model.PageReq;
+import com.cloudmall.common.model.page.PageReq;
 
 /**
  * 分页对象工厂。

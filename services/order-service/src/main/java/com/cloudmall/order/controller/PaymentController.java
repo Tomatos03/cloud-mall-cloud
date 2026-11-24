@@ -17,7 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.cloudmall.common.context.UserContextHolder;
 import com.cloudmall.common.enums.BizErrorEnum;
 import com.cloudmall.common.exception.BizException;
-import com.cloudmall.common.model.Result;
+import com.cloudmall.common.model.result.Result;
 import com.cloudmall.order.api.model.resp.PaymentCreateResp;
 import com.cloudmall.order.api.model.resp.PaymentStatusResp;
 import com.cloudmall.order.api.model.resp.WechatNotifyResp;

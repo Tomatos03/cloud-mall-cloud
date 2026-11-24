@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.cloudmall.common.model.Result;
+import com.cloudmall.common.model.result.Result;
 import com.cloudmall.seckill.api.model.req.SeckillConfirmPaidReq;
 import com.cloudmall.seckill.api.model.resp.SeckillOrderResp;
 import com.cloudmall.seckill.convert.SeckillConverter;

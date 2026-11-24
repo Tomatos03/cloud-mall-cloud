@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.cloudmall.common.context.UserContextHolder;
-import com.cloudmall.common.model.Result;
+import com.cloudmall.common.model.result.Result;
 import com.cloudmall.user.api.model.req.AddressUpdateReq;
 import com.cloudmall.user.api.model.req.CreateReq;
 import com.cloudmall.user.api.model.resp.AddressResp;

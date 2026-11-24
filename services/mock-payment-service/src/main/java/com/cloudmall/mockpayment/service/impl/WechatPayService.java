@@ -16,7 +16,7 @@ import org.springframework.stereotype.Service;
 
 import com.cloudmall.common.enums.BizErrorEnum;
 import com.cloudmall.common.exception.BizException;
-import com.cloudmall.common.model.PageResp;
+import com.cloudmall.common.model.page.PageResp;
 import com.cloudmall.common.utils.Asserts;
 import com.cloudmall.mockpayment.convert.MockPaymentConverter;
 import com.cloudmall.mockpayment.enums.TradeTypeEnum;

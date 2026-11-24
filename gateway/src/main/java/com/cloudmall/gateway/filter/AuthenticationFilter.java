@@ -27,7 +27,7 @@ import reactor.core.scheduler.Schedulers;
 
 import com.cloudmall.common.context.UserContext;
 import com.cloudmall.common.enums.UserTypeEnum;
-import com.cloudmall.common.model.Result;
+import com.cloudmall.common.model.result.Result;
 import com.cloudmall.jwt.constant.JwtClaimNames;
 import com.cloudmall.jwt.exception.ParseTokenException;
 import com.cloudmall.jwt.model.ParsedToken;

@@ -1,4 +1,4 @@
-package com.cloudmall.common.model;
+package com.cloudmall.common.model.cursor;
 
 import java.time.LocalDateTime;
 

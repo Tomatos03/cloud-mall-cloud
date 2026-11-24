@@ -12,7 +12,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.cloudmall.common.context.UserContextHolder;
 import com.cloudmall.common.enums.BizErrorEnum;
-import com.cloudmall.common.model.PageResp;
+import com.cloudmall.common.model.page.PageResp;
 import com.cloudmall.common.utils.Asserts;
 import com.cloudmall.coupon.api.enums.CouponOperationActionEnum;
 import com.cloudmall.coupon.api.enums.CouponScopeEnum;

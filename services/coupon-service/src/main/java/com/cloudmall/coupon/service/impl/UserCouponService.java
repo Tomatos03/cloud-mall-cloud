@@ -25,9 +25,9 @@ import com.cloudmall.common.context.UserContextHolder;
 import com.cloudmall.common.enums.BizErrorEnum;
 import com.cloudmall.common.enums.StatusEnum;
 import com.cloudmall.common.exception.BizException;
-import com.cloudmall.common.model.CursorReq;
-import com.cloudmall.common.model.CursorResult;
-import com.cloudmall.common.model.PageResp;
+import com.cloudmall.common.model.cursor.CursorReq;
+import com.cloudmall.common.model.cursor.CursorResp;
+import com.cloudmall.common.model.page.PageResp;
 import com.cloudmall.common.utils.Asserts;
 import com.cloudmall.coupon.api.enums.CouponStatusEnum;
 import com.cloudmall.coupon.api.enums.IssueChannelEnum;
@@ -194,7 +194,7 @@ public class UserCouponService implements IUserCouponService {
      */
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public CursorResult<UserCouponResp> pageMineByCursor(Long userId, UserCouponCursorReq req) {
+    public CursorResp<UserCouponResp> pageMineByCursor(Long userId, UserCouponCursorReq req) {
         expireOverdueByUser(userId);
         if (req.getStatus() != null) {
             Asserts.notEmpty(req.getItems(), BizErrorEnum.INVALID_PARAM);
@@ -223,21 +223,21 @@ public class UserCouponService implements IUserCouponService {
             }
         }
         if (CollUtil.isEmpty(matched)) {
-            return CursorResult.<UserCouponResp>builder()
-                               .items(List.of())
-                               .cursor(0L)
-                               .cursorTime(null)
-                               .hasMore(false)
-                               .build();
+            return CursorResp.<UserCouponResp>builder()
+                             .items(List.of())
+                             .cursor(0L)
+                             .cursorTime(null)
+                             .hasMore(false)
+                             .build();
         }
 
         List<UserCouponResp> items = userCouponConverter.toRespList(matched);
-        return CursorResult.<UserCouponResp>builder()
-                           .items(items)
-                           .cursor(hasMore ? req.getCursor() : 0L)
-                           .cursorTime(null)
-                           .hasMore(hasMore)
-                           .build();
+        return CursorResp.<UserCouponResp>builder()
+                         .items(items)
+                         .cursor(hasMore ? req.getCursor() : 0L)
+                         .cursorTime(null)
+                         .hasMore(hasMore)
+                         .build();
     }
 
     /**
@@ -335,7 +335,7 @@ public class UserCouponService implements IUserCouponService {
      * @return 游标分页结果
      */
     @Override
-    public CursorResult<CouponResp> cursorPublic(Long userId, CursorReq req) {
+    public CursorResp<CouponResp> cursorPublic(Long userId, CursorReq req) {
         int size = ObjectUtil.defaultIfNull(req.getSize(), 10);
         size = Math.min(Math.max(size, 1), CursorReq.MAX_SIZE);
         long cursor = ObjectUtil.defaultIfNull(req.getCursor(), 0L);
@@ -346,11 +346,11 @@ public class UserCouponService implements IUserCouponService {
         }
         List<CouponResp> items = toPublicResps(templates, userId);
         Long nextCursor = hasMore && !items.isEmpty() ? items.get(items.size() - 1).getId() : 0L;
-        return CursorResult.<CouponResp>builder()
-                           .items(items)
-                           .cursor(nextCursor)
-                           .hasMore(hasMore)
-                           .build();
+        return CursorResp.<CouponResp>builder()
+                         .items(items)
+                         .cursor(nextCursor)
+                         .hasMore(hasMore)
+                         .build();
     }
 
     /**

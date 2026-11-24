@@ -7,7 +7,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 
-import com.cloudmall.common.model.PageResp;
+import com.cloudmall.common.model.page.PageResp;
 import com.cloudmall.order.api.enums.CheckoutTypeEnum;
 import com.cloudmall.order.api.model.req.CreateOrderReq;
 import com.cloudmall.order.api.model.resp.OrderResp;

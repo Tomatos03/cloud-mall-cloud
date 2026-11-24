@@ -13,7 +13,7 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import org.apache.ibatis.annotations.Mapper;
 
 import com.cloudmall.common.enums.StatusEnum;
-import com.cloudmall.common.model.CursorReq;
+import com.cloudmall.common.model.cursor.CursorReq;
 import com.cloudmall.mybatisplus.query.LambdaWrappers;
 import com.cloudmall.mybatisplus.query.SqlLimit;
 import com.cloudmall.product.api.model.req.ProductGetReq;

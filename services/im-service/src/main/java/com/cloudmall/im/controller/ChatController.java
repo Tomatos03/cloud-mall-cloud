@@ -14,9 +14,9 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.cloudmall.common.context.UserContextHolder;
-import com.cloudmall.common.model.CursorResult;
-import com.cloudmall.common.model.PageResp;
-import com.cloudmall.common.model.Result;
+import com.cloudmall.common.model.cursor.CursorResp;
+import com.cloudmall.common.model.page.PageResp;
+import com.cloudmall.common.model.result.Result;
 import com.cloudmall.im.api.model.req.MessageCursorReq;
 import com.cloudmall.im.api.model.req.SessionPageReq;
 import com.cloudmall.im.api.model.resp.ChatSessionResp;
@@ -67,7 +67,7 @@ public class ChatController {
      * @return 消息游标分页数据
      */
     @GetMapping("/sessions/{sessionId}/messages")
-    public Result<CursorResult<MessageResp>> getMessageHistory(
+    public Result<CursorResp<MessageResp>> getMessageHistory(
         @PathVariable
         Long sessionId,
         MessageCursorReq req

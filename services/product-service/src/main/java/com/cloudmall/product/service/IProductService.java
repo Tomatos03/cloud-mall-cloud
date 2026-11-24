@@ -3,9 +3,9 @@ package com.cloudmall.product.service;
 import java.util.Collection;
 import java.util.List;
 
-import com.cloudmall.common.model.CursorReq;
-import com.cloudmall.common.model.CursorResult;
-import com.cloudmall.common.model.PageResp;
+import com.cloudmall.common.model.cursor.CursorReq;
+import com.cloudmall.common.model.cursor.CursorResp;
+import com.cloudmall.common.model.page.PageResp;
 import com.cloudmall.product.api.model.req.BrandProductPageReq;
 import com.cloudmall.product.api.model.req.ProductCreateReq;
 import com.cloudmall.product.api.model.req.ProductGetReq;
@@ -38,7 +38,7 @@ public interface IProductService {
      *            {@link CursorReq}）
      * @return 游标分页结果
      */
-    CursorResult<ProductDocResp> cursorPage(CursorReq req);
+    CursorResp<ProductDocResp> cursorPage(CursorReq req);
 
     /**
      * 按商品 ID 组装单个搜索文档。 <p>
@@ -78,7 +78,7 @@ public interface IProductService {
      * @param req 游标请求（首次 cursor=0）
      * @return 游标分页结果
      */
-    CursorResult<ProductResp> cursorByBrand(Long brandId, CursorReq req);
+    CursorResp<ProductResp> cursorByBrand(Long brandId, CursorReq req);
 
     /**
      * 猜你喜欢：随机查询已上架商品，可按一级/任意分类及其子分类限定范围。 <p>

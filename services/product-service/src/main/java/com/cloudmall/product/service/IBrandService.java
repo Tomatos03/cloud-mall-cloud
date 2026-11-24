@@ -2,9 +2,9 @@ package com.cloudmall.product.service;
 
 import java.util.List;
 
-import com.cloudmall.common.model.CursorReq;
-import com.cloudmall.common.model.CursorResult;
-import com.cloudmall.common.model.PageResp;
+import com.cloudmall.common.model.cursor.CursorReq;
+import com.cloudmall.common.model.cursor.CursorResp;
+import com.cloudmall.common.model.page.PageResp;
 import com.cloudmall.product.api.model.req.BrandCreateReq;
 import com.cloudmall.product.api.model.req.BrandPageReq;
 import com.cloudmall.product.api.model.req.BrandUpdateReq;
@@ -47,7 +47,7 @@ public interface IBrandService {
      * @param req 游标请求（首次 cursor=0）
      * @return 游标分页结果
      */
-    CursorResult<BrandResp> cursor(CursorReq req);
+    CursorResp<BrandResp> cursor(CursorReq req);
 
     /**
      * 创建品牌。

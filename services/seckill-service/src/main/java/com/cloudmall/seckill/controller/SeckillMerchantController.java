@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.cloudmall.common.context.UserContextHolder;
 import com.cloudmall.common.enums.BizErrorEnum;
-import com.cloudmall.common.model.Result;
+import com.cloudmall.common.model.result.Result;
 import com.cloudmall.common.utils.Asserts;
 import com.cloudmall.seckill.api.model.req.ActivityProductSubmitReq;
 import com.cloudmall.seckill.api.model.resp.ActivityDetailResp;

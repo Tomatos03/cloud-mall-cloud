@@ -6,7 +6,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import com.cloudmall.common.enums.StatusEnum;
-import com.cloudmall.common.model.PageReq;
+import com.cloudmall.common.model.page.PageReq;
 import com.cloudmall.mybatisplus.annotation.OperatorEnum;
 import com.cloudmall.mybatisplus.annotation.QueryCondition;
 import com.cloudmall.product.api.enums.CommentRatingTypeEnum;

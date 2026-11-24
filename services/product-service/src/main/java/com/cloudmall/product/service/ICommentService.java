@@ -1,6 +1,6 @@
 package com.cloudmall.product.service;
 
-import com.cloudmall.common.model.PageResp;
+import com.cloudmall.common.model.page.PageResp;
 import com.cloudmall.product.api.model.req.CommentCreateReq;
 import com.cloudmall.product.api.model.req.CommentPageReq;
 import com.cloudmall.product.api.model.resp.CommentResp;

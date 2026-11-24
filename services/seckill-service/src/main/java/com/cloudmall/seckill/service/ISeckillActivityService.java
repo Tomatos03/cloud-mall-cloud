@@ -2,7 +2,7 @@ package com.cloudmall.seckill.service;
 
 import java.util.List;
 
-import com.cloudmall.common.model.PageResp;
+import com.cloudmall.common.model.page.PageResp;
 import com.cloudmall.seckill.api.model.req.ActivityCreateReq;
 import com.cloudmall.seckill.api.model.req.ActivityUpdateReq;
 import com.cloudmall.seckill.api.model.req.SeckillActivityPageReq;

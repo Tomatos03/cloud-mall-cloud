@@ -11,8 +11,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.cloudmall.common.enums.BizErrorEnum;
-import com.cloudmall.common.model.CursorResult;
-import com.cloudmall.common.model.PageResp;
+import com.cloudmall.common.model.cursor.CursorResp;
+import com.cloudmall.common.model.page.PageResp;
 import com.cloudmall.common.utils.Asserts;
 import com.cloudmall.im.api.model.req.MessageCursorReq;
 import com.cloudmall.im.api.model.req.SessionPageReq;
@@ -74,7 +74,7 @@ public class ChatAppService implements IChatAppService {
     }
 
     @Override
-    public CursorResult<MessageResp> cursorMessageHistory(Long currentUserId, MessageCursorReq req) {
+    public CursorResp<MessageResp> cursorMessageHistory(Long currentUserId, MessageCursorReq req) {
         requireMember(req.getSessionId(), currentUserId);
         return chatMessageService.cursorMessageHistory(req);
     }

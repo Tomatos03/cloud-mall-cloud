@@ -15,7 +15,7 @@ import org.springframework.web.servlet.NoHandlerFoundException;
 import com.cloudmall.common.enums.BizErrorEnum;
 import com.cloudmall.common.exception.BizException;
 import com.cloudmall.common.exception.FeignRemoteException;
-import com.cloudmall.common.model.Result;
+import com.cloudmall.common.model.result.Result;
 
 /**
  * 全局异常处理器

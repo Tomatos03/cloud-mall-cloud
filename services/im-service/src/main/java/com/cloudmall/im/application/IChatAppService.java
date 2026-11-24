@@ -2,8 +2,8 @@ package com.cloudmall.im.application;
 
 import java.util.List;
 
-import com.cloudmall.common.model.CursorResult;
-import com.cloudmall.common.model.PageResp;
+import com.cloudmall.common.model.cursor.CursorResp;
+import com.cloudmall.common.model.page.PageResp;
 import com.cloudmall.im.api.model.req.MessageCursorReq;
 import com.cloudmall.im.api.model.req.SessionPageReq;
 import com.cloudmall.im.api.model.resp.ChatSessionResp;
@@ -43,7 +43,7 @@ public interface IChatAppService {
      * @param req 游标查询请求
      * @return 消息游标分页数据
      */
-    CursorResult<MessageResp> cursorMessageHistory(Long currentUserId, MessageCursorReq req);
+    CursorResp<MessageResp> cursorMessageHistory(Long currentUserId, MessageCursorReq req);
 
     /**
      * 将会话中对方发送的消息标记为已读。

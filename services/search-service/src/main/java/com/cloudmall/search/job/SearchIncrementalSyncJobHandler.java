@@ -13,8 +13,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Component;
 
-import com.cloudmall.common.model.CursorReq;
-import com.cloudmall.common.model.CursorResult;
+import com.cloudmall.common.model.cursor.CursorReq;
+import com.cloudmall.common.model.cursor.CursorResp;
 import com.cloudmall.product.api.client.ProductClient;
 import com.cloudmall.product.api.model.resp.ProductDocResp;
 import com.cloudmall.search.index.ProductIndexRepository;
@@ -71,7 +71,7 @@ public class SearchIncrementalSyncJobHandler {
                 log.warn("商品索引增量同步达到最大翻页数上限 maxPages={}，提前结束", incremental.getMaxPages());
                 break;
             }
-            CursorResult<ProductDocResp> result = productClient.cursorPage(
+            CursorResp<ProductDocResp> result = productClient.cursorPage(
                     CursorReq.builder()
                              .cursorTime(cursorTime)
                              .size(incremental.getPageSize())

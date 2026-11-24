@@ -12,10 +12,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.cloudmall.common.context.UserContextHolder;
-import com.cloudmall.common.model.CursorReq;
-import com.cloudmall.common.model.CursorResult;
-import com.cloudmall.common.model.PageResp;
-import com.cloudmall.common.model.Result;
+import com.cloudmall.common.model.cursor.CursorReq;
+import com.cloudmall.common.model.cursor.CursorResp;
+import com.cloudmall.common.model.page.PageResp;
+import com.cloudmall.common.model.result.Result;
 import com.cloudmall.coupon.api.enums.IssueChannelEnum;
 import com.cloudmall.coupon.api.model.req.CouponPageReq;
 import com.cloudmall.coupon.api.model.req.UserCouponCursorReq;
@@ -69,7 +69,7 @@ public class CouponController {
      * @return 游标分页结果
      */
     @GetMapping("/cursor")
-    public Result<CursorResult<CouponResp>> cursor(CursorReq req) {
+    public Result<CursorResp<CouponResp>> cursor(CursorReq req) {
         return Result.success(userCouponService.cursorPublic(UserContextHolder.getUserId(), req));
     }
 
@@ -114,7 +114,7 @@ public class CouponController {
      * @return 游标分页结果
      */
     @PostMapping("/me/cursor")
-    public Result<CursorResult<UserCouponResp>> pageMineCursor(@RequestBody @Valid UserCouponCursorReq req) {
+    public Result<CursorResp<UserCouponResp>> pageMineCursor(@RequestBody @Valid UserCouponCursorReq req) {
         return Result.success(userCouponService.pageMineByCursor(UserContextHolder.getUserId(), req));
     }
 

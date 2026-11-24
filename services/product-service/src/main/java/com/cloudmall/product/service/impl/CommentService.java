@@ -7,7 +7,7 @@ import org.springframework.stereotype.Service;
 import com.cloudmall.common.context.UserContextHolder;
 import com.cloudmall.common.enums.BizErrorEnum;
 import com.cloudmall.common.exception.BizException;
-import com.cloudmall.common.model.PageResp;
+import com.cloudmall.common.model.page.PageResp;
 import com.cloudmall.common.utils.Asserts;
 import com.cloudmall.mybatisplus.query.PageResponses;
 import com.cloudmall.product.api.model.req.CommentCreateReq;

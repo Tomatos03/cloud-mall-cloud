@@ -28,9 +28,9 @@ import org.springframework.transaction.annotation.Transactional;
 import com.cloudmall.common.enums.BizErrorEnum;
 import com.cloudmall.common.enums.StatusEnum;
 import com.cloudmall.common.exception.BizException;
-import com.cloudmall.common.model.CursorReq;
-import com.cloudmall.common.model.CursorResult;
-import com.cloudmall.common.model.PageResp;
+import com.cloudmall.common.model.cursor.CursorReq;
+import com.cloudmall.common.model.cursor.CursorResp;
+import com.cloudmall.common.model.page.PageResp;
 import com.cloudmall.common.utils.Asserts;
 import com.cloudmall.mybatisplus.query.LambdaWrappers;
 import com.cloudmall.mybatisplus.query.Pages;
@@ -146,7 +146,7 @@ public class ProductService implements IProductService {
      * @return 游标分页结果（两种游标均回填，调用方按模式读取）
      */
     @Override
-    public CursorResult<ProductDocResp> cursorPage(CursorReq req) {
+    public CursorResp<ProductDocResp> cursorPage(CursorReq req) {
         int size = ObjectUtil.defaultIfNull(req.getSize(), 10);
         List<ProductDO> records = productMapper.selectSearchDocsByCursor(req, size + 1);
         boolean hasMore = records.size() > size;
@@ -154,24 +154,24 @@ public class ProductService implements IProductService {
             records = records.subList(0, size);
         }
         if (CollUtil.isEmpty(records)) {
-            return CursorResult.<ProductDocResp>builder()
-                               .items(List.of())
-                               .cursor(0L)
-                               .cursorTime(null)
-                               .hasMore(false)
-                               .build();
+            return CursorResp.<ProductDocResp>builder()
+                             .items(List.of())
+                             .cursor(0L)
+                             .cursorTime(null)
+                             .hasMore(false)
+                             .build();
         }
 
         List<ProductDocResp> docs = assembleSearchDocs(records);
         ProductDO last = records.get(records.size() - 1);
         Long nextCursor = hasMore ? last.getId() : 0L;
         LocalDateTime nextCursorTime = hasMore ? last.getUpdateTime() : null;
-        return CursorResult.<ProductDocResp>builder()
-                           .items(docs)
-                           .cursor(nextCursor)
-                           .cursorTime(nextCursorTime)
-                           .hasMore(hasMore)
-                           .build();
+        return CursorResp.<ProductDocResp>builder()
+                         .items(docs)
+                         .cursor(nextCursor)
+                         .cursorTime(nextCursorTime)
+                         .hasMore(hasMore)
+                         .build();
     }
 
     /**
@@ -301,7 +301,7 @@ public class ProductService implements IProductService {
      * @return 游标分页结果
      */
     @Override
-    public CursorResult<ProductResp> cursorByBrand(Long brandId, CursorReq req) {
+    public CursorResp<ProductResp> cursorByBrand(Long brandId, CursorReq req) {
         Asserts.notNull(brandId, BizErrorEnum.INVALID_PARAM);
         int size = ObjectUtil.defaultIfNull(req.getSize(), 10);
         size = Math.min(Math.max(size, 1), CursorReq.MAX_SIZE);
@@ -315,11 +315,11 @@ public class ProductService implements IProductService {
                                                              .map(productConverter::toResp)
                                                              .toList();
         Long nextCursor = hasMore && !items.isEmpty() ? records.get(records.size() - 1).getId() : 0L;
-        return CursorResult.<ProductResp>builder()
-                           .items(items)
-                           .cursor(nextCursor)
-                           .hasMore(hasMore)
-                           .build();
+        return CursorResp.<ProductResp>builder()
+                         .items(items)
+                         .cursor(nextCursor)
+                         .hasMore(hasMore)
+                         .build();
     }
 
     /**

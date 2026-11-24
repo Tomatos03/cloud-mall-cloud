@@ -9,8 +9,8 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
-import com.cloudmall.common.model.CursorReq;
-import com.cloudmall.common.model.CursorResult;
+import com.cloudmall.common.model.cursor.CursorReq;
+import com.cloudmall.common.model.cursor.CursorResp;
 import com.cloudmall.product.api.model.resp.ProductDetailResp;
 import com.cloudmall.product.api.model.resp.ProductDocResp;
 import com.cloudmall.product.api.model.resp.ProductResp;
@@ -62,7 +62,7 @@ public interface ProductClient {
      * @return 游标分页结果
      */
     @GetMapping("/docs")
-    CursorResult<ProductDocResp> cursorPage(@SpringQueryMap CursorReq req);
+    CursorResp<ProductDocResp> cursorPage(@SpringQueryMap CursorReq req);
 
     /**
      * 按商品 ID 拉取单个搜索文档（供 search-service MQ 增量消费使用）。

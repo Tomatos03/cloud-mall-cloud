@@ -3,7 +3,7 @@ package com.cloudmall.product.api.client.fallback;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cloud.openfeign.FallbackFactory;
 
-import com.cloudmall.common.model.PageResp;
+import com.cloudmall.common.model.page.PageResp;
 import com.cloudmall.product.api.client.BannerClient;
 import com.cloudmall.product.api.model.resp.BannerResp;
 

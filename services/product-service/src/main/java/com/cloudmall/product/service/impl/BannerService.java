@@ -6,7 +6,7 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import com.cloudmall.common.model.PageResp;
+import com.cloudmall.common.model.page.PageResp;
 import com.cloudmall.mybatisplus.query.PageResponses;
 import com.cloudmall.product.api.model.req.BannerPageReq;
 import com.cloudmall.product.api.model.req.BannerReq;

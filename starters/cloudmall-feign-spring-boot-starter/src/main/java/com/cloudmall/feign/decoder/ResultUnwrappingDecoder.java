@@ -16,7 +16,7 @@ import feign.codec.Decoder;
 import lombok.RequiredArgsConstructor;
 
 import com.cloudmall.common.exception.FeignRemoteException;
-import com.cloudmall.common.model.Result;
+import com.cloudmall.common.model.result.Result;
 
 /**
  * Feign Result 自动拆箱解码器

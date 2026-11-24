@@ -1,4 +1,4 @@
-package com.cloudmall.common.model;
+package com.cloudmall.shared.api.model.resp;
 
 import java.math.BigDecimal;
 

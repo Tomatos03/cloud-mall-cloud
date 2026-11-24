@@ -7,7 +7,6 @@ import java.util.Map;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
-import com.cloudmall.common.model.ShopInfoResp;
 import com.cloudmall.product.api.model.req.ProductCreateReq;
 import com.cloudmall.product.api.model.resp.CommentSummaryResp;
 import com.cloudmall.product.api.model.resp.ImageResp;
@@ -20,6 +19,7 @@ import com.cloudmall.product.model.entity.BrandDO;
 import com.cloudmall.product.model.entity.CategoryDO;
 import com.cloudmall.product.model.entity.ProductDO;
 import com.cloudmall.product.model.entity.ProductImageDO;
+import com.cloudmall.shared.api.model.resp.ShopInfoResp;
 
 /**
  * 商品相关对象转换器。

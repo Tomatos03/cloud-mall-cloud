@@ -11,9 +11,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.cloudmall.common.enums.BizErrorEnum;
 import com.cloudmall.common.exception.BizException;
-import com.cloudmall.common.model.CursorReq;
-import com.cloudmall.common.model.CursorResult;
-import com.cloudmall.common.model.PageResp;
+import com.cloudmall.common.model.cursor.CursorReq;
+import com.cloudmall.common.model.cursor.CursorResp;
+import com.cloudmall.common.model.page.PageResp;
 import com.cloudmall.common.utils.Asserts;
 import com.cloudmall.mybatisplus.query.PageResponses;
 import com.cloudmall.product.api.model.req.BrandCreateReq;
@@ -87,7 +87,7 @@ public class BrandService implements IBrandService {
      * @return 游标分页结果
      */
     @Override
-    public CursorResult<BrandResp> cursor(CursorReq req) {
+    public CursorResp<BrandResp> cursor(CursorReq req) {
         int size = ObjectUtil.defaultIfNull(req.getSize(), 10);
         size = Math.min(Math.max(size, 1), CursorReq.MAX_SIZE);
         long cursor = ObjectUtil.defaultIfNull(req.getCursor(), 0L);
@@ -105,11 +105,11 @@ public class BrandService implements IBrandService {
             nextCursor = (long) ObjectUtil.defaultIfNull(last.getSort(), 0) * CURSOR_SORT_FACTOR
                                  + last.getId();
         }
-        return CursorResult.<BrandResp>builder()
-                           .items(items)
-                           .cursor(nextCursor)
-                           .hasMore(hasMore)
-                           .build();
+        return CursorResp.<BrandResp>builder()
+                         .items(items)
+                         .cursor(nextCursor)
+                         .hasMore(hasMore)
+                         .build();
     }
 
     /**

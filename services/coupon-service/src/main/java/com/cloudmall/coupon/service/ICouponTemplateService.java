@@ -1,6 +1,6 @@
 package com.cloudmall.coupon.service;
 
-import com.cloudmall.common.model.PageResp;
+import com.cloudmall.common.model.page.PageResp;
 import com.cloudmall.coupon.api.model.req.CouponOperationLogPageReq;
 import com.cloudmall.coupon.api.model.req.CouponPageReq;
 import com.cloudmall.coupon.api.model.req.CouponReq;

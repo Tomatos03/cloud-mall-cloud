@@ -7,7 +7,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.cloudmall.common.model.Result;
+import com.cloudmall.common.model.result.Result;
 import com.cloudmall.shared.api.model.req.FileBindReq;
 import com.cloudmall.shared.api.model.req.FileReleaseReq;
 import com.cloudmall.shared.service.IFileService;

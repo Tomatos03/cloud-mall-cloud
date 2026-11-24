@@ -19,7 +19,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.cloudmall.aigc.api.model.req.KnowledgeUploadReq;
 import com.cloudmall.aigc.service.IKnowledgeService;
-import com.cloudmall.common.model.Result;
+import com.cloudmall.common.model.result.Result;
 
 /**
  * 知识库管理接口

@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.cloudmall.common.context.UserContextHolder;
-import com.cloudmall.common.model.Result;
+import com.cloudmall.common.model.result.Result;
 import com.cloudmall.coupon.api.enums.UserCouponStatusEnum;
 import com.cloudmall.coupon.api.model.req.AutoIssueRegisterReq;
 import com.cloudmall.coupon.api.model.req.CouponOrderCommitByOrderReq;

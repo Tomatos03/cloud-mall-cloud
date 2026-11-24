@@ -1,4 +1,4 @@
-package com.cloudmall.common.model;
+package com.cloudmall.common.model.cursor;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -21,7 +21,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class CursorResult<T> {
+public class CursorResp<T> {
 
     /** 当前页数据 */
     private List<T> items;

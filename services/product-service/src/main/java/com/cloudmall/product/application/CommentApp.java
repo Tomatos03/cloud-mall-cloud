@@ -14,7 +14,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import com.cloudmall.common.enums.BizErrorEnum;
-import com.cloudmall.common.model.PageResp;
+import com.cloudmall.common.model.page.PageResp;
 import com.cloudmall.common.utils.Asserts;
 import com.cloudmall.product.api.model.req.CommentPageReq;
 import com.cloudmall.product.api.model.resp.CommentResp;

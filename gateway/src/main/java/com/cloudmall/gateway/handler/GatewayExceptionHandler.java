@@ -22,7 +22,7 @@ import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 
 import com.cloudmall.common.enums.BizErrorEnum;
-import com.cloudmall.common.model.Result;
+import com.cloudmall.common.model.result.Result;
 
 /**
  * Gateway 全局异常处理器

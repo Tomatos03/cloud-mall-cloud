@@ -1,6 +1,6 @@
 package com.cloudmall.order.service;
 
-import com.cloudmall.common.model.PageResp;
+import com.cloudmall.common.model.page.PageResp;
 import com.cloudmall.order.api.model.req.OrderPageReq;
 import com.cloudmall.order.api.model.req.OrderSubPageReq;
 import com.cloudmall.order.api.model.resp.CouponUsageStatsResp;

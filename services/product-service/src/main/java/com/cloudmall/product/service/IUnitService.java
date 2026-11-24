@@ -2,7 +2,7 @@ package com.cloudmall.product.service;
 
 import java.util.List;
 
-import com.cloudmall.common.model.PageResp;
+import com.cloudmall.common.model.page.PageResp;
 import com.cloudmall.product.api.model.req.UnitCreateReq;
 import com.cloudmall.product.api.model.req.UnitPageReq;
 import com.cloudmall.product.api.model.req.UnitUpdateReq;

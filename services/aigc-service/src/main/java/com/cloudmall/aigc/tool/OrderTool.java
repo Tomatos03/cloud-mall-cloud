@@ -11,7 +11,7 @@ import org.springframework.ai.tool.annotation.ToolParam;
 import com.cloudmall.aigc.agent.AgentTool;
 import com.cloudmall.aigc.agent.AgentTypeEnum;
 import com.cloudmall.common.context.UserContextHolder;
-import com.cloudmall.common.model.PageResp;
+import com.cloudmall.common.model.page.PageResp;
 import com.cloudmall.order.api.client.OrderClient;
 import com.cloudmall.order.api.model.resp.OrderResp;
 

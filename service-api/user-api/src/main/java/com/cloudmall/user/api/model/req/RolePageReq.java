@@ -3,7 +3,7 @@ package com.cloudmall.user.api.model.req;
 import lombok.Getter;
 import lombok.Setter;
 
-import com.cloudmall.common.model.PageReq;
+import com.cloudmall.common.model.page.PageReq;
 
 /**
  * 角色分页查询请求

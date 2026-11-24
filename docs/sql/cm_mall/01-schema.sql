@@ -112,9 +112,12 @@ CREATE TABLE IF NOT EXISTS cm_address (
     province   varchar(50)  DEFAULT NULL comment '省份',
     city       varchar(50)  DEFAULT NULL comment '城市',
     district   varchar(50)  DEFAULT NULL comment '区县',
-    detail     varchar(255) DEFAULT NULL comment '详细地址',
-    zip_code   varchar(10)  DEFAULT NULL comment '邮政编码',
-    is_default tinyint(1)   DEFAULT '0' comment '是否默认地址(0=否 1=是)',
+    detail        varchar(255) DEFAULT NULL comment '详细地址',
+    zip_code      varchar(10)  DEFAULT NULL comment '邮政编码',
+    province_code varchar(12)  DEFAULT NULL comment '省级代码',
+    city_code     varchar(12)  DEFAULT NULL comment '市级代码',
+    district_code varchar(12)  DEFAULT NULL comment '区县级代码',
+    is_default    tinyint(1)   DEFAULT '0' comment '是否默认地址(0=否 1=是)',
     slot       tinyint      NOT NULL comment '地址槽位(1-10)',
     create_time datetime    DEFAULT NULL comment '创建时间',
     update_time datetime    DEFAULT NULL comment '更新时间',
@@ -937,3 +940,215 @@ CREATE TABLE IF NOT EXISTS cm_mock_payment_notify (
     KEY idx_out_trade_no (out_trade_no),
     KEY idx_status_retry (status, retry_count, next_retry_time)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 comment '模拟支付回调记录表';
+
+-- ============================================================
+-- 个人中心扩展表
+-- 覆盖账户设置、积分权益、浏览记录等页面所需数据。
+-- 可重复执行（CREATE TABLE IF NOT EXISTS）。
+-- ============================================================
+
+USE cm_mall;
+
+CREATE TABLE IF NOT EXISTS cm_user_profile
+(
+    user_id             bigint                                not null comment '用户ID'
+        primary key,
+    gender              varchar(10) default '保密'            null comment '性别：男/女/保密',
+    birthday            date                                  null comment '生日',
+    profile_visibility  varchar(20) default 'PUBLIC'          not null comment '个人主页可见范围：PUBLIC/PRIVATE',
+    purchase_visibility varchar(20) default 'PRIVATE'         not null comment '购买记录可见范围：PUBLIC/PRIVATE',
+    notify_order        tinyint(1)  default 1                 not null comment '订单通知开关',
+    notify_promotion    tinyint(1)  default 1                 not null comment '促销通知开关',
+    notify_logistics    tinyint(1)  default 1                 not null comment '物流通知开关',
+    notify_community    tinyint(1)  default 0                 not null comment '社区通知开关',
+    recommend_enabled   tinyint(1)  default 1                 not null comment '个性化推荐开关',
+    create_time         datetime    default CURRENT_TIMESTAMP null comment '创建时间',
+    update_time         datetime    default CURRENT_TIMESTAMP null on update CURRENT_TIMESTAMP comment '更新时间'
+) comment '用户扩展资料与设置' engine = InnoDB
+                          collate = utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS cm_user_point
+(
+    user_id      bigint   not null comment '用户ID'
+        primary key,
+    balance      int      default 0 not null comment '当前可用积分',
+    total_earned int      default 0 not null comment '累计获得积分',
+    total_spent  int      default 0 not null comment '累计消耗积分',
+    update_time  datetime default CURRENT_TIMESTAMP null on update CURRENT_TIMESTAMP comment '更新时间'
+) comment '用户积分账户' engine = InnoDB
+                        collate = utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS cm_user_point_log
+(
+    id            bigint auto_increment comment '流水ID'
+        primary key,
+    user_id       bigint       not null comment '用户ID',
+    change_amount int          not null comment '积分变动值（获得为正，消耗为负）',
+    balance_after int          not null comment '变动后余额',
+    type          varchar(32)  not null comment '流水类型',
+    description   varchar(255) null comment '流水描述',
+    create_time   datetime     default CURRENT_TIMESTAMP null comment '创建时间',
+    idempotency_key varchar(64) null comment '幂等键',
+    key idx_user_point_log_user_time (user_id, create_time),
+    constraint uk_user_point_log_idempotency unique (user_id, idempotency_key)
+) comment '用户积分流水' engine = InnoDB
+                          collate = utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS cm_user_browse_history
+(
+    id            bigint auto_increment comment '浏览记录ID'
+        primary key,
+    user_id       bigint         not null comment '用户ID',
+    product_id    bigint         not null comment '商品ID',
+    product_name  varchar(200)   null comment '商品名称快照',
+    product_image varchar(500)   null comment '商品图片快照',
+    price         decimal(10, 2) null comment '商品价格快照',
+    browse_time   datetime       not null comment '浏览时间',
+    update_time   datetime       default CURRENT_TIMESTAMP null on update CURRENT_TIMESTAMP comment '更新时间',
+    constraint uk_user_browse_product
+        unique (user_id, product_id),
+    key idx_user_browse_time (user_id, browse_time)
+) comment '用户商品浏览记录' engine = InnoDB
+                              collate = utf8mb4_unicode_ci;
+
+-- ============================================================
+-- 个人中心补齐能力
+-- 包含账户安全、积分签到/任务/兑换、地址区域数据。
+-- 建表语句可重复执行（CREATE TABLE IF NOT EXISTS）；
+-- 末尾 ALTER TABLE 用于旧库升级，字段/索引已存在时需人工跳过。
+-- ============================================================
+
+USE cm_mall;
+
+CREATE TABLE IF NOT EXISTS cm_user_security
+(
+    user_id                  bigint       not null comment '用户ID'
+        primary key,
+    pay_password_hash        varchar(255) null comment '支付密码BCrypt哈希',
+    pay_password_set_time    datetime     null comment '支付密码设置/修改时间',
+    real_name                varchar(64)  null comment '真实姓名密文（AES-GCM）',
+    real_name_mask           varchar(32)  null comment '真实姓名脱敏展示值',
+    id_card_no               varchar(255) null comment '身份证号密文（AES-GCM）',
+    id_card_mask             varchar(32)  null comment '身份证号脱敏展示值',
+    real_name_status         varchar(20)  not null default 'UNVERIFIED' comment '实名状态：UNVERIFIED/PENDING/VERIFIED/REJECTED',
+    real_name_submit_time    datetime     null comment '实名提交时间',
+    real_name_verify_time    datetime     null comment '实名核验完成时间',
+    real_name_reject_reason  varchar(255) null comment '实名驳回原因',
+    create_time              datetime     not null default CURRENT_TIMESTAMP comment '创建时间',
+    update_time              datetime     not null default CURRENT_TIMESTAMP on update CURRENT_TIMESTAMP comment '更新时间',
+    key idx_real_name_status (real_name_status)
+) comment '用户账户安全信息' engine = InnoDB
+                          collate = utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS cm_user_sign_in
+(
+    id            bigint auto_increment comment '签到ID'
+        primary key,
+    user_id       bigint   not null comment '用户ID',
+    sign_date     date     not null comment '签到日期',
+    streak_days   int      not null comment '连续签到天数',
+    reward_points int      not null comment '本次奖励积分',
+    create_time   datetime not null default CURRENT_TIMESTAMP comment '创建时间',
+    constraint uk_user_sign_date unique (user_id, sign_date)
+) comment '用户签到记录' engine = InnoDB
+                        collate = utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS cm_point_task
+(
+    id            bigint auto_increment comment '任务ID'
+        primary key,
+    code          varchar(50)  not null comment '任务编码',
+    name          varchar(100) not null comment '任务名称',
+    description   varchar(255) null comment '任务说明',
+    reward_points int          not null comment '奖励积分',
+    frequency     varchar(20)  not null comment '频率：DAILY/ONCE',
+    enabled       tinyint(1)   not null default 1 comment '是否启用',
+    sort          int          not null default 0 comment '排序',
+    create_time   datetime     not null default CURRENT_TIMESTAMP comment '创建时间',
+    update_time   datetime     not null default CURRENT_TIMESTAMP on update CURRENT_TIMESTAMP comment '更新时间',
+    constraint uk_point_task_code unique (code)
+) comment '积分任务定义' engine = InnoDB
+                        collate = utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS cm_point_task_record
+(
+    id            bigint auto_increment comment '任务记录ID'
+        primary key,
+    user_id       bigint      not null comment '用户ID',
+    task_code     varchar(50) not null comment '任务编码',
+    task_date     date        not null comment '任务日期',
+    status        varchar(20) not null comment '状态：COMPLETED/CLAIMED',
+    reward_points int         not null comment '实际发放积分',
+    create_time   datetime    not null default CURRENT_TIMESTAMP comment '完成时间',
+    claim_time    datetime    null comment '领取时间',
+    constraint uk_user_task_date unique (user_id, task_code, task_date)
+) comment '用户积分任务记录' engine = InnoDB
+                            collate = utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS cm_point_exchange_item
+(
+    id          bigint auto_increment comment '兑换商品ID'
+        primary key,
+    name        varchar(100) not null comment '商品名称',
+    type        varchar(20)  not null comment '类型：COUPON/PHYSICAL',
+    points_cost int          not null comment '所需积分',
+    coupon_id   bigint       null comment '优惠券模板ID',
+    stock       int          not null default 0 comment '剩余库存',
+    enabled     tinyint(1)   not null default 1 comment '是否上架',
+    sort        int          not null default 0 comment '排序',
+    create_time datetime     not null default CURRENT_TIMESTAMP comment '创建时间',
+    update_time datetime     not null default CURRENT_TIMESTAMP on update CURRENT_TIMESTAMP comment '更新时间'
+) comment '积分兑换商品' engine = InnoDB
+                        collate = utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS cm_point_exchange_order
+(
+    id              bigint auto_increment comment '兑换记录ID'
+        primary key,
+    user_id         bigint      not null comment '用户ID',
+    item_id         bigint      not null comment '兑换商品ID',
+    points_cost     int         not null comment '消耗积分快照',
+    status          varchar(20) not null comment '状态：SUCCESS/FAILED',
+    user_coupon_id  bigint      null comment '发放的用户券ID',
+    idempotency_key varchar(64) null comment '幂等键',
+    create_time     datetime    not null default CURRENT_TIMESTAMP comment '创建时间',
+    constraint uk_user_exchange_key unique (user_id, idempotency_key)
+) comment '积分兑换记录' engine = InnoDB
+                        collate = utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS cm_region
+(
+    code        varchar(12) not null comment '行政区代码'
+        primary key,
+    parent_code varchar(12) null comment '父级代码',
+    name        varchar(64) not null comment '名称',
+    level       tinyint     not null comment '层级：1省/2市/3区县',
+    sort        int         not null default 0 comment '排序',
+    enabled     tinyint(1)  not null default 1 comment '是否启用',
+    key idx_parent_level (parent_code, level, sort)
+) comment '行政区划' engine = InnoDB
+                    collate = utf8mb4_unicode_ci;
+
+-- 文件台账：记录上传文件的归属与生命周期，用于支撑临时文件回收
+CREATE TABLE IF NOT EXISTS cm_file
+(
+    id           bigint       NOT NULL AUTO_INCREMENT COMMENT '文件ID',
+    object_key   varchar(255) NOT NULL COMMENT '对象存储 key',
+    url          varchar(500) NOT NULL COMMENT '访问地址',
+    origin_name  varchar(255)          DEFAULT NULL COMMENT '原始文件名',
+    content_type varchar(100)          DEFAULT NULL COMMENT 'MIME 类型',
+    size         bigint                DEFAULT NULL COMMENT '文件大小（字节）',
+    owner_id     bigint                DEFAULT NULL COMMENT '上传用户ID',
+    biz_type     varchar(30)           DEFAULT NULL COMMENT '业务类型：GENERAL/AVATAR/SHOP_ONBOARDING/CHAT',
+    status       varchar(20)  NOT NULL DEFAULT 'PENDING' COMMENT '状态：PENDING/BOUND/ORPHAN',
+    create_time  datetime     NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    update_time  datetime     NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+    deleted      tinyint(1)   NOT NULL DEFAULT 0 COMMENT '是否删除(0=否 1=是)',
+    PRIMARY KEY (id),
+    UNIQUE KEY uk_object_key (object_key),
+    KEY idx_status_create (status, create_time),
+    KEY idx_owner (owner_id),
+    KEY idx_url (url)
+) ENGINE = InnoDB
+  DEFAULT CHARSET = utf8mb4
+  COLLATE = utf8mb4_unicode_ci COMMENT '文件台账';

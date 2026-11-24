@@ -12,10 +12,10 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.cloudmall.common.model.CursorReq;
-import com.cloudmall.common.model.CursorResult;
-import com.cloudmall.common.model.PageResp;
-import com.cloudmall.common.model.Result;
+import com.cloudmall.common.model.cursor.CursorReq;
+import com.cloudmall.common.model.cursor.CursorResp;
+import com.cloudmall.common.model.page.PageResp;
+import com.cloudmall.common.model.result.Result;
 import com.cloudmall.product.api.model.req.BrandCreateReq;
 import com.cloudmall.product.api.model.req.BrandPageReq;
 import com.cloudmall.product.api.model.req.BrandProductPageReq;
@@ -47,7 +47,7 @@ public class BrandController {
      * @return 游标分页结果
      */
     @GetMapping("/cursor")
-    public Result<CursorResult<BrandResp>> cursor(CursorReq req) {
+    public Result<CursorResp<BrandResp>> cursor(CursorReq req) {
         return Result.success(brandService.cursor(req));
     }
 
@@ -83,7 +83,7 @@ public class BrandController {
      * @return 游标分页结果
      */
     @GetMapping("/{id}/products/cursor")
-    public Result<CursorResult<ProductResp>> productCursor(@PathVariable Long id, CursorReq req) {
+    public Result<CursorResp<ProductResp>> productCursor(@PathVariable Long id, CursorReq req) {
         brandService.getById(id);
         return Result.success(productService.cursorByBrand(id, req));
     }

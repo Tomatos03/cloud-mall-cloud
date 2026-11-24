@@ -11,8 +11,8 @@ import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import org.apache.ibatis.annotations.Mapper;
 
-import com.cloudmall.common.model.CursorReq;
-import com.cloudmall.common.model.CursorResult;
+import com.cloudmall.common.model.cursor.CursorReq;
+import com.cloudmall.common.model.cursor.CursorResp;
 import com.cloudmall.im.api.model.req.MessageCursorReq;
 import com.cloudmall.im.enums.ReadStatusEnum;
 import com.cloudmall.im.model.entity.ChatMessageDO;
@@ -35,7 +35,7 @@ public interface ChatMessageMapper extends BaseMapper<ChatMessageDO> {
      * @param req 游标查询请求
      * @return 消息游标分页数据
      */
-    default CursorResult<ChatMessageDO> cursorHistory(MessageCursorReq req) {
+    default CursorResp<ChatMessageDO> cursorHistory(MessageCursorReq req) {
         int size = Math.max(1, Math.min(ObjectUtil.defaultIfNull(req.getSize(), 10), CursorReq.MAX_SIZE));
         LambdaQueryWrapper<ChatMessageDO> wrapper = Wrappers.<ChatMessageDO>lambdaQuery()
                 .eq(ChatMessageDO::getSessionId, req.getSessionId());
@@ -49,11 +49,11 @@ public interface ChatMessageMapper extends BaseMapper<ChatMessageDO> {
         boolean hasMore = records.size() > size;
         List<ChatMessageDO> items = hasMore ? records.subList(0, size) : records;
         Long nextCursor = CollUtil.isEmpty(items) ? 0L : CollUtil.getLast(items).getId();
-        return CursorResult.<ChatMessageDO>builder()
-                           .items(items)
-                           .cursor(nextCursor)
-                           .hasMore(hasMore)
-                           .build();
+        return CursorResp.<ChatMessageDO>builder()
+                         .items(items)
+                         .cursor(nextCursor)
+                         .hasMore(hasMore)
+                         .build();
     }
 
     /**

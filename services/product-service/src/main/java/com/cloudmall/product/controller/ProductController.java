@@ -15,9 +15,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.cloudmall.common.model.CursorReq;
-import com.cloudmall.common.model.CursorResult;
-import com.cloudmall.common.model.Result;
+import com.cloudmall.common.model.cursor.CursorReq;
+import com.cloudmall.common.model.cursor.CursorResp;
+import com.cloudmall.common.model.result.Result;
 import com.cloudmall.product.api.model.req.ProductCreateReq;
 import com.cloudmall.product.api.model.req.ProductGetReq;
 import com.cloudmall.product.api.model.req.ProductUpdateReq;
@@ -159,7 +159,7 @@ public class ProductController {
      * @return 游标分页结果
      */
     @GetMapping("/docs")
-    public Result<CursorResult<ProductDocResp>> cursorPage(CursorReq req) {
+    public Result<CursorResp<ProductDocResp>> cursorPage(CursorReq req) {
         return Result.success(productService.cursorPage(req));
     }
 

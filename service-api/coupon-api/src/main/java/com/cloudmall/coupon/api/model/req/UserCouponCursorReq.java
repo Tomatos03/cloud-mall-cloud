@@ -8,7 +8,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import com.cloudmall.common.model.CursorReq;
+import com.cloudmall.common.model.cursor.CursorReq;
 import com.cloudmall.coupon.api.enums.UserCouponUsableEnum;
 
 /**

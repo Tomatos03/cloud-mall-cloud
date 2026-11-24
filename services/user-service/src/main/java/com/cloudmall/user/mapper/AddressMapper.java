@@ -25,6 +25,19 @@ public interface AddressMapper extends BaseMapper<AddressDO> {
     }
 
     /**
+     * 按用户批量查询收货地址。
+     *
+     * @param userIds 用户 ID 列表
+     * @return 命中的收货地址列表
+     */
+    default List<AddressDO> selectByUserIds(List<Long> userIds) {
+        if (CollUtil.isEmpty(userIds)) {
+            return List.of();
+        }
+        return selectList(Wrappers.<AddressDO>lambdaQuery().in(AddressDO::getUserId, userIds));
+    }
+
+    /**
      * 查询用户已占用的地址槽位。
      *
      * @param userId 用户 ID

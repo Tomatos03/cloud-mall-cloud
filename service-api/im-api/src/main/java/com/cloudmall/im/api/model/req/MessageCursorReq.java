@@ -6,7 +6,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import com.cloudmall.common.model.CursorReq;
+import com.cloudmall.common.model.cursor.CursorReq;
 
 /**
  * 消息历史游标查询请求

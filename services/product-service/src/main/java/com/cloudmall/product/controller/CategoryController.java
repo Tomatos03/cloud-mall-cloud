@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.cloudmall.common.model.Result;
+import com.cloudmall.common.model.result.Result;
 import com.cloudmall.product.api.model.req.CategoryCreateReq;
 import com.cloudmall.product.api.model.resp.CategoryNodeResp;
 import com.cloudmall.product.api.model.resp.CategoryResp;

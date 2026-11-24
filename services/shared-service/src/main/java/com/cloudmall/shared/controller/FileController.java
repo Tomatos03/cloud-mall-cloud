@@ -15,7 +15,7 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBody;
 
 import com.cloudmall.common.context.UserContextHolder;
-import com.cloudmall.common.model.Result;
+import com.cloudmall.common.model.result.Result;
 import com.cloudmall.shared.api.enums.FileBizTypeEnum;
 import com.cloudmall.shared.api.model.resp.FileUploadResp;
 import com.cloudmall.shared.constant.FileConstants;

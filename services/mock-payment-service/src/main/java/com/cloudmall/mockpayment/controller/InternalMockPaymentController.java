@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.cloudmall.common.model.Result;
+import com.cloudmall.common.model.result.Result;
 import com.cloudmall.mockpayment.service.IWechatPayService;
 import com.cloudmall.payment.api.model.req.MockPaymentCreateReq;
 import com.cloudmall.payment.api.model.resp.MockPaymentCreateResp;

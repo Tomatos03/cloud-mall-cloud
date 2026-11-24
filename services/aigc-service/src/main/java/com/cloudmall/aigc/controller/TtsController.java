@@ -12,7 +12,7 @@ import reactor.core.publisher.Flux;
 import com.cloudmall.aigc.api.model.req.TtsReq;
 import com.cloudmall.aigc.api.model.resp.TtsResp;
 import com.cloudmall.aigc.service.ITtsService;
-import com.cloudmall.common.model.Result;
+import com.cloudmall.common.model.result.Result;
 
 /**
  * 文本转语音接口

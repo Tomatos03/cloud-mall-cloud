@@ -5,7 +5,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import com.cloudmall.common.model.PageReq;
+import com.cloudmall.common.model.page.PageReq;
 import com.cloudmall.coupon.api.enums.CouponOwnerEnum;
 import com.cloudmall.coupon.api.enums.CouponStatusEnum;
 import com.cloudmall.coupon.api.enums.IssueChannelEnum;

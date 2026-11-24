@@ -13,8 +13,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.cloudmall.common.context.UserContextHolder;
-import com.cloudmall.common.model.Result;
-import com.cloudmall.common.model.ShopInfoResp;
+import com.cloudmall.common.model.result.Result;
+import com.cloudmall.shared.api.model.resp.ShopInfoResp;
 import com.cloudmall.user.api.model.req.ShopReq;
 import com.cloudmall.user.api.model.resp.ShopResp;
 import com.cloudmall.user.service.IShopService;

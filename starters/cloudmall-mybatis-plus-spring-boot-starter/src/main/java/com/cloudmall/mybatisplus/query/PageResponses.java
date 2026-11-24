@@ -5,7 +5,7 @@ import java.util.function.Function;
 import cn.hutool.core.collection.CollStreamUtil;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 
-import com.cloudmall.common.model.PageResp;
+import com.cloudmall.common.model.page.PageResp;
 
 /**
  * 分页结果转换器。

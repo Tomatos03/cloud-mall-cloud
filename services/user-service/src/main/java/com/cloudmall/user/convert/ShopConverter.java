@@ -6,7 +6,7 @@ import java.util.List;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
-import com.cloudmall.common.model.ShopInfoResp;
+import com.cloudmall.shared.api.model.resp.ShopInfoResp;
 import com.cloudmall.user.api.model.resp.ShopResp;
 import com.cloudmall.user.model.entity.ShopDO;
 

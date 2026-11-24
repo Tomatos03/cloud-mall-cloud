@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBody;
 
-import com.cloudmall.common.model.Result;
+import com.cloudmall.common.model.result.Result;
 import com.cloudmall.shared.api.model.resp.ChatFileResp;
 import com.cloudmall.shared.model.bo.FileContent;
 import com.cloudmall.shared.service.IChatFileService;

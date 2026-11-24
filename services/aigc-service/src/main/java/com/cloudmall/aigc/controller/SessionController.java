@@ -21,7 +21,7 @@ import com.cloudmall.aigc.api.model.resp.CreateSessionResp;
 import com.cloudmall.aigc.api.model.resp.HotTopicResp;
 import com.cloudmall.aigc.api.model.resp.SessionHistoryItemResp;
 import com.cloudmall.aigc.service.ISessionService;
-import com.cloudmall.common.model.Result;
+import com.cloudmall.common.model.result.Result;
 
 /**
  * 会话管理接口 — 用户会话创建、热门话题查询、历史消息查看

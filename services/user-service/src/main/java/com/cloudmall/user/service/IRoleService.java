@@ -2,7 +2,7 @@ package com.cloudmall.user.service;
 
 import java.util.List;
 
-import com.cloudmall.common.model.PageResp;
+import com.cloudmall.common.model.page.PageResp;
 import com.cloudmall.user.api.model.req.RolePageReq;
 import com.cloudmall.user.api.model.req.RoleReq;
 import com.cloudmall.user.api.model.resp.RoleResp;

@@ -23,8 +23,8 @@ import org.springframework.stereotype.Service;
 
 import com.cloudmall.common.enums.BizErrorEnum;
 import com.cloudmall.common.exception.BizException;
-import com.cloudmall.common.model.CursorReq;
-import com.cloudmall.common.model.CursorResult;
+import com.cloudmall.common.model.cursor.CursorReq;
+import com.cloudmall.common.model.cursor.CursorResp;
 import com.cloudmall.product.api.client.ProductClient;
 import com.cloudmall.product.api.model.resp.ProductDocResp;
 import com.cloudmall.search.api.model.req.SearchProductReq;
@@ -109,7 +109,7 @@ public class SearchService implements ISearchService {
                 log.warn("全量重建达到最大翻页数上限 maxPages={}，提前结束", full.getMaxPages());
                 break;
             }
-            CursorResult<ProductDocResp> result = productClient.cursorPage(
+            CursorResp<ProductDocResp> result = productClient.cursorPage(
                     CursorReq.builder()
                              .cursor(cursor)
                              .size(full.getPageSize())

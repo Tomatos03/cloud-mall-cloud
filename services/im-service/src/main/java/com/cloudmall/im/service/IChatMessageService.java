@@ -2,7 +2,7 @@ package com.cloudmall.im.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
 
-import com.cloudmall.common.model.CursorResult;
+import com.cloudmall.common.model.cursor.CursorResp;
 import com.cloudmall.im.api.model.req.MessageCursorReq;
 import com.cloudmall.im.api.model.resp.MessageResp;
 import com.cloudmall.im.model.entity.ChatMessageDO;
@@ -21,7 +21,7 @@ public interface IChatMessageService extends IService<ChatMessageDO> {
      * @param req 游标查询请求
      * @return 消息游标分页数据
      */
-    CursorResult<MessageResp> cursorMessageHistory(MessageCursorReq req);
+    CursorResp<MessageResp> cursorMessageHistory(MessageCursorReq req);
 
     /**
      * 获取会话最后一条消息。
