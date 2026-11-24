@@ -5,7 +5,8 @@ import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.cloud.openfeign.EnableFeignClients;
 import org.springframework.context.annotation.Bean;
 
-import com.cloudmall.feign.decoder.ResultUnwrappingDecoder;
+import com.cloudmall.feign.decoder.ResultDecoder;
+import com.cloudmall.feign.decoder.ResultParser;
 import com.cloudmall.feign.interceptor.FeignUserContextInterceptor;
 
 /**
@@ -31,14 +32,25 @@ public class CloudmallFeignAutoConfiguration {
     }
 
     /**
-     * 创建 Feign Result 自动拆箱解码器。
+     * 创建 Result 信封解析器，供解码器与错误解码器共用。
      *
      * @param objectMapper JSON 对象映射器
+     * @return 解析器
+     */
+    @Bean
+    ResultParser resultParser(ObjectMapper objectMapper) {
+        return new ResultParser(objectMapper);
+    }
+
+    /**
+     * 创建 Feign Result 自动拆箱解码器。
+     *
+     * @param parser Result 信封解析器
      * @return 解码器
      */
     @Bean
-    ResultUnwrappingDecoder resultUnwrappingDecoder(ObjectMapper objectMapper) {
-        return new ResultUnwrappingDecoder(objectMapper);
+    ResultDecoder resultDecoder(ResultParser parser) {
+        return new ResultDecoder(parser);
     }
 
 }
