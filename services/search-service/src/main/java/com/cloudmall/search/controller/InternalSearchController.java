@@ -24,7 +24,7 @@ import com.cloudmall.search.index.ProductIndexRepository;
 @RequestMapping("/internal/search")
 public class InternalSearchController {
 
-    private final ProductIndexRepository indexRepository;
+    private final ProductIndexRepository productIndexRepository;
 
     /**
      * 增量写入单个搜索文档（不存在则新建，字段级更新不覆盖销量）。
@@ -34,7 +34,7 @@ public class InternalSearchController {
      */
     @PostMapping("/upsert")
     public Result<Void> upsert(@RequestBody ProductDocResp doc) {
-        indexRepository.upsert(doc);
+        productIndexRepository.upsert(doc);
         return Result.success();
     }
 
@@ -46,7 +46,7 @@ public class InternalSearchController {
      */
     @PostMapping("/delete/{id}")
     public Result<Void> deleteById(@PathVariable("id") Long id) {
-        indexRepository.deleteById(id);
+        productIndexRepository.deleteById(id);
         return Result.success();
     }
 }

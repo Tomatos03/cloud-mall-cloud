@@ -20,12 +20,12 @@ import com.cloudmall.im.interceptor.WebSocketHandshakeInterceptor;
 @RequiredArgsConstructor
 public class WebSocketConfig implements WebSocketConfigurer {
     private final ChatWebSocketHandler chatWebSocketHandler;
-    private final WebSocketHandshakeInterceptor handshakeInterceptor;
+    private final WebSocketHandshakeInterceptor webSocketHandshakeInterceptor;
 
     @Override
     public void registerWebSocketHandlers(WebSocketHandlerRegistry registry) {
         registry.addHandler(chatWebSocketHandler, "/chat/ws")
-                .addInterceptors(handshakeInterceptor)
+                .addInterceptors(webSocketHandshakeInterceptor)
                 .setAllowedOrigins("*");
     }
 }

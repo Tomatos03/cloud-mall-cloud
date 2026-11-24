@@ -34,8 +34,8 @@ import com.cloudmall.payment.api.model.resp.WechatErrorResp;
 @Order(Ordered.HIGHEST_PRECEDENCE + 20)
 public class MockPaymentSignatureFilter extends OncePerRequestFilter {
 
-    private final MockPaymentProperties properties;
-    private final WechatPaySignatureService signatureService;
+    private final MockPaymentProperties mockPaymentProperties;
+    private final WechatPaySignatureService wechatPaySignatureService;
     private final ObjectMapper objectMapper;
 
     /**
@@ -46,7 +46,8 @@ public class MockPaymentSignatureFilter extends OncePerRequestFilter {
      */
     @Override
     protected boolean shouldNotFilter(HttpServletRequest request) {
-        return !properties.getSignature().isVerifyRequest() || !request.getRequestURI().startsWith("/v3/");
+        return !mockPaymentProperties.getSignature().isVerifyRequest() || !request.getRequestURI()
+                                                                                  .startsWith("/v3/");
     }
 
     /**
@@ -67,7 +68,7 @@ public class MockPaymentSignatureFilter extends OncePerRequestFilter {
         byte[] body = CachedBodyHttpServletRequest.readBody(request);
         CachedBodyHttpServletRequest cachedRequest = new CachedBodyHttpServletRequest(request, body);
         try {
-            signatureService.verifyRequest(
+            wechatPaySignatureService.verifyRequest(
                     request.getHeader("Authorization"),
                     request.getMethod(),
                     request.getRequestURI(),

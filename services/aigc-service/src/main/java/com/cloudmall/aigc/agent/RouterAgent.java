@@ -33,7 +33,7 @@ public class RouterAgent implements IAgent {
     /** Nacos 路由 prompt 模板中的 Agent 描述占位符 */
     public static final String AGENT_DESCRIPTIONS = "AGENT_DESCRIPTIONS";
 
-    private final AgentPromptLoader promptLoader;
+    private final AgentPromptLoader agentPromptLoader;
     private final ChatClient.Builder chatClientBuilder;
     private final Map<AgentTypeEnum, IAgent> agentMap;
     private ChatClient routerChatClient;
@@ -44,11 +44,16 @@ public class RouterAgent implements IAgent {
      *
      * @param clientBuilder ChatClient 构建器
      * @param agents 所有业务智能体列表（不含路由自身）
-     * @param promptLoader 提示词加载器，用于加载路由 system prompt
+     * @param agentPromptLoader 提示词加载器，用于加载路由 system
+     *                          prompt
      */
-    public RouterAgent(ChatClient.Builder clientBuilder, List<IAgent> agents, AgentPromptLoader promptLoader) {
+    public RouterAgent(
+        ChatClient.Builder clientBuilder,
+        List<IAgent> agents,
+        AgentPromptLoader agentPromptLoader
+    ) {
         this.chatClientBuilder = clientBuilder;
-        this.promptLoader = promptLoader;
+        this.agentPromptLoader = agentPromptLoader;
         this.agentMap = CollStreamUtil.toIdentityMap(
                 CollUtil.filterNew(agents, agent -> AgentTypeEnum.ROUTE != agent.getType()),
                 IAgent::getType
@@ -57,7 +62,7 @@ public class RouterAgent implements IAgent {
         this.routerChatClient = buildRouterChatClient();
 
         // 注册 Nacos 热更新监听
-        promptLoader.registerListener(
+        agentPromptLoader.registerListener(
                 AgentTypeEnum.ROUTE,
                 () -> {
                     this.routerChatClient = buildRouterChatClient();
@@ -72,7 +77,7 @@ public class RouterAgent implements IAgent {
      * @return 路由 ChatClient
      */
     private ChatClient buildRouterChatClient() {
-        String systemPrompt = promptLoader.load(AgentTypeEnum.ROUTE);
+        String systemPrompt = agentPromptLoader.load(AgentTypeEnum.ROUTE);
         String agentDescriptions = agentMap.values()
                                            .stream()
                                            .map(this::formatAgentDescription)

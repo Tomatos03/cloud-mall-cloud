@@ -37,8 +37,8 @@ import com.cloudmall.user.service.IUserService;
 @RequiredArgsConstructor
 public class StoreOnboardingService implements IStoreOnboardingService {
 
-    private final StoreApplicationMapper applicationMapper;
-    private final StoreApplicationConverter applicationConverter;
+    private final StoreApplicationMapper storeApplicationMapper;
+    private final StoreApplicationConverter storeApplicationConverter;
     private final IShopService shopService;
     private final IUserService userService;
 
@@ -51,11 +51,11 @@ public class StoreOnboardingService implements IStoreOnboardingService {
     @Override
     public StoreApplicationResp getStatus(Long userId) {
         Optional<Long> shopId = shopService.findShopIdByUserId(userId);
-        StoreApplicationDO application = applicationMapper.selectByUserId(userId);
+        StoreApplicationDO application = storeApplicationMapper.selectByUserId(userId);
         if (shopId.isPresent()) {
             StoreApplicationResp resp = application == null
                     ? StoreApplicationResp.builder().build()
-                    : applicationConverter.toResp(application);
+                    : storeApplicationConverter.toResp(application);
             resp.setStatus(StoreApplicationStatusEnum.SUCCESS);
             resp.setShopId(shopId.get());
             return resp;
@@ -65,7 +65,7 @@ public class StoreOnboardingService implements IStoreOnboardingService {
                                        .status(StoreApplicationStatusEnum.NONE)
                                        .build();
         }
-        return applicationConverter.toResp(application);
+        return storeApplicationConverter.toResp(application);
     }
 
     /**
@@ -84,23 +84,23 @@ public class StoreOnboardingService implements IStoreOnboardingService {
                 BizErrorEnum.STORE_APPLICATION_ALREADY_MERCHANT
         );
         validateLicense(req);
-        StoreApplicationDO existing = applicationMapper.selectByUserId(userId);
+        StoreApplicationDO existing = storeApplicationMapper.selectByUserId(userId);
         if (existing != null) {
             Asserts.isFalse(existing.getStatus().isPending(), BizErrorEnum.STORE_APPLICATION_PENDING);
             boolean opened = existing.getStatus().isSuccess();
             Asserts.isFalse(opened, BizErrorEnum.STORE_APPLICATION_ALREADY_MERCHANT);
         }
-        StoreApplicationDO application = applicationConverter.toDO(req, userId);
+        StoreApplicationDO application = storeApplicationConverter.toDO(req, userId);
         if (existing == null) {
-            applicationMapper.insert(application);
+            storeApplicationMapper.insert(application);
         } else {
             application.setId(existing.getId());
             application.setCreateTime(existing.getCreateTime());
-            applicationMapper.updateById(application);
-            applicationMapper.clearAuditInfo(application.getId());
+            storeApplicationMapper.updateById(application);
+            storeApplicationMapper.clearAuditInfo(application.getId());
         }
         bindPhotos(userId, req, existing);
-        return applicationConverter.toResp(application);
+        return storeApplicationConverter.toResp(application);
     }
 
     /**
@@ -160,7 +160,7 @@ public class StoreOnboardingService implements IStoreOnboardingService {
     @Transactional(rollbackFor = Exception.class)
     public StoreApplicationResp review(Long applicationId, boolean approved, String remark, Long auditorId) {
         StoreApplicationDO application = Asserts.requireNonNull(
-                applicationMapper.selectById(applicationId),
+                storeApplicationMapper.selectById(applicationId),
                 BizErrorEnum.STORE_APPLICATION_NOT_EXIST
         );
         Asserts.isTrue(application.getStatus().isPending(), BizErrorEnum.STORE_APPLICATION_STATUS_INVALID);
@@ -180,7 +180,7 @@ public class StoreOnboardingService implements IStoreOnboardingService {
             Asserts.notBlank(remark, BizErrorEnum.STORE_APPLICATION_REJECT_REASON_REQUIRED);
         }
         LocalDateTime auditTime = LocalDateTime.now().withNano(0);
-        int updated = applicationMapper.markReviewed(
+        int updated = storeApplicationMapper.markReviewed(
                 applicationId,
                 target,
                 finalRemark,
@@ -200,7 +200,7 @@ public class StoreOnboardingService implements IStoreOnboardingService {
                 application.getUserId(),
                 approved
         );
-        return applicationConverter.toResp(application);
+        return storeApplicationConverter.toResp(application);
     }
 
     /**
@@ -212,7 +212,7 @@ public class StoreOnboardingService implements IStoreOnboardingService {
     @Transactional(rollbackFor = Exception.class)
     public void autoApprovePending(long delaySeconds) {
         LocalDateTime threshold = LocalDateTime.now().minusSeconds(delaySeconds);
-        List<StoreApplicationDO> applications = applicationMapper.selectPendingBefore(
+        List<StoreApplicationDO> applications = storeApplicationMapper.selectPendingBefore(
                 threshold,
                 StoreConstants.AUTO_REVIEW_BATCH_SIZE
         );

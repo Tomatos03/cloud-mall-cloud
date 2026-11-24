@@ -32,8 +32,8 @@ public class WechatPayNotifyBuilder {
     /** 回调最大报文长度（微信支付限制 1MB） */
     private static final int MAX_NOTIFY_BODY_LENGTH = 1024 * 1024;
 
-    private final MockPaymentConverter converter;
-    private final MockPaymentProperties properties;
+    private final MockPaymentConverter mockPaymentConverter;
+    private final MockPaymentProperties mockPaymentProperties;
     private final ObjectMapper objectMapper;
 
     /**
@@ -43,18 +43,18 @@ public class WechatPayNotifyBuilder {
      * @return 加密后的回调 JSON
      */
     public String build(MockPaymentOrderDO order) {
-        WechatPayTransaction transaction = converter.toTransaction(order);
+        WechatPayTransaction transaction = mockPaymentConverter.toTransaction(order);
         String plaintext = toJson(transaction);
         String nonce = WechatPayCrypto.randomNonce(6);
         String ciphertext = WechatPayCrypto.aesGcmEncrypt(
-                properties.getApiV3Key(),
+                mockPaymentProperties.getApiV3Key(),
                 WechatPayConstants.ORIGINAL_TYPE_TRANSACTION,
                 nonce,
                 plaintext
         );
         WechatPayNotification notification = new WechatPayNotification(
                 "MOCK-EV-" + IdUtil.fastSimpleUUID(),
-                converter.formatTime(LocalDateTime.now().withNano(0)),
+                mockPaymentConverter.formatTime(LocalDateTime.now().withNano(0)),
                 WechatPayConstants.RESOURCE_TYPE_ENCRYPT,
                 WechatPayConstants.EVENT_TRANSACTION_SUCCESS,
                 "支付成功",

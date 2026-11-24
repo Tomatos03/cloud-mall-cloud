@@ -46,9 +46,9 @@ import com.cloudmall.payment.api.model.resp.TransactionQueryResp;
 @RequiredArgsConstructor
 public class WechatPayService implements IWechatPayService {
 
-    private final MockPaymentOrderMapper orderMapper;
-    private final MockPaymentConverter converter;
-    private final MockPaymentProperties properties;
+    private final MockPaymentOrderMapper mockPaymentOrderMapper;
+    private final MockPaymentConverter mockPaymentConverter;
+    private final MockPaymentProperties mockPaymentProperties;
 
     /**
      * 微信支付协议下单。
@@ -91,8 +91,8 @@ public class WechatPayService implements IWechatPayService {
                 ? TradeTypeEnum.NATIVE
                 : TradeTypeEnum.fromCode(req.getTradeType());
         return createOrder(
-                properties.getAppid(),
-                properties.getMchid(),
+                mockPaymentProperties.getAppid(),
+                mockPaymentProperties.getMchid(),
                 req.getDescription(),
                 req.getOutTradeNo(),
                 req.getNotifyUrl(),
@@ -117,7 +117,7 @@ public class WechatPayService implements IWechatPayService {
         validateMchid(mchid);
         MockPaymentOrderDO order = requireOrder(outTradeNo);
         refreshIfExpired(order);
-        return converter.toQueryResp(order);
+        return mockPaymentConverter.toQueryResp(order);
     }
 
     /**
@@ -131,11 +131,11 @@ public class WechatPayService implements IWechatPayService {
     public TransactionQueryResp queryByTransactionId(String transactionId, String mchid) {
         validateMchid(mchid);
         MockPaymentOrderDO order = Asserts.requireNonNull(
-                orderMapper.selectByTransactionId(transactionId),
+                mockPaymentOrderMapper.selectByTransactionId(transactionId),
                 BizErrorEnum.MOCK_PAYMENT_ORDER_NOT_EXIST
         );
         refreshIfExpired(order);
-        return converter.toQueryResp(order);
+        return mockPaymentConverter.toQueryResp(order);
     }
 
     /**
@@ -148,7 +148,7 @@ public class WechatPayService implements IWechatPayService {
     public MockPaymentQueryResp queryInternal(String outTradeNo) {
         MockPaymentOrderDO order = requireOrder(outTradeNo);
         refreshIfExpired(order);
-        return converter.toQueryRespForInternal(order, publicBaseUrl());
+        return mockPaymentConverter.toQueryRespForInternal(order, publicBaseUrl());
     }
 
     /**
@@ -183,7 +183,7 @@ public class WechatPayService implements IWechatPayService {
     public MockPaymentDetailResp markPaid(String outTradeNo) {
         MockPaymentOrderDO order = requireOrder(outTradeNo);
         if (TradeStateEnum.SUCCESS.getCode().equals(order.getTradeState())) {
-            return converter.toDetailResp(order, publicBaseUrl());
+            return mockPaymentConverter.toDetailResp(order, publicBaseUrl());
         }
         Asserts.isFalse(
                 TradeStateEnum.CLOSED.getCode().equals(order.getTradeState()),
@@ -200,7 +200,7 @@ public class WechatPayService implements IWechatPayService {
         );
         String transactionId = StrUtil.blankToDefault(order.getTransactionId(), generateTransactionId());
         LocalDateTime successTime = LocalDateTime.now().withNano(0);
-        int updated = orderMapper.markPaid(
+        int updated = mockPaymentOrderMapper.markPaid(
                 outTradeNo,
                 transactionId,
                 successTime,
@@ -213,13 +213,13 @@ public class WechatPayService implements IWechatPayService {
                     TradeStateEnum.SUCCESS.getCode().equals(latest.getTradeState()),
                     BizErrorEnum.INVALID_ORDER_STATUS
             );
-            return converter.toDetailResp(latest, publicBaseUrl());
+            return mockPaymentConverter.toDetailResp(latest, publicBaseUrl());
         }
         order.setTransactionId(transactionId);
         order.setTradeState(TradeStateEnum.SUCCESS.getCode());
         order.setTradeStateDesc(TradeStateEnum.SUCCESS.getDesc());
         order.setSuccessTime(successTime);
-        return converter.toDetailResp(order, publicBaseUrl());
+        return mockPaymentConverter.toDetailResp(order, publicBaseUrl());
     }
 
     /**
@@ -232,7 +232,7 @@ public class WechatPayService implements IWechatPayService {
     public MockPaymentDetailResp detail(String outTradeNo) {
         MockPaymentOrderDO order = requireOrder(outTradeNo);
         refreshIfExpired(order);
-        return converter.toDetailResp(order, publicBaseUrl());
+        return mockPaymentConverter.toDetailResp(order, publicBaseUrl());
     }
 
     /**
@@ -245,11 +245,11 @@ public class WechatPayService implements IWechatPayService {
      */
     @Override
     public PageResp<MockPaymentDetailResp> page(long current, long size, String tradeState) {
-        IPage<MockPaymentOrderDO> page = orderMapper.selectOrderPage(
+        IPage<MockPaymentOrderDO> page = mockPaymentOrderMapper.selectOrderPage(
                 new Page<>(current, size),
                 StrUtil.emptyToNull(tradeState)
         );
-        return PageResponses.of(page, order -> converter.toDetailResp(order, publicBaseUrl()));
+        return PageResponses.of(page, order -> mockPaymentConverter.toDetailResp(order, publicBaseUrl()));
     }
 
     /**
@@ -283,12 +283,12 @@ public class WechatPayService implements IWechatPayService {
     ) {
         Asserts.notNull(amountTotal, BizErrorEnum.MOCK_PAYMENT_AMOUNT_INVALID);
         Asserts.isPositive(amountTotal, BizErrorEnum.MOCK_PAYMENT_AMOUNT_INVALID);
-        MockPaymentOrderDO existing = orderMapper.selectByOutTradeNo(outTradeNo);
+        MockPaymentOrderDO existing = mockPaymentOrderMapper.selectByOutTradeNo(outTradeNo);
         if (existing != null) {
             boolean sameAmount = Objects.equals(existing.getAmountTotal(), amountTotal);
             boolean sameDescription = Objects.equals(existing.getDescription(), description);
             Asserts.isTrue(sameAmount && sameDescription, BizErrorEnum.MOCK_PAYMENT_OUT_TRADE_NO_USED);
-            return converter.toCreateResp(existing, publicBaseUrl());
+            return mockPaymentConverter.toCreateResp(existing, publicBaseUrl());
         }
         LocalDateTime now = LocalDateTime.now();
         MockPaymentOrderDO order = MockPaymentOrderDO
@@ -309,12 +309,12 @@ public class WechatPayService implements IWechatPayService {
                 .codeUrl(tradeType == TradeTypeEnum.NATIVE ? generateCodeUrl() : null)
                 .expireTime(
                         expireTime == null
-                                ? now.plusMinutes(properties.getDefaultExpireMinutes())
+                                ? now.plusMinutes(mockPaymentProperties.getDefaultExpireMinutes())
                                 : expireTime
                 )
                 .build();
-        orderMapper.insert(order);
-        return converter.toCreateResp(order, publicBaseUrl());
+        mockPaymentOrderMapper.insert(order);
+        return mockPaymentConverter.toCreateResp(order, publicBaseUrl());
     }
 
     /**
@@ -330,7 +330,7 @@ public class WechatPayService implements IWechatPayService {
         if (TradeStateEnum.CLOSED.getCode().equals(order.getTradeState())) {
             throw new BizException(BizErrorEnum.MOCK_PAYMENT_ORDER_CLOSED);
         }
-        int updated = orderMapper.markClosed(
+        int updated = mockPaymentOrderMapper.markClosed(
                 outTradeNo,
                 TradeStateEnum.CLOSED.getCode(),
                 TradeStateEnum.CLOSED.getDesc()
@@ -359,7 +359,7 @@ public class WechatPayService implements IWechatPayService {
         if (!notPayAndExpired) {
             return;
         }
-        int updated = orderMapper.markClosed(
+        int updated = mockPaymentOrderMapper.markClosed(
                 order.getOutTradeNo(),
                 TradeStateEnum.CLOSED.getCode(),
                 TradeStateEnum.CLOSED.getDesc()
@@ -378,7 +378,7 @@ public class WechatPayService implements IWechatPayService {
      */
     private MockPaymentOrderDO requireOrder(String outTradeNo) {
         return Asserts.requireNonNull(
-                orderMapper.selectByOutTradeNo(outTradeNo),
+                mockPaymentOrderMapper.selectByOutTradeNo(outTradeNo),
                 BizErrorEnum.MOCK_PAYMENT_ORDER_NOT_EXIST
         );
     }
@@ -390,8 +390,8 @@ public class WechatPayService implements IWechatPayService {
      * @param mchid 商户号
      */
     private void validateMerchant(String appid, String mchid) {
-        Asserts.isEqual(appid, properties.getAppid(), BizErrorEnum.INVALID_PARAM);
-        Asserts.isEqual(mchid, properties.getMchid(), BizErrorEnum.INVALID_PARAM);
+        Asserts.isEqual(appid, mockPaymentProperties.getAppid(), BizErrorEnum.INVALID_PARAM);
+        Asserts.isEqual(mchid, mockPaymentProperties.getMchid(), BizErrorEnum.INVALID_PARAM);
     }
 
     /**
@@ -400,7 +400,7 @@ public class WechatPayService implements IWechatPayService {
      * @param mchid 商户号
      */
     private void validateMchid(String mchid) {
-        Asserts.isEqual(mchid, properties.getMchid(), BizErrorEnum.INVALID_PARAM);
+        Asserts.isEqual(mchid, mockPaymentProperties.getMchid(), BizErrorEnum.INVALID_PARAM);
     }
 
     /**
@@ -428,7 +428,7 @@ public class WechatPayService implements IWechatPayService {
      * @return 去除末尾斜杠的基础地址
      */
     private String publicBaseUrl() {
-        return StrUtil.removeSuffix(properties.getPublicBaseUrl(), "/");
+        return StrUtil.removeSuffix(mockPaymentProperties.getPublicBaseUrl(), "/");
     }
 
     /**

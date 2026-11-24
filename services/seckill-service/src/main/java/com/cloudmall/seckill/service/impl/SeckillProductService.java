@@ -53,8 +53,8 @@ public class SeckillProductService implements ISeckillProductService {
     /** 每个活动最多可报名的商品数（活动未配置时的兜底默认值） */
     private static final int DEFAULT_MAX_PRODUCTS_PER_ACTIVITY = 50;
 
-    private final SeckillProductMapper productMapper;
-    private final SeckillActivityMapper activityMapper;
+    private final SeckillProductMapper seckillProductMapper;
+    private final SeckillActivityMapper seckillActivityMapper;
     private final AuditRecordMapper auditRecordMapper;
     private final SeckillConverter seckillConverter;
     private final ProductClient productClient;
@@ -64,7 +64,7 @@ public class SeckillProductService implements ISeckillProductService {
     @Transactional(rollbackFor = Exception.class)
     public Long submit(SeckillProductDO product, Long submitterId) {
         SeckillActivityDO activity = Asserts.requireNonNull(
-                activityMapper.selectById(product.getActivityId()),
+                seckillActivityMapper.selectById(product.getActivityId()),
                 BizErrorEnum.SECKILL_ACTIVITY_NOT_EXIST
         );
 
@@ -76,11 +76,14 @@ public class SeckillProductService implements ISeckillProductService {
         );
 
         // 同活动同 SKU 唯一
-        Long existing = productMapper.countByActivityAndSku(product.getActivityId(), product.getSkuId());
+        Long existing = seckillProductMapper.countByActivityAndSku(
+                product.getActivityId(),
+                product.getSkuId()
+        );
         Asserts.isTrue(existing == null || existing == 0, BizErrorEnum.PRODUCT_ALREADY_IN_SECKILL_ACTIVITY);
 
         // 每活动商品数上限（创建活动时配置，未配置兜底 50）
-        Long count = productMapper.countByActivityId(product.getActivityId());
+        Long count = seckillProductMapper.countByActivityId(product.getActivityId());
         int maxProducts = ObjectUtil.defaultIfNull(
                 activity.getMaxProducts(),
                 DEFAULT_MAX_PRODUCTS_PER_ACTIVITY
@@ -89,7 +92,7 @@ public class SeckillProductService implements ISeckillProductService {
 
         product.setAuditStatus(SeckillProductAuditStatusEnum.PENDING.getCode());
         product.setSoldCount(0);
-        productMapper.insert(product);
+        seckillProductMapper.insert(product);
 
         auditRecordMapper.insert(
                 AuditRecordDO.builder()
@@ -107,7 +110,7 @@ public class SeckillProductService implements ISeckillProductService {
     @Transactional(rollbackFor = Exception.class)
     public void audit(Long productId, boolean approved, String auditRemark, Long auditorId) {
         SeckillProductDO product = Asserts.requireNonNull(
-                productMapper.selectById(productId),
+                seckillProductMapper.selectById(productId),
                 BizErrorEnum.SECKILL_PRODUCT_NOT_FOUND
         );
 
@@ -132,7 +135,7 @@ public class SeckillProductService implements ISeckillProductService {
                         ? SeckillProductAuditStatusEnum.APPROVED.getCode()
                         : SeckillProductAuditStatusEnum.REJECTED.getCode()
         );
-        productMapper.updateById(product);
+        seckillProductMapper.updateById(product);
     }
 
     /**
@@ -143,7 +146,7 @@ public class SeckillProductService implements ISeckillProductService {
      */
     @Override
     public PageResp<SeckillProductResp> pageProducts(SeckillProductPageReq req) {
-        IPage<SeckillProductDO> page = productMapper.selectProductPage(req);
+        IPage<SeckillProductDO> page = seckillProductMapper.selectProductPage(req);
         PageResp<SeckillProductResp> result = PageResponses.of(page, seckillConverter::toSeckillProductResp);
         enrich(result.getRecords());
         return result;
@@ -158,7 +161,7 @@ public class SeckillProductService implements ISeckillProductService {
      */
     @Override
     public SeckillProductDO getApprovedByActivityAndSku(Long activityId, Long skuId) {
-        return productMapper.selectApprovedByActivityAndSku(activityId, skuId);
+        return seckillProductMapper.selectApprovedByActivityAndSku(activityId, skuId);
     }
 
     /**
@@ -170,7 +173,7 @@ public class SeckillProductService implements ISeckillProductService {
     @Override
     public SeckillProductResp getApprovedById(Long id) {
         SeckillProductDO product = Asserts.requireNonNull(
-                productMapper.selectApprovedById(id),
+                seckillProductMapper.selectApprovedById(id),
                 BizErrorEnum.SECKILL_PRODUCT_NOT_FOUND
         );
         SeckillProductResp resp = seckillConverter.toSeckillProductResp(product);
@@ -186,7 +189,7 @@ public class SeckillProductService implements ISeckillProductService {
      */
     @Override
     public List<SeckillProductResp> listByShopId(Long shopId) {
-        List<SeckillProductDO> products = productMapper.listByShopId(shopId);
+        List<SeckillProductDO> products = seckillProductMapper.listByShopId(shopId);
         List<SeckillProductResp> result = seckillConverter.toSeckillProductRespList(products);
         enrich(result);
         return result;
@@ -300,6 +303,6 @@ public class SeckillProductService implements ISeckillProductService {
      */
     @Override
     public boolean isApproved(Long activityId, Long productId) {
-        return productMapper.selectApprovedProduct(activityId, productId) != null;
+        return seckillProductMapper.selectApprovedProduct(activityId, productId) != null;
     }
 }

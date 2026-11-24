@@ -25,13 +25,13 @@ import com.cloudmall.shared.api.constant.FileEventConstants;
 @RequiredArgsConstructor
 public class ChatMessageService extends ServiceImpl<ChatMessageMapper, ChatMessageDO> implements IChatMessageService {
 
-    private final ChatMessageConverter messageConverter;
+    private final ChatMessageConverter chatMessageConverter;
 
     @Override
     public CursorResp<MessageResp> cursorMessageHistory(MessageCursorReq req) {
         CursorResp<ChatMessageDO> result = baseMapper.cursorHistory(req);
         return CursorResp.<MessageResp>builder()
-                         .items(messageConverter.toRespList(result.getItems()))
+                         .items(chatMessageConverter.toRespList(result.getItems()))
                          .cursor(result.getCursor())
                          .cursorTime(result.getCursorTime())
                          .hasMore(result.getHasMore())

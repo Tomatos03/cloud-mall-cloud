@@ -26,19 +26,19 @@ import com.cloudmall.feign.exception.RemoteCallException;
 @RequiredArgsConstructor
 public class ResultDecoder implements Decoder {
 
-    private final ResultParser parser;
+    private final ResultParser resultParser;
 
     @Override
     public Object decode(Response response, Type type) throws IOException, DecodeException {
-        JsonNode envelope = parser.parse(response);
-        if (parser.success(envelope)) {
-            return parser.data(envelope, type);
+        JsonNode envelope = resultParser.parse(response);
+        if (resultParser.success(envelope)) {
+            return resultParser.data(envelope, type);
         }
 
         throw RemoteExceptionFactory.business(
                 response,
-                parser.code(envelope),
-                parser.message(envelope, "远程服务调用失败")
+                resultParser.code(envelope),
+                resultParser.message(envelope, "远程服务调用失败")
         );
     }
 }

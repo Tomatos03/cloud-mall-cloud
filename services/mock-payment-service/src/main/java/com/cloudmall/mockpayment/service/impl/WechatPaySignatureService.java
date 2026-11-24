@@ -28,7 +28,7 @@ import com.cloudmall.payment.api.util.WechatPayCrypto;
 @RequiredArgsConstructor
 public class WechatPaySignatureService {
 
-    private final MockPaymentProperties properties;
+    private final MockPaymentProperties mockPaymentProperties;
 
     /**
      * 校验商户请求签名。
@@ -48,10 +48,14 @@ public class WechatPaySignatureService {
     ) {
         Asserts.notBlank(authorization, BizErrorEnum.MOCK_PAYMENT_SIGNATURE_INVALID);
         WechatPayAuthorization parsed = WechatPayAuthorization.parse(authorization);
-        Asserts.isEqual(parsed.mchid(), properties.getMchid(), BizErrorEnum.MOCK_PAYMENT_SIGNATURE_INVALID);
+        Asserts.isEqual(
+                parsed.mchid(),
+                mockPaymentProperties.getMchid(),
+                BizErrorEnum.MOCK_PAYMENT_SIGNATURE_INVALID
+        );
         Asserts.isEqual(
                 parsed.serialNo(),
-                properties.getMerchantSerialNo(),
+                mockPaymentProperties.getMerchantSerialNo(),
                 BizErrorEnum.MOCK_PAYMENT_SIGNATURE_INVALID
         );
         Asserts.notBlank(parsed.timestamp(), BizErrorEnum.MOCK_PAYMENT_SIGNATURE_INVALID);
@@ -75,7 +79,9 @@ public class WechatPaySignatureService {
                 parsed.nonceStr(),
                 body == null ? "" : body
         );
-        PublicKey merchantPublicKey = WechatPayCrypto.loadPublicKey(properties.getMerchantPublicKey());
+        PublicKey merchantPublicKey = WechatPayCrypto.loadPublicKey(
+                mockPaymentProperties.getMerchantPublicKey()
+        );
         Asserts.isTrue(
                 WechatPayCrypto.verify(merchantPublicKey, message, parsed.signature()),
                 BizErrorEnum.MOCK_PAYMENT_SIGNATURE_INVALID
@@ -92,9 +98,11 @@ public class WechatPaySignatureService {
         String timestamp = String.valueOf(Instant.now().getEpochSecond());
         String nonce = WechatPayCrypto.randomNonce(16);
         String message = WechatPayCrypto.responseMessage(timestamp, nonce, body);
-        PrivateKey platformPrivateKey = WechatPayCrypto.loadPrivateKey(properties.getPlatformPrivateKey());
+        PrivateKey platformPrivateKey = WechatPayCrypto.loadPrivateKey(
+                mockPaymentProperties.getPlatformPrivateKey()
+        );
         String signature = WechatPayCrypto.sign(platformPrivateKey, message);
-        return new SignedCallback(signature, timestamp, nonce, properties.getPlatformSerialNo());
+        return new SignedCallback(signature, timestamp, nonce, mockPaymentProperties.getPlatformSerialNo());
     }
 
     /**
@@ -103,7 +111,7 @@ public class WechatPaySignatureService {
      * @return 平台公钥 PEM
      */
     public String platformPublicKeyPem() {
-        Resource resource = properties.getPlatformPublicKey();
+        Resource resource = mockPaymentProperties.getPlatformPublicKey();
         try {
             return resource.getContentAsString(StandardCharsets.UTF_8);
         } catch (IOException e) {

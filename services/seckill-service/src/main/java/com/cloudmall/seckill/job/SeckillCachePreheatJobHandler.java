@@ -28,9 +28,9 @@ import com.cloudmall.seckill.model.entity.SeckillProductDO;
 @RequiredArgsConstructor
 public class SeckillCachePreheatJobHandler {
 
-    private final SeckillActivityMapper activityMapper;
-    private final SeckillProductMapper productMapper;
-    private final SeckillCacheService cacheService;
+    private final SeckillActivityMapper seckillActivityMapper;
+    private final SeckillProductMapper seckillProductMapper;
+    private final SeckillCacheService seckillCacheService;
 
     /**
      * 每分钟执行一次预热与清理。
@@ -52,14 +52,16 @@ public class SeckillCachePreheatJobHandler {
      * 报名截止时间与活动开始时间一致，开始后商家禁止新增商品， 此时读取的商品集合与库存不会再变化。
      */
     private void preheatStarted() {
-        List<SeckillActivityDO> activities = activityMapper.listPreheatActivities(LocalDateTime.now());
+        List<SeckillActivityDO> activities = seckillActivityMapper.listPreheatActivities(LocalDateTime.now());
         if (activities.isEmpty()) {
             return;
         }
 
         for (SeckillActivityDO activity : activities) {
-            List<SeckillProductDO> products = productMapper.listApprovedByActivityId(activity.getId());
-            products.forEach(p -> cacheService.preheatStock(p.getActivityId(), p.getSkuId(), p.getStock()));
+            List<SeckillProductDO> products = seckillProductMapper.listApprovedByActivityId(activity.getId());
+            products.forEach(
+                    p -> seckillCacheService.preheatStock(p.getActivityId(), p.getSkuId(), p.getStock())
+            );
         }
     }
 
@@ -67,7 +69,7 @@ public class SeckillCachePreheatJobHandler {
      * 清理已结束/已取消活动的库存 key。
      */
     private void cleanFinished() {
-        List<SeckillActivityDO> activities = activityMapper.listFinishedActivities(
+        List<SeckillActivityDO> activities = seckillActivityMapper.listFinishedActivities(
                 LocalDateTime.now().minusDays(1)
         );
         if (activities.isEmpty()) {
@@ -75,8 +77,8 @@ public class SeckillCachePreheatJobHandler {
         }
 
         for (SeckillActivityDO activity : activities) {
-            List<SeckillProductDO> products = productMapper.listByActivityId(activity.getId());
-            products.forEach(p -> cacheService.deleteStock(p.getActivityId(), p.getSkuId()));
+            List<SeckillProductDO> products = seckillProductMapper.listByActivityId(activity.getId());
+            products.forEach(p -> seckillCacheService.deleteStock(p.getActivityId(), p.getSkuId()));
         }
     }
 }

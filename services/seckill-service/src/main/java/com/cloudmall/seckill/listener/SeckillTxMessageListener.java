@@ -27,7 +27,7 @@ import com.cloudmall.seckill.model.entity.SeckillOrderDO;
 @RocketMQTransactionListener
 public class SeckillTxMessageListener implements RocketMQLocalTransactionListener {
 
-    private final SeckillOrderMapper orderMapper;
+    private final SeckillOrderMapper seckillOrderMapper;
 
     /**
      * 执行本地事务。 <p>
@@ -44,7 +44,7 @@ public class SeckillTxMessageListener implements RocketMQLocalTransactionListene
         String orderNo = (String) msg.getHeaders().get(TxMessageHeader.EVENT_ID);
         try {
             // 秒杀单已在 createWithEvent 中落库，此处确认即可
-            SeckillOrderDO order = orderMapper.selectByOrderNo(orderNo);
+            SeckillOrderDO order = seckillOrderMapper.selectByOrderNo(orderNo);
             if (order != null) {
                 log.info("秒杀建单事务消息本地事务执行成功 orderNo={}", orderNo);
                 return RocketMQLocalTransactionState.COMMIT;
@@ -67,7 +67,7 @@ public class SeckillTxMessageListener implements RocketMQLocalTransactionListene
     @SuppressWarnings("rawtypes")
     public RocketMQLocalTransactionState checkLocalTransaction(Message msg) {
         String orderNo = (String) msg.getHeaders().get(TxMessageHeader.EVENT_ID);
-        SeckillOrderDO order = orderMapper.selectByOrderNo(orderNo);
+        SeckillOrderDO order = seckillOrderMapper.selectByOrderNo(orderNo);
         if (order != null) {
             log.info("事务消息回查：秒杀单存在 orderNo={}，提交", orderNo);
             return RocketMQLocalTransactionState.COMMIT;

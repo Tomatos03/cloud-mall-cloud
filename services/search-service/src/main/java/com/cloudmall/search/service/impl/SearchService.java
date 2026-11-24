@@ -55,7 +55,7 @@ public class SearchService implements ISearchService {
     private static final int MAX_SIZE = 100;
     private static final int MAX_FACET_SIZE = 20;
 
-    private final ElasticsearchClient client;
+    private final ElasticsearchClient elasticsearchClient;
     private final SearchProperties props;
     private final ProductClient productClient;
     private final ProductIndexRepository productIndexRepository;
@@ -252,7 +252,7 @@ public class SearchService implements ISearchService {
 
     private SearchResponse<ProductHit> execute(SearchRequest request) {
         try {
-            return client.search(request, ProductHit.class);
+            return elasticsearchClient.search(request, ProductHit.class);
         } catch (IOException e) {
             log.error("ES 搜索失败 request={}", request, e);
             throw new IllegalStateException("ES 搜索失败", e);

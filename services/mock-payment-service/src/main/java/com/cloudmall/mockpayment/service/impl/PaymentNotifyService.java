@@ -51,12 +51,12 @@ public class PaymentNotifyService implements IPaymentNotifyService {
     /** 失败原因最大长度 */
     private static final int MAX_ERROR_LENGTH = 500;
 
-    private final MockPaymentNotifyMapper notifyMapper;
-    private final MockPaymentOrderMapper orderMapper;
-    private final MockPaymentConverter converter;
-    private final WechatPayNotifyBuilder notifyBuilder;
-    private final MockPaymentProperties properties;
-    private final WechatPaySignatureService signatureService;
+    private final MockPaymentNotifyMapper mockPaymentNotifyMapper;
+    private final MockPaymentOrderMapper mockPaymentOrderMapper;
+    private final MockPaymentConverter mockPaymentConverter;
+    private final WechatPayNotifyBuilder wechatPayNotifyBuilder;
+    private final MockPaymentProperties mockPaymentProperties;
+    private final WechatPaySignatureService wechatPaySignatureService;
     private final RestClient mockPaymentRestClient;
     private final ObjectMapper objectMapper;
 
@@ -67,16 +67,16 @@ public class PaymentNotifyService implements IPaymentNotifyService {
      */
     @Override
     public void notifyPaymentSuccess(String outTradeNo) {
-        List<MockPaymentNotifyDO> existing = notifyMapper.selectByOutTradeNo(outTradeNo);
+        List<MockPaymentNotifyDO> existing = mockPaymentNotifyMapper.selectByOutTradeNo(outTradeNo);
         if (!existing.isEmpty()) {
             send(existing.get(0).getId());
             return;
         }
         MockPaymentOrderDO order = Asserts.requireNonNull(
-                orderMapper.selectByOutTradeNo(outTradeNo),
+                mockPaymentOrderMapper.selectByOutTradeNo(outTradeNo),
                 BizErrorEnum.MOCK_PAYMENT_ORDER_NOT_EXIST
         );
-        String body = notifyBuilder.build(order);
+        String body = wechatPayNotifyBuilder.build(order);
         LocalDateTime now = LocalDateTime.now();
         MockPaymentNotifyDO notify = MockPaymentNotifyDO
                 .builder()
@@ -88,7 +88,7 @@ public class PaymentNotifyService implements IPaymentNotifyService {
                 .retryCount(0)
                 .nextRetryTime(now)
                 .build();
-        notifyMapper.insert(notify);
+        mockPaymentNotifyMapper.insert(notify);
         send(notify.getId());
     }
 
@@ -99,17 +99,17 @@ public class PaymentNotifyService implements IPaymentNotifyService {
      */
     @Override
     public void send(Long notifyId) {
-        MockPaymentNotifyDO notify = notifyMapper.selectById(notifyId);
+        MockPaymentNotifyDO notify = mockPaymentNotifyMapper.selectById(notifyId);
         if (notify == null || NotifyStatusEnum.SUCCESS.getCode().equals(notify.getStatus())) {
             return;
         }
-        WechatPaySignatureService.SignedCallback signed = signatureService.signCallback(
+        WechatPaySignatureService.SignedCallback signed = wechatPaySignatureService.signCallback(
                 notify.getRequestBody()
         );
-        notifyMapper.updateSignature(notifyId, signed.signature());
+        mockPaymentNotifyMapper.updateSignature(notifyId, signed.signature());
         NotifyResult response = post(notify, signed);
         if (isSuccessResponse(response)) {
-            notifyMapper.markSuccess(notifyId, response.body());
+            mockPaymentNotifyMapper.markSuccess(notifyId, response.body());
             log.info("模拟支付回调成功 outTradeNo={} notifyId={}", notify.getOutTradeNo(), notifyId);
             return;
         }
@@ -123,12 +123,12 @@ public class PaymentNotifyService implements IPaymentNotifyService {
      */
     @Override
     public void resend(String outTradeNo) {
-        List<MockPaymentNotifyDO> notifies = notifyMapper.selectByOutTradeNo(outTradeNo);
+        List<MockPaymentNotifyDO> notifies = mockPaymentNotifyMapper.selectByOutTradeNo(outTradeNo);
         if (notifies.isEmpty()) {
             throw new BizException(BizErrorEnum.MOCK_PAYMENT_ORDER_NOT_EXIST);
         }
         Long notifyId = notifies.get(0).getId();
-        notifyMapper.resetForResend(notifyId, LocalDateTime.now());
+        mockPaymentNotifyMapper.resetForResend(notifyId, LocalDateTime.now());
         send(notifyId);
     }
 
@@ -140,7 +140,7 @@ public class PaymentNotifyService implements IPaymentNotifyService {
      */
     @Override
     public List<MockPaymentNotifyResp> listByOutTradeNo(String outTradeNo) {
-        return converter.toNotifyRespList(notifyMapper.selectByOutTradeNo(outTradeNo));
+        return mockPaymentConverter.toNotifyRespList(mockPaymentNotifyMapper.selectByOutTradeNo(outTradeNo));
     }
 
     /**
@@ -148,9 +148,9 @@ public class PaymentNotifyService implements IPaymentNotifyService {
      */
     @Override
     public void retryDue() {
-        List<MockPaymentNotifyDO> candidates = notifyMapper.selectRetryCandidates(
+        List<MockPaymentNotifyDO> candidates = mockPaymentNotifyMapper.selectRetryCandidates(
                 LocalDateTime.now(),
-                properties.getNotify().getMaxRetry(),
+                mockPaymentProperties.getNotify().getMaxRetry(),
                 RETRY_BATCH_SIZE
         );
         for (MockPaymentNotifyDO candidate : candidates) {
@@ -247,7 +247,7 @@ public class PaymentNotifyService implements IPaymentNotifyService {
         long delayMs = retryDelayMs(retryCount);
         LocalDateTime nextRetryTime = LocalDateTime.now().plusNanos(delayMs * 1_000_000L);
         String error = StrUtil.subPre(StrUtil.blankToDefault(response.body(), "回调投递失败"), MAX_ERROR_LENGTH);
-        notifyMapper.markFailed(notify.getId(), retryCount, nextRetryTime, response.body(), error);
+        mockPaymentNotifyMapper.markFailed(notify.getId(), retryCount, nextRetryTime, response.body(), error);
         log.warn(
                 "模拟支付回调失败 outTradeNo={} status={} retryCount={}",
                 notify.getOutTradeNo(),
@@ -263,7 +263,7 @@ public class PaymentNotifyService implements IPaymentNotifyService {
      * @return 间隔毫秒数
      */
     private long retryDelayMs(int retryCount) {
-        long base = Math.max(properties.getNotify().getRetryIntervalMs(), 1000L);
+        long base = Math.max(mockPaymentProperties.getNotify().getRetryIntervalMs(), 1000L);
         long multiplier = 1L << Math.min(retryCount - 1, 5);
         return Math.min(base * multiplier, 3_600_000L);
     }

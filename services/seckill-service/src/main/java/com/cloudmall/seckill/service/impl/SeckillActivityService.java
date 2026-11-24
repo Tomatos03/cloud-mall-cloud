@@ -50,8 +50,8 @@ public class SeckillActivityService implements ISeckillActivityService {
     /** 每活动最大商品数默认值 */
     private static final int DEFAULT_MAX_PRODUCTS = 50;
 
-    private final SeckillActivityMapper activityMapper;
-    private final SeckillProductMapper productMapper;
+    private final SeckillActivityMapper seckillActivityMapper;
+    private final SeckillProductMapper seckillProductMapper;
     private final SeckillConverter seckillConverter;
     private final ISeckillProductService seckillProductService;
 
@@ -75,7 +75,7 @@ public class SeckillActivityService implements ISeckillActivityService {
         Asserts.isTrue(isOnTheHour(startTime), BizErrorEnum.ACTIVITY_START_TIME_MUST_BE_ON_THE_HOUR);
 
         // 一个整点只允许存在一场活动，创建后该场次不可被覆盖
-        boolean occupied = activityMapper.existsByActivityHour(startTime);
+        boolean occupied = seckillActivityMapper.existsByActivityHour(startTime);
         Asserts.isFalse(occupied, BizErrorEnum.ACTIVITY_TIME_SLOT_OCCUPIED);
 
         // 每活动最大商品数：不传默认 50，校验范围 1~500
@@ -97,7 +97,7 @@ public class SeckillActivityService implements ISeckillActivityService {
         activity.setEndTime(startTime.plusHours(1));
         activity.setStatus(SeckillActivityStatusEnum.DRAFT.getCode());
 
-        activityMapper.insert(activity);
+        seckillActivityMapper.insert(activity);
         return activity.getId();
     }
 
@@ -111,7 +111,7 @@ public class SeckillActivityService implements ISeckillActivityService {
     @Transactional(rollbackFor = Exception.class)
     public void update(Long id, ActivityUpdateReq req) {
         SeckillActivityDO existing = Asserts.requireNonNull(
-                activityMapper.selectById(id),
+                seckillActivityMapper.selectById(id),
                 BizErrorEnum.SECKILL_ACTIVITY_NOT_EXIST
         );
 
@@ -126,7 +126,7 @@ public class SeckillActivityService implements ISeckillActivityService {
                 );
                 Asserts.isTrue(isOnTheHour(newStart), BizErrorEnum.ACTIVITY_START_TIME_MUST_BE_ON_THE_HOUR);
                 Asserts.isFalse(
-                        activityMapper.existsByActivityHourExcludingId(newStart, existing.getId()),
+                        seckillActivityMapper.existsByActivityHourExcludingId(newStart, existing.getId()),
                         BizErrorEnum.ACTIVITY_TIME_SLOT_OCCUPIED
                 );
                 existing.setStartTime(newStart);
@@ -146,7 +146,7 @@ public class SeckillActivityService implements ISeckillActivityService {
             throw new BizException(BizErrorEnum.INVALID_ACTIVITY_STATUS);
         }
 
-        activityMapper.updateById(existing);
+        seckillActivityMapper.updateById(existing);
     }
 
     /**
@@ -184,7 +184,7 @@ public class SeckillActivityService implements ISeckillActivityService {
     @Transactional(rollbackFor = Exception.class)
     public void publish(Long id, Long publishUserId) {
         SeckillActivityDO activity = Asserts.requireNonNull(
-                activityMapper.selectById(id),
+                seckillActivityMapper.selectById(id),
                 BizErrorEnum.SECKILL_ACTIVITY_NOT_EXIST
         );
         SeckillActivityStatusEnum currentStatus = SeckillActivityStatusEnum.fromCode(activity.getStatus());
@@ -207,7 +207,7 @@ public class SeckillActivityService implements ISeckillActivityService {
         activity.setPublishUserId(publishUserId);
         activity.setPublishTime(LocalDateTime.now());
 
-        activityMapper.updateById(activity);
+        seckillActivityMapper.updateById(activity);
     }
 
     /**
@@ -219,7 +219,7 @@ public class SeckillActivityService implements ISeckillActivityService {
     @Transactional(rollbackFor = Exception.class)
     public void cancel(Long id) {
         SeckillActivityDO activity = Asserts.requireNonNull(
-                activityMapper.selectById(id),
+                seckillActivityMapper.selectById(id),
                 BizErrorEnum.SECKILL_ACTIVITY_NOT_EXIST
         );
         SeckillActivityStatusEnum currentStatus = SeckillActivityStatusEnum.fromCode(activity.getStatus());
@@ -234,7 +234,7 @@ public class SeckillActivityService implements ISeckillActivityService {
         );
 
         activity.setStatus(SeckillActivityStatusEnum.CANCELLED.getCode());
-        activityMapper.updateById(activity);
+        seckillActivityMapper.updateById(activity);
     }
 
     /**
@@ -245,7 +245,10 @@ public class SeckillActivityService implements ISeckillActivityService {
      */
     @Override
     public SeckillActivityDO getById(Long id) {
-        return Asserts.requireNonNull(activityMapper.selectById(id), BizErrorEnum.SECKILL_ACTIVITY_NOT_EXIST);
+        return Asserts.requireNonNull(
+                seckillActivityMapper.selectById(id),
+                BizErrorEnum.SECKILL_ACTIVITY_NOT_EXIST
+        );
     }
 
     /**
@@ -256,7 +259,7 @@ public class SeckillActivityService implements ISeckillActivityService {
      */
     @Override
     public PageResp<ActivityResp> pageActivities(SeckillActivityPageReq req) {
-        IPage<SeckillActivityDO> page = activityMapper.selectActivityPage(req);
+        IPage<SeckillActivityDO> page = seckillActivityMapper.selectActivityPage(req);
 
         return PageResponses.of(page, seckillConverter::toActivityResp);
     }
@@ -268,7 +271,7 @@ public class SeckillActivityService implements ISeckillActivityService {
      */
     @Override
     public List<ActivityResp> listRunningActivities() {
-        List<SeckillActivityDO> activities = activityMapper.listRunningActivities();
+        List<SeckillActivityDO> activities = seckillActivityMapper.listRunningActivities();
         return seckillConverter.toActivityRespList(activities);
     }
 
@@ -281,7 +284,7 @@ public class SeckillActivityService implements ISeckillActivityService {
     public List<SeckillSessionResp> listTodaySessions() {
         LocalDate today = LocalDate.now();
         LocalDateTime now = LocalDateTime.now();
-        List<SeckillActivityDO> activities = activityMapper.listTodayActivities(
+        List<SeckillActivityDO> activities = seckillActivityMapper.listTodayActivities(
                 today.atStartOfDay(),
                 today.plusDays(1).atStartOfDay()
         );
@@ -355,7 +358,7 @@ public class SeckillActivityService implements ISeckillActivityService {
      */
     @Override
     public List<ActivityResp> listSignupActivities() {
-        List<SeckillActivityDO> activities = activityMapper.listSignupActivities();
+        List<SeckillActivityDO> activities = seckillActivityMapper.listSignupActivities();
         return seckillConverter.toActivityRespList(activities);
     }
 
@@ -368,7 +371,7 @@ public class SeckillActivityService implements ISeckillActivityService {
     @Override
     public ActivityDetailResp getActivityDetail(Long id) {
         SeckillActivityDO activity = Asserts.requireNonNull(
-                activityMapper.selectById(id),
+                seckillActivityMapper.selectById(id),
                 BizErrorEnum.SECKILL_ACTIVITY_NOT_EXIST
         );
         return toActivityDetail(activity);
@@ -381,7 +384,7 @@ public class SeckillActivityService implements ISeckillActivityService {
      */
     @Override
     public ActivityDetailResp getCurrentHourActivity() {
-        SeckillActivityDO activity = activityMapper.selectCurrentHourActivity(LocalDateTime.now());
+        SeckillActivityDO activity = seckillActivityMapper.selectCurrentHourActivity(LocalDateTime.now());
         if (activity == null) {
             return null;
         }
@@ -397,7 +400,7 @@ public class SeckillActivityService implements ISeckillActivityService {
     @Override
     public ActivityDetailResp getSignupActivity(Long id) {
         SeckillActivityDO activity = Asserts.requireNonNull(
-                activityMapper.selectPublishedById(id),
+                seckillActivityMapper.selectPublishedById(id),
                 BizErrorEnum.SECKILL_ACTIVITY_NOT_EXIST
         );
         return toActivityDetail(activity);
@@ -410,7 +413,7 @@ public class SeckillActivityService implements ISeckillActivityService {
      * @return 活动详情响应
      */
     private ActivityDetailResp toActivityDetail(SeckillActivityDO activity) {
-        List<SeckillProductDO> products = productMapper.listApprovedByActivityId(activity.getId());
+        List<SeckillProductDO> products = seckillProductMapper.listApprovedByActivityId(activity.getId());
 
         ActivityDetailResp resp = seckillConverter.toActivityDetailResp(activity);
         List<SeckillProductResp> productResps = seckillConverter.toSeckillProductRespList(products);

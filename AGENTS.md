@@ -123,6 +123,7 @@ mvn test                                                  # 测试
 ### 条件校验
 
 - 使用 `Asserts` 断言（`notNull` / `isNull` / `isTrue` / `isFalse` / `notEmpty`），禁止手写 `if (x) { throw ... }`；缺方法先扩展 `Asserts`。
+- 把校验封装为私有方法时，按返回值区分命名：有返回值（返回校验通过的对象/值）用 `requireXxx`（如 `requireActivityProduct`），无返回值（仅断言校验）用 `checkXxx`（如 `checkUserRateLimit`）。
 
 ### 集合判空
 

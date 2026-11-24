@@ -22,7 +22,7 @@ import com.cloudmall.seckill.mapper.SeckillActivityMapper;
 @RequiredArgsConstructor
 public class SeckillActivityStatusJobHandler {
 
-    private final SeckillActivityMapper activityMapper;
+    private final SeckillActivityMapper seckillActivityMapper;
 
     /**
      * 每分钟扫描一次活动状态流转。
@@ -33,8 +33,8 @@ public class SeckillActivityStatusJobHandler {
     public void flowStatus(String param) {
         LocalDateTime now = LocalDateTime.now();
         try {
-            int started = activityMapper.markStartedIfPublished(now);
-            int finished = activityMapper.markFinishedIfRunning(now);
+            int started = seckillActivityMapper.markStartedIfPublished(now);
+            int finished = seckillActivityMapper.markFinishedIfRunning(now);
 
             if (started > 0 || finished > 0) {
                 log.info("秒杀活动状态流转 开始={} 结束={}", started, finished);

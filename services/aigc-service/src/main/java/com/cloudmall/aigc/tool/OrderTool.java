@@ -23,7 +23,7 @@ import com.cloudmall.order.api.model.resp.OrderResp;
 public class OrderTool {
 
     private final OrderClient orderClient;
-    private final AgentCardAssembler cardAssembler;
+    private final AgentCardAssembler agentCardAssembler;
 
     /**
      * 根据订单 ID 查询订单详情
@@ -39,7 +39,7 @@ public class OrderTool {
             return null;
         }
         if (toolContext.getContext().get(ToolContextKeys.RESULT_CONTEXT) instanceof ToolResultContext resultContext) {
-            resultContext.addCards(List.of(cardAssembler.order(order)));
+            resultContext.addCards(List.of(agentCardAssembler.order(order)));
         }
         return order;
     }
@@ -59,7 +59,7 @@ public class OrderTool {
         }
         List<OrderResp> orders = page.getRecords();
         if (toolContext.getContext().get(ToolContextKeys.RESULT_CONTEXT) instanceof ToolResultContext resultContext) {
-            resultContext.addCards(cardAssembler.orders(orders));
+            resultContext.addCards(agentCardAssembler.orders(orders));
         }
         return orders;
     }

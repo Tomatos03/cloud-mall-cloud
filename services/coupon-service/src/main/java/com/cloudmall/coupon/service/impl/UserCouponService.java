@@ -81,7 +81,7 @@ public class UserCouponService implements IUserCouponService {
     private final CouponCategoryMapper couponCategoryMapper;
     private final CouponCacheService couponCacheService;
     private final CouponRateLimitService couponRateLimitService;
-    private final CouponScopeMatcher scopeMatcher;
+    private final CouponScopeMatcher couponScopeMatcher;
     private final CouponOrderConverter couponOrderConverter;
     private final CouponConverter couponConverter;
     private final UserCouponConverter userCouponConverter;
@@ -271,7 +271,7 @@ public class UserCouponService implements IUserCouponService {
                 couponMapper.selectById(uc.getCouponId()),
                 BizErrorEnum.COUPON_TEMPLATE_NOT_FOUND
         );
-        List<CouponCalcItem> applicable = scopeMatcher.matchItems(template, items);
+        List<CouponCalcItem> applicable = couponScopeMatcher.matchItems(template, items);
         return couponOrderConverter.toCalcCoupon(uc, applicable).isUsable();
     }
 

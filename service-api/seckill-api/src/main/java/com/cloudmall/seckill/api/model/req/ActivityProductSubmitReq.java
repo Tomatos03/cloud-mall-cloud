@@ -23,6 +23,13 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class ActivityProductSubmitReq {
 
+    /** 活动 ID（由控制器从路径参数设置，不接受客户端传入） */
+    private Long activityId;
+
+    /** 店铺 ID（须为当前用户所属店铺） */
+    @NotNull(message = "店铺 ID不能为空")
+    private Long shopId;
+
     /** SKU ID（下单粒度） */
     @NotNull(message = "SKU ID不能为空")
     private Long skuId;

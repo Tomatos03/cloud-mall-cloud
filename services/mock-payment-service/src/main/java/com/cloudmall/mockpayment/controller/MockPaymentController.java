@@ -37,8 +37,8 @@ public class MockPaymentController {
     private final IWechatPayService wechatPayService;
     private final IPaymentNotifyService paymentNotifyService;
     private final MockPaymentApp mockPaymentApp;
-    private final MockPaymentProperties properties;
-    private final WechatPaySignatureService signatureService;
+    private final MockPaymentProperties mockPaymentProperties;
+    private final WechatPaySignatureService wechatPaySignatureService;
 
     /**
      * 分页查询模拟支付单。
@@ -123,12 +123,12 @@ public class MockPaymentController {
     public Result<MockPaymentConfigResp> config() {
         return Result.success(
                 MockPaymentConfigResp.builder()
-                                     .appid(properties.getAppid())
-                                     .mchid(properties.getMchid())
-                                     .publicBaseUrl(properties.getPublicBaseUrl())
-                                     .platformSerialNo(properties.getPlatformSerialNo())
-                                     .platformPublicKey(signatureService.platformPublicKeyPem())
-                                     .verifyRequest(properties.getSignature().isVerifyRequest())
+                                     .appid(mockPaymentProperties.getAppid())
+                                     .mchid(mockPaymentProperties.getMchid())
+                                     .publicBaseUrl(mockPaymentProperties.getPublicBaseUrl())
+                                     .platformSerialNo(mockPaymentProperties.getPlatformSerialNo())
+                                     .platformPublicKey(wechatPaySignatureService.platformPublicKeyPem())
+                                     .verifyRequest(mockPaymentProperties.getSignature().isVerifyRequest())
                                      .build()
         );
     }

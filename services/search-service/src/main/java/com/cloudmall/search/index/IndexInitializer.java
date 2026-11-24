@@ -35,7 +35,7 @@ public class IndexInitializer implements ApplicationRunner {
 
     private static final String MAPPING_RESOURCE = "es/cm_product-mapping.json";
 
-    private final ElasticsearchClient client;
+    private final ElasticsearchClient elasticsearchClient;
     private final SearchProperties props;
     private final AtomicBoolean initialized = new AtomicBoolean(false);
     private final AtomicBoolean failureLogged = new AtomicBoolean(false);
@@ -81,14 +81,14 @@ public class IndexInitializer implements ApplicationRunner {
 
     private void createIndexIfAbsent() throws IOException {
         String index = props.getIndex();
-        if (client.indices()
-                  .exists(e -> e.index(index))
-                  .value()) {
+        if (elasticsearchClient.indices()
+                               .exists(e -> e.index(index))
+                               .value()) {
             log.info("ES 索引已存在，跳过创建: {}", index);
             return;
         }
         String mapping = loadMapping();
-        client.indices().create(c -> c.index(index).withJson(new StringReader(mapping)));
+        elasticsearchClient.indices().create(c -> c.index(index).withJson(new StringReader(mapping)));
         log.info("ES 索引创建完成: {}", index);
     }
 

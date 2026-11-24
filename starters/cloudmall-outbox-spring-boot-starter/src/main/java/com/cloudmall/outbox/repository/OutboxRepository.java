@@ -28,7 +28,7 @@ public class OutboxRepository {
 
     private final OutboxMapper outboxMapper;
     private final TransactionTemplate transactionTemplate;
-    private final OutboxProperties properties;
+    private final OutboxProperties outboxProperties;
 
     /**
      * 查询到期待处理事件（不按类型过滤）。
@@ -78,7 +78,11 @@ public class OutboxRepository {
      * @return 影响行数
      */
     public int markFailed(Long id) {
-        return outboxMapper.markFailed(id, properties.getMaxAttempts(), properties.getBackoffSeconds());
+        return outboxMapper.markFailed(
+                id,
+                outboxProperties.getMaxAttempts(),
+                outboxProperties.getBackoffSeconds()
+        );
     }
 
     /**
@@ -88,7 +92,7 @@ public class OutboxRepository {
      * @param handler 业务处理逻辑
      */
     public void consume(Collection<String> eventTypes, Consumer<OutboxRecord> handler) {
-        for (OutboxRecord record : listPending(eventTypes, properties.getBatchSize())) {
+        for (OutboxRecord record : listPending(eventTypes, outboxProperties.getBatchSize())) {
             if (!claim(record.id())) {
                 continue;
             }
@@ -112,6 +116,8 @@ public class OutboxRepository {
      * @return 删除条数
      */
     public int cleanup() {
-        return outboxMapper.deleteDoneBefore(LocalDateTime.now().minusDays(properties.getRetentionDays()));
+        return outboxMapper.deleteDoneBefore(
+                LocalDateTime.now().minusDays(outboxProperties.getRetentionDays())
+        );
     }
 }

@@ -35,8 +35,8 @@ import com.cloudmall.seckill.service.ISeckillProductService;
 @RequestMapping("/seckill")
 public class SeckillOperatorController {
 
-    private final ISeckillActivityService activityService;
-    private final ISeckillProductService productService;
+    private final ISeckillActivityService seckillActivityService;
+    private final ISeckillProductService seckillProductService;
 
     /**
      * 创建活动（DRAFT）。
@@ -47,7 +47,7 @@ public class SeckillOperatorController {
     @PostMapping("/activities")
     public Result<Long> createActivity(@Valid @RequestBody ActivityCreateReq req) {
         Long createUserId = UserContextHolder.getUserId();
-        return Result.success(activityService.createDraft(createUserId, req));
+        return Result.success(seckillActivityService.createDraft(createUserId, req));
     }
 
     /**
@@ -59,7 +59,7 @@ public class SeckillOperatorController {
      */
     @PatchMapping("/activities/{id}")
     public Result<Void> updateActivity(@PathVariable Long id, @RequestBody ActivityUpdateReq req) {
-        activityService.update(id, req);
+        seckillActivityService.update(id, req);
         return Result.success(null);
     }
 
@@ -72,7 +72,7 @@ public class SeckillOperatorController {
     @PostMapping("/activities/{id}/publish")
     public Result<Void> publishActivity(@PathVariable Long id) {
         Long publishUserId = UserContextHolder.getUserId();
-        activityService.publish(id, publishUserId);
+        seckillActivityService.publish(id, publishUserId);
         return Result.success(null);
     }
 
@@ -84,7 +84,7 @@ public class SeckillOperatorController {
      */
     @PostMapping("/activities/{id}/cancel")
     public Result<Void> cancelActivity(@PathVariable Long id) {
-        activityService.cancel(id);
+        seckillActivityService.cancel(id);
         return Result.success(null);
     }
 
@@ -96,7 +96,7 @@ public class SeckillOperatorController {
      */
     @GetMapping("/operator/activities")
     public Result<PageResp<ActivityResp>> pageActivities(SeckillActivityPageReq req) {
-        return Result.success(activityService.pageActivities(req));
+        return Result.success(seckillActivityService.pageActivities(req));
     }
 
     /**
@@ -107,7 +107,7 @@ public class SeckillOperatorController {
      */
     @GetMapping("/operator/products")
     public Result<PageResp<SeckillProductResp>> pageProducts(SeckillProductPageReq req) {
-        return Result.success(productService.pageProducts(req));
+        return Result.success(seckillProductService.pageProducts(req));
     }
 
     /**
@@ -128,7 +128,7 @@ public class SeckillOperatorController {
         ActivityProductAuditReq req
     ) {
         Long auditorId = UserContextHolder.getUserId();
-        productService.audit(productId, req.isApproved(), req.getAuditRemark(), auditorId);
+        seckillProductService.audit(productId, req.isApproved(), req.getAuditRemark(), auditorId);
         return Result.success(null);
     }
 }

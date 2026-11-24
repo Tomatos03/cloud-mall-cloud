@@ -34,10 +34,10 @@ import com.cloudmall.outbox.collector.OutboxEvents;
 @RequiredArgsConstructor
 public class OutboxEventAspect {
 
-    private final OutboxAppender appender;
+    private final OutboxAppender outboxAppender;
     private final TransactionTemplate transactionTemplate;
     private final BeanFactory beanFactory;
-    private final SpelExpressionParser parser = new SpelExpressionParser();
+    private final SpelExpressionParser spelExpressionParser = new SpelExpressionParser();
     private final ParameterNameDiscoverer parameterNameDiscoverer = new DefaultParameterNameDiscoverer();
 
     /**
@@ -83,7 +83,7 @@ public class OutboxEventAspect {
             return;
         }
         if (StrUtil.isNotBlank(ann.eventType())) {
-            appender.append(
+            outboxAppender.append(
                     ann.eventType(),
                     asText(evaluate(ann.bizId(), joinPoint, result)),
                     evaluate(ann.payload(), joinPoint, result)
@@ -100,7 +100,7 @@ public class OutboxEventAspect {
             return;
         }
         for (OutboxEvents.Event event : events) {
-            appender.append(event.eventType(), event.bizId(), event.payload());
+            outboxAppender.append(event.eventType(), event.bizId(), event.payload());
         }
     }
 
@@ -139,7 +139,7 @@ public class OutboxEventAspect {
         context.setVariable("return", result);
         context.setVariable("result", result);
         context.setBeanResolver(new BeanFactoryResolver(beanFactory));
-        return parser.parseExpression(expression).getValue(context);
+        return spelExpressionParser.parseExpression(expression).getValue(context);
     }
 
     /**

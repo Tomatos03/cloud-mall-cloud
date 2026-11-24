@@ -59,8 +59,8 @@ public class CouponOrderService implements ICouponOrderService {
 
     private final UserCouponMapper userCouponMapper;
     private final CouponMapper couponMapper;
-    private final CouponScopeMatcher scopeMatcher;
-    private final CouponCalculator calculator;
+    private final CouponScopeMatcher couponScopeMatcher;
+    private final CouponCalculator couponCalculator;
     private final CouponOrderConverter couponOrderConverter;
     private final IUserCouponService userCouponService;
 
@@ -209,7 +209,7 @@ public class CouponOrderService implements ICouponOrderService {
         Map<Long, Long> shopIds = resolveShopCouponIds(req);
         CalcCoupon platformCoupon = resolveSelectedPlatform(req.getUserId(), platformId, items);
         List<CalcCoupon> shopCoupons = resolveSelectedShops(req.getUserId(), shopIds, items);
-        return calculator.calculate(items, platformCoupon, shopCoupons);
+        return couponCalculator.calculate(items, platformCoupon, shopCoupons);
     }
 
     /**
@@ -330,7 +330,7 @@ public class CouponOrderService implements ICouponOrderService {
                 couponMapper.selectById(uc.getCouponId()),
                 BizErrorEnum.COUPON_TEMPLATE_NOT_FOUND
         );
-        List<CouponCalcItem> applicable = scopeMatcher.matchItems(template, items);
+        List<CouponCalcItem> applicable = couponScopeMatcher.matchItems(template, items);
         return couponOrderConverter.toCalcCoupon(uc, applicable);
     }
 
@@ -433,7 +433,7 @@ public class CouponOrderService implements ICouponOrderService {
                            .toList()
                     : Collections.emptyList();
             CouponOrderCalcResp candidateResp;
-            candidateResp = calculator.calculate(items, platform, shops);
+            candidateResp = couponCalculator.calculate(items, platform, shops);
             BigDecimal payable = candidateResp.getProductPayableAmount();
             if (payable.compareTo(bestPayable) < 0) {
                 bestPayable = payable;
@@ -604,7 +604,7 @@ public class CouponOrderService implements ICouponOrderService {
                 shops.add(calcCoupon);
             }
         }
-        return calculator.calculate(req.getItems(), platform, shops);
+        return couponCalculator.calculate(req.getItems(), platform, shops);
     }
 
     /**

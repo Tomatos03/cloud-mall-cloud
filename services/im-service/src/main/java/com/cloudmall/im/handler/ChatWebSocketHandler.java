@@ -49,7 +49,7 @@ public class ChatWebSocketHandler extends TextWebSocketHandler {
     private final WebSocketSessionManager webSocketSessionManager;
     private final IChatMessageService chatMessageService;
     private final IChatSessionService chatSessionService;
-    private final ChatMessageConverter messageConverter;
+    private final ChatMessageConverter chatMessageConverter;
     private final ObjectMapper objectMapper;
 
     @Override
@@ -115,7 +115,7 @@ public class ChatWebSocketHandler extends TextWebSocketHandler {
         if (receiverOnline) {
             WebSocketSession receiverSession = webSocketSessionManager.getSession(receiverId);
             if (receiverSession != null && receiverSession.isOpen()) {
-                MessageResp resp = messageConverter.toResp(chatMessage);
+                MessageResp resp = chatMessageConverter.toResp(chatMessage);
                 try {
                     receiverSession.sendMessage(new TextMessage(objectMapper.writeValueAsString(resp)));
                     log.info("消息已转发给在线用户 {}", receiverId);

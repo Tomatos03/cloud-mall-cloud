@@ -37,8 +37,8 @@ import com.cloudmall.seckill.service.ISeckillProductService;
 public class SeckillMerchantController {
 
     private final SeckillApp seckillApp;
-    private final ISeckillActivityService activityService;
-    private final ISeckillProductService productService;
+    private final ISeckillActivityService seckillActivityService;
+    private final ISeckillProductService seckillProductService;
 
     /**
      * 可报名活动列表（仅 PUBLISHED 报名期）。
@@ -47,7 +47,7 @@ public class SeckillMerchantController {
      */
     @GetMapping("/merchant/activities")
     public Result<List<ActivityResp>> listSignupActivities() {
-        return Result.success(activityService.listSignupActivities());
+        return Result.success(seckillActivityService.listSignupActivities());
     }
 
     /**
@@ -58,7 +58,7 @@ public class SeckillMerchantController {
      */
     @GetMapping("/merchant/activities/{id}")
     public Result<ActivityDetailResp> getSignupActivity(@PathVariable Long id) {
-        return Result.success(activityService.getSignupActivity(id));
+        return Result.success(seckillActivityService.getSignupActivity(id));
     }
 
     /**
@@ -76,7 +76,10 @@ public class SeckillMerchantController {
         @RequestBody
         ActivityProductSubmitReq req
     ) {
-        return Result.success(seckillApp.submitProduct(activityId, req));
+        req.setActivityId(activityId);
+        Long userId = UserContextHolder.getUserId();
+        Long shopId = UserContextHolder.getShopId();
+        return Result.success(seckillApp.submitProduct(userId, shopId, req));
     }
 
     /**
@@ -88,6 +91,6 @@ public class SeckillMerchantController {
     public Result<List<SeckillProductResp>> listMyProducts() {
         Long shopId = UserContextHolder.getShopId();
         Asserts.notNull(shopId, BizErrorEnum.MERCHANT_STORE_NOT_FOUND);
-        return Result.success(productService.listByShopId(shopId));
+        return Result.success(seckillProductService.listByShopId(shopId));
     }
 }

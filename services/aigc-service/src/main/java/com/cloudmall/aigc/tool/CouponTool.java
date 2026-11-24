@@ -25,7 +25,7 @@ public class CouponTool {
 
     private final CouponClient couponClient;
     private final InternalCouponClient internalCouponClient;
-    private final AgentCardAssembler cardAssembler;
+    private final AgentCardAssembler agentCardAssembler;
 
     private final int cardLimit = 5;
 
@@ -49,7 +49,7 @@ public class CouponTool {
             return List.of();
         }
         if (toolContext.getContext().get(ToolContextKeys.RESULT_CONTEXT) instanceof ToolResultContext resultContext) {
-            resultContext.addCards(cardAssembler.coupons(available));
+            resultContext.addCards(agentCardAssembler.coupons(available));
         }
         return available;
     }
@@ -73,7 +73,7 @@ public class CouponTool {
             return List.of();
         }
         if (toolContext.getContext().get(ToolContextKeys.RESULT_CONTEXT) instanceof ToolResultContext resultContext) {
-            resultContext.addCards(cardAssembler.userCoupons(coupons));
+            resultContext.addCards(agentCardAssembler.userCoupons(coupons));
         }
         return coupons;
     }

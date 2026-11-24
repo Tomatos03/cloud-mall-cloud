@@ -29,8 +29,8 @@ import com.cloudmall.seckill.service.ISeckillProductService;
 @RequestMapping("/internal/seckill")
 public class InternalSeckillController {
 
-    private final ISeckillOrderService orderService;
-    private final ISeckillProductService productService;
+    private final ISeckillOrderService seckillOrderService;
+    private final ISeckillProductService seckillProductService;
     private final SeckillConverter seckillConverter;
 
     /**
@@ -41,7 +41,7 @@ public class InternalSeckillController {
      */
     @PostMapping("/confirm-paid")
     public Result<Void> confirmPaid(@RequestBody SeckillConfirmPaidReq req) {
-        orderService.confirmPaid(req.getOrderNo());
+        seckillOrderService.confirmPaid(req.getOrderNo());
         return Result.success(null);
     }
 
@@ -53,7 +53,7 @@ public class InternalSeckillController {
      */
     @GetMapping("/orders/{orderNo}")
     public Result<SeckillOrderResp> getByOrderNo(@PathVariable String orderNo) {
-        return Result.success(seckillConverter.toSeckillOrderResp(orderService.getByOrderNo(orderNo)));
+        return Result.success(seckillConverter.toSeckillOrderResp(seckillOrderService.getByOrderNo(orderNo)));
     }
 
     /**
@@ -65,6 +65,6 @@ public class InternalSeckillController {
      */
     @GetMapping("/activities/{activityId}/products/{productId}/verification")
     public Result<Boolean> verifyProduct(@PathVariable Long activityId, @PathVariable Long productId) {
-        return Result.success(productService.isApproved(activityId, productId));
+        return Result.success(seckillProductService.isApproved(activityId, productId));
     }
 }

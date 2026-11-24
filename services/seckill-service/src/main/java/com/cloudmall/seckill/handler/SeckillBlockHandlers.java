@@ -22,11 +22,12 @@ public final class SeckillBlockHandlers {
     /**
      * 抢购被限流拦截时的兜底。
      *
+     * @param userId 用户 ID
      * @param req 抢购请求
      * @param ex 限流异常
      * @return 不会返回，直接抛业务异常
      */
-    public static PurchaseResp purchaseBlock(SeckillPurchaseReq req, BlockException ex) {
+    public static PurchaseResp purchaseBlock(Long userId, SeckillPurchaseReq req, BlockException ex) {
         throw new BizException(BizErrorEnum.FLOW_CONTROL_BLOCKED);
     }
 }

@@ -56,7 +56,7 @@ public class FileService implements IFileService {
 
     private final FileMapper fileMapper;
     private final IFileStorage fileStorage;
-    private final FileProperties properties;
+    private final FileProperties fileProperties;
 
     @Override
     public FileUploadResult upload(
@@ -120,10 +120,12 @@ public class FileService implements IFileService {
     public int cleanExpired() {
         LocalDateTime pendingBefore = LocalDateTime.now()
                                                    .minusSeconds(
-                                                           properties.getCleanup().getPendingTtlSeconds()
+                                                           fileProperties.getCleanup().getPendingTtlSeconds()
                                                    );
         LocalDateTime orphanBefore = LocalDateTime.now()
-                                                  .minusSeconds(properties.getCleanup().getOrphanTtlSeconds());
+                                                  .minusSeconds(
+                                                          fileProperties.getCleanup().getOrphanTtlSeconds()
+                                                  );
         int removed = purge(FileStatusEnum.PENDING, pendingBefore);
         removed += purge(FileStatusEnum.ORPHAN, orphanBefore);
         return removed;

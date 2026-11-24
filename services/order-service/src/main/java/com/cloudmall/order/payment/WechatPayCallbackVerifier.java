@@ -33,7 +33,7 @@ import com.cloudmall.payment.api.util.WechatPayCrypto;
 @RequiredArgsConstructor
 public class WechatPayCallbackVerifier {
 
-    private final PaymentProperties properties;
+    private final PaymentProperties paymentProperties;
     private final ObjectMapper objectMapper;
 
     private PublicKey platformPublicKey;
@@ -43,7 +43,7 @@ public class WechatPayCallbackVerifier {
      */
     @PostConstruct
     public void init() {
-        platformPublicKey = WechatPayCrypto.loadPublicKey(properties.getPlatformPublicKey());
+        platformPublicKey = WechatPayCrypto.loadPublicKey(paymentProperties.getPlatformPublicKey());
     }
 
     /**
@@ -55,7 +55,7 @@ public class WechatPayCallbackVerifier {
      */
     public WechatPayTransaction verifyAndDecrypt(HttpHeaders headers, String body) {
         Asserts.notBlank(body, BizErrorEnum.PAYMENT_CALLBACK_INVALID);
-        if (properties.isVerifySignature()) {
+        if (paymentProperties.isVerifySignature()) {
             verifySignature(headers, body);
         }
         WechatPayNotification notification = parse(body, WechatPayNotification.class);
@@ -88,8 +88,16 @@ public class WechatPayCallbackVerifier {
         Asserts.notBlank(transaction.outTradeNo(), BizErrorEnum.PAYMENT_CALLBACK_INVALID);
         Asserts.notNull(transaction.amount(), BizErrorEnum.PAYMENT_CALLBACK_INVALID);
         Asserts.notNull(transaction.amount().total(), BizErrorEnum.PAYMENT_CALLBACK_INVALID);
-        Asserts.isEqual(transaction.mchid(), properties.getMchid(), BizErrorEnum.PAYMENT_CALLBACK_INVALID);
-        Asserts.isEqual(transaction.appid(), properties.getAppid(), BizErrorEnum.PAYMENT_CALLBACK_INVALID);
+        Asserts.isEqual(
+                transaction.mchid(),
+                paymentProperties.getMchid(),
+                BizErrorEnum.PAYMENT_CALLBACK_INVALID
+        );
+        Asserts.isEqual(
+                transaction.appid(),
+                paymentProperties.getAppid(),
+                BizErrorEnum.PAYMENT_CALLBACK_INVALID
+        );
         return transaction;
     }
 
@@ -110,7 +118,7 @@ public class WechatPayCallbackVerifier {
         Asserts.notBlank(serial, BizErrorEnum.PAYMENT_CALLBACK_SIGNATURE_INVALID);
         Asserts.isEqual(
                 serial,
-                properties.getPlatformSerialNo(),
+                paymentProperties.getPlatformSerialNo(),
                 BizErrorEnum.PAYMENT_CALLBACK_SIGNATURE_INVALID
         );
         Asserts.isTrue(timestamp.matches("\\d+"), BizErrorEnum.PAYMENT_CALLBACK_SIGNATURE_INVALID);
@@ -135,7 +143,7 @@ public class WechatPayCallbackVerifier {
     private String decrypt(WechatPayNotification.Resource resource) {
         try {
             return WechatPayCrypto.aesGcmDecrypt(
-                    properties.getApiV3Key(),
+                    paymentProperties.getApiV3Key(),
                     resource.associatedData(),
                     resource.nonce(),
                     resource.ciphertext()

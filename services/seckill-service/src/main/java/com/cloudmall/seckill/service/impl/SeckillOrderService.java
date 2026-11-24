@@ -42,8 +42,8 @@ public class SeckillOrderService implements ISeckillOrderService {
     /** 单次超时扫描上限 */
     private static final int TIMEOUT_SCAN_LIMIT = 200;
 
-    private final SeckillOrderMapper orderMapper;
-    private final SeckillProductMapper productMapper;
+    private final SeckillOrderMapper seckillOrderMapper;
+    private final SeckillProductMapper seckillProductMapper;
     private final MQProducer mqProducer;
     private final SeckillConverter seckillConverter;
 
@@ -62,26 +62,29 @@ public class SeckillOrderService implements ISeckillOrderService {
     @Transactional(rollbackFor = Exception.class)
     public void createWithEvent(SeckillOrderDO order, Long addressId) {
         // 唯一键 uk_activity_sku_user 冲突时抛 DuplicateKeyException，由编排层回补 Redis
-        orderMapper.insert(order);
+        seckillOrderMapper.insert(order);
 
         // 构建事件并发送事务消息（本地事务由监听器执行）
-        SeckillOrderCreateEvent event = SeckillOrderCreateEvent.builder()
-                                                               .seckillOrderId(order.getId())
-                                                               .orderNo(order.getOrderNo())
-                                                               .userId(order.getUserId())
-                                                               .skuId(order.getSkuId())
-                                                               .productId(order.getProductId())
-                                                               .seckillPrice(order.getSeckillPrice())
-                                                               .quantity(order.getQuantity())
-                                                               .addressId(addressId)
-                                                               .build();
         mqProducer.sendInTransaction(
                 SECKILL_ORDERS_TOPIC,
                 SeckillTagEnum.ORDER_CREATE.getTag(),
-                event,
+                buildSeckillOrderCreateEvent(order, addressId),
                 order.getOrderNo()
         );
         log.info("秒杀单已受理并发送建单事务消息 orderNo={} userId={}", order.getOrderNo(), order.getUserId());
+    }
+
+    private SeckillOrderCreateEvent buildSeckillOrderCreateEvent(SeckillOrderDO order, Long addressId) {
+        return SeckillOrderCreateEvent.builder()
+                                      .seckillOrderId(order.getId())
+                                      .orderNo(order.getOrderNo())
+                                      .userId(order.getUserId())
+                                      .skuId(order.getSkuId())
+                                      .productId(order.getProductId())
+                                      .seckillPrice(order.getSeckillPrice())
+                                      .quantity(order.getQuantity())
+                                      .addressId(addressId)
+                                      .build();
     }
 
     /**
@@ -94,18 +97,18 @@ public class SeckillOrderService implements ISeckillOrderService {
     @Transactional(rollbackFor = Exception.class)
     public void confirmPaid(String orderNo) {
         SeckillOrderDO order = Asserts.requireNonNull(
-                orderMapper.selectByOrderNo(orderNo),
+                seckillOrderMapper.selectByOrderNo(orderNo),
                 BizErrorEnum.SECKILL_ORDER_NOT_EXIST
         );
 
-        int transitioned = orderMapper.markPaidIfPending(order.getId());
+        int transitioned = seckillOrderMapper.markPaidIfPending(order.getId());
         if (transitioned == 0) {
             log.info("秒杀单状态非待支付，幂等跳过 orderNo={}", orderNo);
             return;
         }
 
         // 只有状态迁移成功才落库扣减；WHERE stock>=1 兜底防负库存
-        int deducted = productMapper.deductStock(order.getActivityId(), order.getSkuId());
+        int deducted = seckillProductMapper.deductStock(order.getActivityId(), order.getSkuId());
         if (deducted == 0) {
             log.warn("秒杀池库存不足，落库扣减失败 orderNo={} skuId={}", orderNo, order.getSkuId());
         }
@@ -119,7 +122,7 @@ public class SeckillOrderService implements ISeckillOrderService {
      */
     @Override
     public List<SeckillOrderDO> scanTimeoutOrders() {
-        return orderMapper.selectTimeoutOrders(
+        return seckillOrderMapper.selectTimeoutOrders(
                 LocalDateTime.now().minusMinutes(PAYMENT_TIMEOUT_MINUTES),
                 TIMEOUT_SCAN_LIMIT
         );
@@ -135,7 +138,7 @@ public class SeckillOrderService implements ISeckillOrderService {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public boolean cancelIfPending(Long seckillOrderId) {
-        return orderMapper.cancelIfPending(seckillOrderId) > 0;
+        return seckillOrderMapper.cancelIfPending(seckillOrderId) > 0;
     }
 
     /**
@@ -147,7 +150,7 @@ public class SeckillOrderService implements ISeckillOrderService {
     @Override
     public SeckillOrderDO getByOrderNo(String orderNo) {
         return Asserts.requireNonNull(
-                orderMapper.selectByOrderNo(orderNo),
+                seckillOrderMapper.selectByOrderNo(orderNo),
                 BizErrorEnum.SECKILL_ORDER_NOT_EXIST
         );
     }
@@ -160,7 +163,7 @@ public class SeckillOrderService implements ISeckillOrderService {
      */
     @Override
     public List<SeckillOrderResp> listByUserId(Long userId) {
-        List<SeckillOrderDO> orders = orderMapper.listByUserId(userId);
+        List<SeckillOrderDO> orders = seckillOrderMapper.listByUserId(userId);
         return seckillConverter.toSeckillOrderRespList(orders);
     }
 }

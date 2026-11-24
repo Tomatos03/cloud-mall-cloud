@@ -39,9 +39,9 @@ import com.cloudmall.seckill.service.ISeckillProductService;
 public class SeckillUserController {
 
     private final SeckillApp seckillApp;
-    private final ISeckillActivityService activityService;
-    private final ISeckillProductService productService;
-    private final ISeckillOrderService orderService;
+    private final ISeckillActivityService seckillActivityService;
+    private final ISeckillProductService seckillProductService;
+    private final ISeckillOrderService seckillOrderService;
 
     /**
      * 进行中活动列表（用户端只显示 RUNNING，免登录）。
@@ -50,7 +50,7 @@ public class SeckillUserController {
      */
     @GetMapping("/activities")
     public Result<List<ActivityResp>> listRunningActivities() {
-        return Result.success(activityService.listRunningActivities());
+        return Result.success(seckillActivityService.listRunningActivities());
     }
 
     /**
@@ -61,7 +61,7 @@ public class SeckillUserController {
      */
     @GetMapping("/activities/{id}")
     public Result<ActivityDetailResp> getActivityDetail(@PathVariable Long id) {
-        return Result.success(activityService.getActivityDetail(id));
+        return Result.success(seckillActivityService.getActivityDetail(id));
     }
 
     /**
@@ -71,7 +71,7 @@ public class SeckillUserController {
      */
     @GetMapping("/activities/today")
     public Result<List<SeckillSessionResp>> listTodaySessions() {
-        return Result.success(activityService.listTodaySessions());
+        return Result.success(seckillActivityService.listTodaySessions());
     }
 
     /**
@@ -81,7 +81,7 @@ public class SeckillUserController {
      */
     @GetMapping("/activities/current-hour")
     public Result<ActivityDetailResp> getCurrentHourActivity() {
-        return Result.success(activityService.getCurrentHourActivity());
+        return Result.success(seckillActivityService.getCurrentHourActivity());
     }
 
     /**
@@ -92,7 +92,7 @@ public class SeckillUserController {
      */
     @GetMapping("/products/{id}")
     public Result<SeckillProductResp> getApprovedById(@PathVariable Long id) {
-        return Result.success(productService.getApprovedById(id));
+        return Result.success(seckillProductService.getApprovedById(id));
     }
 
     /**
@@ -103,7 +103,8 @@ public class SeckillUserController {
      */
     @PostMapping("/purchase")
     public Result<PurchaseResp> purchase(@Valid @RequestBody SeckillPurchaseReq req) {
-        return Result.success(seckillApp.purchase(req));
+        Long userId = UserContextHolder.getUserId();
+        return Result.success(seckillApp.purchase(userId, req));
     }
 
     /**
@@ -114,6 +115,6 @@ public class SeckillUserController {
     @GetMapping("/orders")
     public Result<List<SeckillOrderResp>> listMyOrders() {
         Long userId = UserContextHolder.getUserId();
-        return Result.success(orderService.listByUserId(userId));
+        return Result.success(seckillOrderService.listByUserId(userId));
     }
 }

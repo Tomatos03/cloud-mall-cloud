@@ -31,7 +31,7 @@ public class ProductTool {
 
     private final ProductClient productClient;
     private final SearchClient searchClient;
-    private final AgentCardAssembler cardAssembler;
+    private final AgentCardAssembler agentCardAssembler;
 
     /**
      * 根据商品 SPU 编号查询商品详情 <p>
@@ -52,7 +52,7 @@ public class ProductTool {
             return null;
         }
         if (toolContext.getContext().get(ToolContextKeys.RESULT_CONTEXT) instanceof ToolResultContext resultContext) {
-            resultContext.addCards(List.of(cardAssembler.product(product)));
+            resultContext.addCards(List.of(agentCardAssembler.product(product)));
         }
         return product;
     }
@@ -87,7 +87,7 @@ public class ProductTool {
         }
         List<SearchProductResp> products = result.getItems();
         if (toolContext.getContext().get(ToolContextKeys.RESULT_CONTEXT) instanceof ToolResultContext resultContext) {
-            resultContext.addCards(cardAssembler.products(products));
+            resultContext.addCards(agentCardAssembler.products(products));
         }
         return products;
     }

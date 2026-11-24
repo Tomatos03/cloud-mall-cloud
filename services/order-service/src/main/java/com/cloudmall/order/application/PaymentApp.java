@@ -41,7 +41,7 @@ public class PaymentApp {
     private final InternalMockPaymentClient internalMockPaymentClient;
     private final PaymentConverter paymentConverter;
     private final PaymentProperties paymentProperties;
-    private final WechatPayCallbackVerifier callbackVerifier;
+    private final WechatPayCallbackVerifier wechatPayCallbackVerifier;
     private final InternalUserClient internalUserClient;
 
     /**
@@ -120,7 +120,7 @@ public class PaymentApp {
      * @param body 原始回调报文
      */
     public void handleNotify(HttpHeaders headers, String body) {
-        WechatPayTransaction tx = callbackVerifier.verifyAndDecrypt(headers, body);
+        WechatPayTransaction tx = wechatPayCallbackVerifier.verifyAndDecrypt(headers, body);
         if (!isSuccess(tx.tradeState())) {
             log.info("忽略非成功支付回调 orderNo={} tradeState={}", tx.outTradeNo(), tx.tradeState());
             return;

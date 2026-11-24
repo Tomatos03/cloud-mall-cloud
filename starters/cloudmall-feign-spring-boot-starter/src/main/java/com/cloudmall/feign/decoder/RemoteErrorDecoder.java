@@ -31,17 +31,17 @@ public class RemoteErrorDecoder implements ErrorDecoder {
 
     private static final int STATUS_GATEWAY_TIMEOUT = 504;
 
-    private final ResultParser parser;
+    private final ResultParser resultParser;
 
     @Override
     public Exception decode(String methodKey, Response response) {
         try {
-            JsonNode envelope = parser.parse(response);
-            if (!parser.success(envelope)) {
+            JsonNode envelope = resultParser.parse(response);
+            if (!resultParser.success(envelope)) {
                 return RemoteExceptionFactory.business(
                         response,
-                        parser.code(envelope),
-                        parser.message(envelope, "远程服务调用失败")
+                        resultParser.code(envelope),
+                        resultParser.message(envelope, "远程服务调用失败")
                 );
             }
         } catch (IOException | DecodeException ignored) {

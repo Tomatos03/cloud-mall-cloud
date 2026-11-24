@@ -44,7 +44,7 @@ public class ProductIndexRepository {
     /** ES 分页拉取文档 ID 的每页条数（search_after 翻页，不受 max_result_window 限制） */
     private static final int FETCH_IDS_PAGE_SIZE = 1_000;
 
-    private final ElasticsearchClient client;
+    private final ElasticsearchClient elasticsearchClient;
     private final SearchProperties props;
 
     /**
@@ -54,7 +54,7 @@ public class ProductIndexRepository {
      */
     public void upsert(ProductDocResp doc) {
         try {
-            client.update(
+            elasticsearchClient.update(
                     u -> u.index(props.getIndex())
                           .id(String.valueOf(doc.getId()))
                           .doc(toIndexFields(doc))
@@ -90,7 +90,7 @@ public class ProductIndexRepository {
             );
         }
         try {
-            BulkResponse response = client.bulk(br.build());
+            BulkResponse response = elasticsearchClient.bulk(br.build());
             return response.items()
                            .stream()
                            .filter(item -> item.error() == null)
@@ -107,7 +107,7 @@ public class ProductIndexRepository {
      */
     public void deleteById(Long id) {
         try {
-            client.delete(d -> d.index(props.getIndex()).id(String.valueOf(id)));
+            elasticsearchClient.delete(d -> d.index(props.getIndex()).id(String.valueOf(id)));
         } catch (ElasticsearchException e) {
             // 404：文档不存在，忽略
             if (e.status() != 404) {
@@ -136,7 +136,7 @@ public class ProductIndexRepository {
             );
         }
         try {
-            BulkResponse response = client.bulk(br.build());
+            BulkResponse response = elasticsearchClient.bulk(br.build());
             return response.items()
                            .stream()
                            .filter(item -> item.error() == null)
@@ -167,7 +167,10 @@ public class ProductIndexRepository {
                 if (searchAfter != null) {
                     builder.searchAfter(searchAfter);
                 }
-                SearchResponse<JsonData> response = client.search(builder.build(), JsonData.class);
+                SearchResponse<JsonData> response = elasticsearchClient.search(
+                        builder.build(),
+                        JsonData.class
+                );
                 List<Hit<JsonData>> hits = response.hits().hits();
                 if (hits.isEmpty()) {
                     break;
