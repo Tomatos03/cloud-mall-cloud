@@ -103,10 +103,10 @@ INSERT INTO cm_shop_stat (shop_id, product_count, total_review_count, positive_r
 -- ============================================================
 -- 用户收货地址
 -- ============================================================
-INSERT INTO cm_address (id, user_id, consignee, phone, province, city, district, detail, zip_code, is_default) VALUES
-(1, 4, '张三',   '13800000004', '广东省', '深圳市', '南山区', '科技园南区A栋1201', '518000', 1),
-(2, 4, '张三',   '13800000004', '广东省', '广州市', '天河区', '珠江新城B座806',   '510000', 0),
-(3, 5, '赵六',   '13800000005', '北京市', '北京市',  '朝阳区', '望京SOHO T3 2204', '100000', 1);
+INSERT INTO cm_address (id, user_id, consignee, phone, province, city, district, detail, zip_code, is_default, slot) VALUES
+(1, 4, '张三',   '13800000004', '广东省', '深圳市', '南山区', '科技园南区A栋1201', '518000', 1, 1),
+(2, 4, '张三',   '13800000004', '广东省', '广州市', '天河区', '珠江新城B座806',   '510000', 0, 2),
+(3, 5, '赵六',   '13800000005', '北京市', '北京市',  '朝阳区', '望京SOHO T3 2204', '100000', 1, 1);
 
 ALTER TABLE cm_address AUTO_INCREMENT = 100;
 
@@ -763,7 +763,7 @@ FROM tmp_seed_seq;
 -- ============================================================
 -- 用户收货地址
 -- ============================================================
-INSERT INTO cm_address (id, user_id, consignee, phone, province, city, district, detail, zip_code, is_default,
+INSERT INTO cm_address (id, user_id, consignee, phone, province, city, district, detail, zip_code, is_default, slot,
                         create_time, update_time)
 SELECT 1000 + n,
        1100 + n,
@@ -793,6 +793,7 @@ SELECT 1000 + n,
        CONCAT('种子数据街道 ', n, ' 号 ', n, ' 室'),
        CONCAT('200', LPAD(n, 3, '0')),
        IF(n = 1, 1, 0),
+       1,
        DATE_SUB(NOW(), INTERVAL (150 - n) DAY),
        NOW()
 FROM tmp_seed_seq;

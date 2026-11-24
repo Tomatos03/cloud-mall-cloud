@@ -1,7 +1,9 @@
 package com.cloudmall.user.mapper;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
+import cn.hutool.core.collection.CollStreamUtil;
 import cn.hutool.core.collection.CollUtil;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
@@ -23,42 +25,74 @@ public interface AddressMapper extends BaseMapper<AddressDO> {
     }
 
     /**
-     * 按用户批量查询收货地址。
-     *
-     * @param userIds 用户 ID 列表
-     * @return 命中的收货地址列表
-     */
-    default List<AddressDO> selectByUserIds(List<Long> userIds) {
-        if (CollUtil.isEmpty(userIds)) {
-            return List.of();
-        }
-        return selectList(Wrappers.<AddressDO>lambdaQuery().in(AddressDO::getUserId, userIds));
-    }
-
-    /**
-     * 统计用户收货地址数量。
-     *
-     * @param userId 用户标识
-     * @return 收货地址数量
-     */
-    default Long countByUserId(Long userId) {
-        return selectCount(Wrappers.<AddressDO>lambdaQuery().eq(AddressDO::getUserId, userId));
-    }
-
-    /**
-     * 清除用户其它地址的默认标记。
+     * 查询用户已占用的地址槽位。
      *
      * @param userId 用户 ID
-     * @param excludeId 需要保留默认标记的地址 ID，可为 null
+     * @return 已占用的槽位列表
+     */
+    default List<Integer> listOccupiedSlots(Long userId) {
+        List<AddressDO> addresses = selectList(
+                Wrappers.<AddressDO>lambdaQuery()
+                        .select(AddressDO::getSlot)
+                        .eq(AddressDO::getUserId, userId)
+        );
+        return CollStreamUtil.toList(addresses, AddressDO::getSlot);
+    }
+
+    /**
+     * 按 ID 与用户标识更新地址字段，仅更新实体中非 null 的字段。
+     *
+     * @param address 包含待更新字段的实体
+     * @param id 地址 ID
+     * @param userId 用户 ID
      * @return 影响行数
      */
-    default int clearDefault(Long userId, Long excludeId) {
+    default int updateByIdAndUserId(AddressDO address, Long id, Long userId) {
+        return update(
+                address,
+                Wrappers.<AddressDO>lambdaUpdate()
+                        .eq(AddressDO::getId, id)
+                        .eq(AddressDO::getUserId, userId)
+        );
+    }
+
+    /**
+     * 设置用户默认地址，单条语句完成清旧设新。
+     *
+     * @param userId 用户 ID
+     * @param addressId 需要设为默认的地址 ID
+     * @return 影响行数
+     */
+    default int setDefault(Long userId, Long addressId) {
+        final String defaultSql = "is_default = CASE WHEN id = {0} THEN 1 ELSE 0 END";
+        return update(
+                Wrappers.<AddressDO>lambdaUpdate()
+                        .setSql(defaultSql, addressId)
+                        .set(AddressDO::getUpdateTime, LocalDateTime.now())
+                        .eq(AddressDO::getUserId, userId)
+                        .and(
+                                wrapper -> wrapper.eq(AddressDO::getIsDefault, true)
+                                                  .or()
+                                                  .eq(AddressDO::getId, addressId)
+                        )
+        );
+    }
+
+    /**
+     * 清除指定地址的默认标记。
+     *
+     * @param userId 用户 ID
+     * @param addressId 地址 ID
+     * @return 影响行数
+     */
+    default int clearDefaultById(Long userId, Long addressId) {
         return update(
                 Wrappers.<AddressDO>lambdaUpdate()
                         .set(AddressDO::getIsDefault, false)
+                        .set(AddressDO::getUpdateTime, LocalDateTime.now())
                         .eq(AddressDO::getUserId, userId)
+                        .eq(AddressDO::getId, addressId)
                         .eq(AddressDO::getIsDefault, true)
-                        .ne(excludeId != null, AddressDO::getId, excludeId)
         );
     }
 

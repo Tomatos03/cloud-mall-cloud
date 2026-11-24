@@ -38,8 +38,9 @@ public interface IAddressService {
      * 更新相关数据。
      *
      * @param request 请求参数
+     * @param userId 用户 ID
      */
-    void update(AddressUpdateReq request);
+    void update(AddressUpdateReq request, Long userId);
 
     /**
      * 删除相关数据。

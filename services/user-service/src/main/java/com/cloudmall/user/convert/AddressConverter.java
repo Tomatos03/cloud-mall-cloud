@@ -2,11 +2,8 @@ package com.cloudmall.user.convert;
 
 import java.util.List;
 
-import org.mapstruct.BeanMapping;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
-import org.mapstruct.MappingTarget;
-import org.mapstruct.NullValuePropertyMappingStrategy;
 
 import com.cloudmall.user.api.model.req.AddressUpdateReq;
 import com.cloudmall.user.api.model.req.CreateReq;
@@ -40,18 +37,21 @@ public interface AddressConverter {
      * @return 处理结果
      */
     @Mapping(target = "id", ignore = true)
-    @Mapping(target = "deleted", ignore = true)
+    @Mapping(target = "slot", ignore = true)
     @Mapping(target = "createTime", ignore = true)
     @Mapping(target = "updateTime", ignore = true)
     AddressDO toDO(CreateReq req, Long userId);
 
     /**
-     * 更新相关数据。
+     * 将更新请求转为只包含待更新字段的实体，null 字段由 MyBatis-Plus 忽略。
      *
      * @param req 请求参数
-     * @param address 地址实体
+     * @return 待更新实体
      */
-    @Mapping(target = "id", ignore = true)
-    @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
-    void updateEntity(AddressUpdateReq req, @MappingTarget AddressDO address);
+    @Mapping(target = "slot", ignore = true)
+    @Mapping(target = "userId", ignore = true)
+    @Mapping(target = "isDefault", ignore = true)
+    @Mapping(target = "createTime", ignore = true)
+    @Mapping(target = "updateTime", ignore = true)
+    AddressDO toUpdateDO(AddressUpdateReq req);
 }

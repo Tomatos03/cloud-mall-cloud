@@ -1,5 +1,6 @@
 package com.cloudmall.user.api.model.req;
 
+import jakarta.annotation.Nonnull;
 import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -11,6 +12,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class AddressUpdateReq {
+    @Nonnull
     private Long id;
     @NotBlank
     private String consignee;

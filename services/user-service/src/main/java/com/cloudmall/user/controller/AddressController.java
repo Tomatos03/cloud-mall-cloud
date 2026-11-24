@@ -75,7 +75,7 @@ public class AddressController {
     @PutMapping("/{id}")
     public Result<Void> update(@PathVariable Long id, @RequestBody @Valid AddressUpdateReq request) {
         request.setId(id);
-        addressService.update(request);
+        addressService.update(request, UserContextHolder.getUserId());
         return Result.success();
     }
 

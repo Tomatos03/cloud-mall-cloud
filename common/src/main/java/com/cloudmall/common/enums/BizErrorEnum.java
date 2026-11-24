@@ -86,7 +86,7 @@ public enum BizErrorEnum {
     // 地址相关错误码 (30xxx)
     ADDRESS_NOT_EXIST(30000, "地址不存在"),
     ADDRESS_LIMIT_EXCEEDED(30001, "收货地址数量已达上限（最多10条）"),
-    ADDRESS_DEFAULT_CANNOT_DELETE(30002, "默认地址不可删除"),
+    ADDRESS_CREATE_FAILED(30003, "地址创建失败，请稍后重试"),
 
     // 搜索相关错误码 (40xxx)
     UNKNOWN_SEARCH_ORDER_TYPE(40000, "未知的搜索排序类型"),

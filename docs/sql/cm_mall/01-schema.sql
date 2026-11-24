@@ -115,11 +115,13 @@ CREATE TABLE IF NOT EXISTS cm_address (
     detail     varchar(255) DEFAULT NULL comment '详细地址',
     zip_code   varchar(10)  DEFAULT NULL comment '邮政编码',
     is_default tinyint(1)   DEFAULT '0' comment '是否默认地址(0=否 1=是)',
+    slot       tinyint      NOT NULL comment '地址槽位(1-10)',
     create_time datetime    DEFAULT NULL comment '创建时间',
     update_time datetime    DEFAULT NULL comment '更新时间',
-    deleted    tinyint(1)   DEFAULT '0' comment '是否删除(0=否 1=是)',
     PRIMARY KEY (id),
-    KEY idx_user_id (user_id)
+    KEY idx_user_id (user_id),
+    UNIQUE KEY uk_address_user_slot (user_id, slot),
+    CONSTRAINT chk_address_slot CHECK (slot BETWEEN 1 AND 10)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 comment '用户收货地址表';
 
 CREATE TABLE IF NOT EXISTS cm_shop (
