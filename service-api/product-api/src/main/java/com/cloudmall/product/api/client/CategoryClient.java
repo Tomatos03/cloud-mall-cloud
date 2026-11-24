@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
+import com.cloudmall.product.api.client.fallback.CategoryClientFallbackFactory;
 import com.cloudmall.product.api.model.resp.CategoryResp;
 
 /**
@@ -15,7 +16,12 @@ import com.cloudmall.product.api.model.resp.CategoryResp;
  *
  * @author : Tomatos
  */
-@FeignClient(name = "product-service", contextId = "categoryClient", path = "/categories")
+@FeignClient(
+        name = "product-service",
+        contextId = "categoryClient",
+        path = "/categories",
+        fallbackFactory = CategoryClientFallbackFactory.class
+)
 public interface CategoryClient {
 
     /**

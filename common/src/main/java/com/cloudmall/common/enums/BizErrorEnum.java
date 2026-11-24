@@ -18,7 +18,7 @@ public enum BizErrorEnum {
     DATA_NOT_FOUND(1002, "数据不存在"),
     SERVICE_UNAVAILABLE(1003, "服务暂不可用"),
     GATEWAY_TIMEOUT(1004, "请求超时，请稍后重试"),
-    FLOW_CONTROL_BLOCKED(1005, "系统繁忙，请稍后再试"),
+    FLOW_CONTROL_BLOCKED(1005, "系统繁忙，请稍后再试", HttpStatus.TOO_MANY_REQUESTS),
     INVALID_DELETE_DATA(1006, "存在不合法的删除数据, 请修正后重新尝试."),
 
     // 用户认证相关错误码 (10xxx)

@@ -14,7 +14,6 @@ import org.springframework.web.servlet.NoHandlerFoundException;
 
 import com.cloudmall.common.enums.BizErrorEnum;
 import com.cloudmall.common.exception.BizException;
-import com.cloudmall.common.exception.FeignRemoteException;
 import com.cloudmall.common.model.result.Result;
 
 /**
@@ -39,19 +38,6 @@ public class GlobalExceptionHandler {
     public ResponseEntity<Result<Void>> handleBizException(BizException e) {
         BizErrorEnum errorCode = e.getBizError();
         return ResponseEntity.status(errorCode.getHttpStatus()).body(Result.error(errorCode));
-    }
-
-    /**
-     * 远程服务调用异常（Feign Decoder 拆箱 Result 失败）。
-     *
-     * @param e 异常对象
-     * @return 处理结果
-     */
-    @ExceptionHandler(FeignRemoteException.class)
-    public ResponseEntity<Result<Void>> handleFeignRemote(FeignRemoteException e) {
-        log.warn("远程服务返回错误: code={}, message={}", e.getRemoteCode(), e.getMessage());
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                             .body(Result.error(e.getMessage(), e.getRemoteCode()));
     }
 
     /**

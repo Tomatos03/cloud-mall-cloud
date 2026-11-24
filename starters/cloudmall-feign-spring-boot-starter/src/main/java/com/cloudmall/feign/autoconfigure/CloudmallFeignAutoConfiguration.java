@@ -1,10 +1,13 @@
 package com.cloudmall.feign.autoconfigure;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import feign.codec.ErrorDecoder;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.cloud.openfeign.EnableFeignClients;
 import org.springframework.context.annotation.Bean;
 
+import com.cloudmall.feign.decoder.RemoteErrorDecoder;
 import com.cloudmall.feign.decoder.ResultDecoder;
 import com.cloudmall.feign.decoder.ResultParser;
 import com.cloudmall.feign.interceptor.FeignUserContextInterceptor;
@@ -51,6 +54,18 @@ public class CloudmallFeignAutoConfiguration {
     @Bean
     ResultDecoder resultDecoder(ResultParser parser) {
         return new ResultDecoder(parser);
+    }
+
+    /**
+     * 创建远程调用错误解码器，统一翻译非 2xx 响应。
+     *
+     * @param parser Result 信封解析器
+     * @return 错误解码器
+     */
+    @Bean
+    @ConditionalOnMissingBean(ErrorDecoder.class)
+    RemoteErrorDecoder remoteErrorDecoder(ResultParser parser) {
+        return new RemoteErrorDecoder(parser);
     }
 
 }

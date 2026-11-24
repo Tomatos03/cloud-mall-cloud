@@ -6,6 +6,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
 import com.cloudmall.product.api.model.resp.ProductDocResp;
+import com.cloudmall.search.api.client.fallback.InternalSearchClientFallbackFactory;
 
 /**
  * 搜索内部 Feign 客户端
@@ -15,7 +16,12 @@ import com.cloudmall.product.api.model.resp.ProductDocResp;
  *
  * @author : Tomatos
  */
-@FeignClient(name = "search-service", contextId = "internalSearchClient", path = "/internal/search")
+@FeignClient(
+        name = "search-service",
+        contextId = "internalSearchClient",
+        path = "/internal/search",
+        fallbackFactory = InternalSearchClientFallbackFactory.class
+)
 public interface InternalSearchClient {
 
     /**

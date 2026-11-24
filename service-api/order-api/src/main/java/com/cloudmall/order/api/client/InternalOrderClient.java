@@ -6,6 +6,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import com.cloudmall.order.api.client.fallback.InternalOrderClientFallbackFactory;
 import com.cloudmall.order.api.model.req.OrderEventReq;
 import com.cloudmall.order.api.model.req.PlainSeckillOrderReq;
 import com.cloudmall.order.api.model.resp.CouponUsageStatsResp;
@@ -18,7 +19,12 @@ import com.cloudmall.order.api.model.resp.CouponUsageStatsResp;
  *
  * @author : Tomatos
  */
-@FeignClient(name = "order-service", contextId = "internalOrderClient", path = "/internal/order")
+@FeignClient(
+        name = "order-service",
+        contextId = "internalOrderClient",
+        path = "/internal/order",
+        fallbackFactory = InternalOrderClientFallbackFactory.class
+)
 public interface InternalOrderClient {
 
     /**

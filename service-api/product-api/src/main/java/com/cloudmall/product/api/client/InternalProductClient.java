@@ -4,6 +4,7 @@ import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
+import com.cloudmall.product.api.client.fallback.InternalProductClientFallbackFactory;
 import com.cloudmall.product.api.model.req.StockConfirmReq;
 import com.cloudmall.product.api.model.req.StockOpReq;
 import com.cloudmall.product.api.model.req.StockReleaseByOrderReq;
@@ -16,7 +17,12 @@ import com.cloudmall.product.api.model.req.StockReleaseByOrderReq;
  *
  * @author : Tomatos
  */
-@FeignClient(name = "product-service", contextId = "internalProductClient", path = "/internal/product")
+@FeignClient(
+        name = "product-service",
+        contextId = "internalProductClient",
+        path = "/internal/product",
+        fallbackFactory = InternalProductClientFallbackFactory.class
+)
 public interface InternalProductClient {
 
     /**

@@ -4,6 +4,7 @@ import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
+import com.cloudmall.shared.api.client.fallback.InternalSharedClientFallbackFactory;
 import com.cloudmall.shared.api.model.req.FileBindReq;
 import com.cloudmall.shared.api.model.req.FileReleaseReq;
 
@@ -14,7 +15,12 @@ import com.cloudmall.shared.api.model.req.FileReleaseReq;
  *
  * @author : Tomatos
  */
-@FeignClient(name = "shared-service", contextId = "internalSharedClient", path = "/internal/shared")
+@FeignClient(
+        name = "shared-service",
+        contextId = "internalSharedClient",
+        path = "/internal/shared",
+        fallbackFactory = InternalSharedClientFallbackFactory.class
+)
 public interface InternalSharedClient {
 
     /**

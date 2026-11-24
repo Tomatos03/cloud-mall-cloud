@@ -9,7 +9,7 @@ import feign.codec.DecodeException;
 import feign.codec.Decoder;
 import lombok.RequiredArgsConstructor;
 
-import com.cloudmall.common.exception.FeignRemoteException;
+import com.cloudmall.feign.exception.RemoteCallException;
 
 /**
  * Feign Result 自动拆箱解码器
@@ -17,7 +17,7 @@ import com.cloudmall.common.exception.FeignRemoteException;
  * 服务端统一返回 {@link com.cloudmall.common.model.result.Result} 包装。在 HTTP 2xx 时：
  * <ul>
  *     <li>code = SUCCESS → 返回 data 反序列化后的目标类型 {@code T}</li>
- *     <li>code ≠ SUCCESS → 抛出 {@link FeignRemoteException}，携带远程错误码与消息</li>
+ *     <li>code ≠ SUCCESS → 抛出 {@link RemoteCallException}，携带远程错误码与消息</li>
  * </ul>
  * 信封读取与校验统一委托 {@link ResultParser}；非 2xx 响应由 Feign 错误解码器处理，不经过本类。
  *
@@ -35,6 +35,10 @@ public class ResultDecoder implements Decoder {
             return parser.data(envelope, type);
         }
 
-        throw new FeignRemoteException(parser.code(envelope), parser.message(envelope, "远程服务调用失败"));
+        throw RemoteExceptionFactory.business(
+                response,
+                parser.code(envelope),
+                parser.message(envelope, "远程服务调用失败")
+        );
     }
 }

@@ -10,9 +10,15 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import com.cloudmall.shared.api.model.resp.ShopInfoResp;
+import com.cloudmall.user.api.client.fallback.ShopClientFallbackFactory;
 import com.cloudmall.user.api.model.resp.ShopResp;
 
-@FeignClient(name = "user-service", contextId = "shopClient", path = "/shops")
+@FeignClient(
+        name = "user-service",
+        contextId = "shopClient",
+        path = "/shops",
+        fallbackFactory = ShopClientFallbackFactory.class
+)
 public interface ShopClient {
 
     /**

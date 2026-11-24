@@ -9,13 +9,19 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
+import com.cloudmall.product.api.client.fallback.SkuClientFallbackFactory;
 import com.cloudmall.product.api.model.req.StockReq;
 import com.cloudmall.product.api.model.resp.SkuResp;
 
 /**
  * 商品 SKU Feign 客户端。
  */
-@FeignClient(name = "product-service", contextId = "skuClient", path = "/skus")
+@FeignClient(
+        name = "product-service",
+        contextId = "skuClient",
+        path = "/skus",
+        fallbackFactory = SkuClientFallbackFactory.class
+)
 public interface SkuClient {
 
     /**

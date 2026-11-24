@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import com.cloudmall.user.api.client.fallback.InternalUserClientFallbackFactory;
 import com.cloudmall.user.api.model.req.OrderPointAwardReq;
 import com.cloudmall.user.api.model.resp.AddressResp;
 import com.cloudmall.user.api.model.resp.UserResp;
@@ -21,7 +22,12 @@ import com.cloudmall.user.api.model.resp.UserResp;
  *
  * @author : Tomatos
  */
-@FeignClient(name = "user-service", contextId = "internalUserClient", path = "/internal/user")
+@FeignClient(
+        name = "user-service",
+        contextId = "internalUserClient",
+        path = "/internal/user",
+        fallbackFactory = InternalUserClientFallbackFactory.class
+)
 public interface InternalUserClient {
 
     /**

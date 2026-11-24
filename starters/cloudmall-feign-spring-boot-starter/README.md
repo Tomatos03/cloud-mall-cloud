@@ -13,7 +13,7 @@
 `ResultDecoder`：自动拆箱服务端统一返回的 `Result<T>` 包装。
 
 - `code = SUCCESS` → 直接返回 `Result.data`（反序列化为目标类型 `T`）
-- `code ≠ SUCCESS` → 抛出 `FeignRemoteException`，携带远程错误码与消息，由全局异常处理器统一转换为 `Result` 响应
+- `code ≠ SUCCESS` → 抛出 `RemoteCallException`，携带远程错误码与消息，由全局异常处理器统一转换为 `Result` 响应
 
 Feign 接口声明时直接返回目标类型，无需 `Result<T>` 包装：
 
@@ -34,10 +34,14 @@ CouponOrderCalcResp lock(@RequestBody CouponOrderLockReq req);
 - `FeignUserContextInterceptor` — 用户上下文透传
 - `ResultParser` — Result 信封解析（解码器/错误解码器共用）
 - `ResultDecoder` — Result 自动拆箱
+- `RemoteErrorDecoder` — 非 2xx 响应统一翻译为远程调用异常
+- `FeignExceptionHandler` — 远程调用异常全局映射（仅 Servlet 环境）
 
 ## 成功链路
 
-正常响应统一走 `ResultParser`：读取响应体、校验 `Result` 信封、`code=0` 时把 `data` 反序列化为目标类型；`code≠0` 仍按既有语义抛 `FeignRemoteException`。非 2xx 响应由 Feign 错误解码器处理，不经过拆箱解码器。
+正常响应统一走 `ResultParser`：读取响应体、校验 `Result` 信封、`code=0` 时把 `data` 反序列化为目标类型；`code≠0` 抛 `RemoteCallException`。非 2xx 响应由 Feign 错误解码器处理，不经过拆箱解码器。
+
+非 2xx 响应由 `RemoteErrorDecoder` 统一翻译：优先解析响应体中的 `Result` 信封保留远端业务码，解析失败则按 HTTP 状态归类为超时、限流、未找到或不可用，最终抛出 `RemoteCallException` 交由 `FeignExceptionHandler` 映射。
 
 传输层默认启用 Apache HttpClient 5 连接池，超时与连接池参数统一在 Nacos `common.yaml` 的 `spring.cloud.openfeign` 节点配置，避免各服务配置漂移。
 
@@ -45,7 +49,7 @@ CouponOrderCalcResp lock(@RequestBody CouponOrderLockReq req);
 
 ```
 cloudmall-feign-spring-boot-starter
-├── cloudmall-common（Result、FeignRemoteException）
+├── cloudmall-common（Result、BizErrorEnum）
 ├── jackson-databind（JSON 反序列化）
 ├── spring-cloud-starter-openfeign
 ├── feign-hc5（HTTP 连接池）

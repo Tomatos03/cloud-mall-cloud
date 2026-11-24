@@ -6,6 +6,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
+import com.cloudmall.payment.api.client.fallback.InternalMockPaymentClientFallbackFactory;
 import com.cloudmall.payment.api.model.req.MockPaymentCreateReq;
 import com.cloudmall.payment.api.model.resp.MockPaymentCreateResp;
 import com.cloudmall.payment.api.model.resp.MockPaymentQueryResp;
@@ -22,7 +23,8 @@ import com.cloudmall.payment.api.model.resp.MockPaymentQueryResp;
 @FeignClient(
         name = "mock-payment-service",
         contextId = "internalMockPaymentClient",
-        path = "/internal/mock-payment"
+        path = "/internal/mock-payment",
+        fallbackFactory = InternalMockPaymentClientFallbackFactory.class
 )
 public interface InternalMockPaymentClient {
 

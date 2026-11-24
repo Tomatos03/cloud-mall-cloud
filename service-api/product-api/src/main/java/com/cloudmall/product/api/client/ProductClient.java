@@ -11,11 +11,17 @@ import org.springframework.web.bind.annotation.RequestBody;
 
 import com.cloudmall.common.model.cursor.CursorReq;
 import com.cloudmall.common.model.cursor.CursorResp;
+import com.cloudmall.product.api.client.fallback.ProductClientFallbackFactory;
 import com.cloudmall.product.api.model.resp.ProductDetailResp;
 import com.cloudmall.product.api.model.resp.ProductDocResp;
 import com.cloudmall.product.api.model.resp.ProductResp;
 
-@FeignClient(name = "product-service", contextId = "productClient", path = "/products")
+@FeignClient(
+        name = "product-service",
+        contextId = "productClient",
+        path = "/products",
+        fallbackFactory = ProductClientFallbackFactory.class
+)
 public interface ProductClient {
 
     /**

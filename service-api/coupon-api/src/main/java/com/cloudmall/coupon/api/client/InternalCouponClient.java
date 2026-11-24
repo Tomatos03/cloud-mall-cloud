@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import com.cloudmall.coupon.api.client.fallback.InternalCouponClientFallbackFactory;
 import com.cloudmall.coupon.api.model.req.AutoIssueRegisterReq;
 import com.cloudmall.coupon.api.model.req.CouponOrderCommitByOrderReq;
 import com.cloudmall.coupon.api.model.req.CouponOrderCommitReq;
@@ -30,7 +31,12 @@ import com.cloudmall.coupon.api.model.resp.UserCouponResp;
  *
  * @author : Tomatos
  */
-@FeignClient(name = "coupon-service", contextId = "internalCouponClient", path = "/internal/coupon")
+@FeignClient(
+        name = "coupon-service",
+        contextId = "internalCouponClient",
+        path = "/internal/coupon",
+        fallbackFactory = InternalCouponClientFallbackFactory.class
+)
 public interface InternalCouponClient {
 
     /**

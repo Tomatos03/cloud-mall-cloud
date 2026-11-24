@@ -6,7 +6,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Service;
 
-import com.cloudmall.common.exception.FeignRemoteException;
 import com.cloudmall.order.api.model.resp.PaymentCreateResp;
 import com.cloudmall.order.api.model.resp.PaymentStatusResp;
 import com.cloudmall.order.config.PaymentProperties;
@@ -108,7 +107,7 @@ public class PaymentApp {
             }
             reconcile(orderNo, resp.getAmountTotal(), snapshot.userId());
             return true;
-        } catch (FeignRemoteException | FeignException e) {
+        } catch (FeignException e) {
             log.warn("查询模拟支付状态失败 orderNo={}", orderNo, e);
             return false;
         }

@@ -25,6 +25,21 @@ spring:
           enabled: true
         max-connections: 200
         max-connections-per-route: 50
+    sentinel:
+      transport:
+        dashboard: localhost:8858
+      datasource:
+        feign-degrade:
+          nacos:
+            server-addr: localhost:8848
+            data-id: cloudmall-feign-degrade-rules
+            group-id: DEFAULT_GROUP
+            data-type: json
+            rule-type: degrade
+
+feign:
+  sentinel:
+    enabled: true
 
 mybatis-plus:
   mapper-locations: classpath:mapper/*.xml

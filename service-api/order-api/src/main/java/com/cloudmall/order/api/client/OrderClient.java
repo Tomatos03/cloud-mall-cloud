@@ -8,11 +8,17 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import com.cloudmall.common.model.page.PageResp;
+import com.cloudmall.order.api.client.fallback.OrderClientFallbackFactory;
 import com.cloudmall.order.api.enums.CheckoutTypeEnum;
 import com.cloudmall.order.api.model.req.CreateOrderReq;
 import com.cloudmall.order.api.model.resp.OrderResp;
 
-@FeignClient(name = "order-service", contextId = "orderClient", path = "/orders")
+@FeignClient(
+        name = "order-service",
+        contextId = "orderClient",
+        path = "/orders",
+        fallbackFactory = OrderClientFallbackFactory.class
+)
 public interface OrderClient {
 
     /**

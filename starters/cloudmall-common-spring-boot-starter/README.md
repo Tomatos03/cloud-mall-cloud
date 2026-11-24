@@ -27,7 +27,7 @@ Long shopId = UserContextHolder.getShopId();
 | 异常 | HTTP 状态 | 响应 |
 |------|-----------|------|
 | `BizException` | 业务错误码对应状态 | `Result.error(bizError)` |
-| `FeignRemoteException` | 400 | 携带远程错误码与消息 |
+
 | 参数校验失败（`@Valid` / `@Validated`） | 400 | 首个字段错误消息 |
 | 缺少请求参数 | 400 | 缺参提示 |
 | 请求体格式错误 | 400 | 参数格式错误 |

@@ -1,0 +1,34 @@
+[
+  {
+    "resource": "GET:http://product-service/banners/page",
+    "grade": 1,
+    "count": 0.5,
+    "timeWindow": 10,
+    "minRequestAmount": 20,
+    "statIntervalMs": 1000
+  },
+  {
+    "resource": "GET:http://product-service/categories",
+    "grade": 1,
+    "count": 0.5,
+    "timeWindow": 10,
+    "minRequestAmount": 20,
+    "statIntervalMs": 1000
+  },
+  {
+    "resource": "GET:http://product-service/products",
+    "grade": 1,
+    "count": 0.5,
+    "timeWindow": 10,
+    "minRequestAmount": 20,
+    "statIntervalMs": 1000
+  },
+  {
+    "resource": "GET:http://seckill-service/seckill/activities/current-hour",
+    "grade": 1,
+    "count": 0.5,
+    "timeWindow": 10,
+    "minRequestAmount": 20,
+    "statIntervalMs": 1000
+  }
+]

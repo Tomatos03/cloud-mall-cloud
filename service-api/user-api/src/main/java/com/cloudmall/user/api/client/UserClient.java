@@ -4,6 +4,7 @@ import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 
+import com.cloudmall.user.api.client.fallback.UserClientFallbackFactory;
 import com.cloudmall.user.api.model.resp.UserResp;
 
 /**
@@ -15,7 +16,12 @@ import com.cloudmall.user.api.model.resp.UserResp;
  * @author : Tomatos
  * @date : 2026/8
  */
-@FeignClient(name = "user-service", contextId = "userClient", path = "/users")
+@FeignClient(
+        name = "user-service",
+        contextId = "userClient",
+        path = "/users",
+        fallbackFactory = UserClientFallbackFactory.class
+)
 public interface UserClient {
 
     /**

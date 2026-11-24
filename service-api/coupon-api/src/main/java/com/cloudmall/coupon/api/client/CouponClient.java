@@ -5,12 +5,18 @@ import java.util.List;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.GetMapping;
 
+import com.cloudmall.coupon.api.client.fallback.CouponClientFallbackFactory;
 import com.cloudmall.coupon.api.model.resp.CouponResp;
 
 /**
  * 优惠券用户端 Feign 客户端，供 AI 客服查询公开券中心。
  */
-@FeignClient(name = "coupon-service", contextId = "couponClient", path = "/coupons")
+@FeignClient(
+        name = "coupon-service",
+        contextId = "couponClient",
+        path = "/coupons",
+        fallbackFactory = CouponClientFallbackFactory.class
+)
 public interface CouponClient {
 
     /**

@@ -6,6 +6,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
+import com.cloudmall.seckill.api.client.fallback.InternalSeckillClientFallbackFactory;
 import com.cloudmall.seckill.api.model.req.SeckillConfirmPaidReq;
 import com.cloudmall.seckill.api.model.resp.SeckillOrderResp;
 
@@ -17,7 +18,12 @@ import com.cloudmall.seckill.api.model.resp.SeckillOrderResp;
  *
  * @author : Tomatos
  */
-@FeignClient(name = "seckill-service", contextId = "internalSeckillClient", path = "/internal/seckill")
+@FeignClient(
+        name = "seckill-service",
+        contextId = "internalSeckillClient",
+        path = "/internal/seckill",
+        fallbackFactory = InternalSeckillClientFallbackFactory.class
+)
 public interface InternalSeckillClient {
 
     /**
