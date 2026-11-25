@@ -16,7 +16,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.redis.core.StringRedisTemplate;
 
-import com.cloudmall.aigc.memory.CacheChatMemoryRepository;
+import com.cloudmall.aigc.infrastructure.store.CacheChatMemoryRepository;
 import com.cloudmall.aigc.properties.AgentProperties;
 
 /**

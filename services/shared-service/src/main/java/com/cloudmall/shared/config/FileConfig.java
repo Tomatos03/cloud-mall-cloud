@@ -6,10 +6,10 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+import com.cloudmall.shared.infrastructure.storage.IFileStorage;
+import com.cloudmall.shared.infrastructure.storage.impl.LocalFileStorage;
+import com.cloudmall.shared.infrastructure.storage.impl.MinioFileStorage;
 import com.cloudmall.shared.properties.FileProperties;
-import com.cloudmall.shared.storage.IFileStorage;
-import com.cloudmall.shared.storage.impl.LocalFileStorage;
-import com.cloudmall.shared.storage.impl.MinioFileStorage;
 
 /**
  * 文件存储配置。

@@ -6,7 +6,7 @@ import org.springframework.ai.chat.client.advisor.MessageChatMemoryAdvisor;
 import org.springframework.ai.chat.memory.ChatMemoryRepository;
 import org.springframework.stereotype.Service;
 
-import com.cloudmall.aigc.manager.GeneratingSessionManager;
+import com.cloudmall.aigc.infrastructure.store.GeneratingSessionManager;
 import com.cloudmall.aigc.service.ISessionService;
 
 /**

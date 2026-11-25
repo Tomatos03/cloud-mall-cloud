@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.cloudmall.common.model.result.Result;
 import com.cloudmall.product.api.model.resp.ProductDocResp;
-import com.cloudmall.search.index.ProductIndexRepository;
+import com.cloudmall.search.infrastructure.search.ProductIndexRepository;
 
 /**
  * 搜索索引内部协同接口

@@ -11,8 +11,8 @@ import com.cloudmall.aigc.agent.RouterAgent;
 import com.cloudmall.aigc.api.model.req.ChatReq;
 import com.cloudmall.aigc.api.model.resp.ChatResp;
 import com.cloudmall.aigc.api.model.resp.ChatTemplate;
-import com.cloudmall.aigc.constant.ChatTemplates;
-import com.cloudmall.aigc.manager.GeneratingSessionManager;
+import com.cloudmall.aigc.constant.ChatTemplateConstants;
+import com.cloudmall.aigc.infrastructure.store.GeneratingSessionManager;
 import com.cloudmall.aigc.service.IChatService;
 
 /**
@@ -77,17 +77,17 @@ public class ChatService implements IChatService {
                 ChatTemplate.builder()
                             .type("polish")
                             .name("润色")
-                            .template(ChatTemplates.POLISH)
+                            .template(ChatTemplateConstants.POLISH)
                             .build(),
                 ChatTemplate.builder()
                             .type("continue")
                             .name("续写")
-                            .template(ChatTemplates.CONTINUE)
+                            .template(ChatTemplateConstants.CONTINUE)
                             .build(),
                 ChatTemplate.builder()
                             .type("help-write")
                             .name("帮写")
-                            .template(ChatTemplates.HELP_WRITE)
+                            .template(ChatTemplateConstants.HELP_WRITE)
                             .build()
         );
     }

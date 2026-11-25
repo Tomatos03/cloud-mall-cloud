@@ -1,0 +1,49 @@
+package com.cloudmall.aigc.infrastructure.parser;
+
+import java.util.EnumMap;
+import java.util.List;
+import java.util.Map;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+
+import org.springframework.stereotype.Component;
+
+/**
+ * 文档解析器工厂
+ * <p>
+ * 根据文件类型自动选择对应的解析器，未知类型默认走 Tika
+ *
+ * @author Tomatos
+ * @date 2026/7/22
+ */
+@Component
+public class DocumentParserFactory {
+
+    private final Map<DocumentTypeEnum, IDocumentParser> parserMap;
+
+    /**
+     * 使用指定参数构造对象。
+     *
+     * @param parsers 文档解析器列表
+     */
+    public DocumentParserFactory(List<IDocumentParser> parsers) {
+        this.parserMap = parsers.stream()
+                                .collect(Collectors.toMap(
+                                        IDocumentParser::getType,        // key
+                                        Function.identity(),            // value
+                                        (existing, replacement) -> replacement,  // 冲突处理
+                                        () -> new EnumMap<>(DocumentTypeEnum.class)  // 容器
+                                ));
+    }
+
+    /**
+     * 根据文件名获取对应的解析器
+     *
+     * @param filename 文件名
+     * @return 文档解析器
+     */
+    public IDocumentParser getParser(String filename) {
+        DocumentTypeEnum type = DocumentTypeEnum.fromFilename(filename);
+        return parserMap.getOrDefault(type, parserMap.get(DocumentTypeEnum.Tika));
+    }
+}

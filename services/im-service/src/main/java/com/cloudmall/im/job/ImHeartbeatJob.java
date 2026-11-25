@@ -4,7 +4,7 @@ import com.xxl.job.core.handler.annotation.XxlJob;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
-import com.cloudmall.im.infrastructure.IConnectionHeartbeatManager;
+import com.cloudmall.im.application.IConnectionHeartbeatManager;
 
 /**
  * IM 连接心跳定时任务。

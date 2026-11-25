@@ -272,4 +272,4 @@ xxl:
           schedule-conf: "60"
 ```
 
-定时任务统一由 XXL-JOB 注册：`outboxRelay`、`imHeartbeatPing`、`imStaleSessionCleanup`，不再使用 `@Scheduled`。Outbox 参数沿用 `cloudmall.outbox.*`；常量放接口：`ImEventConstants.IM_MESSAGE_PUSH`、`ImRedisKeys.ROUTE_PREFIX`。
+定时任务统一由 XXL-JOB 注册：`outboxRelay`、`imHeartbeatPing`、`imStaleSessionCleanup`，不再使用 `@Scheduled`。Outbox 参数沿用 `cloudmall.outbox.*`；常量放接口：`ImEventConstants.IM_MESSAGE_PUSH`、`ImRedisConstants.ROUTE_PREFIX`。

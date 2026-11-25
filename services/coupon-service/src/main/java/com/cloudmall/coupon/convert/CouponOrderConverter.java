@@ -13,7 +13,7 @@ import com.cloudmall.coupon.api.model.resp.CouponItemResult;
 import com.cloudmall.coupon.api.model.resp.CouponOrderCalcResp;
 import com.cloudmall.coupon.api.model.resp.CouponSubOrderResult;
 import com.cloudmall.coupon.api.model.resp.CouponUsageResult;
-import com.cloudmall.coupon.calc.CalcCoupon;
+import com.cloudmall.coupon.model.bo.CalcCoupon;
 import com.cloudmall.coupon.model.entity.UserCouponDO;
 
 /**

@@ -168,6 +168,7 @@ service-api/{api}/
 - **Req/Resp 一律在 `service-api`**：服务内不再定义 `model/req`、`model/resp`；Req 为纯 DTO，可继承 `common.model.PageReq`。
 - **契约 DTO 只含框架注解元数据**：`@QueryCondition` / `OperatorEnum` 来自零依赖的 annotation 模块；分页出参用 `common.model.PageResp`，Controller 不返回 `IPage`。
 - **BO 只在 Service/Application 内部流转**：禁止作为 Controller 入参/出参，禁止被 `service-api` 引用。
+- **基础设施按技术能力分层**：Redis/MQ/文件存储等适配统一放 `infrastructure/<能力>/`（如 `store`、`parser`、`cache`、`storage`），目录名用能力名而非技术栈名；跨服务同类能力逐步统一同名，规则见 `AGENTS.md`。
 - **转换统一走 `convert/XxxConverter`**（MapStruct）：DO ↔ BO ↔ Req/Resp，禁止在 Controller / Service 内联手写转换。
 - **没有聚合需求不建 BO**：BO 用于多表聚合或跨领域组合，不要为每张表机械地造一个 BO。
 - **BO 使用领域名，不强制 `BO` 后缀**：如 `CheckoutContext`、`ProductSkuPrice`；仅在与其它层对象重名时加限定词区分。

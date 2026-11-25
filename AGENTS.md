@@ -76,6 +76,14 @@ mvn test                                                  # 测试
 - **没有聚合需求不建 BO**：BO 用于多表聚合或跨领域组合，不要为每张表机械地造一个 BO。
 - **BO 使用领域名，不强制 `BO` 后缀**：如 `CheckoutContext`、`ProductSkuPrice`；仅在与其它层对象重名时加限定词区分。
 
+## 基础设施分层
+
+- 技术能力适配统一放 `infrastructure/<能力>/`，目录名用能力名而非技术栈名（`store`、`parser`、`cache`、`ratelimit`、`push`、`websocket`、`search`、`storage`、`support`、`calc`）；跨服务同类能力必须同名，分批迁移期间未落地的目录作为规划保留。
+- 每个能力目录只允许接口 + `impl/` 实现；仅该能力内部使用的枚举与序列化结构随能力放置，共享领域/契约枚举放 `enums/`，契约 DTO 放 `service-api/model/dto/`。
+- 配置、配置属性、静态常量分别放 `config/`、`properties/`、`constant/`（接口形式）；业务策略类放 `application`/`service`；MQ consumer、tx-listener、job、controller、filter、interceptor 等入口适配器不放 infrastructure。
+- 特殊情况：`coupon-service` 的 `calc/`（优惠计算与范围匹配）是领域计算的显式例外，因算法独立、可单测、与业务流程解耦而归入 infrastructure；其他服务的业务策略仍按上一条放 `application`/`service`，不得援引此例。
+- 当前已落地：`aigc-service` 的 `store`/`parser`；`coupon-service` 的 `cache`/`ratelimit`/`calc`；`seckill-service` 的 `cache`/`ratelimit`；`order-service` 的 `cache`；`shared-service` 的 `storage`；`search-service` 的 `search`；`im-service` 的 `store`/`push`/`websocket`/`support`。未使用的目录作为后续扩展规划保留。
+
 ## 错误码分区
 
 - 1xxx 通用、10xxx 认证、20xxx 商品、30xxx 地址、40xxx 搜索、45xxx 轮播图、50xxx 订单、60xxx 购物车、70xxx 评论、80xxx 文件、85xxx 资源、90xxx 审核、91xxx AI Agent、92xxx 秒杀、93xxx 优惠券、94xxx IM、95xxx 支付、96xxx 商家入驻、500xx 权限与店铺。

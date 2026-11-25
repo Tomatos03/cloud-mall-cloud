@@ -17,11 +17,11 @@ import org.springframework.web.socket.handler.TextWebSocketHandler;
 
 import com.cloudmall.im.api.enums.MessageTypeEnum;
 import com.cloudmall.im.api.model.ws.MessageReq;
+import com.cloudmall.im.application.IConnectionHeartbeatManager;
 import com.cloudmall.im.enums.ReadStatusEnum;
-import com.cloudmall.im.infrastructure.IConnectionHeartbeatManager;
-import com.cloudmall.im.infrastructure.IInstanceIdProvider;
-import com.cloudmall.im.infrastructure.IPresenceStore;
-import com.cloudmall.im.infrastructure.IWebSocketSessionRegistry;
+import com.cloudmall.im.infrastructure.store.IPresenceStore;
+import com.cloudmall.im.infrastructure.support.IInstanceIdProvider;
+import com.cloudmall.im.infrastructure.websocket.IWebSocketSessionRegistry;
 import com.cloudmall.im.model.bo.UserRoute;
 import com.cloudmall.im.model.entity.ChatMessageDO;
 import com.cloudmall.im.model.entity.ChatSessionDO;

@@ -24,6 +24,7 @@ import com.cloudmall.common.exception.BizException;
 import com.cloudmall.common.utils.Asserts;
 import com.cloudmall.shared.api.enums.FileBizTypeEnum;
 import com.cloudmall.shared.enums.FileStatusEnum;
+import com.cloudmall.shared.infrastructure.storage.IFileStorage;
 import com.cloudmall.shared.mapper.FileMapper;
 import com.cloudmall.shared.model.bo.FileContent;
 import com.cloudmall.shared.model.bo.FileUploadPolicy;
@@ -31,7 +32,6 @@ import com.cloudmall.shared.model.bo.FileUploadResult;
 import com.cloudmall.shared.model.entity.FileDO;
 import com.cloudmall.shared.properties.FileProperties;
 import com.cloudmall.shared.service.IFileService;
-import com.cloudmall.shared.storage.IFileStorage;
 
 /**
  * 文件服务实现。
