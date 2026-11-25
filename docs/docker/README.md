@@ -24,6 +24,8 @@
 | RocketMQ Broker | `apache/rocketmq:5.3.1` | `cm-rocketmq-broker` | 10911 / 10909 / 8081 | `rocketmq-broker-logs`、`rocketmq-broker-store` | 消息队列 Broker，启用 Proxy |
 | Elasticsearch | `docker.elastic.co/elasticsearch/elasticsearch:8.15.5` | `cm-elasticsearch` | 9200 / 9300 | `elasticsearch-data` + `./es-plugins/ik` | 商品搜索，启动即加载 IK 分词插件 |
 | xxl-job-admin | `xuxueli/xxl-job-admin:3.4.2` | `cm-xxl-job-admin` | 8088 → 容器 8080 | - | 任务调度中心，依赖 MySQL 健康 |
+| MinIO | `alpine/minio:RELEASE.2025-10-15T17-29-55Z` | `cm-minio` | 9010（API）/ 9011（控制台） | `minio-data` | 对象存储，替代已从 Docker Hub 下架的 `minio/minio:latest` |
+| MinIO 权限初始化 | 同上 | `cm-minio-init` | - | `minio-data` | 一次性容器，启动时把卷属主改为 uid 100，成功后才启动 MinIO |
 
 ## 启动与停止
 
@@ -46,6 +48,7 @@ docker compose -f docs/docker/compose.yaml down -v
 
 - `nacos-init` 会在 Nacos 就绪后自动把 `docs/nacos/config/` 下所有配置发布到 Nacos，然后退出（`restart: "no"`）。
 - `xxl-job-admin` 等待 MySQL 健康后启动，`xxl_job` 库由 MySQL 初始化脚本自动创建。
+- `minio-init` 先修正 `minio-data` 卷属主并退出，`cm-minio` 在其成功后才启动。
 - `rocketmq-broker` 等待 Namesrv 启动后再拉起。
 - Elasticsearch 首次启动较慢，可用 `curl http://localhost:9200/_cluster/health` 确认。
 
@@ -128,11 +131,20 @@ docker compose -f docs/docker/compose.yaml down -v
 docker compose -f docs/docker/compose.yaml up -d
 ```
 
-MySQL、ES、RocketMQ 数据与日志卷会被清空并重新初始化。
+MySQL、ES、RocketMQ、MinIO 数据与日志卷会被清空并重新初始化。
 
 ### Elasticsearch 无法加载 IK 分词
 
 见 `es-plugins/README.md`，用 `curl http://localhost:9200/_cat/plugins` 验证插件，用 `_analyze` 接口验证分词效果。
+
+### MinIO 报 file access denied / drive may be faulty
+
+`alpine/minio` 镜像中 `/data` 属主为 `root:root`（755），进程却以 uid 100 运行；命名卷首次挂载继承该权限后无法创建 `/data/.minio.sys/tmp`。正常启动流程中 `minio-init` 会先以 root 执行 `chown -R 100:101 /data`，无需手动处理。若之前单独启动过 `cm-minio` 导致卷内文件属主异常，可执行一次：
+
+```bash
+docker compose -f docs/docker/compose.yaml run --rm minio-init
+docker compose -f docs/docker/compose.yaml up -d minio
+```
 
 ### Nacos 控制台打不开
 

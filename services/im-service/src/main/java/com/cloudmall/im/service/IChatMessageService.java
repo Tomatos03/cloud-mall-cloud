@@ -55,5 +55,5 @@ public interface IChatMessageService extends IService<ChatMessageDO> {
      * @param message 消息实体
      * @param fileUrl 媒体文件地址，非媒体消息传 null
      */
-    void saveWithFileEvent(ChatMessageDO message, String fileUrl);
+    void saveWithFileEvent(ChatMessageDO message, String fileUrl, Long receiverId);
 }

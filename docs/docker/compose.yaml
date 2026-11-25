@@ -118,10 +118,26 @@ services:
       timeout: 5s
       retries: 5
 
+  minio-init:
+    container_name: cm-minio-init
+    image: alpine/minio:RELEASE.2025-10-15T17-29-55Z
+    # 社区镜像中 /data 属主为 root、权限 755，但 MinIO 进程以 uid 100 运行；
+    # 命名卷首次挂载会继承镜像权限，导致写 /data/.minio.sys 时出现 file access denied
+    user: "0:0"
+    entrypoint: ["sh", "-c", "chown -R 100:101 /data"]
+    command: []
+    volumes:
+      - minio-data:/data
+    restart: "no"
+
   minio:
     container_name: cm-minio
-    image: minio/minio:latest
+    # minio/minio 已从 Docker Hub 下架，改用社区维护镜像并固定版本
+    image: alpine/minio:RELEASE.2025-10-15T17-29-55Z
     command: server /data --console-address ":9001"
+    depends_on:
+      minio-init:
+        condition: service_completed_successfully
     environment:
       # 开发默认账号，生产环境改用环境变量或密钥管理
       MINIO_ROOT_USER: cloudmall

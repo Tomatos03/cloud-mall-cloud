@@ -1,1 +1,2 @@
 com.cloudmall.feign.autoconfigure.CloudmallFeignAutoConfiguration
+com.cloudmall.feign.autoconfigure.FeignFallbackAutoConfiguration

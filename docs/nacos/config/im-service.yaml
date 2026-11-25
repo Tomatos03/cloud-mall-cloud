@@ -1,6 +1,43 @@
 mybatis-plus:
   type-aliases-package: com.cloudmall.im.entity
 
+cloudmall:
+  im:
+    presence-ttl-seconds: 600
+    heartbeat:
+      stale-timeout-seconds: 90
+    mq:
+      topic: im-message-push
+      tag: push
+      consumer-group: im-service
+    push-mode: broadcast
+  outbox-relay:
+    enabled: true
+    app-name: im-service
+    event-types:
+      - IM_MESSAGE_PUSH
+
+xxl:
+  job:
+    executor:
+      app-name: im-service
+      port: 9994
+    auto-register:
+      enabled: true
+      jobs:
+        - handler: outboxRelay
+          desc: Outbox 事件投递 MQ
+          schedule-type: FIX_RATE
+          schedule-conf: "1"
+        - handler: imHeartbeatPing
+          desc: WebSocket 心跳 ping 与在线续期
+          schedule-type: FIX_RATE
+          schedule-conf: "30"
+        - handler: imStaleSessionCleanup
+          desc: 半开连接清理
+          schedule-type: FIX_RATE
+          schedule-conf: "60"
+
 logging:
   level:
     com.cloudmall.im: debug

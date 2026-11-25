@@ -5,6 +5,7 @@ import java.util.Collection;
 import java.util.List;
 
 import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import org.apache.ibatis.annotations.Mapper;
@@ -22,15 +23,30 @@ import com.cloudmall.outbox.model.entity.OutboxDO;
  */
 @Mapper
 public interface OutboxMapper extends BaseMapper<OutboxDO> {
+    default List<OutboxDO> listPending(int limit) {
+        return listPending(null, null, limit);
+    }
 
     /**
-     * 查询到期待处理事件（按 ID 升序）。
+     * 查询到期待处理事件。
      *
      * @param eventTypes 事件类型集合，为空表示不过滤
      * @param limit 条数上限
      * @return 待处理事件
      */
     default List<OutboxDO> listPending(Collection<String> eventTypes, int limit) {
+        return listPending(null, eventTypes, limit);
+    }
+
+    /**
+     * 查询到期待处理事件，可按来源服务与事件类型过滤。
+     *
+     * @param appName 来源服务，为空表示不过滤
+     * @param eventTypes 事件类型集合，为空表示不过滤
+     * @param limit 条数上限
+     * @return 待处理事件
+     */
+    default List<OutboxDO> listPending(String appName, Collection<String> eventTypes, int limit) {
         return selectList(
                 Wrappers.<OutboxDO>lambdaQuery()
                         .eq(OutboxDO::getStatus, OutboxStatusEnum.PENDING)
@@ -39,6 +55,7 @@ public interface OutboxMapper extends BaseMapper<OutboxDO> {
                                                   .or()
                                                   .le(OutboxDO::getNextRetryTime, LocalDateTime.now())
                         )
+                        .eq(StrUtil.isNotBlank(appName), OutboxDO::getAppName, appName)
                         .in(CollUtil.isNotEmpty(eventTypes), OutboxDO::getEventType, eventTypes)
                         .orderByAsc(OutboxDO::getId)
                         .last(SqlLimit.of(limit))

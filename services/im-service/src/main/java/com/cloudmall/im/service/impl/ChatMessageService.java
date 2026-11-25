@@ -1,11 +1,13 @@
 package com.cloudmall.im.service.impl;
 
+import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.cloudmall.common.model.cursor.CursorResp;
+import com.cloudmall.im.api.constant.ImEventConstants;
 import com.cloudmall.im.api.model.req.MessageCursorReq;
 import com.cloudmall.im.api.model.resp.MessageResp;
 import com.cloudmall.im.convert.ChatMessageConverter;
@@ -13,6 +15,7 @@ import com.cloudmall.im.mapper.ChatMessageMapper;
 import com.cloudmall.im.model.entity.ChatMessageDO;
 import com.cloudmall.im.service.IChatMessageService;
 import com.cloudmall.outbox.annotation.OutboxEvent;
+import com.cloudmall.outbox.collector.OutboxEvents;
 import com.cloudmall.shared.api.constant.FileEventConstants;
 
 /**
@@ -54,14 +57,17 @@ public class ChatMessageService extends ServiceImpl<ChatMessageMapper, ChatMessa
     }
 
     @Override
+    @OutboxEvent
     @Transactional(rollbackFor = Exception.class)
-    @OutboxEvent(
-            eventType = FileEventConstants.BIND,
-            bizId = "#message.senderId",
-            payload = "#fileUrl",
-            condition = "#fileUrl != null"
-    )
-    public void saveWithFileEvent(ChatMessageDO message, String fileUrl) {
+    public void saveWithFileEvent(ChatMessageDO message, String fileUrl, Long receiverId) {
         save(message);
+        if (StrUtil.isNotBlank(fileUrl)) {
+            OutboxEvents.collect(FileEventConstants.BIND, String.valueOf(message.getSenderId()), fileUrl);
+        }
+        OutboxEvents.collect(
+                ImEventConstants.IM_MESSAGE_PUSH,
+                String.valueOf(message.getId()),
+                chatMessageConverter.toPushEvent(message, receiverId)
+        );
     }
 }

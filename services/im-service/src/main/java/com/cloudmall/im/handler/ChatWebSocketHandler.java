@@ -1,9 +1,6 @@
 package com.cloudmall.im.handler;
 
 import java.io.IOException;
-import java.nio.ByteBuffer;
-import java.time.Duration;
-import java.util.List;
 import java.util.Map;
 
 import cn.hutool.core.util.StrUtil;
@@ -11,21 +8,21 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import org.springframework.web.socket.CloseStatus;
 import org.springframework.web.socket.PongMessage;
 import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
-import org.springframework.web.socket.adapter.standard.StandardWebSocketSession;
 import org.springframework.web.socket.handler.TextWebSocketHandler;
 
 import com.cloudmall.im.api.enums.MessageTypeEnum;
-import com.cloudmall.im.api.model.resp.MessageResp;
 import com.cloudmall.im.api.model.ws.MessageReq;
-import com.cloudmall.im.convert.ChatMessageConverter;
 import com.cloudmall.im.enums.ReadStatusEnum;
-import com.cloudmall.im.manager.WebSocketSessionManager;
+import com.cloudmall.im.infrastructure.IConnectionHeartbeatManager;
+import com.cloudmall.im.infrastructure.IInstanceIdProvider;
+import com.cloudmall.im.infrastructure.IPresenceStore;
+import com.cloudmall.im.infrastructure.IWebSocketSessionRegistry;
+import com.cloudmall.im.model.bo.UserRoute;
 import com.cloudmall.im.model.entity.ChatMessageDO;
 import com.cloudmall.im.model.entity.ChatSessionDO;
 import com.cloudmall.im.service.IChatMessageService;
@@ -43,19 +40,24 @@ import com.cloudmall.im.service.IChatSessionService;
 public class ChatWebSocketHandler extends TextWebSocketHandler {
 
     private static final String ERROR_TYPE = "error";
-    /** 心跳超时阈值：超过该时长未响应即视为半开连接 */
-    private static final Duration STALE_TIMEOUT = Duration.ofSeconds(90);
 
-    private final WebSocketSessionManager webSocketSessionManager;
+    private final IWebSocketSessionRegistry sessionRegistry;
+    private final IPresenceStore presenceStore;
+    private final IInstanceIdProvider instanceIdProvider;
+    private final IConnectionHeartbeatManager heartbeatManager;
     private final IChatMessageService chatMessageService;
     private final IChatSessionService chatSessionService;
-    private final ChatMessageConverter chatMessageConverter;
     private final ObjectMapper objectMapper;
 
     @Override
     public void afterConnectionEstablished(WebSocketSession session) {
         Long userId = (Long) session.getAttributes().get("userId");
-        webSocketSessionManager.addSession(userId, session);
+        if (userId == null) {
+            log.warn("WebSocket 连接缺少 userId 属性，sessionId={}", session.getId());
+            return;
+        }
+        sessionRegistry.register(userId, session);
+        presenceStore.register(userId, route(session));
         log.info("用户 {} 已连接 WebSocket，sessionId: {}", userId, session.getId());
     }
 
@@ -67,7 +69,8 @@ public class ChatWebSocketHandler extends TextWebSocketHandler {
             return;
         }
 
-        webSocketSessionManager.recordHeartbeat(session);
+        heartbeatManager.record(session);
+        heartbeatManager.refreshPresence(senderId, session.getId());
 
         MessageReq messageReq;
         try {
@@ -83,7 +86,6 @@ public class ChatWebSocketHandler extends TextWebSocketHandler {
             return;
         }
 
-        // 会话必须已存在且当前用户为会话成员
         ChatSessionDO chatSession = chatSessionService.getById(sessionId);
         if (chatSession == null || !chatSession.isMember(senderId)) {
             log.warn("用户 {} 向会话 {} 发送消息被拒绝：会话不存在或非成员", senderId, sessionId);
@@ -91,13 +93,9 @@ public class ChatWebSocketHandler extends TextWebSocketHandler {
             return;
         }
 
-        // 滑动过期：发送消息视为活跃，续期在线状态
-        webSocketSessionManager.refreshSession(senderId);
-
         Long receiverId = senderId.equals(chatSession.getBuyerId())
                 ? chatSession.getMerchantId()
                 : chatSession.getBuyerId();
-        boolean receiverOnline = webSocketSessionManager.isOnline(receiverId);
 
         ChatMessageDO chatMessage = ChatMessageDO.builder()
                                                  .sessionId(sessionId)
@@ -106,102 +104,32 @@ public class ChatWebSocketHandler extends TextWebSocketHandler {
                                                  .type(messageReq.getType())
                                                  .isRead(ReadStatusEnum.UNREAD.getValue())
                                                  .build();
-        chatMessageService.saveWithFileEvent(chatMessage, resolveFileUrl(messageReq));
+        chatMessageService.saveWithFileEvent(chatMessage, resolveFileUrl(messageReq), receiverId);
         if (chatSession.isHiddenBy(receiverId)) {
-            // 收到新消息时恢复接收方已删除的会话
             chatSessionService.updateHidden(chatSession, receiverId, false);
-        }
-
-        if (receiverOnline) {
-            WebSocketSession receiverSession = webSocketSessionManager.getSession(receiverId);
-            if (receiverSession != null && receiverSession.isOpen()) {
-                MessageResp resp = chatMessageConverter.toResp(chatMessage);
-                try {
-                    receiverSession.sendMessage(new TextMessage(objectMapper.writeValueAsString(resp)));
-                    log.info("消息已转发给在线用户 {}", receiverId);
-                } catch (IOException e) {
-                    // 发送失败说明接收方连接已不可用，立即清理
-                    webSocketSessionManager.removeSession(receiverId, receiverSession);
-                    log.warn("向用户 {} 推送消息失败，已清理会话: {}", receiverId, e.getMessage());
-                }
-            } else if (receiverSession != null) {
-                // 本地连接不可用，主动收敛在线状态
-                webSocketSessionManager.removeSession(receiverId, receiverSession);
-                log.warn("用户 {} 的本地连接不可用，已清理在线状态", receiverId);
-            } else {
-                // Redis 标记在线但本地无连接，清理残留的在线标记
-                webSocketSessionManager.removeStaleOnlineState(receiverId);
-                log.warn("用户 {} 标记在线但本地连接不可用，已清理在线状态", receiverId);
-            }
         }
         log.info("消息已保存，发送者: {}, 接收者: {}", senderId, receiverId);
     }
 
     @Override
     protected void handlePongMessage(WebSocketSession session, PongMessage message) {
-        webSocketSessionManager.recordHeartbeat(session);
-    }
-
-    /**
-     * 定时向所有在线连接发送 ping，探测连接是否存活（浏览器收到 ping 会自动回 pong）。
-     */
-    @Scheduled(fixedDelay = 30_000, initialDelay = 30_000)
-    public void sendHeartbeatPings() {
-        for (WebSocketSession session : webSocketSessionManager.getAllSessions()) {
-            if (session instanceof StandardWebSocketSession standardSession) {
-                jakarta.websocket.Session nativeSession = standardSession.getNativeSession();
-                if (nativeSession == null) {
-                    continue;
-                }
-                try {
-                    nativeSession.getBasicRemote().sendPing(ByteBuffer.wrap(new byte[0]));
-                } catch (IOException e) {
-                    log.debug("向 session {} 发送心跳 ping 失败", session.getId());
-                }
-            }
-        }
-    }
-
-    /**
-     * 定时清理心跳超时的半开连接（客户端已断连但服务端未感知）。
-     */
-    @Scheduled(fixedDelay = 60_000, initialDelay = 60_000)
-    public void cleanupStaleSessions() {
-        List<Long> staleUserIds = webSocketSessionManager.findStaleSessionUserIds(STALE_TIMEOUT);
-        for (Long userId : staleUserIds) {
-            WebSocketSession session = webSocketSessionManager.getSession(userId);
-            if (session != null && session.isOpen()) {
-                try {
-                    session.close(CloseStatus.GOING_AWAY);
-                } catch (IOException e) {
-                    log.warn("关闭用户 {} 的半开连接失败: {}", userId, e.getMessage());
-                }
-            }
-            if (session == null) {
-                webSocketSessionManager.removeStaleOnlineState(userId);
-            } else {
-                webSocketSessionManager.removeSession(userId, session);
-            }
-            log.info("用户 {} 心跳超时，已清理半开连接", userId);
-        }
+        heartbeatManager.record(session);
     }
 
     @Override
     public void afterConnectionClosed(WebSocketSession session, CloseStatus status) {
         Long userId = (Long) session.getAttributes().get("userId");
         if (userId != null) {
-            webSocketSessionManager.removeSession(userId, session);
+            sessionRegistry.unregister(userId, session);
+            presenceStore.unregisterIfMatch(userId, route(session));
             log.info("用户 {} 已断开 WebSocket，状态码: {}", userId, status.getCode());
         }
     }
 
-    /**
-     * 解析媒体消息对应的文件地址。 <p>
-     * 文件绑定事件与消息在同一事务内写入 Outbox，由 shared-service 最终绑定文件。
-     *
-     * @param messageReq 消息请求
-     * @return 媒体文件地址，非媒体消息返回 null
-     */
+    private UserRoute route(WebSocketSession session) {
+        return new UserRoute(instanceIdProvider.get(), session.getId(), System.currentTimeMillis());
+    }
+
     private static String resolveFileUrl(MessageReq messageReq) {
         if (!isMediaMessage(messageReq.getType())) {
             return null;
@@ -209,19 +137,10 @@ public class ChatWebSocketHandler extends TextWebSocketHandler {
         return messageReq.getContent();
     }
 
-    /**
-     * 判断消息是否为媒体消息。
-     *
-     * @param type 消息类型
-     * @return true 表示图片或视频
-     */
     private static boolean isMediaMessage(MessageTypeEnum type) {
         return MessageTypeEnum.IMAGE == type || MessageTypeEnum.VIDEO == type;
     }
 
-    /**
-     * 向发送方回写错误帧。
-     */
     private void sendError(WebSocketSession session, String content) throws IOException {
         if (session.isOpen()) {
             Map<String, String> error = Map.of("type", ERROR_TYPE, "content", content);

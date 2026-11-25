@@ -48,7 +48,19 @@ public class OutboxRepository {
      * @return 待处理事件
      */
     public List<OutboxRecord> listPending(Collection<String> eventTypes, int limit) {
-        return CollStreamUtil.toList(outboxMapper.listPending(eventTypes, limit), OutboxRecord::from);
+        return listPending(null, eventTypes, limit);
+    }
+
+    /**
+     * 查询到期待处理事件，可按来源服务过滤。
+     *
+     * @param appName 来源服务，为空表示不过滤
+     * @param eventTypes 事件类型集合，为空表示不过滤
+     * @param limit 条数上限
+     * @return 待处理事件
+     */
+    public List<OutboxRecord> listPending(String appName, Collection<String> eventTypes, int limit) {
+        return CollStreamUtil.toList(outboxMapper.listPending(appName, eventTypes, limit), OutboxRecord::from);
     }
 
     /**
@@ -92,7 +104,18 @@ public class OutboxRepository {
      * @param handler 业务处理逻辑
      */
     public void consume(Collection<String> eventTypes, Consumer<OutboxRecord> handler) {
-        for (OutboxRecord record : listPending(eventTypes, outboxProperties.getBatchSize())) {
+        consume(null, eventTypes, handler);
+    }
+
+    /**
+     * 驱动一批事件：扫描 → 抢占 → 处理 → 标记完成；失败按退避重试。
+     *
+     * @param appName 来源服务，为空表示不过滤
+     * @param eventTypes 事件类型集合，为空表示不过滤
+     * @param handler 业务处理逻辑
+     */
+    public void consume(String appName, Collection<String> eventTypes, Consumer<OutboxRecord> handler) {
+        for (OutboxRecord record : listPending(appName, eventTypes, outboxProperties.getBatchSize())) {
             if (!claim(record.id())) {
                 continue;
             }

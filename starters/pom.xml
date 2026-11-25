@@ -18,6 +18,7 @@
         <module>cloudmall-mybatis-plus-spring-boot-starter</module>
         <module>cloudmall-jwt-spring-boot-starter</module>
         <module>cloudmall-auth-context-spring-boot-starter</module>
+        <module>cloudmall-outbox-rocketmq-spring-boot-starter</module>
         <module>cloudmall-rocketmq-spring-boot-starter</module>
         <module>cloudmall-outbox-spring-boot-starter</module>
         <module>cloudmall-feign-spring-boot-starter</module>

@@ -132,6 +132,23 @@ public class MQProducer {
     }
 
     /**
+     * 同步发送顺序消息，并指定业务 key。
+     *
+     * @param destination 目标地址，格式 {@code topic:tag}
+     * @param payload 消息体
+     * @param hashKey 用于选择队列的哈希键（如 sessionId）
+     * @param keys 业务键（写入 KEYS header，用于追溯与幂等）
+     * @param <T> 消息体类型
+     * @return 发送结果
+     */
+    public <T> SendResult sendSyncOrderly(String destination, T payload, String hashKey, String keys) {
+        Message<T> message = MessageBuilder.withPayload(payload)
+                                           .setHeader("KEYS", keys)
+                                           .build();
+        return rocketMQTemplate.syncSendOrderly(destination, message, hashKey);
+    }
+
+    /**
      * 异步发送消息
      *
      * @param destination 目标地址，格式 {@code topic:tag}
