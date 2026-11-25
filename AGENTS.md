@@ -32,6 +32,15 @@ mvn test                                                  # 测试
 
 - 单库 `cm_mall`（xxl-job 独立库脚本见 `docs/sql/xxl_job`）；SQL 脚本位于 `docs/sql/cm_mall/`（`01-schema.sql` / `02-seed.sql`）。
 - 业务表统一前缀 `cm_`；通用字段 `create_time` / `update_time` / `deleted`；关联表仅 `create_time`；软删除 `deleted = 1`。
+- 特殊情况：并发“先查再插”用数据库唯一键兜底时，若表缺少对应唯一约束，应先补 DDL 再在代码中捕获 `DuplicateKeyException` 回查，禁止仅靠应用层的 `Asserts.isNull` 判重。当前已知待收敛的约束见 `problem/concurrency-issues.md`。
+
+## 模拟与占位实现
+
+- 以下实现是设计上的模拟/降级，不是待办 Bug，修改时请勿误判为遗漏：
+  - `mock-payment-service`：模拟微信支付 API v3 渠道；回调加解密使用仓库内测试密钥。
+  - `OrderEventService.convertThirdPartyAmount()`：真实渠道金额单位换算的占位，原样返回入参。
+  - `Search IndexInitializer`：ES 不可用时仅记录日志并定时重试，不阻断启动。
+  - 本地联调的 `cloudmall.merchant.auto-review-delay-seconds` 仅在 Nacos 本地配置中大于 0；生产必须为 0 并走人工审核。
 
 ## API 规范
 
@@ -70,30 +79,6 @@ mvn test                                                  # 测试
 ## 错误码分区
 
 - 1xxx 通用、10xxx 认证、20xxx 商品、30xxx 地址、40xxx 搜索、45xxx 轮播图、50xxx 订单、60xxx 购物车、70xxx 评论、80xxx 文件、85xxx 资源、90xxx 审核、91xxx AI Agent、92xxx 秒杀、93xxx 优惠券、94xxx IM、95xxx 支付、96xxx 商家入驻、500xx 权限与店铺。
-
-## aigc-service 特性
-
-- 应用名 `agent-service`，集成 Spring AI 1.1.8：OpenAI 大模型 + ES 向量存储（`cm-agent-knowledge`）+ RAG、文档解析（Tika）、Redis 聊天记忆、OpenAI TTS；项目内 `org/springframework/ai/` 为 Spring AI 补丁类。
-
-## 商家入驻
-
-- 用户端接口：`GET/POST /shops/onboarding` 查询状态与提交资料；管理员通过 `POST /shops/onboarding/review` 审核。
-- 审核通过后自动创建 `cm_shop`、补充 `merchant` 角色并更新用户类型；本地 Nacos 配置可用 `cloudmall.merchant.auto-review-delay-seconds` 开启自动审核（生产设为 0）。
-- 图片上传走 shared-service 的 `POST /files/upload`，访问 `/files/**`；网关白名单已配置 `GET:/files/**`。
-
-## shared-service 特性
-
-- 应用名 `shared-service`，统一承载文件能力：图片上传/访问（`/files/**`）、聊天附件上传/访问（`/chat/files/**`）。
-- 文件台账 `cm_file`：上传写 `PENDING`，业务保存后通过 `/internal/common/files/bind` 转 `BOUND`，替换/删除时 `release` 转 `ORPHAN`。
-- 过期回收由 xxl-job handler `fileTempClean` 触发，执行器 `shared-service`、端口 `9996`；未绑定文件保留 24h、孤儿文件保留 7d。
-- 业务服务通过 `@OutboxEvent` 在本地事务内写入 `cm_message_outbox`（事件类型 `FILE_BIND` / `FILE_RELEASE`，`payload` 存文件地址），由 shared-service 的 `fileEventApply` 消费并绑定/释放，不直接访问 `cm_file`；事务回滚不会产生事件，保证最终一致。
-- `shared-service` 另提供 `/internal/shared/files/bind`、`/internal/shared/files/release` 同步接口（`InternalSharedClient`），供人工/运维补偿使用。
-
-## mock-payment-service 特性
-
-- 以微信支付 API v3 为蓝本模拟第三方渠道：`/v3/pay/transactions/{jsapi,native}` 下单、`out-trade-no`/`id` 查询、关单，`/mock/payments/**` 提供模拟支付成功、回调重发与支付单浏览，`/mock/cashier/{outTradeNo}` 为可视化收银台。
-- 回调报文按微信规范使用 AES-256-GCM 加密，`Wechatpay-*` 头携带 RSA-SHA256 签名；`payment-api` 提供共享 DTO 与 `WechatPayCrypto` 工具。
-- 业务侧调用内部接口 `/internal/mock-payment/**`（Feign 自动拆箱 Result）；order-service 的 `/orders/payment/**` 已接入创建、查询与回调处理。
 
 ## Coding Style & Naming Conventions
 
@@ -189,6 +174,7 @@ mvn test                                                  # 测试
 - `LIMIT` 一律用 `SqlLimit.of(n)`，禁止手写 `.last("LIMIT ...")`。
 - 含变量拼接的 `inSql` / `setSql` 先抽为紧邻使用处的 `final` 局部变量；动态值优先 `set(实体::getXxx, value)`。
 - Mapper 禁止注解脚本 SQL（`@Select` / `@Insert` / `@Update` / `@Delete` 及 Provider 系列），一律 `default` 方法 + Wrapper。
+- 特殊情况：Wrapper 无法表达的原子 upsert（如 `INSERT ... ON DUPLICATE KEY UPDATE`）允许使用 XML Mapper，但必须经过评审并在方法 Javadoc 中说明原因；当前唯一授权示例为 `ShopStatMapper.upsertFollowCount`（`services/user-service/src/main/resources/mapper/ShopStatMapper.xml`）。其余 SQL 一律不得新增 XML Mapper。
 
 ### 工具方法
 
@@ -211,4 +197,3 @@ mvn test                                                  # 测试
 ## Agent-Specific Instructions
 
 - 子目录可添加模块级 `AGENTS.md` 补充指引。
-

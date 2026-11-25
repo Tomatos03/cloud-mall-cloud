@@ -35,6 +35,7 @@ cloud-mall-cloud/
 │   ├── coupon-api
 │   ├── seckill-api
 │   ├── search-api
+│   ├── shared-api             # 文件能力契约（上传/绑定/释放）
 │   ├── payment-api            # 模拟支付渠道 Feign 契约 + 微信 v3 加解密工具
 │   ├── aigc-api               # AI Agent 契约
 │   └── im-api                 # 即时通讯契约
@@ -47,18 +48,22 @@ cloud-mall-cloud/
 │   ├── im-service            # 即时通讯
 │   ├── aigc-service          # AI 生成内容（agent-service）
 │   ├── search-service        # 搜索服务
+│   ├── shared-service        # 文件能力（上传/访问/台账回收）
 │   ├── consumer-service      # 消费者服务
 │   └── mock-payment-service  # 模拟微信支付渠道（下单/查询/回调/收银台）
-├── starters/                 # 自研 Spring Boot Starter
-│   ├── cloudmall-common      # Result/BizException/BizErrorEnum/UserContextFilter
-│   ├── cloudmall-mybatis-plus-annotation # @QueryCondition/OperatorEnum（零依赖契约注解）
-│   ├── cloudmall-mybatis-plus# MyMetaObjectHandler/LambdaWrappers/Pages/PageResponses/SqlLimit
-│   ├── cloudmall-jwt         # JWT 认证
-│   ├── cloudmall-rocketmq    # MQProducer/TxMessageHeader
-│   ├── cloudmall-outbox      # 本地消息 Outbox
-│   ├── cloudmall-feign       # 用户上下文透传 + Result 自动拆箱
-│   ├── cloudmall-elasticsearch # ES 集成
-│   └── cloudmall-xxl-job     # XXL-Job 集成
+├── starters/                 # 自研 Spring Boot Starter（父 POM + BOM）
+│   ├── cloudmall-common-spring-boot-starter          # Result/BizException/BizErrorEnum/UserContextFilter
+│   ├── cloudmall-auth-context-spring-boot-starter    # 用户上下文
+│   ├── cloudmall-mybatis-plus-annotation             # @QueryCondition/OperatorEnum（零依赖契约注解）
+│   ├── cloudmall-mybatis-plus-spring-boot-starter    # MyMetaObjectHandler/LambdaWrappers/Pages/PageResponses/SqlLimit
+│   ├── cloudmall-jwt-spring-boot-starter             # JWT 认证
+│   ├── cloudmall-rocketmq-spring-boot-starter        # MQProducer/TxMessageHeader
+│   ├── cloudmall-outbox-spring-boot-starter          # 本地消息 Outbox（写入）
+│   ├── cloudmall-outbox-rocketmq-spring-boot-starter # 本地消息 Outbox（RocketMQ 中继）
+│   ├── cloudmall-feign-spring-boot-starter           # 用户上下文透传 + Result 自动拆箱
+│   ├── cloudmall-elasticsearch-spring-boot-starter   # ES 集成
+│   ├── cloudmall-xxl-job-spring-boot-starter         # XXL-Job 集成
+│   └── cloudmall-starters-bom                        # 依赖版本管理
 └── docs/                     # 设计文档 / Docker Compose / Nacos 配置 / SQL
 ```
 
@@ -123,34 +128,45 @@ docker compose -f docs/docker/compose.yaml down -v     # 清空数据（慎用�
 
 ## 对象模型与目录边界
 
-业务服务内的对象按职责分为四类，**目录与命名必须遵循下表**：
+业务服务内的对象按职责分层，**目录与命名必须遵循下表**（完整规则见 `AGENTS.md`）：
 
 ```
 services/{service}/
-├── controller/          # 只依赖 model/req、model/resp、service
+├── controller/          # 只依赖 Service 与 service-api 的 Req/Resp
 ├── application/         # 用例编排
 ├── service/impl/        # 业务规则、事务
 ├── mapper/              # MyBatis-Plus
 ├── model/
 │   ├── entity/          # XxxDO：与数据库表一一对应
-│   ├── req/             # XxxReq：本服务 HTTP 入参
-│   ├── resp/            # XxxResp：本服务 HTTP 出参
 │   └── bo/              # 领域对象：Service 内部聚合对象
 ├── convert/             # MapStruct 转换
 └── enums/
+
+service-api/{api}/
+└── model/
+    ├── req/             # XxxReq：HTTP/Feign 契约入参
+    ├── resp/            # XxxResp：HTTP/Feign 契约出参
+    ├── event/           # *Event：跨服务消息体
+    ├── dto/             # 契约内嵌结构
+    └── ws/              # WebSocket 报文
 ```
 
 | 目录 | 后缀 | 职责 | 允许出现的位置 |
 |---|---|---|---|
-| `model/entity/` | `XxxDO` | 持久化映射，字段即表列 | Mapper、Service 内部 |
-| `model/req/` | `XxxReq` | 本服务 HTTP 入参 | Controller、Service |
-| `model/resp/` | `XxxResp` | 本服务 HTTP 出参 | Controller、Service |
-| `model/bo/` | 领域名（不加 `BO` 后缀） | 多表聚合、跨领域组合、复杂计算结果 | Service、Application 内部 |
+| `services/*/model/entity/` | `XxxDO` | 持久化映射，字段即表列 | Mapper、Service 内部 |
+| `services/*/model/bo/` | 领域名（不加 `BO` 后缀） | 多表聚合、跨领域组合、复杂计算结果 | Service、Application 内部 |
+| `service-api/*/model/req/` | `XxxReq` | HTTP/Feign 契约入参 | api 模块、Controller、Service |
+| `service-api/*/model/resp/` | `XxxResp` | HTTP/Feign 契约出参 | api 模块、Controller、Service |
+| `service-api/*/model/event/` | `*Event` | MQ 事件 | 生产者、消费者 |
+| `service-api/*/model/dto/` | 领域名 | 请求/响应中的嵌套元素 | api 模块 |
+| `service-api/*/model/ws/` | `XxxReq` | WebSocket 入站报文 | api 模块、WebSocket Handler |
+| `common/model/` | `PageReq`/`PageResp`/`Result` 等 | 跨服务通用分页与结果对象 | api 模块、service |
 
 边界规则：
 
 - **DO 不出 Service 层**：Controller 签名、Feign 接口、`service-api` 中禁止出现 `XxxDO`。
-- **Req/Resp 只服务本服务 HTTP 边界**：跨服务调用的入参/出参放 `service-api` 对应模块，不在本服务 `model` 中重复定义。
+- **Req/Resp 一律在 `service-api`**：服务内不再定义 `model/req`、`model/resp`；Req 为纯 DTO，可继承 `common.model.PageReq`。
+- **契约 DTO 只含框架注解元数据**：`@QueryCondition` / `OperatorEnum` 来自零依赖的 annotation 模块；分页出参用 `common.model.PageResp`，Controller 不返回 `IPage`。
 - **BO 只在 Service/Application 内部流转**：禁止作为 Controller 入参/出参，禁止被 `service-api` 引用。
 - **转换统一走 `convert/XxxConverter`**（MapStruct）：DO ↔ BO ↔ Req/Resp，禁止在 Controller / Service 内联手写转换。
 - **没有聚合需求不建 BO**：BO 用于多表聚合或跨领域组合，不要为每张表机械地造一个 BO。
@@ -218,8 +234,10 @@ jstyle format
 ## 文档
 
 - [Docker 环境说明](docs/docker/README.md)
-- [设计文档](docs/design/README.md)
+- 设计文档：[商品](docs/design/product/product-design.md) / [优惠券](docs/design/coupon/coupon-design.md) / [秒杀](docs/design/seckill/seckill-design.md) / [个人中心](docs/design/profile/profile-center-design.md)
 - [模拟支付服务说明](services/mock-payment-service/README.md)
+- [已知并发问题清单](problem/concurrency-issues.md)
+- 完整编码规范与架构约定见 [AGENTS.md](AGENTS.md)
 
 ## License
 
