@@ -31,7 +31,6 @@ xxl:
       # 与 seckill-service 默认的 9999 错开，避免执行器端口冲突
       port: 9998
     auto-register:
-      enabled: true
       jobs:
         - handler: searchProductIncrementalSync
           desc: 商品索引增量同步（MQ 兜底）

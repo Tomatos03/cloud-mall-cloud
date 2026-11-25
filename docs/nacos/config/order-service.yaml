@@ -18,7 +18,6 @@ xxl:
       app-name: order-service
       port: 9995
     auto-register:
-      enabled: true
       jobs:
         - handler: orderTimeoutRecovery
           desc: 创建中超时订单恢复

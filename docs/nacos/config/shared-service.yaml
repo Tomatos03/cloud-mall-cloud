@@ -1,5 +1,4 @@
 mybatis-plus:
-  mapper-locations: classpath:mapper/**/*.xml
   type-aliases-package: com.cloudmall.shared.model.entity
 
 cloudmall:
@@ -30,7 +29,6 @@ xxl:
       app-name: shared-service
       port: 9996
     auto-register:
-      enabled: true
       jobs:
         - handler: fileTempClean
           desc: 过期文件回收

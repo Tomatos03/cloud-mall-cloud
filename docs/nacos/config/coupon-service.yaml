@@ -7,7 +7,6 @@ xxl:
       app-name: coupon-service
       port: 9993
     auto-register:
-      enabled: true
       jobs:
         - handler: couponLockExpire
           desc: 用户券锁定过期释放

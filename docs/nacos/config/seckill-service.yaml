@@ -7,7 +7,6 @@ xxl:
       # 使用 Docker 网桥网关，确保 cm-xxl-job-admin 能回连本机执行器
       ip: 172.18.0.1
     auto-register:
-      enabled: true
       jobs:
         # 先流转活动状态，保证预热清理能识别已结束场次
         - handler: seckillActivityStatus
@@ -27,7 +26,6 @@ spring:
   cloud:
     sentinel:
       transport:
-        dashboard: localhost:8858
         port: 8719
       datasource:
         flow:

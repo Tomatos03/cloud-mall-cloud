@@ -41,8 +41,12 @@ feign:
   sentinel:
     enabled: true
 
+jwt:
+  secret: cloud-mall-jwt-secret-key-2026-very-long-secret-key
+  expiration: 86400000
+
 mybatis-plus:
-  mapper-locations: classpath:mapper/*.xml
+  mapper-locations: classpath:mapper/**/*.xml
   global-config:
     db-config:
       id-type: auto
@@ -60,6 +64,8 @@ xxl:
       password: "123456"
     # 执行器与调度中心通信令牌，必须与 compose 中 xxl-job-admin 的 PARAMS 一致
     access-token: cloudmall-xxl-job
+    auto-register:
+      enabled: true
     executor:
       # 开发环境 admin 在容器内，通过 host 网关回连本机 executor；生产按实际网络覆盖
       ip: host.docker.internal

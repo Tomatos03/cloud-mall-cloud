@@ -1,9 +1,6 @@
 server:
   port: 9000
 
-jwt:
-  secret: cloud-mall-jwt-secret-key-2026-very-long-secret-key
-
 spring:
   application:
     name: gateway
@@ -17,4 +14,6 @@ spring:
         server-addr: localhost:8848
         file-extension: yaml
   config:
-    import: nacos:gateway?refreshEnabled=true&group=DEFAULT_GROUP
+    import:
+      - nacos:common
+      - nacos:gateway?refreshEnabled=true&group=DEFAULT_GROUP

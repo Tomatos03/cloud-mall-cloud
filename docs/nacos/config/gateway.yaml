@@ -55,7 +55,6 @@ spring:
   cloud:
     sentinel:
       transport:
-        dashboard: localhost:8858
         port: 8719
       datasource:
         flow:
