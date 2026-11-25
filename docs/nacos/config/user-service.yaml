@@ -5,4 +5,15 @@ cloudmall:
   merchant:
     # 本地联调自动审核延迟（秒）；生产环境设为 0，改用 POST /shops/onboarding/review 人工审核
     auto-review-delay-seconds: 15
-    review-scan-interval-ms: 5000
+
+xxl:
+  job:
+    executor:
+      app-name: user-service
+      port: 9992
+    auto-register:
+      jobs:
+        - handler: storeApplicationAutoReview
+          desc: 商家入驻超时自动审核
+          schedule-type: FIX_RATE
+          schedule-conf: "5"
