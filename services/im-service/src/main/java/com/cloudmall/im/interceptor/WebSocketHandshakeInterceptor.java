@@ -14,9 +14,9 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.socket.WebSocketHandler;
 import org.springframework.web.socket.server.HandshakeInterceptor;
 
-import com.cloudmall.jwt.constant.JwtClaimNames;
+import com.cloudmall.auth.utils.UserContexts;
+import com.cloudmall.common.context.UserContext;
 import com.cloudmall.jwt.exception.ParseTokenException;
-import com.cloudmall.jwt.model.ParsedToken;
 import com.cloudmall.jwt.service.ITokenService;
 
 /**
@@ -44,17 +44,16 @@ public class WebSocketHandshakeInterceptor implements HandshakeInterceptor {
     ) {
         String token = extractTokenFromQuery(request.getURI().getQuery());
         if (StrUtil.isBlank(token)) {
-            log.warn("WebSocket 握手失败：未找到 token 参数");
+            log.debug("WebSocket 建立失败：缺少参数token");
             return false;
         }
         try {
-            ParsedToken parsedToken = tokenService.parse(token);
-            Long userId = parsedToken.getLong(JwtClaimNames.USER_ID);
-            attributes.put("userId", userId);
-            log.info("WebSocket 握手成功，userId: {}", userId);
+            UserContext userContext = UserContexts.of(tokenService.parse(token));
+            attributes.put("userId", userContext.getUserId());
+            log.info("WebSocket 握手成功，userId: {}", userContext.getUserId());
             return true;
-        } catch (ParseTokenException e) {
-            log.warn("WebSocket 握手失败：token 无效或已过期");
+        } catch (ParseTokenException | IllegalArgumentException e) {
+            log.warn("WebSocket 握手失败：{}", e.getMessage());
             return false;
         }
     }

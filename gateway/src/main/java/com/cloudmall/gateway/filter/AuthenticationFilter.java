@@ -25,12 +25,10 @@ import org.springframework.web.server.WebFilterChain;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
 
+import com.cloudmall.auth.utils.UserContexts;
 import com.cloudmall.common.context.UserContext;
-import com.cloudmall.common.enums.UserTypeEnum;
 import com.cloudmall.common.model.result.Result;
-import com.cloudmall.jwt.constant.JwtClaimNames;
 import com.cloudmall.jwt.exception.ParseTokenException;
-import com.cloudmall.jwt.model.ParsedToken;
 import com.cloudmall.jwt.service.ITokenService;
 
 /**
@@ -83,7 +81,7 @@ public class AuthenticationFilter implements WebFilter {
         String token = header.substring(TOKEN_PREFIX.length());
 
         return Mono
-                .fromCallable(() -> toUserContext(tokenService.parse(token)))
+                .fromCallable(() -> UserContexts.of(tokenService.parse(token)))
                 .subscribeOn(Schedulers.boundedElastic())
                 .onErrorMap(
                         IllegalArgumentException.class,
@@ -91,22 +89,6 @@ public class AuthenticationFilter implements WebFilter {
                 )
                 .flatMap(userContext -> handleAuthenticated(exchange, chain, userContext))
                 .onErrorResume(ParseTokenException.class, e -> handleAuthError(exchange, e));
-    }
-
-    /**
-     * 将解析后的 token 映射为用户上下文。
-     *
-     * @param parsedToken 解析后的 token
-     * @return 用户上下文
-     */
-    private UserContext toUserContext(ParsedToken parsedToken) {
-        return UserContext.builder()
-                          .userId(parsedToken.getLong(JwtClaimNames.USER_ID))
-                          .username(parsedToken.getString(JwtClaimNames.USERNAME))
-                          .userType(UserTypeEnum.fromCode(parsedToken.getString(JwtClaimNames.USER_TYPE)))
-                          .shopId(parsedToken.getLong(JwtClaimNames.SHOP_ID))
-                          .permissionCodes(parsedToken.getStringList(JwtClaimNames.PERMISSION_CODES))
-                          .build();
     }
 
     /**

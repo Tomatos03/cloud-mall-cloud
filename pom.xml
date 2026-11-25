@@ -51,11 +51,13 @@
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
-            <!-- 项目内部模块 -->
+            <!-- 项目内部模块：starter 版本由独立 BOM 统一管理 -->
             <dependency>
                 <groupId>com.cloudmall</groupId>
-                <artifactId>cloudmall-common-spring-boot-starter</artifactId>
+                <artifactId>cloudmall-starters-bom</artifactId>
                 <version>1.0-SNAPSHOT</version>
+                <type>pom</type>
+                <scope>import</scope>
             </dependency>
             <dependency>
                 <groupId>com.cloudmall</groupId>
@@ -88,42 +90,7 @@
                 <artifactId>common</artifactId>
                 <version>1.0-SNAPSHOT</version>
             </dependency>
-            <dependency>
-                <groupId>com.cloudmall</groupId>
-                <artifactId>cloudmall-mybatis-plus-annotation</artifactId>
-                <version>1.0-SNAPSHOT</version>
-            </dependency>
-            <dependency>
-                <groupId>com.cloudmall</groupId>
-                <artifactId>cloudmall-mybatis-plus-spring-boot-starter</artifactId>
-                <version>1.0-SNAPSHOT</version>
-            </dependency>
 
-            <dependency>
-                <groupId>com.cloudmall</groupId>
-                <artifactId>cloudmall-jwt-spring-boot-starter</artifactId>
-                <version>1.0-SNAPSHOT</version>
-            </dependency>
-            <dependency>
-                <groupId>com.cloudmall</groupId>
-                <artifactId>cloudmall-rocketmq-spring-boot-starter</artifactId>
-                <version>1.0-SNAPSHOT</version>
-            </dependency>
-            <dependency>
-                <groupId>com.cloudmall</groupId>
-                <artifactId>cloudmall-outbox-spring-boot-starter</artifactId>
-                <version>1.0-SNAPSHOT</version>
-            </dependency>
-            <dependency>
-                <groupId>com.cloudmall</groupId>
-                <artifactId>cloudmall-feign-spring-boot-starter</artifactId>
-                <version>1.0-SNAPSHOT</version>
-            </dependency>
-            <dependency>
-                <groupId>com.cloudmall</groupId>
-                <artifactId>cloudmall-xxl-job-spring-boot-starter</artifactId>
-                <version>1.0-SNAPSHOT</version>
-            </dependency>
             <dependency>
                 <groupId>com.cloudmall</groupId>
                 <artifactId>payment-api</artifactId>
