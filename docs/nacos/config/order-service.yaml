@@ -2,6 +2,11 @@ mybatis-plus:
   type-aliases-package: com.cloudmall.order.entity
 
 cloudmall:
+  cart:
+    cache:
+      enabled: true
+      ttl: 5m
+      key-prefix: ""
   payment:
     # 模拟支付服务直接回调订单服务，未经网关
     notify-url: http://localhost:9005/orders/payment/notify/wechat

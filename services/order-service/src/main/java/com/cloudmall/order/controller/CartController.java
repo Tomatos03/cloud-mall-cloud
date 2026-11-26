@@ -83,7 +83,7 @@ public class CartController {
      */
     @PutMapping("/selection")
     public Result<Void> selectItems(@Valid @RequestBody CartSelectReq req) {
-        cartService.selectItems(UserContextHolder.getUserId(), req);
+        cartService.selectCartItem(UserContextHolder.getUserId(), req);
         return Result.success(null);
     }
 

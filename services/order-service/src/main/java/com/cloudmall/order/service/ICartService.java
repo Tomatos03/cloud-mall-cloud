@@ -45,7 +45,7 @@ public interface ICartService {
      * @param userId 用户 ID
      * @param req 选中请求（skuId + selected）
      */
-    void selectItems(Long userId, CartSelectReq req);
+    void selectCartItem(Long userId, CartSelectReq req);
 
     /**
      * 全选/全不选

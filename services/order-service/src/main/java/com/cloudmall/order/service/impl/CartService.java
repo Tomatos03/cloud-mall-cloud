@@ -14,6 +14,7 @@ import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.ObjectUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Service;
 
 import com.cloudmall.common.enums.BizErrorEnum;
@@ -25,6 +26,7 @@ import com.cloudmall.order.api.model.req.CartOperatorReq;
 import com.cloudmall.order.api.model.req.CartSelectReq;
 import com.cloudmall.order.api.model.resp.CartDetailResp;
 import com.cloudmall.order.convert.CartConverter;
+import com.cloudmall.order.infrastructure.cache.ICartCache;
 import com.cloudmall.order.mapper.CartMapper;
 import com.cloudmall.order.model.entity.CartDO;
 import com.cloudmall.order.service.ICartService;
@@ -58,28 +60,45 @@ public class CartService implements ICartService {
     private final CartConverter cartConverter;
     private final SkuClient skuClient;
     private final ShopClient shopClient;
+    private final ICartCache cartCache;
 
     /**
-     * 创建并保存数据。
+     * 添加商品到购物车：已存在则合并数量，不存在则新增。 防重复依赖数据库唯一键 uk_user_sku，
+     * 并发插入冲突时回查合并。 容量上限通过插入前校验和插入后复核控制，复核发现超限会删除本次新增并拒绝请
+     * 求。 该补偿方式在正常并发下能维持容量不超限，但插入成功到复核完成之间存在窗口： 若进程在此期间崩溃
+     * 、被终止或数据库连接中断，补偿删除不会执行，理论上可能残留超限记录。 购物车容量是业务软限制，该极端
+     * 场景需依赖人工清理或兜底任务处理。
      *
      * @param userId 用户标识
      * @param req 请求参数
-     * @return 结果标识或数值
+     * @return 购物车记录 ID
      */
     @Override
     public Long addToCart(Long userId, CartOperatorReq req) {
-        SkuResp sku = Asserts.requireNonNull(
-                skuClient.getById(req.getSkuId()),
-                BizErrorEnum.CART_PRODUCT_NOT_EXIST
-        );
-
+        cartCache.evict(userId);
+        SkuResp sku = requireSku(req);
         CartDO existing = cartMapper.selectByUserIdAndSkuId(userId, req.getSkuId());
         if (existing != null) {
             return mergeToExisting(existing, sku.getPrice(), req.getQuantity());
         }
 
         checkCartCapacity(userId);
-        return insertNewItem(userId, sku, req.getQuantity());
+        try {
+            Long cartId = insertCartItem(userId, sku, req.getQuantity());
+            checkCapacityAfterInsert(userId, cartId);
+            return cartId;
+        } catch (DuplicateKeyException e) {
+            // 唯一键 uk_user_sku 是并发下防止同一 SKU 重复入车的最终兜底
+            CartDO concurrent = Asserts.requireNonNull(
+                    cartMapper.selectByUserIdAndSkuId(userId, req.getSkuId()),
+                    BizErrorEnum.CART_UPDATE_CONFLICT
+            );
+            return mergeToExisting(concurrent, sku.getPrice(), req.getQuantity());
+        }
+    }
+
+    private SkuResp requireSku(CartOperatorReq req) {
+        return Asserts.requireNonNull(skuClient.getById(req.getSkuId()), BizErrorEnum.CART_PRODUCT_NOT_EXIST);
     }
 
     /**
@@ -90,6 +109,7 @@ public class CartService implements ICartService {
      */
     @Override
     public void updateQuantity(Long userId, CartOperatorReq req) {
+        cartCache.evict(userId);
         cartMapper.updateQuantityIfPositive(userId, req.getSkuId(), req.getQuantity());
     }
 
@@ -101,6 +121,7 @@ public class CartService implements ICartService {
      */
     @Override
     public void removeItems(Long userId, List<Long> skuIds) {
+        cartCache.evict(userId);
         if (CollUtil.isEmpty(skuIds)) {
             return;
         }
@@ -114,7 +135,8 @@ public class CartService implements ICartService {
      * @param req 请求参数
      */
     @Override
-    public void selectItems(Long userId, CartSelectReq req) {
+    public void selectCartItem(Long userId, CartSelectReq req) {
+        cartCache.evict(userId);
         int updated = cartMapper.updateSelectedByUserIdAndSkuId(userId, req.getSkuId(), req.getSelected());
         Asserts.isTrue(updated > 0, BizErrorEnum.CART_ITEM_NOT_EXIST);
     }
@@ -127,6 +149,7 @@ public class CartService implements ICartService {
      */
     @Override
     public void selectAll(Long userId, Boolean selected) {
+        cartCache.evict(userId);
         Asserts.notNull(selected, BizErrorEnum.INVALID_PARAM);
         cartMapper.updateSelectedByUserId(userId, selected);
     }
@@ -140,6 +163,7 @@ public class CartService implements ICartService {
      */
     @Override
     public void selectShop(Long userId, Long shopId, Boolean selected) {
+        cartCache.evict(userId);
         cartMapper.updateSelectedByUserIdAndShopId(userId, shopId, selected);
     }
 
@@ -151,7 +175,7 @@ public class CartService implements ICartService {
      */
     @Override
     public CartDetailResp getCart(Long userId) {
-        List<CartDO> carts = listCartItems(userId);
+        List<CartDO> carts = cartCache.getOrLoad(userId, () -> listCartItems(userId));
         if (CollUtil.isEmpty(carts)) {
             return emptyCart();
         }
@@ -172,6 +196,7 @@ public class CartService implements ICartService {
      */
     @Override
     public void clear(Long userId) {
+        cartCache.evict(userId);
         cartMapper.deleteByUserId(userId);
     }
 
@@ -205,6 +230,20 @@ public class CartService implements ICartService {
     }
 
     /**
+     * 插入后复核容量：autocommit 下其他并发插入已经可见，超出上限时删除本次新增并拒绝请求。
+     *
+     * @param userId 用户 ID
+     * @param cartId 本次新增的购物车记录 ID
+     */
+    private void checkCapacityAfterInsert(Long userId, Long cartId) {
+        Long count = cartMapper.countByUserId(userId);
+        if (count > MAX_ITEMS) {
+            cartMapper.deleteById(cartId);
+        }
+        Asserts.isTrue(count <= MAX_ITEMS, BizErrorEnum.CART_LIMIT_EXCEEDED);
+    }
+
+    /**
      * 新增购物车记录，返回记录 ID。
      *
      * @param userId 用户 ID
@@ -212,7 +251,7 @@ public class CartService implements ICartService {
      * @param quantity 加入数量
      * @return 购物车记录 ID
      */
-    private Long insertNewItem(Long userId, SkuResp sku, Integer quantity) {
+    private Long insertCartItem(Long userId, SkuResp sku, Integer quantity) {
         CartDO cart = cartConverter.toDO(sku, userId, quantity);
         cartMapper.insert(cart);
         return cart.getId();
