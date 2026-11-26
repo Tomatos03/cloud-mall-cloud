@@ -1,0 +1,9 @@
+mybatis-plus:
+  type-aliases-package: com.cloudmall.cart.model.entity
+
+cloudmall:
+  cart:
+    cache:
+      enabled: true
+      ttl: 5m
+      key-prefix: ""

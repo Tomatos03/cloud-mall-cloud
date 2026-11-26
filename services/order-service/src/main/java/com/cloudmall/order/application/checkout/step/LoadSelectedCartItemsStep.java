@@ -7,14 +7,16 @@ import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
+import com.cloudmall.cart.api.client.InternalCartClient;
+import com.cloudmall.cart.api.model.resp.CartSelectedItemResp;
 import com.cloudmall.common.enums.BizErrorEnum;
 import com.cloudmall.common.utils.Asserts;
 import com.cloudmall.order.model.bo.CheckoutContext;
-import com.cloudmall.order.model.entity.CartDO;
-import com.cloudmall.order.service.ICartService;
 
 /**
- * 加载购物车已选中商品步骤：加载用户全部选中购物车项，组装为 skuId → 下单数量写入 context。
+ * 加载购物车已选中商品步骤：通过 Feign 读取购物车已选中项，组装为 skuId → 下单数量写入 context。
+ * <p>
+ * 购物车内部接口直读数据库、绕过缓存，避免陈旧的选中状态影响下单。
  *
  * @author : Tomatos
  */
@@ -22,7 +24,7 @@ import com.cloudmall.order.service.ICartService;
 @RequiredArgsConstructor
 public class LoadSelectedCartItemsStep implements ICheckoutStep {
 
-    private final ICartService cartService;
+    private final InternalCartClient internalCartClient;
 
     /**
      * 步骤名称。
@@ -41,11 +43,11 @@ public class LoadSelectedCartItemsStep implements ICheckoutStep {
      */
     @Override
     public void execute(CheckoutContext context) {
-        List<CartDO> selected = cartService.listSelectedItems(context.getUserId());
+        List<CartSelectedItemResp> selected = internalCartClient.listSelectedItems(context.getUserId());
         Asserts.notEmpty(selected, BizErrorEnum.PRODUCT_NOT_IN_CART);
         Map<Long, Integer> checkoutItems = new LinkedHashMap<>();
-        for (CartDO cart : selected) {
-            checkoutItems.put(cart.getSkuId(), cart.getQuantity());
+        for (CartSelectedItemResp item : selected) {
+            checkoutItems.put(item.getSkuId(), item.getQuantity());
         }
         context.setCheckoutItems(checkoutItems);
     }

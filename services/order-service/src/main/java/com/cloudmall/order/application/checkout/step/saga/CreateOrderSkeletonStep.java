@@ -18,7 +18,7 @@ import com.cloudmall.order.service.impl.OrderService;
 @Slf4j
 @Component
 @RequiredArgsConstructor
-public class CreateOrderSkeletonStep implements ICheckoutSagaSteps {
+public class CreateOrderSkeletonStep implements ISagaSteps {
 
     private final OrderService orderService;
 

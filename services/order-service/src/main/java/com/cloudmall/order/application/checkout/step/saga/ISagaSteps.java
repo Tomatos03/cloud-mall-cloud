@@ -7,18 +7,18 @@ import com.cloudmall.order.model.bo.CheckoutContext;
  * <p>
  * 每个子步骤只负责一个动作；需要回滚的动作覆写 {@link #compensate}，由
  * {@link AbstractSagaSteps} 在异常时逆序调用。补偿必须幂等且尽力而为，
- * 失败由超时恢复任务兜底。不同 Saga 通过各自的标记接口隔离 Bean 注入范围。
+ * 失败由超时恢复任务兜底。所有 Saga 共用 {@link CheckoutSagaStepsEnum} 作为步骤标识与顺序依据。
  *
  * @author : Tomatos
  */
 public interface ISagaSteps {
 
     /**
-     * 子步骤标识（用于排序与日志），由各 Saga 的子步骤枚举实现。
+     * 子步骤标识（用于排序与日志）。
      *
      * @return 子步骤枚举
      */
-    Enum<?> name();
+    CheckoutSagaStepsEnum name();
 
     /**
      * 执行子步骤（只做本步骤动作与上下文填充）。

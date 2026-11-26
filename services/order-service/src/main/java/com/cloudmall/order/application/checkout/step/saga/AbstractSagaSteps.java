@@ -1,11 +1,16 @@
 package com.cloudmall.order.application.checkout.step.saga;
 
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.EnumMap;
 import java.util.List;
+import java.util.Map;
 
 import cn.hutool.core.collection.ListUtil;
 import lombok.extern.slf4j.Slf4j;
 
+import com.cloudmall.common.enums.BizErrorEnum;
+import com.cloudmall.common.utils.Asserts;
 import com.cloudmall.order.application.checkout.step.ICheckoutStep;
 import com.cloudmall.order.model.bo.CheckoutContext;
 import com.cloudmall.order.model.entity.OrderDO;
@@ -22,15 +27,36 @@ import com.cloudmall.order.model.entity.OrderDO;
 @Slf4j
 public abstract class AbstractSagaSteps implements ICheckoutStep {
 
-    private final List<? extends ISagaSteps> steps;
+    private final List<ISagaSteps> steps;
 
     /**
      * 构造 Saga 容器步骤。
      *
      * @param steps 已按执行顺序排列的子步骤
      */
-    protected AbstractSagaSteps(List<? extends ISagaSteps> steps) {
+    protected AbstractSagaSteps(List<ISagaSteps> steps) {
         this.steps = List.copyOf(steps);
+    }
+
+    /**
+     * 按给定枚举顺序排列子步骤，缺失步骤视为配置错误。
+     *
+     * @param order 本容器需要的子步骤及执行顺序
+     * @param steps 容器中注入的全部子步骤 Bean
+     * @return 有序子步骤列表
+     */
+    protected static List<ISagaSteps> orderByEnum(
+        Collection<CheckoutSagaStepsEnum> order,
+        List<ISagaSteps> steps
+    ) {
+        Map<CheckoutSagaStepsEnum, ISagaSteps> byEnum = new EnumMap<>(CheckoutSagaStepsEnum.class);
+        for (ISagaSteps step : steps) {
+            byEnum.put(step.name(), step);
+        }
+        return order.stream()
+                    .map(byEnum::get)
+                    .map(step -> Asserts.requireNonNull(step, BizErrorEnum.INVALID_ORDER_TYPE))
+                    .toList();
     }
 
     @Override

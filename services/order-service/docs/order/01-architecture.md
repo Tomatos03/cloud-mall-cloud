@@ -6,7 +6,7 @@
 - **结算**：`POST /checkouts/{type}` 调用 `CheckoutApp.checkout`，按结算类型委托 `CheckoutStepExecutor`；执行器按 `CheckoutTypeEnum` 选择步骤列表，逐步填充 `CheckoutContext`，最后一步落库订单。`GET /checkouts/preview` 调用 `CheckoutApp.preview` 做无副作用价格预览。
 - **步骤编排**：购物车结算为 `LOAD_DELIVERY_ADDRESS → LOAD_SELECTED_CART_ITEMS → LOAD_TRUSTED_SKU_SNAPSHOTS → EXECUTE_CHECKOUT_SAGA → REMOVE_ORDERED_CART_ITEMS`；正常结算与秒杀先 `CHECK_SINGLE_ITEM`，再加载地址、请求商品、SKU，最后分别走普通预占与秒杀下单。
 - **下单 Saga**：`EXECUTE_CHECKOUT_SAGA` 是 Saga 容器步骤，自身定义主干流程：按 `CREATE_ORDER_SKELETON → RESERVE_ORDER_STOCK → LOCK_USER_COUPONS → WRITE_ORDER_DETAILS` 顺序执行子步骤；异常时仅在该组合内逆序补偿（取消订单、释放库存、释放券），不波及管道后续步骤。补偿失败由超时恢复任务兜底。
-- **购物车边界**：购物车作为下单输入域，由 `ICartService` 提供已选中条目；购物车自身的写入、容量与一致性设计见 `../cart/01-architecture.md`。
+- **购物车边界**：购物车已独立为 `cart-service`，订单域通过 `InternalCartClient`（Feign）读取已选中条目并在落库后清理；购物车自身的写入、容量与一致性设计见 `../../cart-service/docs/cart/01-architecture.md`。
 - **数据凭据**：订单、子订单、优惠关联在 `cm_mall` 的 MySQL 表；SKU 快照与价格来自 `product-service` 的 `SkuClient`，优惠券计算来自 `coupon-service` 的 `InternalCouponClient`。
 - **库存**：下单步骤只做预占与校验，真实库存扣减由商品服务承接；订单不直接修改商品库存表。
 - **事件一致性**：下单步骤本身只做订单落库，不通过 Outbox 或事务消息发布订单事件。订单生命周期状态变更通过 RocketMQ 事务消息发布：`OrderEventService` 发送消息，`OrderTxMessageListener` 在同一事务内执行本地状态变更并支持回查；消费端按 `orderNo` 和 tag 幂等处理。通用 Outbox 表不参与订单事件。
@@ -57,4 +57,4 @@ sequenceDiagram
 
 ## 订单与购物车的边界
 
-订单域只读取购物车已选中条目作为下单输入，不接管购物车的容量、去重与缓存策略。购物车清空由 `REMOVE_ORDERED_CART_ITEMS` 步骤在订单落库后调用购物车域完成；两步不在同一本地事务里，因此购物车清理失败不应回滚已落库订单，后续靠幂等或补偿保证一致。
+购物车已拆分为独立服务 `cart-service`，订单域只通过 `InternalCartClient` 读取已选中条目作为下单输入，不接管购物车的容量、去重与缓存策略。购物车清空由管道收尾步骤 `REMOVE_ORDERED_CART_ITEMS` 在订单落库后通过 Feign 调用购物车服务完成；该步骤尽力而为，失败只记日志、不触发 Saga 补偿，也不恢复购物车，残留项属于可接受降级。

@@ -19,6 +19,7 @@
         <module>product-api</module>
         <module>seckill-api</module>
         <module>order-api</module>
+        <module>cart-api</module>
         <module>search-api</module>
         <module>payment-api</module>
         <module>aigc-api</module>

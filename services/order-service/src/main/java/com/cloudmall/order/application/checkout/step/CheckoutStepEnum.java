@@ -34,7 +34,7 @@ public enum CheckoutStepEnum {
     /** 幂等创建秒杀订单（父/子/明细） */
     CREATE_SECKILL_ORDER("幂等创建秒杀订单"),
 
-    /** 删除已下单的购物车项 */
+    /** 删除已下单的购物车项（尽力而为，失败不回滚订单） */
     REMOVE_ORDERED_CART_ITEMS("删除已下单的购物车项");
     /** 枚举描述 */
     private final String desc;

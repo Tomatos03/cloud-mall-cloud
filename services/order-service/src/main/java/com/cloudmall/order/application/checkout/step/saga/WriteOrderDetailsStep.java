@@ -16,7 +16,7 @@ import com.cloudmall.order.service.impl.OrderService;
  */
 @Component
 @RequiredArgsConstructor
-public class WriteOrderDetailsStep implements ICheckoutSagaSteps {
+public class WriteOrderDetailsStep implements ISagaSteps {
 
     private final OrderService orderService;
 

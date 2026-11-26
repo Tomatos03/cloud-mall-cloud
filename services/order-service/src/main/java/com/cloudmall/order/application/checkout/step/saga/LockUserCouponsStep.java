@@ -31,7 +31,7 @@ import com.cloudmall.product.api.model.resp.SkuResp;
 @Slf4j
 @Component
 @RequiredArgsConstructor
-public class LockUserCouponsStep implements ICheckoutSagaSteps {
+public class LockUserCouponsStep implements ISagaSteps {
 
     /** 锁券过期时长（订单支付超时窗口） */
     private static final int LOCK_EXPIRE_MINUTES = 30;

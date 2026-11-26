@@ -1,0 +1,19 @@
+server:
+  port: 9010
+
+spring:
+  application:
+    name: cart-service
+  cloud:
+    nacos:
+      discovery:
+        server-addr: localhost:8848
+      config:
+        server-addr: localhost:8848
+        file-extension: yaml
+        group: DEFAULT_GROUP
+        refresh-enabled: true
+  config:
+    import:
+      - nacos:common
+      - nacos:cart-service

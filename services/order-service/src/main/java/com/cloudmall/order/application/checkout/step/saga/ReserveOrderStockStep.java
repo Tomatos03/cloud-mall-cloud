@@ -23,7 +23,7 @@ import com.cloudmall.product.api.model.req.StockReserveItem;
  */
 @Component
 @RequiredArgsConstructor
-public class ReserveOrderStockStep implements ICheckoutSagaSteps {
+public class ReserveOrderStockStep implements ISagaSteps {
 
     /** 下单预占库存原因 */
     private static final String RESERVE_REASON = "下单预占库存";

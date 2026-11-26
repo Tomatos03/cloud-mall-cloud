@@ -35,12 +35,12 @@ import static com.cloudmall.order.application.checkout.step.CheckoutStepEnum.REM
 public class CheckoutStepExecutor {
 
     /** 结算类型 → 步骤列表（key 为结算类型，value 为步骤枚举列表，位置即执行顺序） */
-    private static final Map<CheckoutTypeEnum, List<CheckoutStepEnum>> STEPS_BY_CHECKOUT_TYPE = new EnumMap<>(
+    private static final Map<CheckoutTypeEnum, List<CheckoutStepEnum>> STEPS_MAP = new EnumMap<>(
             CheckoutTypeEnum.class
     );
 
     static {
-        STEPS_BY_CHECKOUT_TYPE.put(
+        STEPS_MAP.put(
                 CheckoutTypeEnum.CART,
                 List.of(
                         LOAD_DELIVERY_ADDRESS,
@@ -50,7 +50,7 @@ public class CheckoutStepExecutor {
                         REMOVE_ORDERED_CART_ITEMS
                 )
         );
-        STEPS_BY_CHECKOUT_TYPE.put(
+        STEPS_MAP.put(
                 CheckoutTypeEnum.NORMAL,
                 List.of(
                         CHECK_SINGLE_ITEM,
@@ -60,7 +60,7 @@ public class CheckoutStepExecutor {
                         EXECUTE_CHECKOUT_SAGA
                 )
         );
-        STEPS_BY_CHECKOUT_TYPE.put(
+        STEPS_MAP.put(
                 CheckoutTypeEnum.SECKILL,
                 List.of(
                         CHECK_SINGLE_ITEM,
@@ -98,7 +98,7 @@ public class CheckoutStepExecutor {
      */
     public String execute(CheckoutTypeEnum checkoutType, Long userId, CheckoutReq req) {
         CheckoutContext context = buildBaseCheckoutContext(checkoutType, userId, req);
-        List<CheckoutStepEnum> stepList = STEPS_BY_CHECKOUT_TYPE.getOrDefault(checkoutType, List.of());
+        List<CheckoutStepEnum> stepList = STEPS_MAP.getOrDefault(checkoutType, List.of());
         for (CheckoutStepEnum stepName : stepList) {
             ICheckoutStep step = Asserts.requireNonNull(
                     stepByName.get(stepName),
