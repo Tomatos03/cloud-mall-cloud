@@ -14,10 +14,10 @@ import lombok.NoArgsConstructor;
 import com.cloudmall.order.api.model.dto.OrderItem;
 
 /**
- * 创建订单请求
+ * 结算请求
  * <p>
- * 三条建单链路共用：购物车结算、直接购买、秒杀建单，结算类型通过路径参数传递。
- * 普通与直接购买只提交 SKU 与数量、用户券选择、地址和备注；
+ * 三条建单链路共用：购物车结算、正常结算、秒杀建单，结算类型通过路径参数传递。
+ * 正常结算只提交 SKU 与数量、用户券选择、地址和备注；
  * userId、价格、商品名称、店铺、分类、优惠金额等一律由服务端从上下文与可信快照组装。
  * 秒杀由 consumer-service 内部调用，携带 orderNo，其余建单信息从秒杀单快照推断。
  *
@@ -27,7 +27,7 @@ import com.cloudmall.order.api.model.dto.OrderItem;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class CreateOrderReq {
+public class CheckoutReq {
 
     /** 下单商品明细 */
     @Valid

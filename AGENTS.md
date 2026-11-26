@@ -26,7 +26,7 @@ mvn -pl services/user-service spring-boot:run             # 运行
 mvn test                                                  # 测试
 ```
 
-- 每次修改文件之后，必须在项目工作空间根目录执行 `jstyle format`。
+- 每次修改的文件包含java文件在内，必须在项目工作空间根目录执行 `jstyle format`。
 
 ## 数据库约定
 

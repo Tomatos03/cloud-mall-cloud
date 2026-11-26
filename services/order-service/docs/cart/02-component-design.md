@@ -165,7 +165,7 @@ public interface ICartCache {
 | `updateQuantity` | 是 | 数量变化 |
 | `removeItems` | 是 | 删除记录 |
 | `selectCartItem` / `selectAll` / `selectShop` | 是 | 选中状态变化 |
-| `clear` | 是 | 清空购物车，订单 `CLEAN_CART` 也走这里 |
+| `clear` | 是 | 清空购物车，订单 `REMOVE_ORDERED_CART_ITEMS` 也走这里 |
 | 插入后复核超限的补偿删除 | 是 | 数据库先增后删，最终仍要清理旧快照 |
 | `getCart` | 否 | 缓存命中直接返回；未命中回填 |
 | `listSelectedItems` | 否 | 直读数据库，不使用缓存 |

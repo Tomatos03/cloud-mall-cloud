@@ -1,4 +1,4 @@
-package com.cloudmall.order.step;
+package com.cloudmall.order.application.checkout.step;
 
 import com.cloudmall.common.exception.BizException;
 import com.cloudmall.order.model.bo.CheckoutContext;
@@ -6,7 +6,7 @@ import com.cloudmall.order.model.bo.CheckoutContext;
 /**
  * 结算步骤
  * <p>
- * 一个步骤负责：加载数据 + 校验 + 填充上下文，由 {@link com.cloudmall.order.application.CheckoutPipeline}
+ * 一个步骤负责：加载数据 + 校验 + 填充上下文，由 {@link com.cloudmall.order.application.checkout.CheckoutStepExecutor}
  * 按结算类型映射的列表顺序执行。
  *
  * @author : Tomatos
@@ -23,8 +23,8 @@ public interface ICheckoutStep {
     /**
      * 执行步骤（加载数据 + 校验 + 填充上下文）。
      *
-     * @param ctx 订单上下文
+     * @param context 订单上下文
      * @throws BizException 校验失败时抛出
      */
-    void process(CheckoutContext ctx);
+    void execute(CheckoutContext context);
 }

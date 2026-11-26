@@ -1,4 +1,4 @@
-package com.cloudmall.order.step;
+package com.cloudmall.order.application.checkout.step;
 
 import java.math.BigDecimal;
 
@@ -27,7 +27,7 @@ import com.cloudmall.seckill.api.client.InternalSeckillClient;
 import com.cloudmall.seckill.api.model.resp.SeckillOrderResp;
 
 /**
- * 秒杀订单落库步骤
+ * 幂等创建秒杀订单步骤
  * <p>
  * 按 orderNo 幂等直接落库父订单、子订单与明细（uk_order_no 唯一键兜底），
  * 单事务执行，成功后将父订单写入 context。
@@ -37,7 +37,7 @@ import com.cloudmall.seckill.api.model.resp.SeckillOrderResp;
 @Slf4j
 @Component
 @RequiredArgsConstructor
-public class PlaceSeckillOrderStep implements ICheckoutStep {
+public class CreateSeckillOrderStep implements ICheckoutStep {
 
     private final OrderMapper orderMapper;
     private final OrderSubMapper orderSubMapper;
@@ -47,27 +47,27 @@ public class PlaceSeckillOrderStep implements ICheckoutStep {
     /**
      * 步骤名称。
      *
-     * @return 秒杀订单落库
+     * @return 幂等创建秒杀订单
      */
     @Override
     public CheckoutStepEnum name() {
-        return CheckoutStepEnum.PLACE_SECKILL_ORDER;
+        return CheckoutStepEnum.CREATE_SECKILL_ORDER;
     }
 
     /**
      * 执行步骤：幂等落库，成功写入 context.order。
      *
-     * @param ctx 订单上下文
+     * @param context 订单上下文
      */
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public void process(CheckoutContext ctx) {
-        String orderNo = ctx.getReq().getOrderNo();
+    public void execute(CheckoutContext context) {
+        String orderNo = context.getReq().getOrderNo();
         Asserts.notBlank(orderNo, BizErrorEnum.INVALID_PARAM);
         OrderDO existing = orderMapper.selectByOrderNo(orderNo);
         if (existing != null) {
             log.info("秒杀订单已存在，幂等返回 orderNo={}", orderNo);
-            finish(ctx, existing);
+            finish(context, existing);
             return;
         }
 
@@ -76,14 +76,14 @@ public class PlaceSeckillOrderStep implements ICheckoutStep {
                 BizErrorEnum.INVALID_PARAM
         );
         BigDecimal amount = calcAmount(seckillOrder);
-        OrderDO order = buildOrder(seckillOrder, amount, JSONUtil.toJsonStr(ctx.getAddress()));
+        OrderDO order = buildOrder(seckillOrder, amount, JSONUtil.toJsonStr(context.getAddress()));
 
         if (!tryInsert(order, orderNo)) {
-            finish(ctx, orderMapper.selectByOrderNo(orderNo));
+            finish(context, orderMapper.selectByOrderNo(orderNo));
             return;
         }
-        insertSubAndItem(order, seckillOrder, ctx, amount);
-        finish(ctx, order);
+        insertSubAndItem(order, seckillOrder, context, amount);
+        finish(context, order);
     }
 
     /**
@@ -119,16 +119,16 @@ public class PlaceSeckillOrderStep implements ICheckoutStep {
      *
      * @param order 父订单
      * @param seckillOrder 秒杀单快照
-     * @param ctx 订单上下文
+     * @param context 订单上下文
      * @param amount 应付金额
      */
     private void insertSubAndItem(
         OrderDO order,
         SeckillOrderResp seckillOrder,
-        CheckoutContext ctx,
+        CheckoutContext context,
         BigDecimal amount
     ) {
-        SkuResp sku = ctx.getSkuMap().get(seckillOrder.getSkuId());
+        SkuResp sku = context.getSkuMap().get(seckillOrder.getSkuId());
         OrderSubDO sub = buildSubOrder(order, sku.getShopId(), amount);
         orderSubMapper.insert(sub);
         orderItemMapper.insert(
@@ -139,11 +139,11 @@ public class PlaceSeckillOrderStep implements ICheckoutStep {
     /**
      * 写入父订单并记录成功日志。
      *
-     * @param ctx 订单上下文
+     * @param context 订单上下文
      * @param order 父订单
      */
-    private void finish(CheckoutContext ctx, OrderDO order) {
-        ctx.setOrder(order);
+    private void finish(CheckoutContext context, OrderDO order) {
+        context.setOrder(order);
         log.info("秒杀订单创建成功 orderNo={} userId={}", order.getOrderNo(), order.getUserId());
     }
 

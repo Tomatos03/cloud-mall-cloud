@@ -3,14 +3,10 @@ package com.cloudmall.order.api.client;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import com.cloudmall.common.model.page.PageResp;
 import com.cloudmall.order.api.client.fallback.OrderClientFallbackFactory;
-import com.cloudmall.order.api.enums.CheckoutTypeEnum;
-import com.cloudmall.order.api.model.req.CreateOrderReq;
 import com.cloudmall.order.api.model.resp.OrderResp;
 
 @FeignClient(
@@ -20,21 +16,6 @@ import com.cloudmall.order.api.model.resp.OrderResp;
         fallbackFactory = OrderClientFallbackFactory.class
 )
 public interface OrderClient {
-
-    /**
-     * 创建订单（统一建单入口，按路径参数中的结算类型分发购物车结算/直接购买结算/秒杀结算）。
-     *
-     * @param checkoutType 结算类型
-     * @param req 建单请求
-     * @return 订单编号
-     */
-    @PostMapping("/{checkoutType}")
-    String createOrder(
-        @PathVariable("checkoutType")
-        CheckoutTypeEnum checkoutType,
-        @RequestBody
-        CreateOrderReq req
-    );
 
     /**
      * 获取相关数据。

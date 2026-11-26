@@ -12,7 +12,7 @@ import lombok.NoArgsConstructor;
 import com.cloudmall.order.api.model.dto.OrderItem;
 
 /**
- * 下单前价格预览请求
+ * 结算预览请求
  * <p>
  * 只需提交商品 SKU、数量和可选的优惠券 ID 列表，
  * 服务端自动推荐最优优惠组合并返回价格明细。
@@ -24,7 +24,7 @@ import com.cloudmall.order.api.model.dto.OrderItem;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class QuoteOrderReq {
+public class PreviewCheckoutReq {
 
     /** 下单商品明细 */
     @Valid

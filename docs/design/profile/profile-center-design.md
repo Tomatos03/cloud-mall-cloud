@@ -373,7 +373,7 @@ change(userId, changeAmount, type, description, idempotencyKey)
    - 购物车有商品：跳转 `/checkout?userCouponId={id}`。
    - 购物车为空：跳转搜索/分类页，并带 `couponId` 标记，提示「已为你筛选可用商品」。
 3. 结算页读取 `userCouponId`，在优惠券列表中预选；不可用时提示并取消预选。
-4. 下单时继续走现有 `CreateOrderReq.userCouponIds`，无需新增下单接口。
+4. 下单时继续走现有 `CheckoutReq.userCouponIds`，无需新增下单接口。
 
 新增接口建议放在 coupon-service：
 

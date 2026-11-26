@@ -58,8 +58,7 @@ import com.cloudmall.product.api.model.resp.SkuResp;
  * <p>
  * 本地查询与响应组装（父/子订单分页、详情、券使用统计），以及下单 Saga 中需要独立事务提交的写库步骤：
  * CREATING 骨架、金额/明细/优惠落库、失败标记取消。 骨架必须先于远程调用提交，宕机时才能被
- * 超时恢复任务发现并补偿。 涉及远程调用的下单编排见
- * {@link com.cloudmall.order.application.OrderApp}。
+ * 超时恢复任务发现并补偿。 涉及远程调用的下单编排见 {@link com.cloudmall.order.application.checkout.CheckoutApp}。
  *
  * @author : Tomatos
  */

@@ -133,7 +133,7 @@ mvn -pl services/consumer-service spring-boot:run
 | `OrderPaidHandler` | `OrderPaid` | `POST /internal/coupon/commit-by-order`，核销订单下全部已锁定券 | `orderNo` |
 | `OrderReleaseHandler` | `OrderTimeout` / `OrderCancelled` | `POST /internal/coupon/release-by-order`，释放订单下已锁定券 | `orderNo` + `userId` |
 | `OrderFullyRefundedHandler` | `OrderFullyRefunded` | `POST /internal/coupon/revert-by-order`，回退已核销券；`refundId` 为空则跳过 | `orderNo` + `refundId` |
-| `SeckillOrderCreateHandler` | `SeckillOrderCreate` | `POST /orders/SECKILL`，按秒杀侧预生成订单号建真实订单 | `orderNo`（`uk_order_no`） |
+| `SeckillOrderCreateHandler` | `SeckillOrderCreate` | `POST /checkouts/SECKILL`，按秒杀侧预生成订单号建真实订单 | `orderNo`（`uk_order_no`） |
 | `SeckillOrderPaidHandler` | `OrderPaid` | `POST /internal/seckill/confirm-paid`，秒杀单置 `PAID` 并扣减秒杀池；非 `SK` 前缀订单跳过 | `orderNo` + 状态条件更新 |
 | `ProductUpsertHandler` | `ProductCreated` / `ProductUpdated` | `GET /products/docs/{id}` 拉取搜索文档，再 `POST /internal/search/upsert`；文档不存在时删除 ES 残留 | `productId` |
 | `ProductDeleteHandler` | `ProductDeleted` | `POST /internal/search/delete/{id}` | `productId` |

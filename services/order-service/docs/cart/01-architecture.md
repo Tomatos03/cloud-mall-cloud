@@ -9,7 +9,7 @@
 - **唯一约束**：`uk_user_sku (user_id, sku_id)` 保证同一用户同一 SKU 只有一条记录，是防重复的最终权威。
 - **实时信息**：商品价格、名称、库存、店铺从 `SkuClient` / `ShopClient` 实时获取；缓存和 `CartDO` 只保存加入时的快照，不作为权威价格与可售状态。
 - **读模型**：`getCart` 先通过 `ICartCache.getOrLoad` 读缓存，未命中再查数据库并回填；随后仍用 SKU/店铺实时信息富化、分组并汇总。**不缓存 `CartDetailResp`**，避免可用性、小计、价格随库存和价格变化而失真。
-- **下单衔接**：`ICartService.listSelectedItems` 被订单结算步骤读取；这条链路直接读数据库、绕过缓存，避免陈旧的选中状态影响下单。订单落库后由 `CLEAN_CART` 步骤调用清空购物车并失效缓存。
+- **下单衔接**：`ICartService.listSelectedItems` 被订单结算步骤读取；这条链路直接读数据库、绕过缓存，避免陈旧的选中状态影响下单。订单落库后由 `REMOVE_ORDERED_CART_ITEMS` 步骤调用清空购物车并失效缓存。
 - **物理删除**：`cm_cart` 没有 `deleted` 字段，删除即物理删除，唯一键可被真正释放，便于用户重新加入同一 SKU。
 
 ```mermaid
@@ -73,7 +73,7 @@ TTL:               cloudmall.cart.cache.ttl，默认 5 分钟
 
 - `addToCart`、`updateQuantity`、`removeItems`、`selectCartItem`、`selectAll`、`selectShop`、`clear`
 - 插入后复核超限时删除本次新增的补偿分支也会失效，避免出现短暂陈旧数据
-- 下单链路的 `CLEAN_CART` 必须调用 `ICartService.clear`，而不是绕过服务直接操作 `CartMapper`，否则缓存不会被清理
+- 下单链路的 `REMOVE_ORDERED_CART_ITEMS` 必须调用 `ICartService.clear`，而不是绕过服务直接操作 `CartMapper`，否则缓存不会被清理
 - 校验失败且没有改变数据库时也会失效缓存；这只是多一次缓存删除，不会导致脏数据
 
 `@CacheEvict` 使用 `beforeInvocation = true`，保证数据库写入过程中出现异常时缓存也已被清理。并发读可能在失效后回填旧值，因此用 TTL 兜底；这是缓存的非强一致边界，购物车展示可接受，但下单关键读必须绕过缓存。

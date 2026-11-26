@@ -7,17 +7,17 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
-import com.cloudmall.order.api.client.OrderClient;
+import com.cloudmall.order.api.client.CheckClient;
 import com.cloudmall.order.api.enums.CheckoutTypeEnum;
 import com.cloudmall.order.api.model.dto.OrderItem;
-import com.cloudmall.order.api.model.req.CreateOrderReq;
+import com.cloudmall.order.api.model.req.CheckoutReq;
 import com.cloudmall.seckill.api.enums.SeckillTagEnum;
 import com.cloudmall.seckill.api.model.event.SeckillOrderCreateEvent;
 
 /**
  * 秒杀建单处理器
  * <p>
- * 消费抢购事件后调 order-service 统一建单接口建真实订单，
+ * 消费抢购事件后调 order-service 结算接口建真实订单，
  * 订单号由秒杀侧预生成，order-service 按 uk_order_no 幂等。
  *
  * @author : Tomatos
@@ -27,7 +27,7 @@ import com.cloudmall.seckill.api.model.event.SeckillOrderCreateEvent;
 @RequiredArgsConstructor
 public class SeckillOrderCreateHandler implements IEventHandler<SeckillOrderCreateEvent> {
 
-    private final OrderClient orderClient;
+    private final CheckClient checkClient;
 
     /**
      * 本处理器服务的 RocketMQ tag 集合。
@@ -68,9 +68,9 @@ public class SeckillOrderCreateHandler implements IEventHandler<SeckillOrderCrea
      */
     @Override
     public void handle(SeckillOrderCreateEvent event) {
-        orderClient.createOrder(
+        checkClient.checkout(
                 CheckoutTypeEnum.SECKILL,
-                CreateOrderReq
+                CheckoutReq
                         .builder()
                         .orderNo(event.getOrderNo())
                         .addressId(event.getAddressId())

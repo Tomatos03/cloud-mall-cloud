@@ -11,7 +11,7 @@ import com.cloudmall.order.api.model.resp.OrderSubResp;
  * 订单查询服务
  * <p>
  * 负责父/子订单的本地查询与响应组装，以及订单优惠使用统计；涉及远程调用的下单与预览流程由
- * {@link com.cloudmall.order.application.OrderApp} 编排。
+ {@link com.cloudmall.order.application.checkout.CheckoutApp} 编排。
  *
  * @author : Tomatos
  */

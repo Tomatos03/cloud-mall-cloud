@@ -1,5 +1,6 @@
 package com.cloudmall.order.model.bo;
 
+import java.util.List;
 import java.util.Map;
 
 import lombok.AllArgsConstructor;
@@ -7,8 +8,10 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import com.cloudmall.coupon.api.model.resp.CouponOrderCalcResp;
+import com.cloudmall.coupon.api.model.resp.CouponUsageResult;
 import com.cloudmall.order.api.enums.CheckoutTypeEnum;
-import com.cloudmall.order.api.model.req.CreateOrderReq;
+import com.cloudmall.order.api.model.req.CheckoutReq;
 import com.cloudmall.order.model.entity.OrderDO;
 import com.cloudmall.product.api.model.resp.SkuResp;
 import com.cloudmall.user.api.model.resp.AddressResp;
@@ -31,7 +34,7 @@ public class CheckoutContext {
     private CheckoutTypeEnum checkoutType;
 
     /** 下单请求 */
-    private CreateOrderReq req;
+    private CheckoutReq req;
 
     /** 收货地址 */
     private AddressResp address;
@@ -42,6 +45,15 @@ public class CheckoutContext {
     /** SKU 可信快照：key 为 SKU ID，value 为对应 SKU 快照 */
     private Map<Long, SkuResp> skuMap;
 
-    /** 最终父订单（落库步骤写入） */
+    /** 最终父订单（创建骨架步骤写入） */
     private OrderDO order;
+
+    /** 是否已预占库存（预占步骤写入，供 Saga 补偿判断） */
+    private Boolean stockReserved;
+
+    /** 已锁定的券快照（锁券步骤写入，供 Saga 补偿释放） */
+    private List<CouponUsageResult> lockedUsages;
+
+    /** 优惠计算结果（锁券步骤写入，供落库步骤使用） */
+    private CouponOrderCalcResp couponCalc;
 }

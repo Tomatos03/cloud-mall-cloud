@@ -10,7 +10,7 @@ import lombok.Getter;
  * 结算类型枚举
  * <p>
  * 对应 cm_order.order_type 列，同时是统一建单接口路径参数的分发依据：
- * CART 为购物车结算，DIRECT 为直接购买，SECKILL 为秒杀建单。
+ * CART 为购物车结算，NORMAL 为正常结算，SECKILL 为秒杀建单。
  *
  * @author : Tomatos
  */
@@ -20,8 +20,8 @@ public enum CheckoutTypeEnum {
     /** 购物车结算 */
     CART("CART", "购物车结算"),
 
-    /** 直接购买结算 */
-    DIRECT("DIRECT", "直接购买结算"),
+    /** 正常结算 */
+    NORMAL("NORMAL", "正常结算"),
 
     /** 秒杀结算 */
     SECKILL("SECKILL", "秒杀结算");

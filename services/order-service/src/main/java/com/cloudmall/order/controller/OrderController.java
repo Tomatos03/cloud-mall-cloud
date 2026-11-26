@@ -1,32 +1,24 @@
 package com.cloudmall.order.controller;
 
-import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.cloudmall.common.context.UserContextHolder;
 import com.cloudmall.common.model.page.PageResp;
 import com.cloudmall.common.model.result.Result;
-import com.cloudmall.coupon.api.model.resp.CouponOrderCalcResp;
-import com.cloudmall.order.api.enums.CheckoutTypeEnum;
-import com.cloudmall.order.api.model.req.CreateOrderReq;
 import com.cloudmall.order.api.model.req.OrderPageReq;
 import com.cloudmall.order.api.model.req.OrderSubPageReq;
-import com.cloudmall.order.api.model.req.QuoteOrderReq;
 import com.cloudmall.order.api.model.resp.OrderResp;
 import com.cloudmall.order.api.model.resp.OrderSubResp;
-import com.cloudmall.order.application.OrderApp;
 import com.cloudmall.order.service.IOrderService;
 
 /**
  * 订单接口
  * <p>
- * 用户下单与查询自己的父订单；商家查询自己店铺子订单；运营查询全量。
+ * 用户查询自己的父订单；商家查询自己店铺子订单；运营查询全量。
  * userId 一律从用户上下文获取，不信任请求参数。
  *
  * @author : Tomatos
@@ -37,37 +29,6 @@ import com.cloudmall.order.service.IOrderService;
 public class OrderController {
 
     private final IOrderService orderService;
-    private final OrderApp orderApp;
-
-    /**
-     * 创建订单（统一建单入口，按路径参数中的结算类型分发购物车结算/直接购买结算/秒杀结算）。
-     *
-     * @param checkoutType 结算类型
-     * @param req 下单请求
-     * @return 父订单详情
-     */
-    @PostMapping("/{checkoutType}")
-    public Result<String> create(
-        @PathVariable
-        CheckoutTypeEnum checkoutType,
-        @RequestBody
-        @Valid
-        CreateOrderReq req
-    ) {
-        Long userId = UserContextHolder.getUserId();
-        return Result.success(orderApp.create(checkoutType, userId, req));
-    }
-
-    /**
-     * 下单前价格预览（无副作用）。
-     *
-     * @param req 预览请求（只需商品 SKU 与数量）
-     * @return 三级价格明细 + 优惠券使用明细 + 推荐组合
-     */
-    @PostMapping("/quote")
-    public Result<CouponOrderCalcResp> quote(@RequestBody @Valid QuoteOrderReq req) {
-        return Result.success(orderApp.quote(req));
-    }
 
     /**
      * 获取父订单详情（仅当前用户本人可查）。

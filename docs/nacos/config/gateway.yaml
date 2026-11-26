@@ -106,7 +106,7 @@ spring:
             - id: order-service
               uri: lb://order-service
               predicates:
-                - Path=/orders/**,/carts/**
+                - Path=/orders/**,/carts/**,/checkouts/**
               filters:
                 - StripPrefix=0
 

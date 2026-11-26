@@ -27,7 +27,7 @@ import com.cloudmall.order.model.entity.OrderSubDO;
  * <p>
  * 供 seckill-service 普通流程抢购调用：按请求携带的订单快照（秒杀价、商品信息）
  * 单事务幂等落库父订单/子订单/明细，uk_order_no 唯一键兜底并发重复投递。
- * 与结算管道中的 {@code PlaceSeckillOrderStep} 不同：不依赖 cm_seckill_order
+ * 与结算管道中的 {@code CreateSeckillOrderStep} 不同：不依赖 cm_seckill_order
  * 快照，订单数据全部来自请求参数。
  *
  * @author : Tomatos

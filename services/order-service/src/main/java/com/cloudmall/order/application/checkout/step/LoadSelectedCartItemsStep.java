@@ -1,4 +1,4 @@
-package com.cloudmall.order.step;
+package com.cloudmall.order.application.checkout.step;
 
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -14,39 +14,39 @@ import com.cloudmall.order.model.entity.CartDO;
 import com.cloudmall.order.service.ICartService;
 
 /**
- * 购物车结算项加载步骤：加载用户全部选中购物车项，组装为 skuId → 下单数量写入 context。
+ * 加载购物车已选中商品步骤：加载用户全部选中购物车项，组装为 skuId → 下单数量写入 context。
  *
  * @author : Tomatos
  */
 @Component
 @RequiredArgsConstructor
-public class LoadCartCheckoutItemsStep implements ICheckoutStep {
+public class LoadSelectedCartItemsStep implements ICheckoutStep {
 
     private final ICartService cartService;
 
     /**
      * 步骤名称。
      *
-     * @return 购物车结算项加载
+     * @return 加载购物车已选中商品
      */
     @Override
     public CheckoutStepEnum name() {
-        return CheckoutStepEnum.LOAD_CART_CHECKOUT_ITEMS;
+        return CheckoutStepEnum.LOAD_SELECTED_CART_ITEMS;
     }
 
     /**
      * 执行步骤。
      *
-     * @param ctx 订单上下文
+     * @param context 订单上下文
      */
     @Override
-    public void process(CheckoutContext ctx) {
-        List<CartDO> selected = cartService.listSelectedItems(ctx.getUserId());
+    public void execute(CheckoutContext context) {
+        List<CartDO> selected = cartService.listSelectedItems(context.getUserId());
         Asserts.notEmpty(selected, BizErrorEnum.PRODUCT_NOT_IN_CART);
         Map<Long, Integer> checkoutItems = new LinkedHashMap<>();
         for (CartDO cart : selected) {
             checkoutItems.put(cart.getSkuId(), cart.getQuantity());
         }
-        ctx.setCheckoutItems(checkoutItems);
+        context.setCheckoutItems(checkoutItems);
     }
 }

@@ -7,14 +7,12 @@ import com.cloudmall.common.enums.BizErrorEnum;
 import com.cloudmall.common.exception.FallbackFailures;
 import com.cloudmall.common.model.page.PageResp;
 import com.cloudmall.order.api.client.OrderClient;
-import com.cloudmall.order.api.enums.CheckoutTypeEnum;
-import com.cloudmall.order.api.model.req.CreateOrderReq;
 import com.cloudmall.order.api.model.resp.OrderResp;
 
 /**
  * 订单客户端兜底工厂
  * <p>
- * 建单与订单读取均快速失败，避免返回空订单导致后续状态判断错误。
+ * 订单读取快速失败，避免返回空订单导致后续状态判断错误。
  *
  * @author : Tomatos
  */
@@ -27,11 +25,6 @@ public class OrderClientFallbackFactory implements FallbackFactory<OrderClient> 
         RuntimeException failure = FallbackFailures.of(cause, BizErrorEnum.SERVICE_UNAVAILABLE);
 
         return new OrderClient() {
-            @Override
-            public String createOrder(CheckoutTypeEnum checkoutType, CreateOrderReq req) {
-                throw failure;
-            }
-
             @Override
             public OrderResp getById(Long id) {
                 throw failure;

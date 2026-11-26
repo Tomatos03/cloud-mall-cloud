@@ -1,4 +1,4 @@
-package com.cloudmall.order.application;
+package com.cloudmall.order.application.checkout;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -19,38 +19,38 @@ import com.cloudmall.coupon.api.model.req.CouponOrderQuoteReq;
 import com.cloudmall.coupon.api.model.resp.CouponOrderCalcResp;
 import com.cloudmall.order.api.enums.CheckoutTypeEnum;
 import com.cloudmall.order.api.model.dto.OrderItem;
-import com.cloudmall.order.api.model.req.CreateOrderReq;
-import com.cloudmall.order.api.model.req.QuoteOrderReq;
+import com.cloudmall.order.api.model.req.CheckoutReq;
+import com.cloudmall.order.api.model.req.PreviewCheckoutReq;
 import com.cloudmall.product.api.client.SkuClient;
 import com.cloudmall.product.api.model.resp.SkuResp;
 
 /**
- * 订单应用服务
+ * 结算应用服务
  * <p>
  * 统一建单入口：按路径参数中的结算类型委托结算管道执行
- * （购物车结算、直接购买结算、秒杀结算），并保留下单前价格预览。
+ * （购物车结算、正常结算、秒杀结算），并保留下单前价格预览。
  * 本地查询与事务写库见 {@link com.cloudmall.order.service.impl.OrderService}。
  *
  * @author : Tomatos
  */
 @Service
 @RequiredArgsConstructor
-public class OrderApp {
+public class CheckoutApp {
 
-    private final CheckoutPipeline checkoutPipeline;
+    private final CheckoutStepExecutor checkoutStepExecutor;
     private final InternalCouponClient internalCouponClient;
     private final SkuClient skuClient;
 
     /**
-     * 创建订单（统一入口，按结算类型执行结算管道）。
+     * 创建订单（统一入口，按结算类型委托步骤执行器）。
      *
      * @param checkoutType 结算类型（路径参数）
      * @param userId 当前登录用户 ID（秒杀内部调用可为 null，由秒杀快照写入）
      * @param req 建单请求
      * @return 订单编号
      */
-    public String create(CheckoutTypeEnum checkoutType, Long userId, CreateOrderReq req) {
-        return checkoutPipeline.execute(checkoutType, userId, req);
+    public String checkout(CheckoutTypeEnum checkoutType, Long userId, CheckoutReq req) {
+        return checkoutStepExecutor.execute(checkoutType, userId, req);
     }
 
     /**
@@ -59,7 +59,7 @@ public class OrderApp {
      * @param req 预览请求（只需商品 SKU 与数量）
      * @return 三级价格明细 + 优惠券使用明细 + 推荐组合
      */
-    public CouponOrderCalcResp quote(QuoteOrderReq req) {
+    public CouponOrderCalcResp preview(PreviewCheckoutReq req) {
         Long userId = UserContextHolder.getUserId();
         Map<Long, Integer> quantities = new LinkedHashMap<>();
         for (OrderItem item : req.getItems()) {
