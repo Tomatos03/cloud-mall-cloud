@@ -5,6 +5,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
 
 import com.cloudmall.seckill.api.enums.SeckillSessionStatusEnum;
 import com.cloudmall.seckill.api.model.resp.ActivityDetailResp;
@@ -46,14 +47,21 @@ public interface SeckillConverter {
      * @param activity 活动实体
      * @return 活动详情响应
      */
+    @Mapping(target = "products", ignore = true)
     ActivityDetailResp toActivityDetailResp(SeckillActivityDO activity);
 
     /**
-     * 秒杀商品实体转为响应。
+     * 秒杀商品实体转为响应。 <p>
+     * 商品展示字段由 {@code SeckillProductService.enrich()} 从商品
+     * 服务补齐。
      *
      * @param product 秒杀商品实体
      * @return 秒杀商品响应
      */
+    @Mapping(target = "image", ignore = true)
+    @Mapping(target = "productName", ignore = true)
+    @Mapping(target = "originalPrice", ignore = true)
+    @Mapping(target = "productDescription", ignore = true)
     SeckillProductResp toSeckillProductResp(SeckillProductDO product);
 
     /**

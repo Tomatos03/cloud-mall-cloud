@@ -5,6 +5,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 
 import feign.Request;
+import feign.RequestTemplate;
 import feign.Response;
 
 import com.cloudmall.feign.exception.RemoteCallException;
@@ -59,7 +60,8 @@ public final class RemoteExceptionFactory {
                     "http://unknown",
                     Collections.emptyMap(),
                     new byte[0],
-                    StandardCharsets.UTF_8
+                    StandardCharsets.UTF_8,
+                    new RequestTemplate()
             );
         }
 
