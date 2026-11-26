@@ -17,13 +17,19 @@ import com.cloudmall.common.model.cursor.CursorReq;
 import com.cloudmall.common.model.cursor.CursorResp;
 import com.cloudmall.product.api.client.ProductClient;
 import com.cloudmall.product.api.model.resp.ProductDocResp;
+import com.cloudmall.search.api.model.resp.RebuildResultResp;
 import com.cloudmall.search.infrastructure.search.ProductIndexRepository;
 import com.cloudmall.search.properties.SearchSyncProperties;
+import com.cloudmall.search.service.ISearchService;
 
 /**
- * 商品索引定时增量同步 JobHandler
+ * 商品索引定时任务 JobHandler，包含全量对账与增量同步两个任务。
  * <p>
- * MQ 增量消费的兜底数据源：按 updateTime 游标周期拉取 product-service
+ * 全量对账：兜底/初始化数据源，翻页拉取 product-service docs 全量文档，
+ * 写入 ES 并清理 DB 已不存在的残留文档（删除兜底）。
+ * 由 {@code search.sync.full.enabled} 控制是否执行。
+ * <p>
+ * 增量同步：MQ 增量消费的兜底数据源，按 updateTime 游标周期拉取 product-service
  * docs，批量 upsert 写入 ES，覆盖 MQ 消息丢失/漏消费场景。
  * 游标存 Redis（最近一次成功同步的最大 updateTime，写游标时按
  * {@code cursorBackoffSeconds} 回退，避免边界漏数据）。
@@ -34,14 +40,34 @@ import com.cloudmall.search.properties.SearchSyncProperties;
 @Slf4j
 @Component
 @RequiredArgsConstructor
-public class SearchIncrementalSyncJobHandler {
+public class SearchIndexSyncJobHandler {
 
     private static final DateTimeFormatter CURSOR_FORMAT = DateTimeFormatter.ISO_LOCAL_DATE_TIME;
 
+    private final ISearchService searchService;
     private final ProductClient productClient;
     private final ProductIndexRepository indexWriter;
     private final SearchSyncProperties syncProps;
     private final StringRedisTemplate stringRedisTemplate;
+
+    /**
+     * 全量对账商品索引。
+     */
+    @XxlJob("searchProductFullRebuild")
+    public void fullRebuild() {
+        if (!syncProps.getFull().isEnabled()) {
+            log.info("商品索引全量对账任务已禁用（search.sync.full.enabled=false），跳过");
+            return;
+        }
+        RebuildResultResp result = searchService.rebuild();
+        log.info(
+                "商品索引全量对账完成 total={} updated={} deleted={} failed={}",
+                result.getTotal(),
+                result.getUpdated(),
+                result.getDeleted(),
+                result.getFailed()
+        );
+    }
 
     /**
      * 增量同步商品索引。
