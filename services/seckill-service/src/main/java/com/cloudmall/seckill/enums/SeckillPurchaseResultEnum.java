@@ -34,7 +34,7 @@ public enum SeckillPurchaseResultEnum {
      * @return 匹配的抢购结果
      * @throws IllegalArgumentException 返回码为 null 或未命中时抛出
      */
-    public static SeckillPurchaseResultEnum fromCode(Long code) {
+    public static SeckillPurchaseResultEnum from(Long code) {
         return Arrays
                 .stream(values())
                 .filter(t -> t.code.equals(code))

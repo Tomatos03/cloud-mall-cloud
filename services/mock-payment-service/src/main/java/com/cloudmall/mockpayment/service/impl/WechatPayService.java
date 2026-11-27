@@ -89,7 +89,7 @@ public class WechatPayService implements IWechatPayService {
     public MockPaymentCreateResp createInternal(MockPaymentCreateReq req) {
         TradeTypeEnum tradeType = StrUtil.isBlank(req.getTradeType())
                 ? TradeTypeEnum.NATIVE
-                : TradeTypeEnum.fromCode(req.getTradeType());
+                : TradeTypeEnum.from(req.getTradeType());
         return createOrder(
                 mockPaymentProperties.getAppid(),
                 mockPaymentProperties.getMchid(),

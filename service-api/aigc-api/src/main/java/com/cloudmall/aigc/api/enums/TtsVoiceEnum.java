@@ -43,7 +43,7 @@ public enum TtsVoiceEnum {
      * @throws IllegalArgumentException code 为 null 或无法匹配
      *                                  时抛出
      */
-    public static TtsVoiceEnum fromCode(String code) {
+    public static TtsVoiceEnum from(String code) {
         if (code == null) {
             throw new IllegalArgumentException("code must not be null");
         }

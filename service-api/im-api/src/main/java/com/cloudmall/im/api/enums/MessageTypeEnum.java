@@ -42,7 +42,7 @@ public enum MessageTypeEnum {
      * @throws IllegalArgumentException 编码为 null 或非法时抛出
      */
     @JsonCreator
-    public static MessageTypeEnum fromCode(String code) {
+    public static MessageTypeEnum from(String code) {
         return Arrays
                 .stream(values())
                 .filter(t -> t.code.equals(code))

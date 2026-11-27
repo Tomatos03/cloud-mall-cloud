@@ -35,7 +35,7 @@ public enum StoreSubjectTypeEnum {
      * @param code 类型编码
      * @return 匹配类型
      */
-    public static StoreSubjectTypeEnum fromCode(String code) {
+    public static StoreSubjectTypeEnum from(String code) {
         return Arrays.stream(values())
                      .filter(value -> value.code.equals(code))
                      .findFirst()

@@ -39,7 +39,7 @@ public enum IssueChannelEnum {
      * @throws IllegalArgumentException 编码非法或为 null 时抛出
      */
     @JsonCreator
-    public static IssueChannelEnum fromCode(@JsonProperty("code") String code) {
+    public static IssueChannelEnum from(@JsonProperty("code") String code) {
         return Arrays
                 .stream(values())
                 .filter(t -> t.code.equals(code))

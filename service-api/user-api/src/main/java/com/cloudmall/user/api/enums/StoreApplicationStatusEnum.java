@@ -41,7 +41,7 @@ public enum StoreApplicationStatusEnum {
      * @param code 状态编码
      * @return 匹配状态
      */
-    public static StoreApplicationStatusEnum fromCode(String code) {
+    public static StoreApplicationStatusEnum from(String code) {
         return Arrays
                 .stream(values())
                 .filter(value -> value.code.equals(code))

@@ -37,7 +37,7 @@ public enum CheckoutTypeEnum {
      * @return 匹配的结算类型
      * @throws IllegalArgumentException 编码非法或为 null 时抛出
      */
-    public static CheckoutTypeEnum fromCode(String code) {
+    public static CheckoutTypeEnum from(String code) {
         return Arrays
                 .stream(values())
                 .filter(t -> t.code.equals(code))

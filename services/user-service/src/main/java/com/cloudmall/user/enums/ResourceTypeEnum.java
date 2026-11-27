@@ -88,7 +88,7 @@ public enum ResourceTypeEnum {
      * @return 匹配的 ResourceTypeEnum
      * @throws IllegalArgumentException 无匹配的类型时抛出
      */
-    public static ResourceTypeEnum fromCode(String code) {
+    public static ResourceTypeEnum from(String code) {
         return Arrays
                 .stream(values())
                 .filter(t -> t.code.equals(code))

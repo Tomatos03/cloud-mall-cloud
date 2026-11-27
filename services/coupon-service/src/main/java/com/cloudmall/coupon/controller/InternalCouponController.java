@@ -186,7 +186,7 @@ public class InternalCouponController {
     ) {
         UserCouponPageReq req = new UserCouponPageReq(current, size);
         if (StrUtil.isNotBlank(status)) {
-            req.setStatus(UserCouponStatusEnum.fromCode(status));
+            req.setStatus(UserCouponStatusEnum.from(status));
         }
         return Result.success(userCouponService.pageMine(UserContextHolder.getUserId(), req).getRecords());
     }

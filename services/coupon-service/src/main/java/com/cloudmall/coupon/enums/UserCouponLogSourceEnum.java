@@ -42,7 +42,7 @@ public enum UserCouponLogSourceEnum {
      * @return 匹配的流水来源
      * @throws IllegalArgumentException 编码非法或为 null 时抛出
      */
-    public static UserCouponLogSourceEnum fromCode(String code) {
+    public static UserCouponLogSourceEnum from(String code) {
         return Arrays
                 .stream(values())
                 .filter(t -> t.code.equals(code))

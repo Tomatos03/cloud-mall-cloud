@@ -45,7 +45,7 @@ public enum UserTypeEnum {
      * @throws IllegalArgumentException 编码非法或为 null 时抛出
      */
     @JsonCreator
-    public static UserTypeEnum fromCode(String code) {
+    public static UserTypeEnum from(String code) {
         return Arrays
                 .stream(values())
                 .filter(t -> t.code.equals(code))
@@ -69,7 +69,7 @@ public enum UserTypeEnum {
         if (StrUtil.isBlank(codes)) {
             return Collections.emptySet();
         }
-        return CollStreamUtil.toSet(StrUtil.split(codes, ','), UserTypeEnum::fromCode);
+        return CollStreamUtil.toSet(StrUtil.split(codes, ','), UserTypeEnum::from);
     }
     /**
      * 获取全部合法类型编码。

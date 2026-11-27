@@ -30,7 +30,7 @@ public final class UserContexts {
         return UserContext.builder()
                           .userId(parsedToken.getLong(JwtClaimNames.USER_ID))
                           .username(parsedToken.getString(JwtClaimNames.USERNAME))
-                          .userType(UserTypeEnum.fromCode(parsedToken.getString(JwtClaimNames.USER_TYPE)))
+                          .userType(UserTypeEnum.from(parsedToken.getString(JwtClaimNames.USER_TYPE)))
                           .shopId(parsedToken.getLong(JwtClaimNames.SHOP_ID))
                           .permissionCodes(parsedToken.getStringList(JwtClaimNames.PERMISSION_CODES))
                           .build();

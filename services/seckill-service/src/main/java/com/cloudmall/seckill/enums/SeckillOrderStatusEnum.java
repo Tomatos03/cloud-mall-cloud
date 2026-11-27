@@ -40,7 +40,7 @@ public enum SeckillOrderStatusEnum {
      * @return 匹配的秒杀订单状态
      * @throws IllegalArgumentException 编码非法或为 null 时抛出
      */
-    public static SeckillOrderStatusEnum fromCode(String code) {
+    public static SeckillOrderStatusEnum from(String code) {
         return Arrays
                 .stream(values())
                 .filter(t -> t.code.equals(code))

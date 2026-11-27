@@ -30,7 +30,7 @@ public enum AuditBizTypeEnum {
      * @return 匹配的审核对象类型
      * @throws IllegalArgumentException 编码非法或为 null 时抛出
      */
-    public static AuditBizTypeEnum fromCode(String code) {
+    public static AuditBizTypeEnum from(String code) {
         return Arrays
                 .stream(values())
                 .filter(t -> t.code.equals(code))

@@ -35,7 +35,7 @@ public enum IssuedSourceEnum {
      * @param code 来源编码，如 "PUBLIC_CLAIM"
      * @return 匹配的发放来源
      */
-    public static IssuedSourceEnum fromCode(String code) {
+    public static IssuedSourceEnum from(String code) {
         return Arrays
                 .stream(values())
                 .filter(t -> t.code.equals(code))

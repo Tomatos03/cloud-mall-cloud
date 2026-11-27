@@ -78,7 +78,7 @@ public class SeckillCacheService {
                 String.valueOf(quantity),
                 String.valueOf(ttlSeconds)
         );
-        return SeckillPurchaseResultEnum.fromCode(
+        return SeckillPurchaseResultEnum.from(
                 ObjectUtil.defaultIfNull(code, SeckillPurchaseResultEnum.REPEAT.getCode())
         );
     }

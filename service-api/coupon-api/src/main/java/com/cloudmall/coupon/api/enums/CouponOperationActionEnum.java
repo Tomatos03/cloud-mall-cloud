@@ -60,7 +60,7 @@ public enum CouponOperationActionEnum {
      * @throws IllegalArgumentException 编码非法或为 null 时抛出
      */
     @JsonCreator
-    public static CouponOperationActionEnum fromCode(@JsonProperty("code") String code) {
+    public static CouponOperationActionEnum from(@JsonProperty("code") String code) {
         return Arrays
                 .stream(values())
                 .filter(t -> t.code.equals(code))

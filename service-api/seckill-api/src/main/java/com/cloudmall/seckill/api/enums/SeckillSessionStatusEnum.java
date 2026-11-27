@@ -37,7 +37,7 @@ public enum SeckillSessionStatusEnum {
      * @param code 状态编码
      * @return 匹配的场次状态
      */
-    public static SeckillSessionStatusEnum fromCode(String code) {
+    public static SeckillSessionStatusEnum from(String code) {
         return Arrays
                 .stream(values())
                 .filter(value -> value.code.equals(code))

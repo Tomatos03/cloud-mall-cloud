@@ -49,7 +49,7 @@ public enum ParentOrderStatusEnum {
      * @return 匹配的父订单状态
      * @throws IllegalArgumentException 编码非法或为 null 时抛出
      */
-    public static ParentOrderStatusEnum fromCode(String code) {
+    public static ParentOrderStatusEnum from(String code) {
         return Arrays
                 .stream(values())
                 .filter(t -> t.code.equals(code))

@@ -45,7 +45,7 @@ public enum TradeStateEnum {
      * @param code 状态码
      * @return 匹配枚举
      */
-    public static TradeStateEnum fromCode(String code) {
+    public static TradeStateEnum from(String code) {
         return Arrays.stream(values())
                      .filter(value -> value.code.equals(code))
                      .findFirst()

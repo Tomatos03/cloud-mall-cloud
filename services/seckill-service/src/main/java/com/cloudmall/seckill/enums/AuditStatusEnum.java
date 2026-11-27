@@ -40,7 +40,7 @@ public enum AuditStatusEnum {
      * @return 匹配的审核单状态
      * @throws IllegalArgumentException 编码非法或为 null 时抛出
      */
-    public static AuditStatusEnum fromCode(String code) {
+    public static AuditStatusEnum from(String code) {
         return Arrays
                 .stream(values())
                 .filter(t -> t.code.equals(code))

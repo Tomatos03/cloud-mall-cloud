@@ -36,7 +36,7 @@ public enum SeckillProductAuditStatusEnum {
      * @return 匹配的审核状态
      * @throws IllegalArgumentException 编码非法或为 null 时抛出
      */
-    public static SeckillProductAuditStatusEnum fromCode(String code) {
+    public static SeckillProductAuditStatusEnum from(String code) {
         return Arrays
                 .stream(values())
                 .filter(t -> t.code.equals(code))

@@ -42,7 +42,7 @@ public enum CouponScopeEnum {
      * @throws IllegalArgumentException 编码非法或为 null 时抛出
      */
     @JsonCreator
-    public static CouponScopeEnum fromCode(@JsonProperty("code") String code) {
+    public static CouponScopeEnum from(@JsonProperty("code") String code) {
         return Arrays
                 .stream(values())
                 .filter(t -> t.code.equals(code))

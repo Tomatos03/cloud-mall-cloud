@@ -43,7 +43,7 @@ public enum SeckillActivityStatusEnum {
      * @return 匹配的活动状态
      * @throws IllegalArgumentException 编码非法或为 null 时抛出
      */
-    public static SeckillActivityStatusEnum fromCode(String code) {
+    public static SeckillActivityStatusEnum from(String code) {
         return Arrays
                 .stream(values())
                 .filter(t -> t.code.equals(code))

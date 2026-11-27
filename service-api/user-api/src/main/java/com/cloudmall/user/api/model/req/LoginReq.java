@@ -23,7 +23,7 @@ public class LoginReq {
     /**
      * 用户类型（NORMAL / ADMIN / MERCHANT）。
      * <p>
-     * 反序列化由 {@link UserTypeEnum#fromCode(String)}（@JsonCreator）按编码解析，
+     * 反序列化由 {@link UserTypeEnum#from(String)}（@JsonCreator）按编码解析，
      * 序列化由 {@link UserTypeEnum#getCode()}（@JsonValue）输出编码，
      * JSON 侧以编码字符串传输，如 "NORMAL"。
      */

@@ -187,7 +187,7 @@ public class SeckillActivityService implements ISeckillActivityService {
                 seckillActivityMapper.selectById(id),
                 BizErrorEnum.SECKILL_ACTIVITY_NOT_EXIST
         );
-        SeckillActivityStatusEnum currentStatus = SeckillActivityStatusEnum.fromCode(activity.getStatus());
+        SeckillActivityStatusEnum currentStatus = SeckillActivityStatusEnum.from(activity.getStatus());
 
         // 前置：信息完整 + 未开始；状态合法性由迁移表判定
         Asserts.notBlank(activity.getName(), BizErrorEnum.INVALID_PARAM);
@@ -222,7 +222,7 @@ public class SeckillActivityService implements ISeckillActivityService {
                 seckillActivityMapper.selectById(id),
                 BizErrorEnum.SECKILL_ACTIVITY_NOT_EXIST
         );
-        SeckillActivityStatusEnum currentStatus = SeckillActivityStatusEnum.fromCode(activity.getStatus());
+        SeckillActivityStatusEnum currentStatus = SeckillActivityStatusEnum.from(activity.getStatus());
 
         // DRAFT/PUBLISHED 可取消，RUNNING/FINISHED 不可取消
         Asserts.isTrue(

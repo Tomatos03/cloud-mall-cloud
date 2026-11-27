@@ -36,7 +36,7 @@ public interface StoreApplicationConverter {
         return StoreApplicationDO.builder()
                                  .userId(userId)
                                  .status(StoreApplicationStatusEnum.PENDING)
-                                 .subjectType(StoreSubjectTypeEnum.fromCode(req.getSubjectType()))
+                                 .subjectType(StoreSubjectTypeEnum.from(req.getSubjectType()))
                                  .realName(req.getRealName())
                                  .idCard(req.getIdCard())
                                  .idCardValidStart(parseDate(req.getIdCardValidStart()))

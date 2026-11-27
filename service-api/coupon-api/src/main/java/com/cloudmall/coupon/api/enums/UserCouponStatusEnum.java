@@ -43,7 +43,7 @@ public enum UserCouponStatusEnum {
      * @return 匹配的用户券状态
      * @throws IllegalArgumentException 编码非法或为 null 时抛出
      */
-    public static UserCouponStatusEnum fromCode(String code) {
+    public static UserCouponStatusEnum from(String code) {
         return Arrays
                 .stream(values())
                 .filter(t -> t.code.equals(code))

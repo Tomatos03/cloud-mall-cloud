@@ -28,7 +28,7 @@ public enum TradeTypeEnum {
      * @param code 编码
      * @return 匹配枚举
      */
-    public static TradeTypeEnum fromCode(String code) {
+    public static TradeTypeEnum from(String code) {
         return Arrays.stream(values())
                      .filter(value -> value.code.equals(code))
                      .findFirst()

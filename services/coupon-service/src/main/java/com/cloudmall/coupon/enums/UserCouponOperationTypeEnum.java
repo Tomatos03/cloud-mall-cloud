@@ -49,7 +49,7 @@ public enum UserCouponOperationTypeEnum {
      * @return 匹配的操作类型
      * @throws IllegalArgumentException 编码非法或为 null 时抛出
      */
-    public static UserCouponOperationTypeEnum fromCode(String code) {
+    public static UserCouponOperationTypeEnum from(String code) {
         return Arrays
                 .stream(values())
                 .filter(t -> t.code.equals(code))
